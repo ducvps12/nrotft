@@ -1,0 +1,49 @@
+package models;
+
+import utils.Util;
+
+/*
+ *
+ *
+ *  Box ZALO:https://zalo.me/g/hfaysi616
+ *  sdt zalo: 0372875491
+ * Chuyên chỉnh sữa mua bán source nro,...
+ */
+public class AntiLogin {
+
+    private static final byte MAX_WRONG = 15;
+    private static final int TIME_ANTI = 900000;
+
+    private long lastTimeLogin;
+    private int timeCanLogin;
+
+    public byte wrongLogin;
+
+    public boolean canLogin() {
+        if (lastTimeLogin != -1) {
+            if (Util.canDoWithTime(lastTimeLogin, timeCanLogin)) {
+                this.reset();
+                return true;
+            }
+        }
+        return wrongLogin < MAX_WRONG;
+    }
+
+    public void wrong() {
+        wrongLogin++;
+        if (wrongLogin >= MAX_WRONG) {
+            this.lastTimeLogin = System.currentTimeMillis();
+            this.timeCanLogin = TIME_ANTI;
+        }
+    }
+
+    public void reset() {
+        this.wrongLogin = 0;
+        this.lastTimeLogin = -1;
+        this.timeCanLogin = 0;
+    }
+
+    public String getNotifyCannotLogin() {
+        return "Bạn đã đăng nhập tài khoản sai quá nhiều lần. Vui lòng thử lại sau ít phút";
+    }
+}

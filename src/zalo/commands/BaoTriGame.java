@@ -1,0 +1,97 @@
+package zalo.commands;
+
+import zalo.interfaces.Command;
+import zalo.message.MessageContext;
+import zalo.utils.Apis;
+import zalo.models.ThreadType;
+import zalo.apis.SendMessageApi;
+import zalo.services.NroMaintenanceService;
+import java.util.*;
+
+public class BaoTriGame implements Command {
+
+  @Override
+  public String getName() {
+    return "baotri";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Bảo trì game NRO: .baotri <số phút>";
+  }
+
+  @Override
+  public String getTag() {
+    return "group";
+  }
+
+  @Override
+  public int getCooldown() {
+    return 0;
+  }
+
+  @Override
+  public int getRole() {
+    return 2;
+  }
+
+  @Override
+  public void run(Command.CommandContext context) {
+    try {
+      MessageContext message = context.getMessage();
+      Apis api = context.getApi();
+      List<String> args = context.getArgs();
+
+      String threadId = message.getThreadId();
+      ThreadType threadType = message.getThreadType();
+      Map<String, Object> data = message.getData();
+
+      if (!message.isGroup()) {
+        SendMessageApi.MessageContent msgContent = new SendMessageApi.MessageContent();
+        msgContent.setMsg("Lệnh này chỉ dùng trong nhóm.");
+        msgContent.setQuote(SendMessageApi.createQuoteFromData(data));
+        api.sendMessage.sendMessage(msgContent, threadId, threadType).get();
+        return;
+      }
+
+      if (args == null || args.isEmpty()) {
+        SendMessageApi.MessageContent msgContent = new SendMessageApi.MessageContent();
+        msgContent.setMsg("Sử dụng: .baotri <số phút>\nVí dụ: .baotri 120 - Bảo trì game trong 120 phút");
+        msgContent.setQuote(SendMessageApi.createQuoteFromData(data));
+        api.sendMessage.sendMessage(msgContent, threadId, threadType).get();
+        return;
+      }
+
+      String minutesStr = args.get(0).trim();
+      int minutes;
+
+      try {
+        minutes = Integer.parseInt(minutesStr);
+        if (minutes <= 0) {
+          throw new NumberFormatException();
+        }
+      } catch (NumberFormatException e) {
+        SendMessageApi.MessageContent msgContent = new SendMessageApi.MessageContent();
+        msgContent.setMsg("Số phút không hợp lệ. Vui lòng nhập số nguyên dương.\nVí dụ: .baotri 120");
+        msgContent.setQuote(SendMessageApi.createQuoteFromData(data));
+        api.sendMessage.sendMessage(msgContent, threadId, threadType).get();
+        return;
+      }
+
+      boolean success = NroMaintenanceService.gI().startMaintenance(minutes);
+
+      SendMessageApi.MessageContent msgContent = new SendMessageApi.MessageContent();
+      if (success) {
+        msgContent.setMsg("Đã khởi động bảo trì game NRO trong " + minutes + " phút.");
+      } else {
+
+        msgContent.setMsg("Không thể khởi động bảo trì. Game có thể đang bảo trì hoặc không kết nối được.");
+
+      }
+      msgContent.setQuote(SendMessageApi.createQuoteFromData(data));
+      api.sendMessage.sendMessage(msgContent, threadId, threadType).get();
+    } catch (Exception e) {
+
+    }
+  }
+}

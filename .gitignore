@@ -1,0 +1,31 @@
+# Build output
+build/
+dist/
+nbproject/private/
+
+# Libraries (quá lớn)
+lib/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.vs/
+*.nb-*
+
+# Runtime
+*.log
+*.hprof
+heapdump.hprof
+ddos_blocked.json
+firewall_config.json
+vn_ip_ranges.txt
+ram_config.txt
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary
+*.class
+*.tmp

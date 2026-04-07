@@ -1,0 +1,88 @@
+package models.The23rdMartialArtCongress;
+
+/*
+ *
+ *
+ *  Box ZALO:https://zalo.me/g/hfaysi616
+ *  sdt zalo: 0372875491
+ * Chuyên chỉnh sữa mua bán source nro,...
+ */
+import utils.Functions;
+import java.util.ArrayList;
+import utils.Util;
+import java.util.List;
+import lombok.NonNull;
+import map.Zone;
+import nro.player.Player;
+import nro.server.Maintenance;
+
+public class The23rdMartialArtCongressManager implements Runnable {
+
+    private static The23rdMartialArtCongressManager instance;
+    private long lastUpdate;
+    private static final List<The23rdMartialArtCongress> list = new ArrayList<>();
+
+    public static The23rdMartialArtCongressManager gI() {
+        if (instance == null) {
+            instance = new The23rdMartialArtCongressManager();
+        }
+        return instance;
+    }
+
+    @Override
+    public void run() {
+        loopWithDelay(this::update, 1000);
+    }
+
+    private void loopWithDelay(Runnable task, long intervalMs) {
+        while (!Maintenance.isRunning) {
+            try {
+                long start = System.currentTimeMillis();
+
+                task.run();
+
+                long elapsed = System.currentTimeMillis() - start;
+                Functions.sleep(Math.max(intervalMs - elapsed, 10));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void update() {
+        if (Util.canDoWithTime(lastUpdate, 1000)) {
+            lastUpdate = System.currentTimeMillis();
+            for (int i = list.size() - 1; i >= 0; i--) {
+                if (i < list.size()) {
+                    list.get(i).update();
+                }
+            }
+        }
+    }
+
+    public void add(The23rdMartialArtCongress mc) {
+        list.add(mc);
+    }
+
+    public void remove(The23rdMartialArtCongress mc) {
+        list.remove(mc);
+    }
+
+    public The23rdMartialArtCongress getMC(@NonNull Zone zone) {
+        for (The23rdMartialArtCongress mc : list) {
+            if (mc.getZone().equals(zone)) {
+                return mc;
+            }
+        }
+        return null;
+    }
+
+    public boolean plCheck(Player player) {
+        for (The23rdMartialArtCongress mc : list) {
+            if (mc.getPlayer().id == player.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
