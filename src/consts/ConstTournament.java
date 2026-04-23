@@ -1,10 +1,7 @@
 package consts;
 
 /**
- *
- * Box ZALO:https://zalo.me/g/hfaysi616
- * sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
+ * Hằng số Đại Hội Võ Thuật
  */
 
 public class ConstTournament {
@@ -22,7 +19,7 @@ public class ConstTournament {
     public static final String TEXT_TRUAT_QUYEN = "Bạn đã bị truất quyền thi đấu vì không đến đúng giờ";
     public static final String TEXT_DOI_THU_BO_CUOC = "Bạn đã thắng vì đối thủ đã bỏ cuộc, chờ tại đây để thi đấu vòng tiếp theo";
     public static final String TEXT_NPC_CHAT_ROI_DAI = "Đối thủ đã rơi khỏi võ đài, %1 đã thắng";
-    public static final String TEXT_DANG_KY_THANH_CONG = "Bạn đã đăng ký thành công, nhớ có mặt tại đây trước %1h30\bBây giờ là %2, đến trễ coi như bỏ cuộc";
+    public static final String TEXT_DANG_KY_THANH_CONG = "Bạn đã đăng ký thành công, nhớ có mặt tại đây trước %1h30\\bBây giờ là %2, đến trễ coi như bỏ cuộc";
     public static final String TEXT_CHIA_BUON = "Bạn đã thua, hẹn gặp lại ở giải sau";
     public static final String TEXT_DOI_THU_BO_CUOC_ROI_MAP = "Đối thủ bỏ cuộc, bạn đã chiến thắng";
     public static final String TEXT_XU_THUA_BO_CHAY = "Bạn bị xử thua vì đã bỏ chạy";

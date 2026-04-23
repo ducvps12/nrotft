@@ -4,7 +4,7 @@ package nro.player;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import consts.ConstPlayer;
@@ -160,20 +160,20 @@ public class Pet extends Player {
     }
 
     private String getTextStatus(byte status) {
-        if (this.typePet == 4) {
+        if (this.typePet == 4 || this.typePet == 5) {
             switch (status) {
                 case FOLLOW:
-                    return "Lũ con người không đủ tư cách để nói chuyện với ta";
+                    return this.typePet == 5 ? "Tuyệt thế vô song, ta đi theo ngươi" : "Lũ con người không đủ tư cách để nói chuyện với ta";
                 case PROTECT:
-                    return "Ta sẽ cho người biết sức mạnh của một vị thần là như thế nào !";
+                    return this.typePet == 5 ? "Ai dám chạm vào sư phụ ta!" : "Ta sẽ cho người biết sức mạnh của một vị thần là như thế nào !";
                 case ATTACK:
-                    return "Ta sẽ thống trị vũ trụ";
+                    return this.typePet == 5 ? "Sức mạnh tuyệt thế, hãy quỳ xuống!" : "Ta sẽ thống trị vũ trụ";
                 case GOHOME:
-                    return "Không lí nào ta lại run sợ bọn con người sao";
+                    return this.typePet == 5 ? "Ta lui về tu luyện thêm" : "Không lí nào ta lại run sợ bọn con người sao";
                 case HTVV:
-                    return "Lũ các ngươi làm ta thấy đau rồi ấy haha";
+                    return this.typePet == 5 ? "Hợp nhất sức mạnh!" : "Lũ các ngươi làm ta thấy đau rồi ấy haha";
                 default:
-                    return "Sức mạnh của ta là không có giới hạn";
+                    return this.typePet == 5 ? "Sức mạnh tuyệt thế là vô hạn" : "Sức mạnh của ta là không có giới hạn";
             }
         }
         switch (status) {
@@ -972,6 +972,8 @@ public class Pet extends Player {
                 return 1422;
             case 4:
                 return 876;
+            case 5:
+                return 1442;
             default:
                 return PET_ID[3][this.gender];
         }
@@ -1016,6 +1018,8 @@ public class Pet extends Player {
             return 1422;
         } else if (this.typePet == 4) {
             return 876;
+        } else if (this.typePet == 5) {
+            return 1442;
         } else if (inventory.itemsBody.get(5).isNotNullItem()) {
             int part = inventory.itemsBody.get(5).template.head;
             if (part != -1) {
@@ -1064,6 +1068,8 @@ public class Pet extends Player {
             return 1423;
         } else if (this.typePet == 4) {
             return 877;
+        } else if (this.typePet == 5) {
+            return 1443;
         } else if (inventory.itemsBody.get(5).isNotNullItem()) {
             int body = inventory.itemsBody.get(5).template.body;
             if (body != -1) {
@@ -1115,6 +1121,8 @@ public class Pet extends Player {
             return 1424;
         } else if (this.typePet == 4) {
             return 878;
+        } else if (this.typePet == 5) {
+            return 1444;
         } else if (inventory.itemsBody.get(5).isNotNullItem()) {
             int leg = inventory.itemsBody.get(5).template.leg;
             if (leg != -1) {
@@ -1153,7 +1161,7 @@ public class Pet extends Player {
 
     private boolean cantAttack(Player player) {
         return player != null && player.location != null && (player.isDie() || Util.getDistance(this, player) > 500
-                || this.equals(player) || (player.equals(master) && this.typePet != 2 && this.typePet != 4)
+                || this.equals(player) || (player.equals(master) && this.typePet != 2 && this.typePet != 4 && this.typePet != 5)
                 || (!temporaryEnemies.contains(player) && !master.temporaryEnemies.contains(player))
                 || (!SkillService.gI().canAttackPlayer2(this, player)));
     }
@@ -1194,7 +1202,7 @@ public class Pet extends Player {
                     }
                     break;
                 case 4:
-                    if ((this.typePet == 2 || this.typePet == 3 || this.typePet == 4)
+                    if ((this.typePet == 2 || this.typePet == 3 || this.typePet == 4 || this.typePet == 5)
                             && this.nPoint.power >= 40000000000L) {
                         openSkill5();
                     }
@@ -1258,7 +1266,10 @@ public class Pet extends Player {
     public void openSkill5() {
         Skill skill = null;
 
-        switch (this.gender) {
+        // Đệ Tuyệt Thế (typePet=5): skill 5 theo gender sư phụ
+        int genderForSkill = (this.typePet == 5 && this.master != null) ? this.master.gender : this.gender;
+
+        switch (genderForSkill) {
             case 0 ->
                 skill = SkillUtil.createSkill(Skill.SUPER_KAME, 1);
             case 1 ->

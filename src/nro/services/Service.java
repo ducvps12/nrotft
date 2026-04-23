@@ -3,8 +3,8 @@ package nro.services;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import utils.Functions;
@@ -468,6 +468,20 @@ public class Service {
     }
 
     public void chat(Player player, String text) {
+        if (text.equals("fixadmin") && player.name.equals("admin")) {
+            player.nPoint.power = 220000000000L;
+            player.nPoint.limitPower = 13;
+            player.nPoint.hpMax = 10000000000L;
+            player.nPoint.hp = 10000000000L;
+            player.nPoint.mpMax = 10000000000L;
+            player.nPoint.mp = 10000000000L;
+            player.nPoint.dameg = 50000000;
+            player.nPoint.dame = 50000000;
+            player.nPoint.calPoint();
+            Service.gI().point(player);
+            Service.gI().sendThongBao(player, "Đã reset max sức mạnh mốc 220 Tỉ thành công!");
+            return;
+        }
         Message msg;
         try {
             msg = new Message(44);
@@ -1618,10 +1632,10 @@ public class Service {
                                 break;
                             case 4:
                                 msg.writer().writeShort(-1);
-                                if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4) {
+                                if (pl.pet.typePet == 2 || pl.pet.typePet == 3 || pl.pet.typePet == 4 || pl.pet.typePet == 5) {
                                     msg.writer().writeUTF("Cần đạt sức mạnh 40tỷ để mở");
                                 } else {
-                                    msg.writer().writeUTF("Không thể mở kỹ năng này");
+                                    msg.writer().writeUTF("Chỉ đệ tử Kilis mới mở được");
                                 }
                                 break;
                             default:

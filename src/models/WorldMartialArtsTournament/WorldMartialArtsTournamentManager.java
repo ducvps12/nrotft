@@ -1,11 +1,5 @@
 package models.WorldMartialArtsTournament;
 
-/**
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
 import utils.Functions;
 import consts.ConstTournament;
 import java.util.ArrayList;

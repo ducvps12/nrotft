@@ -1,12 +1,5 @@
 package models.WorldMartialArtsTournament;
 
-/*
- *
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
 import consts.ConstNpc;
 import consts.ConstTournament;
 import item.Item;
@@ -109,8 +102,6 @@ public class WorldMartialArtsTournamentService extends ConstTournament {
                             if (!regCheck(player)) {
                                 ArrayList<String> menu = new ArrayList<>();
                                 if (tour == NGOAI_HANG) {
-                                    // menu.add("Giải\n" + tournamentNames[tour] + "\n(" + tournamentGolds[tour] /
-                                    // 1000 + "k vàng)");
                                     menu.add("Giải\n" + tournamentNames[tour] + "\n(" + tournamentThoiVangs[tour]
                                             + " thỏi vàng)");
                                 } else {

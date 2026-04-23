@@ -4,7 +4,7 @@ package mob;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import nro.services.InventoryService;
@@ -1482,6 +1482,17 @@ public class Mob {
         if (Util.isTrue(1, 200) || (player.actived() && Util.isTrue(1, 100))) {
             list.add(new ItemMap(zone, 861, 1, x, yEnd, player.id));
         }
+
+        // ======================== Drop Sự Kiện - Map Nguyên Thủy (161, 162, 163) ========================
+        if (mapid == 161 || mapid == 162 || mapid == 163) {
+            int[] eventItems = {695, 696, 697, 698}; // Vỏ Ốc, Vỏ Sò, Con Cua, Sao Biển
+            for (int eventItemId : eventItems) {
+                if (Util.isTrue(10, 100)) {
+                    list.add(new ItemMap(zone, eventItemId, 1, x + Util.nextInt(-5, 5), yEnd, player.id));
+                }
+            }
+        }
+
         return list;
     }
 

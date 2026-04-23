@@ -92,16 +92,23 @@ public class ServerManagerUI extends JFrame {
                 new NavItem("Quản Lý Giftcode", "/icon/gift.png", "Giftcode"),
                 new NavItem("Nạp Thẻ & Thưởng", "/icon/topup.png", "TopupReward"),
                 new NavItem("Sự Kiện (Events)", "/icon/calendar.png", "Events"),
+                new NavItem("Hẹn Giờ Sự Kiện", "/icon/calendar.png", "EventTime"),
                 new NavItem("Danh Hiệu (Badges)", "/icon/star.png", "Badges"),
                 new NavItem("Dữ Liệu Bản Đồ", "/icon/map.png", "MapData"),
-                // new NavItem("Quản Lý Drop", "/icon/drop.png", "DropManager"),
+                new NavItem("Quản Lý Drop", "/icon/drop.png", "DropManager"),
                 new NavItem("Dữ Liệu Vật Phẩm", "/icon/item.png", "ItemData"),
+                new NavItem("🌍 Vũ Trụ MTDGame", "/icon/map.png", "Universe"),
+                new NavItem("💰 Tài Chính Vũ Trụ", "/icon/transaction.png", "Economy"),
                 new NavItem("Quản Lý Radar", "/icon/radar.png", "Radar"),
                 new NavItem("Cấu Hình Boss", "/icon/monster.png", "BossConfig"),
                 new NavItem("Bảo Mật & Firewall", "/icon/shield.png", "Security"),
+                new NavItem("🛡 Anti-DDoS", "/icon/shield.png", "AntiDDoS"),
                 new NavItem("Quản Lý Database", "/icon/database.png", "Database"),
                 new NavItem("Phân Tích Traffic", "/icon/traffic.png", "Traffic"),
-                new NavItem("Quản Lý Giao Dịch", "/icon/transaction.png", "Transaction")
+                new NavItem("Quản Lý Giao Dịch", "/icon/transaction.png", "Transaction"),
+                new NavItem("Server Log Viewer", "/icon/traffic.png", "LogViewer"),
+                new NavItem("🔥 Stress Test", "/icon/traffic.png", "StressTest"),
+                new NavItem("Cài Đặt", "/icon/settings.png", "Settings")
         };
 
         sidebar = new JList<>(menuItems);
@@ -192,16 +199,23 @@ public class ServerManagerUI extends JFrame {
         contentPanel.add(new GiftcodePanel(), "Giftcode");
         contentPanel.add(new TopupRewardPanel(), "TopupReward");
         contentPanel.add(new EventPanel(), "Events");
+        contentPanel.add(new EventTimeManagerPanel(), "EventTime");
         contentPanel.add(new BadgesPanel(), "Badges");
         contentPanel.add(new MapPanel(), "MapData");
-        // contentPanel.add(new DropItemPanel(), "DropManager");
+        contentPanel.add(new DropItemPanel(), "DropManager");
         contentPanel.add(new ItemPanel(), "ItemData");
+        contentPanel.add(new UniverseMonitorPanel(), "Universe");
+        contentPanel.add(new EconomyMonitorPanel(), "Economy");
         contentPanel.add(new RadarPanel(), "Radar");
         contentPanel.add(new BossEditorPanel(), "BossConfig");
         contentPanel.add(new SecurityPanel(), "Security");
+        contentPanel.add(new AntiDDoSPanel(), "AntiDDoS");
         contentPanel.add(new DatabasePanel(), "Database");
         contentPanel.add(new TrafficPanel(), "Traffic");
         contentPanel.add(new TransactionPanel(), "Transaction");
+        contentPanel.add(new LogViewerPanel(), "LogViewer");
+        contentPanel.add(new StressTestPanel(), "StressTest");
+        contentPanel.add(new SettingsPanel(), "Settings");
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -239,6 +253,11 @@ public class ServerManagerUI extends JFrame {
         System.out.println(">> Starting Server Engine...");
         new Thread(() -> {
             ServerManager.gI().run();
+            // Auto-start Anti-DDoS protection
+            int autoStarted = ProxyManager.getInstance().autoStartFromConfig();
+            if (autoStarted > 0) {
+                System.out.println(">> Anti-DDoS: Auto-started " + autoStarted + " proxy(s)");
+            }
             EventQueue.invokeLater(() -> setVisible(true));
         }).start();
     }

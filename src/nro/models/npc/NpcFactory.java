@@ -3,8 +3,8 @@ package nro.models.npc;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import Bot.BotManager;
@@ -373,7 +373,7 @@ public class NpcFactory {
                                 break;
                         }
                     }
-                    // VÃI THÔ
+                    // VÃƒI THÃ”
                     case ConstNpc.SET_VAI_THO_TD -> {
                         switch (select) {
                             case 0:

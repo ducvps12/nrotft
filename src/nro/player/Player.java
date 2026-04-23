@@ -4,7 +4,7 @@ package nro.player;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import Bot.DeTuAI;
@@ -1542,7 +1542,7 @@ public class Player implements Runnable {
                         chatMsg = "Á á á! Cơ thể ta chỉ còn bộ xương khô!";
                         break;
 
-                    case 2: // Ma Trơi
+                    case 2: // Ma TrÆ¡i
                         this.itemTime.isMaTroi = true;
                         this.itemTime.lastTimeMaTroi = System.currentTimeMillis();
                         iconId = 6091;

@@ -3,8 +3,8 @@ package clan;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import jdbc.DBConnecter;
@@ -585,7 +585,7 @@ public class Clan {
             }
 
         } catch (Exception e) {
-            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÔNG TIN LEADER");
+            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÃ”NG TIN LEADER");
         }
     }
 
@@ -605,7 +605,7 @@ public class Clan {
             }
 
         } catch (Exception e) {
-            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÔNG TIN LEADER");
+            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÃ”NG TIN LEADER");
         }
     }
 
@@ -625,7 +625,7 @@ public class Clan {
             }
 
         } catch (Exception e) {
-            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÔNG TIN LEADER");
+            Logger.logException(Clan.class, e, "ERROR KHI UPDATE THÃ”NG TIN LEADER");
         }
     }
 

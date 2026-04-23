@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import event.EventManager;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -66,6 +67,7 @@ public class TopupRewardPanel extends JPanel {
         tableMap.put("Mốc Săn Boss (moc_san_boss)", "moc_san_boss");
         tableMap.put("Mốc Sức Mạnh (moc_suc_manh)", "moc_suc_manh");
         tableMap.put("Đua Top Sức Mạnh (moc_suc_manh_top)", "moc_suc_manh_top");
+        tableMap.put("Đua Top Sự Kiện (moc_su_kien_top)", "moc_su_kien_top");
 
         loadCacheData();
         initUI();
@@ -155,6 +157,55 @@ public class TopupRewardPanel extends JPanel {
             loadDataFromTable(currentTable);
         });
         pTop.add(cbTableSelector);
+
+        // Toggle phát thưởng sự kiện
+        JButton btnToggleEvent = new JButton(EventManager.EVENT_RANKING_REWARD ? "🟢 TẮT Phát Quà SK" : "🔴 BẬT Phát Quà SK");
+        btnToggleEvent.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnToggleEvent.setBackground(EventManager.EVENT_RANKING_REWARD ? new Color(40, 167, 69) : new Color(220, 53, 69));
+        btnToggleEvent.setForeground(Color.WHITE);
+        btnToggleEvent.setFocusPainted(false);
+        btnToggleEvent.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnToggleEvent.setBorder(new EmptyBorder(5, 15, 5, 15));
+        btnToggleEvent.addActionListener(e -> {
+            if (EventManager.EVENT_RANKING_REWARD) {
+                // Đang phát -> Tắt: reset điểm
+                int confirm = JOptionPane.showConfirmDialog(this,
+                    "TẮT phát quà sự kiện?\nĐiểm sự kiện của tất cả người chơi sẽ bị RESET về 0!",
+                    "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    EventManager.EVENT_RANKING_REWARD = false;
+                    // Reset điểm trong DB
+                    new Thread(() -> {
+                        try (java.sql.Connection con = jdbc.DBConnecter.getConnectionServer();
+                             java.sql.PreparedStatement ps = con.prepareStatement("UPDATE player SET diem_su_kien = 0")) {
+                            int rows = ps.executeUpdate();
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(this, "Đã tắt phát quà và reset " + rows + " người chơi!");
+                                btnToggleEvent.setText("🔴 BẬT Phát Quà SK");
+                                btnToggleEvent.setBackground(new Color(220, 53, 69));
+                            });
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi reset: " + ex.getMessage()));
+                        }
+                    }).start();
+                }
+            } else {
+                // Đang tắt -> Bật: freeze BXH
+                int confirm = JOptionPane.showConfirmDialog(this,
+                    "BẬT phát quà sự kiện?\nBảng xếp hạng sẽ NGỪNG cập nhật và người chơi có thể nhận quà!",
+                    "Xác nhận", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    EventManager.EVENT_RANKING_REWARD = true;
+                    btnToggleEvent.setText("🟢 TẮT Phát Quà SK");
+                    btnToggleEvent.setBackground(new Color(40, 167, 69));
+                    JOptionPane.showMessageDialog(this, "Đã bật phát quà! BXH sự kiện đã đóng băng.");
+                }
+            }
+        });
+        pTop.add(Box.createHorizontalStrut(20));
+        pTop.add(btnToggleEvent);
+
         add(pTop, BorderLayout.NORTH);
 
         listModel = new DefaultListModel<>();

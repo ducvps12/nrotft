@@ -7,8 +7,8 @@ import utils.Util;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 public class ConstNpc {
@@ -74,8 +74,8 @@ public class ConstNpc {
                         + "Ví dụ nguyên liệu gồm : Quần Xayda Thiên Tứ + 2 món SKH thường ngẫu nhiên\n"
                         + "Bạn sẽ nhận lại được Quần Xayda với chỉ số SKH VIP";
 
-        public static final String NPC_DHVT23 = "Đại hội quy tụ nhiều cao thủ như là Jacky Chun, Thiên Xin Hăng, Tàu Bảy Bảy... Phần thường là 1 rương gỗ chưa nhiều vật phẩm giá trị.\bKhi hạ được 1 đối thủ, phần thưởng sẽ nâng lên 1 cấp.\bRương càng cao cấp, vật phẩm trong đó càng giá trị hơn.\n"
-                        + "Mỗi ngày bạn chỉ được nhận 1 phần thưởng.\bBạn hãy cố gắng hết sức mình\bđể nhận phần thưởng xứng đáng nhất nhé";
+        public static final String NPC_DHVT23 = "Đại hội quy tụ nhiều cao thủ như là Jacky Chun, Thiên Xin Hăng, Tàu Bảy Bảy... Phần thưởng là 1 rương gỗ chứa nhiều vật phẩm giá trị.\\bKhi hạ được 1 đối thủ, phần thưởng sẽ nâng lên 1 cấp.\\bRương càng cao cấp, vật phẩm trong đó càng giá trị hơn.\\n"
+                        + "Mỗi ngày bạn chỉ được nhận 1 phần thưởng.\\bBạn hãy cố gắng hết sức mình\\bđể nhận phần thưởng xứng đáng nhất nhé";
 
         public static final String HUONG_DAN_KHI_GAS_HUY_DIET = "Chúng ta gặp rắc rối rồi\bThượng Đế nói với tôi rằng có 1 loại khí\bgọi là Destron Gas, thứ này không thuộc về nơi đây\n"
                         + "Nó tích tụ trên Trái Đất\bvà nó sẽ hủy diệt mọi mô tế bào sống\bCó tất cả 4 địa điểm mà Thượng Đế bảo tôi nói với cậu\bCậu có thể đến kiểm tra...\n"
@@ -100,9 +100,9 @@ public class ConstNpc {
                         + "Khỉ Bubbles: 320 sức mạnh mỗi phút\bThần Vũ Trụ: 640 sức mạnh mỗi phút\bTổ sư Kaio: 1280 sức mạnh mỗi phút\n"
                         + "Có thể tặng ngọc để thắng mà không cần thách đấu\n"
                         + "Nếu đăng ký tập thường xuyên mỗi khi Offline không cần phải đến đây vẫn tập luyện được";
-        public static final String THONG_TIN_DAI_HOI_VO_THUAT = "Lịch thi đấu trong ngày\bGiải Nhi đồng: 8,14,18h\bGiải Siêu cấp 1: 9,13,19h\bGiải Siêu Cấp 2: 10,15,20h\bGiải Siêu cấp 3: 11,16,21h\bGiải Ngoại hạng: 12,17,22,23h\n"
-                        + "Giải thưởng khi thắng mỗi vòng\bGiải Nhi đồng: 200 ngọc\bGiải Siêu cấp 1: 400 ngọc\bGiải Siêu cấp 2: 600 ngọc\bGiải Siêu cấp 3: 800 ngọc\bGiải Ngoại hạng: 5 thỏi vàng\bVô địch: 5 viên đá nâng cấp\n"
-                        + "Lệ phí đăng ký các giải đấu\bGiải Nhi đồng: 200 ngọc\bGiải Siêu cấp 1: 400 ngọc\bGiải Siêu cấp 2: 600 ngọc\bGiải Siêu cấp 3: 800 ngọc\bGiải Ngoại hạng: 5 thỏi vàng\n"
+        public static final String THONG_TIN_DAI_HOI_VO_THUAT = "Lịch thi đấu trong ngày\\bGiải Nhi đồng: 8,14,18h\\bGiải Siêu cấp 1: 9,13,19h\\bGiải Siêu Cấp 2: 10,15,20h\\bGiải Siêu cấp 3: 11,16,21h\\bGiải Ngoại hạng: 12,17,22,23h\\n"
+                        + "Giải thưởng khi thắng mỗi vòng\\bGiải Nhi đồng: 200 ngọc\\bGiải Siêu cấp 1: 400 ngọc\\bGiải Siêu cấp 2: 600 ngọc\\bGiải Siêu cấp 3: 800 ngọc\\bGiải Ngoại hạng: 5 thỏi vàng\\bVô địch: 5 viên đá nâng cấp\\n"
+                        + "Lệ phí đăng ký các giải đấu\\bGiải Nhi đồng: 200 ngọc\\bGiải Siêu cấp 1: 400 ngọc\\bGiải Siêu cấp 2: 600 ngọc\\bGiải Siêu cấp 3: 800 ngọc\\bGiải Ngoại hạng: 5 thỏi vàng\\n"
                         + "Vui lòng đến đúng giờ để đăng ký thi đấu";
 
         public static final String THONG_TIN_SIEU_HANG = "Giải đấu thể hiện đẳng cấp thực sự\bCác trận đấu diễn ra liên tục bất kể ngày đêm\bBạn hãy tham gia thi đấu để nâng hạng\bvà nhận giải thưởng khủng nhé\n"
@@ -415,7 +415,7 @@ public class ConstNpc {
         public static final int MENU_TOP_THANG_9_VIP = 1817;
         public static final int MENU_TOP_THANG_9 = 1818;
 
-        // 🎃 Halloween Event Menus
+        // ðŸŽƒ Halloween Event Menus
         public static final int MENU_TOP_HALLOWEEN_MASTER = 1901; // Top Halloween tổng hợp (Master)
         public static final int MENU_TOP_HOP_KEO_HALLOWEEN = 1902; // Top Hộp Kẹo Ma Quỷ
         public static final int MENU_TOP_THIEP_HALLOWEEN = 1903; // Top Thiệp Ma Halloween

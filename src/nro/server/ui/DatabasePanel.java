@@ -387,6 +387,38 @@ public class DatabasePanel extends JPanel {
         }).start();
     }
 
+    /**
+     * Tìm đường dẫn mysqldump.exe từ các vị trí phổ biến.
+     */
+    private String findMysqldumpPath() {
+        String[] commonPaths = {
+            "c:\\xampp\\mysql\\bin\\mysqldump.exe",
+            "c:\\wamp\\bin\\mysql\\mysql8.0.31\\bin\\mysqldump.exe",
+            "c:\\wamp64\\bin\\mysql\\mysql8.0.31\\bin\\mysqldump.exe",
+            "c:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe",
+            "c:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysqldump.exe",
+            "c:\\Program Files (x86)\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe",
+        };
+        for (String path : commonPaths) {
+            if (new File(path).exists()) {
+                return path;
+            }
+        }
+        // Also check WAMP with wildcard
+        File wampMysql = new File("c:\\wamp64\\bin\\mysql");
+        if (wampMysql.isDirectory()) {
+            File[] dirs = wampMysql.listFiles(File::isDirectory);
+            if (dirs != null) {
+                for (File dir : dirs) {
+                    File f = new File(dir, "bin\\mysqldump.exe");
+                    if (f.exists()) return f.getAbsolutePath();
+                }
+            }
+        }
+        // Fallback: rely on PATH
+        return "mysqldump";
+    }
+
     private void backupDatabase() {
         log("Đang thực hiện backup...");
         new Thread(() -> {
@@ -406,13 +438,16 @@ public class DatabasePanel extends JPanel {
                 String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
                 String fileName = "backup/" + dbName + "_" + timestamp + ".sql";
 
-                // Try mysqldump
+                // Auto-detect mysqldump path
+                String mysqldumpPath = findMysqldumpPath();
+                log("Sử dụng mysqldump: " + mysqldumpPath);
+
                 ProcessBuilder pb;
                 if (dbPass.isEmpty()) {
-                    pb = new ProcessBuilder("mysqldump", "-h", dbHost, "-P", dbPort,
+                    pb = new ProcessBuilder(mysqldumpPath, "-h", dbHost, "-P", dbPort,
                             "-u", dbUser, "--databases", dbName, "--result-file=" + fileName);
                 } else {
-                    pb = new ProcessBuilder("mysqldump", "-h", dbHost, "-P", dbPort,
+                    pb = new ProcessBuilder(mysqldumpPath, "-h", dbHost, "-P", dbPort,
                             "-u", dbUser, "-p" + dbPass, "--databases", dbName, "--result-file=" + fileName);
                 }
                 pb.redirectErrorStream(true);

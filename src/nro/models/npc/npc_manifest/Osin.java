@@ -1,7 +1,7 @@
 package nro.models.npc.npc_manifest;
 
 /**
- * Box ZALO:https://zalo.me/g/hfaysi616 sdt zalo: 0372875491 Chuyên chỉnh sữa
+ * Box ZALO:https://zalo.me/g/irufas657 sdt zalo: 0376263452 Chuyên chỉnh sữa
  * mua bán source nro,...
  */
 import consts.ConstNpc;
@@ -268,14 +268,14 @@ public class Osin extends Npc {
                                 case 1 ->
                                     createOtherMenu(player, ConstNpc.BUA_HO_TRO,
                                             "Ta có thể làm phép giúp ngươi\nhút nhanh hơn gấp đôi năng lượng tà ác\ntrong 10 phút, tối đa 60 phút",
-                                            "Đồng ý\n5 ngọc", "Từ chối");
+                                            "Đồng ý\n100 hồng ngọc", "Từ chối");
                             }
                         }
 
                         case ConstNpc.BUA_HO_TRO -> {
                             if (select == 0) {
-                                if (player.inventory.getGem() >= 5) {
-                                    player.inventory.subGem(5);
+                                if (player.inventory.ruby >= 100) {
+                                    player.inventory.ruby -= 100;
                                     Service.gI().sendMoney(player);
                                     long currentTime = System.currentTimeMillis();
                                     long addedTime = 10 * 60 * 1000;
@@ -296,7 +296,7 @@ public class Osin extends Npc {
 
                                     ItemTimeService.gI().sendAllItemTime(player);
                                 } else {
-                                    Service.gI().sendThongBao(player, "Bạn không có đủ ngọc!");
+                                    Service.gI().sendThongBao(player, "Bạn không có đủ hồng ngọc! Cần 100 hồng ngọc");
                                 }
                             }
                         }

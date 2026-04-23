@@ -3,8 +3,8 @@ package nro.services;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import models.Template;
@@ -1054,7 +1054,7 @@ public class ItemService {
                     op1 = 130;
                     op2 = 143;
                 } else if (Util.isTrue(50, 100)) {
-                    op1 = 131;
+                    op1 = 251;
                     op2 = 254;
                 } else {
                     op1 = 132;

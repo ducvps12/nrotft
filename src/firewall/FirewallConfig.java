@@ -7,8 +7,8 @@ import utils.Logger;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Cấu hình Firewall - lưu/đọc từ file JSON
@@ -45,10 +45,40 @@ public class FirewallConfig {
     public int gamePort = 14445;
     public int proxyListenPort = 24445;             // Port proxy public
 
+    // ===== ANTI-DDoS MULTI-PORT PROTECTION =====
+    public boolean autoStartProtection = false;     // Tự động bảo vệ khi server start
+    public List<ProtectedPort> protectedPorts = new ArrayList<>();  // Danh sách port được bảo vệ
+
     // ===== IP LISTS =====
     public Set<String> whitelistIPs = new HashSet<>();   // IP luôn được phép
     public Set<String> blacklistIPs = new HashSet<>();   // IP luôn bị chặn
     public Set<String> blockedIPs = new HashSet<>();     // IP đang bị block (runtime)
+
+    /**
+     * Cấu hình 1 port được bảo vệ Anti-DDoS
+     */
+    public static class ProtectedPort {
+        public String label;          // Tên hiển thị: "Web HTTP", "Game Server"...
+        public String targetIP;       // IP đích (VPS)
+        public int targetPort;        // Port đích thực tế
+        public int listenPort;        // Port proxy listen (public)
+        public boolean enabled;       // Có bật hay không
+
+        public ProtectedPort() {}
+
+        public ProtectedPort(String label, String targetIP, int targetPort, int listenPort, boolean enabled) {
+            this.label = label;
+            this.targetIP = targetIP;
+            this.targetPort = targetPort;
+            this.listenPort = listenPort;
+            this.enabled = enabled;
+        }
+
+        @Override
+        public String toString() {
+            return label + " [" + targetIP + ":" + targetPort + " ← :" + listenPort + "]";
+        }
+    }
 
     private FirewallConfig() {
         // Default whitelist
@@ -96,6 +126,8 @@ public class FirewallConfig {
                     this.telegramChatId = loaded.telegramChatId;
                     this.gamePort = loaded.gamePort;
                     this.proxyListenPort = loaded.proxyListenPort;
+                    this.autoStartProtection = loaded.autoStartProtection;
+                    if (loaded.protectedPorts != null) this.protectedPorts = new ArrayList<>(loaded.protectedPorts);
                     if (loaded.whitelistIPs != null) this.whitelistIPs = loaded.whitelistIPs;
                     if (loaded.blacklistIPs != null) this.blacklistIPs = loaded.blacklistIPs;
                     if (loaded.blockedIPs != null) this.blockedIPs = loaded.blockedIPs;

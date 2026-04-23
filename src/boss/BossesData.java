@@ -3,8 +3,8 @@ package boss;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import consts.ConstPlayer;
@@ -1925,7 +1925,7 @@ public class BossesData {
                         REST_1_S);
 
         public static final BossData MA_TROI = new BossData(
-                        "Ma trơi", // name
+                        "Ma trÆ¡i", // name
                         ConstPlayer.XAYDA, // gender
                         new short[] { 651, 652, 653, -1, 1, -1 }, // outfit {head, body, leg, bag, aura, eff}
                         100, // dame
@@ -2103,7 +2103,7 @@ public class BossesData {
                         new int[] { BossID.SON_TINH });
 
         public static final BossData SON_TINH = new BossData(
-                        "Sơn Tinh", // name
+                        "SÆ¡n Tinh", // name
                         ConstPlayer.XAYDA, // gender
                         new short[] { 314, 315, 316, -1, 1, -1 }, // outfit {head, body, leg, bag, aura, eff}
                         1000, // dame
@@ -2235,7 +2235,7 @@ public class BossesData {
                                         "|-1|ù ù khẹc khẹc",
                                         "|-1|khẹc khẹc",
                                         "|-1|éc éc", }, // text chat 2
-                        new String[] { "|-1|Éc Éc Éc Éc!" }, // text chat 3
+                        new String[] { "|-1|Ã‰c Ã‰c Ã‰c Ã‰c!" }, // text chat 3
                         REST_1_S // second rest
         );
 

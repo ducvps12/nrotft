@@ -3,8 +3,8 @@ package data;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import encrypt.IconEncrypt;
@@ -221,16 +221,16 @@ public class DataGame {
     public static void sendDataImageVersion(MySession session) {
         Message msg;
         try {
-            // msg = new Message(-111);
-            // msg.writer().writeShort(0);
-            // msg.writer().writeUTF("NguyenDucVuEntertainment");
-            // msg.writer().writeByte(0);
-            // msg.writer().writeUTF("DucVuPro");
-            // msg.writer().writeByte(1);
-            // msg.writer().writeUTF("VuDangCapVaiLonRaMaBanDeoBietThoiDitMeBan");
-            // msg.writer().writeByte(2);
-            // session.doSendMessage(msg);
-            // msg.cleanup();
+            msg = new Message(-111);
+            msg.writer().writeShort(0);
+            msg.writer().writeUTF("NguyenDucVuEntertainment");
+            msg.writer().writeByte(0);
+            msg.writer().writeUTF("DucVuPro");
+            msg.writer().writeByte(1);
+            msg.writer().writeUTF("VuDangCapVaiLonRaMaBanDeoBietThoiDitMeBan");
+            msg.writer().writeByte(2);
+            session.doSendMessage(msg);
+            msg.cleanup();
         } catch (Exception e) {
             Logger.logException(DataGame.class, e);
         }

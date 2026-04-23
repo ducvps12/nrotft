@@ -3,8 +3,8 @@ package matches;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import matches.pvp.TraThu;
@@ -248,7 +248,7 @@ public class PVPService {
     }
 
     // **************************************************************************TRẢ
-    // THÙ
+    // THÃ™
     public void openSelectRevenge(Player pl, long idEnemy) {
         Player enemy = Client.gI().getPlayer(idEnemy);
         if (enemy == null) {

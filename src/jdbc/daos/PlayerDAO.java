@@ -4,7 +4,7 @@ package jdbc.daos;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import com.google.gson.Gson;
@@ -60,7 +60,7 @@ public class PlayerDAO {
             String location = dataArray.toJSONString();
             dataArray.clear();
 
-            dataArray.add(0); // giới hạn sức mạnh
+            dataArray.add(1); // giới hạn sức mạnh
             dataArray.add(2000); // sức mạnh
             dataArray.add(2000); // tiềm năng
             dataArray.add(1000); // thể lực
@@ -1220,7 +1220,7 @@ public class PlayerDAO {
                         + "baovetaikhoan = ?, data_card = ?, lasttimepkcommeson = ?, bandokhobau = ?, doanhtrai = ?, conduongrandoc = ?, masterDoesNotAttack = ?, "
                         + "nhanthoivang = ?, ruonggo = ?, sieuthanthuy = ?, vodaisinhtu = ?, rongxuong = ?, data_item_event = ?, data_luyentap = ?, data_clan_task = ?, data_vip = ?, "
                         + "rank = ?, data_super_rank = ?, data_achievement = ?, giftcode = ?, firstTimeLogin = ?, dataBadges = ?, dataTaskBadges = ?, dailyGift = ?, "
-                        + "event_point = ?, event_point_boss = ?, event_point_nhs = ?, event_point_quai = ?, diem_quy_lao = ?, "
+                        + "event_point = ?, event_point_boss = ?, event_point_nhs = ?, event_point_quai = ?, diem_quy_lao = ?, diem_su_kien = ?, "
                         + "hp_point_fusion = ?, mp_point_fusion = ?, dame_point_fusion = ?, phaobong = ?, BoughtSkill = ?, LearnSkill = ?, thachdauwhis = ?, point_maydam = ?, total_damage_maydam = ? , nhiem_vu_kol = ?, "
                         + " checkNhanQua = ? where id = ?";
 
@@ -1307,6 +1307,7 @@ public class PlayerDAO {
                         player.event.getEventPointNHS(),
                         player.event.getEventPointQuai(),
                         player.event.getEventPointQuyLao(),
+                        player.event.getDiemSuKien(),
                         player.event.getEventPointQuyLao(),
                         player.pointfusion.getHpFusion(),
                         player.pointfusion.getMpFusion(),

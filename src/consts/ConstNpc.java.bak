@@ -1,0 +1,485 @@
+﻿package consts;
+
+import minigame.TX.TaiXiu;
+import nro.player.Player;
+import utils.Util;
+
+/*
+ *
+ *
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
+ * ChuyÃªn chá»‰nh sá»¯a mua bÃ¡n source nro,...
+ */
+public class ConstNpc {
+
+        public static final String HUONG_DAN_2010 = "Sá»± kiá»‡n 20-11\n"
+                        + "Äá»ƒ cÃ³ nhá»¯ng váº­t pháº©m cáº§n tÃ¬m nhÆ° sau\n"
+                        + "Treo quÃ¡i rÆ¡i: LÃ¡ trÃ  tÆ°Æ¡i, Que tre, Nia tre\n"
+                        + "SÄƒn boss: Máº£nh giáº¥y, Bao bÃ¬ thiá»‡p, keo dÃ¡n\n"
+                        + "Hoa cÃºc vÃ  lá»i chÃºc Ä‘Æ°á»£c bÃ¡n táº¡i santa\n"
+                        + "Sá»­ dá»¥ng Lá»i chÃºc cÃ³ tá»‰ lá»‡ ra pet vÄ©nh vÄ©nh chá»‰ sá»‘ tá»‘i Ä‘a 15%\n"
+                        + "Lá»i chÃºc Äáº·c biá»‡t: thá»i vÃ ng, há»™p 20/11, ÄÃ¡ ngÅ© sáº¯c, Ä‘Ã¡ lá»­a, Ä‘Ã¡ cam, Nro\n"
+                        + "Äáº·c biá»‡t há»™p 20/11 cÃ³ thá»ƒ ra cáº£i trang vÄ©nh viá»…n ráº¥t cao";
+
+        public static final String HUONG_DAN_NAP = "Ta sáº½ giá»›i thiá»‡u con vá» giÃ¡ trá»‹ BONUS khi náº¡p\n"
+                        + "Má»‡nh GiÃ¡ náº¡p quyáº¿t Ä‘á»‹nh tá»›i giÃ¡ trá»‹ náº¡p\b"
+                        + "GiÃ¡ trá»‹ náº¡p cÃ ng cao tá»‰ lá»‡ BONUS tÄƒng cÃ ng cao\b"
+                        + "20k tÄƒng thÃªm 2% giÃ¡ trá»‹ náº¡p\b"
+                        + "50k tÄƒng thÃªm 5% giÃ¡ trá»‹ náº¡p\b"
+                        + "100k tÄƒng thÃªm 7% giÃ¡ trá»‹ náº¡p\b"
+                        + "200k tÄƒng thÃªm 10% giÃ¡ trá»‹ náº¡p\b"
+                        + "500k tÄƒng thÃªm 15% giÃ¡ trá»‹ náº¡p\b"
+                        + "1 triá»‡u tÄƒng thÃªm 20% giÃ¡ trá»‹ náº¡p\b"
+                        + "2 triá»‡u tÄƒng thÃªm 25% giÃ¡ trá»‹ náº¡p\b"
+                        + "5 triá»‡u tÄƒng thÃªm 30% giÃ¡ trá»‹ náº¡p\b"
+                        + "10 triá»‡u tÄƒng thÃªm 35% giÃ¡ trá»‹ náº¡p";
+
+        public static final String CALICK_KE_CHUYEN = "20 nÄƒm trÆ°á»›c bá»n Android sÃ¡t thá»§ Ä‘Ã£ Ä‘Ã¡nh báº¡i nhÃ³m báº£o vá»‡ trÃ¡i Ä‘áº¥t cá»§a SÃ´ngoku vÃ  CaÄ‘Ã­c, PÃ´cÃ´lÃ´ ...\n"
+                        + "RiÃªng SÃ´ngoku vÃ¬ bá»‡nh tim nÃªn Ä‘Ã£ cháº¿t trÆ°á»›c Ä‘Ã³ nÃªn khÃ´ng thá»ƒ tham gia tráº­n Ä‘Ã¡nh...\n"
+                        + "Tá»« Ä‘Ã³ Ä‘áº¿n nay bá»n chÃºng tÃ n phÃ¡ TrÃ¡i Äáº¥t khÃ´ng há» thÆ°Æ¡ng tiáº¿c\n"
+                        + "ChÃ¡u vÃ  máº¹ may máº¯n sá»‘ng sÃ³t nhá» láº©n trá»‘n táº¡i táº§n háº§m cá»§a cÃ´ng ty Capsule...\n"
+                        + "ChÃ¡u tuy cÅ©ng lÃ  siÃªu xayda nhÆ°ng cÅ©ng khÃ´ng thá»ƒ lÃ m gÃ¬ Ä‘Æ°á»£c bá»n Android sÃ¡t thá»§...\n"
+                        + "Chá»‰ cÃ³ SÃ´ngoku má»›i cÃ³ thá»ƒ Ä‘Ã¡nh báº¡i bá»n chÃºng\n"
+                        + "máº¹ chÃ¡u Ä‘Ã£ cháº¿ táº¡o thÃ nh cÃ´ng cá»— mÃ¡y thá»i gian\n"
+                        + "vÃ  chÃ¡u quay vá» quÃ¡ khá»© Ä‘á»ƒ cá»©u SÃ´ngoku...\n"
+                        + "Bá»‡nh cá»§a GÃ´ku á»Ÿ quÃ¡ khá»© lÃ  nan y, nhÆ°ng vá»›i trÃ¬nh Ä‘á»™ y há»c tÆ°Æ¡ng lai chá»‰ cáº§n uá»‘ng thuá»‘c lÃ  khá»i...\n"
+                        + "HÃ£y Ä‘i theo chÃ¡u Ä‘áº¿n tÆ°Æ¡ng lai giÃºp nhÃ³m cá»§a GÃ´ku Ä‘Ã¡nh báº¡n bá»n Android sÃ¡t thá»§\n"
+                        + "Khi nÃ o chÃº cáº§n sá»± giÃºp Ä‘á»¡ cá»§a chÃ¡u hÃ£y Ä‘áº¿n Ä‘Ã¢y nhÃ©";
+
+        public static final String HUONG_DAN_DOANH_TRAI = "1) Tráº¡i Ä‘á»™c nhÃ£n lÃ  nÆ¡i cÃ¡c ngÆ°Æ¡i khÃ´ng nÃªn vÃ o vÃ¬ nhá»¯ng tÆ°á»›ng tÃ¡ ráº¥t máº¡nh. Hahaha\b"
+                        + "2) Trong tráº¡i Ä‘á»™c nhÃ£n, má»—i vá»‹ tÆ°á»›ng Ä‘á»u giá»¯ ngá»c rá»“ng tá»« 4 sao Ä‘áº¿n 6 sao, tÃ¹y lÃºc\n"
+                        + "3) Náº¿u ngÆ°Æ¡i thÃ­ch cháº¿t thÃ¬ cá»© viá»‡c vÃ o. NhÆ°ng ta chá»‰ cho vÃ o má»—i ngÃ y má»™t láº§n thÃ´i, Ä‘á»ƒ ngÆ°Æ¡i khá»i pháº£i cháº¿t nhiá»u, hahaha.\b"
+                        + "4) CÃ¡c vá»‹ tÆ°á»›ng trong tráº¡i ráº¥t máº¡nh nhÃ©, cÃ¡c ngÆ°Æ¡i khÃ´ng Ä‘Æ¡n giáº£n cÃ³ thá»ƒ Ä‘Ã¡nh báº¡i há» báº±ng cÃ¡ch bÃ¬nh thÆ°á»ng nhÆ° Ä‘Ã¡nh quÃ¡i Ä‘Æ°á»£c Ä‘Ã¢u\n"
+                        + "5) Muá»‘n vÃ o, ngÆ°Æ¡i pháº£i Ä‘i cÃ¹ng má»™t ngÆ°á»i Ä‘á»“ng Ä‘á»™i cÃ¹ng bang (pháº£i Ä‘á»©ng gáº§n ngÆ°Æ¡i). NhÆ°ng ta khuyÃªn lÃ  nÃªn Ä‘i 3-4 ngÆ°á»i cÃ¹ng.\b"
+                        + "6) Má»—i láº§n vÃ o, ngÆ°Æ¡i chá»‰ cÃ³ 30 phÃºt Ä‘á»ƒ Ä‘Ã¡nh. Sau 30 phÃºt mÃ  ngÆ°Æ¡i váº«n khÃ´ng tháº¯ng, ta sáº½ cho mÃ¡y bay chá»Ÿ ngÆ°Æ¡i vá» nhÃ .";
+
+        public static final String HUONG_DAN_BLACK_BALL_WAR = "Má»—i ngÃ y tá»« 20h Ä‘áº¿n 21h cÃ¡c hÃ nh tinh cÃ³ Ngá»c Rá»“ng Sao Äen sáº½ xáº£y ra 1 cuá»™c Ä‘áº¡i chiáº¿n\n"
+                        + "NgÆ°á»i nÃ o tÃ¬m tháº¥y vÃ  giá»¯ Ä‘Æ°á»£c Ngá»c Rá»“ng Sao Äen sáº½ mang pháº§n thÆ°á»Ÿng vá» cho bang cá»§a mÃ¬nh trong vÃ²ng 1 ngÃ y\n"
+                        + "LÆ°u Ã½ má»—i bang cÃ³ thá»ƒ chiáº¿m há»¯u nhiá»u viÃªn khÃ¡c nhau nhÆ°ng náº¿u cÃ¹ng loáº¡i cÅ©ng chá»‰ nháº­n Ä‘Æ°á»£c 1 láº§n pháº§n thÆ°á»Ÿng Ä‘Ã³. CÃ³ 2 cÃ¡ch Ä‘á»ƒ tháº¯ng:\n"
+                        + "1) Giá»¯ ngá»c sao Ä‘en trÃªn ngÆ°á»i hÆ¡n 5 phÃºt liÃªn tá»¥c\n"
+                        + "2) Sau 30 phÃºt tham gia tÃ u sáº½ Ä‘Ã³n vá» vÃ  Ä‘ang giá»¯ ngá»c sao Ä‘en trÃªn ngÆ°á»i\n"
+                        + "CÃ¡c pháº§n thÆ°á»Ÿng nhÆ° sau\b1 sao Ä‘en: +21% sá»©c Ä‘Ã¡nh\b2 sao Ä‘en: +35% HP\b"
+                        + "3 sao Ä‘en: Biáº¿n 35% táº¥n cÃ´ng thÃ nh HP\b4 sao Ä‘en: Pháº£n 35% sÃ¡t thÆ°Æ¡ng\b"
+                        + "5 sao Ä‘en: 35% Sá»©c Ä‘Ã¡nh chÃ­ máº¡ng\b6 sao Ä‘en: KI+40%\b7 sao Ä‘en: 14% NÃ© Ä‘Ã²n";
+        public static final String HUONG_DAN_MAP_MA_BU = "Táº¡i khu vá»±c nÃ y, ta Ä‘Ã£ dÃ¹ng ma phÃ¡p phong áº¥n\b"
+                        + "dÃ¹ cÃ¡c ngÆ°Æ¡i cÃ³ máº¡nh Ä‘áº¿n Ä‘Ã¢u\bcÅ©ng sáº½ trá»Ÿ thÃ nh yáº¿u Ä‘uá»‘i nhÆ° nhau\n"
+                        + "Chá»‰ cÃ³ ta vá»›i con nhÃ³c Ã”sin má»›i giáº£i Ä‘Æ°á»£c ma phÃ¡p nÃ y\b"
+                        + "Khi Ä‘Ã³ sá»©c máº¡nh cá»§a ngÆ°Æ¡i sáº½ Ä‘Æ°á»£c\bgiáº£i phÃ³ng theo Ä‘iá»ƒm tÃ­ch lÅ©y (TL)\n"
+                        + "Khi Ä‘á»§ Ä‘iá»ƒm tÃ­ch lÅ©y báº±ng cÃ¡ch\bháº¡ láº«n nhau hoáº·c háº¡ boss\b"
+                        + "ta sáº½ Ä‘Æ°a ngÆ°Æ¡i xuá»‘ng táº§ng tiáº¿p theo";
+        public static final String HUONG_DAN_DOI_SKH_VIP = "NguyÃªn liá»‡u cáº§n Ä‘á»ƒ lÃ m SKH VIP lÃ  :\n"
+                        + "1 Lá» SÆ¡n TÄƒng Dame, 1 mÃ³n ThiÃªn Sá»© vÃ  2 mÃ³n SKH thÆ°á»ng\n"
+                        + "LÆ°u Ã½ SKH VIP sáº½ táº¡o ra Ä‘Æ°a vÃ o mÃ³n ThiÃªn Sá»©\n"
+                        + "VÃ­ dá»¥ nguyÃªn liá»‡u gá»“m : Quáº§n Xayda ThiÃªn Tá»© + 2 mÃ³n SKH thÆ°á»ng ngáº«u nhiÃªn\n"
+                        + "Báº¡n sáº½ nháº­n láº¡i Ä‘Æ°á»£c Quáº§n Xayda vá»›i chá»‰ sá»‘ SKH VIP";
+
+        public static final String NPC_DHVT23 = "Đại hội quy tụ nhiều cao thủ như là Jacky Chun, Thiên Xin Hăng, Tàu Bảy Bảy... Phần thưởng là 1 rương gỗ chứa nhiều vật phẩm giá trị.\\bKhi hạ được 1 đối thủ, phần thưởng sẽ nâng lên 1 cấp.\\bRương càng cao cấp, vật phẩm trong đó càng giá trị hơn.\\n"
+                        + "Mỗi ngày bạn chỉ được nhận 1 phần thưởng.\\bBạn hãy cố gắng hết sức mình\\bđể nhận phần thưởng xứng đáng nhất nhé";
+
+        public static final String HUONG_DAN_KHI_GAS_HUY_DIET = "ChÃºng ta gáº·p ráº¯c rá»‘i rá»“i\bThÆ°á»£ng Äáº¿ nÃ³i vá»›i tÃ´i ráº±ng cÃ³ 1 loáº¡i khÃ­\bgá»i lÃ  Destron Gas, thá»© nÃ y khÃ´ng thuá»™c vá» nÆ¡i Ä‘Ã¢y\n"
+                        + "NÃ³ tÃ­ch tá»¥ trÃªn TrÃ¡i Äáº¥t\bvÃ  nÃ³ sáº½ há»§y diá»‡t má»i mÃ´ táº¿ bÃ o sá»‘ng\bCÃ³ táº¥t cáº£ 4 Ä‘á»‹a Ä‘iá»ƒm mÃ  ThÆ°á»£ng Äáº¿ báº£o tÃ´i nÃ³i vá»›i cáº­u\bCáº­u cÃ³ thá»ƒ Ä‘áº¿n kiá»ƒm tra...\n"
+                        + "Äáº§u tiÃªn lÃ  ThÃ nh phá»‘ Santa tá»a láº¡c á»Ÿ phÃ­a tÃ¢y nam cá»§a thá»§ Ä‘Ã´ á»Ÿ Viá»…n ÄÃ´ng.\n"
+                        + "Thá»© hai lÃ  gáº§n Kim Tá»± ThÃ¡p á»Ÿ vÃ¹ng Sa Máº¡c viá»…n tÃ¢y cá»§a thá»§ Ä‘Ã´ PhÃ­a Báº¯c.\n"
+                        + "Thá»© ba VÃ¹ng Äáº¥t BÄƒng GiÃ¡ á»Ÿ PhÆ°Æ¡ng Báº¯c xa xÃ´i\n"
+                        + "Thá»© tÆ° lÃ  HÃ nh tinh BÃ³ng Tá»‘i Ä‘ang che phá»§ má»™t pháº§n Ä‘á»‹a cáº§u\bCáº­u Ä‘Ã£ hiá»ƒu rÃµ chÆ°a?";
+
+        public static final String HUONG_DAN_BILL = "Äáº¡i há»™i vÃµ thuáº­t liÃªn vÅ© trá»¥\blÃ  nÆ¡i quy tá»¥ cÃ¡c cao thá»§ tá»« kháº¯p cÃ¡c VÅ© Trá»¥\bÄÆ°á»£c tá»• chá»©c hÃ ng ngÃ y táº¡i cÃ¡c thá»i Ä‘iá»ƒm nhÆ° sau:\n"
+                        + "Thá»© 2: 6h, Thá»© 3: 13h, Thá»© 4: 15h\bThá»© 5: 17h, Thá»© 6: 18h, Thá»© 7: 12h, Chá»§ Nháº­t 10h\bVá»›i cÃ¡c pháº§n thÆ°á»Ÿng vÃ´ cÃ¹ng háº¥p dáº«n nhÆ° sau\n"
+                        + "Top 10: 1 phiáº¿u giáº£m giÃ¡, 1 capsule VÃ ng\bTop 1: táº·ng thÃªm 1 RaÄ‘a cáº¥p 13\bPháº§n thÆ°á»Ÿng Ä‘Æ°á»£c trao táº¡i vÅ© trá»¥ cá»§a chiáº¿n binh\bÄáº¿n gáº·p Whis táº¡i vÅ© trá»¥ cá»§a ngÆ°Æ¡i Ä‘á»ƒ nháº­n thÆ°á»Ÿng";
+
+        public static final String HUONG_DAN_NRNM = "Äá»ƒ gá»i Ä‘Æ°á»£c Rá»“ng Tháº§n Namáº¿c, anh cáº§n pháº£i lÃ m cÃ¡c viá»‡c sau\b"
+                        + "1) Äang cÃ³ bang há»™i\b2) Táº­p há»p Ä‘á»§ 7 viÃªn ngá»c rá»“ng Namáº¿c táº¡i Ä‘Ã¢y\b3) Em sáº½ gá»i rá»“ng vÃ  anh nÃ o giá»¯ ngá»c 1 sao sáº½ Ä‘Æ°á»£c chá»n Ä‘iá»u Æ°á»›c\b"
+                        + "4) Thá»i gian gá»i Rá»“ng Tháº§n lÃ  8h-22h\n"
+                        + "(LÆ°u Ã½) Äiá»u Æ°á»›c sáº½ cÃ³ tÃ¡c dá»¥ng vá»›i táº¥t cáº£ thÃ nh viÃªn trong bang cÃ³ máº·t táº¡i Ä‘Ã¢y\b"
+                        + "Sau khi Ä‘iá»u Æ°á»›c Ä‘Æ°á»£c thá»±c hiá»‡n, táº¥t cáº£ ngá»c sáº½ biáº¿n thÃ nh Ä‘Ã¡ trong 1 ngÃ y\b"
+                        + "Nhá»¯ng ai vá»«a nháº­n Ä‘iá»u Æ°á»›c, hoáº·c bang há»™i nháº­n Ä‘iá»u Æ°á»›c\b"
+                        + "pháº£i chá» 7 ngÃ y sau má»›i cÃ³ thá»ƒ nháº­n Ä‘iá»u Æ°á»›c khÃ¡c";
+        public static final String TAP_TU_DONG = "Táº­p luyá»‡n váº«n tiáº¿p tá»¥c vÃ  sá»©c máº¡nh váº«n tÄƒng khi Ä‘Ã£ Offline\n"
+                        + "Hiá»‡u quáº£ táº­p luyá»‡n nhÆ° sau:\bTháº§n MÃ¨o: 20 sá»©c máº¡nh má»—i phÃºt\bYajirÃ´: 40 sá»©c máº¡nh má»—i phÃºt\bMr.PÃ´PÃ´: 80 sá»©c máº¡nh má»—i phÃºt\bThÆ°á»£ng Ä‘áº¿: 160 sá»©c máº¡nh má»—i phÃºt\n"
+                        + "Khá»‰ Bubbles: 320 sá»©c máº¡nh má»—i phÃºt\bTháº§n VÅ© Trá»¥: 640 sá»©c máº¡nh má»—i phÃºt\bTá»• sÆ° Kaio: 1280 sá»©c máº¡nh má»—i phÃºt\n"
+                        + "CÃ³ thá»ƒ táº·ng ngá»c Ä‘á»ƒ tháº¯ng mÃ  khÃ´ng cáº§n thÃ¡ch Ä‘áº¥u\n"
+                        + "Náº¿u Ä‘Äƒng kÃ½ táº­p thÆ°á»ng xuyÃªn má»—i khi Offline khÃ´ng cáº§n pháº£i Ä‘áº¿n Ä‘Ã¢y váº«n táº­p luyá»‡n Ä‘Æ°á»£c";
+        public static final String THONG_TIN_DAI_HOI_VO_THUAT = "Lịch thi đấu trong ngày\\bGiải Nhi đồng: 8,14,18h\\bGiải Siêu cấp 1: 9,13,19h\\bGiải Siêu Cấp 2: 10,15,20h\\bGiải Siêu cấp 3: 11,16,21h\\bGiải Ngoại hạng: 12,17,22,23h\\n"
+                        + "Giải thưởng khi thắng mỗi vòng\\bGiải Nhi đồng: 200 ngọc\\bGiải Siêu cấp 1: 400 ngọc\\bGiải Siêu cấp 2: 600 ngọc\\bGiải Siêu cấp 3: 800 ngọc\\bGiải Ngoại hạng: 5 thỏi vàng\\bVô địch: 5 viên đá nâng cấp\\n"
+                        + "Lệ phí đăng ký các giải đấu\\bGiải Nhi đồng: 200 ngọc\\bGiải Siêu cấp 1: 400 ngọc\\bGiải Siêu cấp 2: 600 ngọc\\bGiải Siêu cấp 3: 800 ngọc\\bGiải Ngoại hạng: 5 thỏi vàng\\n"
+                        + "Vui lòng đến đúng giờ để đăng ký thi đấu";
+
+        public static final String THONG_TIN_SIEU_HANG = "Giáº£i Ä‘áº¥u thá»ƒ hiá»‡n Ä‘áº³ng cáº¥p thá»±c sá»±\bCÃ¡c tráº­n Ä‘áº¥u diá»…n ra liÃªn tá»¥c báº¥t ká»ƒ ngÃ y Ä‘Ãªm\bBáº¡n hÃ£y tham gia thi Ä‘áº¥u Ä‘á»ƒ nÃ¢ng háº¡ng\bvÃ  nháº­n giáº£i thÆ°á»Ÿng khá»§ng nhÃ©\n"
+                        + "CÆ¡ cáº¥u giáº£i thÆ°á»Ÿng nhÆ° sau\b(chá»‘t vÃ  trao giáº£i ngáº«u nhiÃªn tá»« 20h-23h má»—i ngÃ y)\bTop 1 thÆ°á»Ÿng 100 ngá»c\bTop 2-10 thÆ°á»Ÿng 20 ngá»c\bTop 11-100 thÆ°á»Ÿng 5 ngá»c\bTop 101-1000 thÆ°á»Ÿng 1 ngá»c\n"
+                        + "Má»—i ngÃ y cÃ¡c báº¡n Ä‘Æ°á»£c táº·ng 1 vÃ© tham dá»± miá»…n phÃ­\b(tÃ­ch lÅ©y tá»‘i Ä‘a 3 vÃ©) khi thua sáº½ máº¥t Ä‘i 1 vÃ©\bKhi háº¿t vÃ© báº¡n pháº£i tráº£ 1 ngá»c Ä‘á»ƒ Ä‘áº¥u tiáº¿p\b(trá»« ngá»c khi tráº­n Ä‘áº¥u káº¿t thÃºc)\n"
+                        + "Báº¡n khÃ´ng thá»ƒ thi Ä‘áº¥u vá»›i Ä‘áº¥u thá»§\bcÃ³ háº¡ng nhá» hÆ¡n mÃ¬nh\bChÃºc báº¡n may máº¯n, chÃ o Ä‘oÃ n káº¿t vÃ  quyáº¿t tháº¯ng";
+        // npcid
+        public static final byte ONG_GOHAN = 0;
+        public static final byte ONG_PARAGUS = 1;
+        public static final byte ONG_MOORI = 2;
+        public static final byte RUONG_DO = 3;
+        public static final byte DAU_THAN = 4;
+        public static final byte CON_MEO = 5;
+        public static final byte KHU_VUC = 6;
+        public static final byte BUNMA = 7;
+        public static final byte DENDE = 8;
+        public static final byte APPULE = 9;
+        public static final byte DR_DRIEF = 10;
+        public static final byte CARGO = 11;
+        public static final byte CUI = 12;
+        public static final byte QUY_LAO_KAME = 13;
+        public static final byte TRUONG_LAO_GURU = 14;
+        public static final byte VUA_VEGETA = 15;
+        public static final byte URON = 16;
+        public static final byte BO_MONG = 17;
+        public static final byte THAN_MEO_KARIN = 18;
+        public static final byte THUONG_DE = 19;
+        public static final byte THAN_VU_TRU = 20;
+        public static final byte BA_HAT_MIT = 21;
+        public static final byte TRONG_TAI = 22;
+        public static final byte GHI_DANH = 23;
+        public static final byte RONG_THIENG = 24;
+        public static final byte LINH_CANH = 25;
+        public static final byte DOC_NHAN = 26;
+        public static final byte RONG_THIENG_NAMEC = 27;
+        public static final byte CUA_HANG_KY_GUI = 28;
+        public static final byte RONG_OMEGA = 29;
+        public static final byte RONG_2S = 30;
+        public static final byte RONG_3S = 31;
+        public static final byte RONG_4S = 32;
+        public static final byte RONG_5S = 33;
+        public static final byte RONG_6S = 34;
+        public static final byte RONG_7S = 35;
+        public static final byte RONG_1S = 36;
+        public static final byte BUNMA_TL = 37;
+        public static final byte CALICK = 38;
+        public static final byte SANTA = 39;
+        public static final byte MABU_MAP = 40;
+        public static final byte TRUNG_THU = 41;
+        public static final byte QUOC_VUONG = 42;
+        public static final byte TO_SU_KAIO = 43;
+        public static final byte OSIN = 44;
+        public static final byte KIBIT = 45;
+        public static final byte BABIDAY = 46;
+        public static final byte GIUMA_DAU_BO = 47;
+        public static final byte NGO_KHONG = 48;
+        public static final byte DUONG_TANG = 49;
+        public static final byte QUA_TRUNG = 50;
+        public static final byte DUA_HAU = 51;
+        public static final byte HUNG_VUONG = 52;
+        public static final byte TAPION = 53;
+        public static final byte LY_TIEU_NUONG = 54;
+        public static final byte BILL = 55;
+        public static final byte WHIS = 56;
+        public static final byte CHAMPA = 57;
+        public static final byte VADOS = 58;
+        public static final byte TRONG_TAI_2 = 59;
+        public static final byte GOKU_SSJ = 60;
+        public static final byte GOKU_SSJ_2 = 61;
+        public static final byte POTAGE = 62;
+        public static final byte JACO = 63;
+        public static final byte YARIROBE = 65;
+        public static final byte NOI_BANH = 66;
+        public static final byte MR_POPO = 67;
+        public static final byte PANCHY = 68;
+        public static final byte THO_DAI_CA = 69;
+        public static final byte BARDOCK = 70;
+        public static final byte TORI_BOT = 72;
+        public static final byte FIDE = 74;
+        public static final byte CADIC = 75;
+        public static final byte DAI_THIEN_SU = 77;
+        public static final byte QUOC_VUONG_TRANH_NGOC = 78;
+        public static final byte BROLY_SAMA = 79;
+        public static final byte RUONG_SUU_TAP = 80;
+        public static final byte MYUU = 81;
+        public static final byte CHI_CHI = 82;
+        public static final byte QUAY_NUOC_MIA = 83;
+        public static final byte NPC_TRUNG_THU = 84;
+        public static final byte CAY_NEU = 85;
+        public static final byte CAY_THONG = 86;
+        public static final byte PHO_ANH_HAI = 87;
+        public static final byte HOA_HONG = 104;
+        public static final byte HAI_HOA_HONG = 105;
+        public static final byte BULMA_THO = 109;
+        // ----------------------index menu------------------------------------------
+        // menu o len tang map mabu
+        public static final int GO_UPSTAIRS_MENU = 10000;
+
+        // index menu base
+        public static final int IGNORE_MENU = 72002;
+        public static final int BASE_MENU = 31072002;
+        public static final int BASE_MENU_TRANH_NGOC = 31072003;
+        public static final int BASE_MENU_DUA_NGOC = 31072004;
+
+        // index quy lÃ£o kamÃª
+        public static final int MENU_OPEN_DBKB = 500;
+        public static final int MENU_OPENED_DBKB = 501;
+        public static final int MENU_ACCEPT_GO_TO_BDKB = 502;
+        public static final int MO_RONG_COLLECTION_BOX = 251013;
+
+        // index than vu tru
+        public static final int MENU_DI_CHUYEN = 500;
+
+        // index menu ba hat mit
+        public static final int MENU_OPTION_SHOP_BUA = 500;
+        public static final int MENU_START_COMBINE = 501;
+        public static final int MENU_NANG_DOI_SKH_VIP = 502;
+        public static final int MENU_CHE_TAO_CHAN_MENH = 503;
+        public static final int MENU_NANG_CAP_CHAN_MENH = 504;
+        public static final int MENU_SACH_TUYET_KY = 505;
+
+        // index menu whis
+        public static final int MENU_DAP_DO = 508;
+        // tranh ngá»c
+        public static final int REGISTER_TRANH_NGOC = 800;
+        public static final int LOG_OUT_TRANH_NGOC = 801;
+        // index menu linh canh
+        public static final int MENU_JOIN_DOANH_TRAI = 502;
+
+        // index menu con meo
+        public static final int MAKE_MATCH_PVP = 502;
+        public static final int MAKE_FRIEND = 503;
+        public static final int REVENGE = 504;
+        public static final int TUTORIAL_SUMMON_DRAGON = 505;
+        public static final int SUMMON_SHENRON = 506;
+        public static final int INTRINSIC = 507;
+        public static final int CONFIRM_OPEN_INTRINSIC = 508;
+        public static final int CONFIRM_OPEN_INTRINSIC_VIP = 509;
+        public static final int CONFIRM_LEAVE_CLAN = 510;
+        public static final int CONFIRM_NHUONG_PC = 511;
+        public static final int MENU_ADMIN = 512;
+        public static final int MENU_BOT = 534;
+        public static final int BAN_PLAYER = 513;
+        public static final int BUFF_PET = 514;
+        public static final int CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND = 515;
+        public static final int MENU_FIND_PLAYER = 516;
+        public static final int CONFIRM_DISSOLUTION_CLAN = 517;
+        public static final int CONFIRM_TELE_NAMEC = 522;
+        public static final int UP_TOP_ITEM = 527;
+        public static final int MA_BAO_VE = 528;
+        public static final int OTT = 529;
+        public static final int OTT_ACCEPT = 530;
+        public static final int RUONG_GO = 531;
+        public static final int DAT_CUOC_HAT_MIT = 532;
+        public static final int BUY_BACK = 533;
+        public static final int MENU_OPTION_USE_ITEM726 = 726;
+        public static final int MENU_SIEU_THAN_THUY = 2006;
+        public static final int MENU_XUONG_TANG_DUOI = 2007;
+
+        // index menu rong thieng
+        public static final int SHENRON_CONFIRM = 501;
+        public static final int SHENRON_1_1 = 502;
+        public static final int SHENRON_1_2 = 503;
+        public static final int SHENRON_2 = 504;
+        public static final int SHENRON_3 = 505;
+        public static final int SHENRON_1_3 = 506;
+        public static final int SHOW_SHENRON_NAMEK_CONFIRM = 31720020;
+        public static final int SHENRON_NAMEK_CONFIRM = 31720021;
+        public static final int SUMMON_SHENRON_EVENT = 31720022;
+        public static final int SHOW_SHENRON_EVENT_CONFIRM = 31720023;
+        public static final int SHENRON_EVENT_CONFIRM = 31720024;
+
+        public static final int SUB_MENU = 31720025;
+        public static final int TAP_TU_DONG_CONFIRM = 31720026;
+        public static final int MENU_CLAN_UP = 4;
+        public static final int MENU_CLAN_TASK = 5;
+        public static final int MENU_CLAN_TASK_REMOVE = 6;
+
+        public static final int DANGKYDHVT_CONFIRM = 0;
+
+        // index menu magic tree
+        public static final int MAGIC_TREE_NON_UPGRADE_LEFT_PEA = 501;
+        public static final int MAGIC_TREE_NON_UPGRADE_FULL_PEA = 502;
+        public static final int MAGIC_TREE_CONFIRM_UPGRADE = 503;
+        public static final int MAGIC_TREE_UPGRADE = 504;
+        public static final int MAGIC_TREE_CONFIRM_UNUPGRADE = 505;
+
+        // index menu mabu egg
+        public static final int CAN_NOT_OPEN_EGG = 500;
+        public static final int CAN_OPEN_EGG = 501;
+        public static final int CONFIRM_OPEN_EGG = 502;
+        public static final int CONFIRM_DESTROY_EGG = 503;
+
+        // index menu bill egg
+        public static final int CAN_NOT_OPEN_BILL = 500;
+        public static final int CAN_OPEN_BILL = 501;
+        public static final int CONFIRM_OPEN_BILL = 502;
+        public static final int CONFIRM_DESTROY_BILL = 503;
+
+        // index menu npc nhÃ 
+        public static final int QUA_TAN_THU = 500;
+
+        public static final int MENU_PHAN_THUONG = 501;
+
+        public static final int NAP_THE = 502;
+
+        public static final int NAP_TIEN = 503;
+
+        public static final int MOC_QUA_TANG = 507;
+
+        public static final int NAP_VANG = 504;
+
+        public static final int NAP_NGOC = 505;
+
+        public static final int CHUYEN_KHOAN = 506;
+
+        public static final int CONTENT_CHUYEN_KHOAN = 525;
+        // index menu quá»‘c vÆ°Æ¡ng
+        public static final int OPEN_POWER_MYSEFT = 500;
+        public static final int OPEN_POWER_PET = 501;
+
+        // index menu thÆ°á»£ng Ä‘áº¿
+        public static final int MENU_CHOOSE_LUCKY_ROUND = 500;
+
+        // index menu cui
+        public static final int MENU_FIND_KUKU = 501;
+        public static final int MENU_FIND_MAP_DAU_DINH = 502;
+        public static final int MENU_FIND_RAMBO = 503;
+
+        // index menu rá»“ng omega
+        public static final int MENU_NOT_OPEN_BDW = 500;
+        public static final int MENU_OPEN_BDW = 501;
+        public static final int MENU_REWARD_BDW = 502;
+        // index menu osin
+        public static final int MENU_NOT_OPEN_MMB = 500;
+        public static final int MENU_OPEN_MMB = 501;
+        public static final int MENU_REWARD_MMB = 502;
+
+        // index menu rá»“ng sao Ä‘en
+        public static final int MENU_PHU_HP = 500;
+        public static final int MENU_OPTION_PHU_HP = 501;
+        public static final int MENU_OPTION_GO_HOME = 502;
+
+        // index menu bÃ² má»™ng
+        public static final int MENU_OPTION_LEVEL_SIDE_TASK = 500;
+        public static final int MENU_OPTION_PAY_SIDE_TASK = 501;
+        public static final int CHUC_NANG_BANG_HOI = 530;
+        public static final int CHUC_NANG_BANG_HOI2 = 531;
+        public static final int MENU_BO_MONG = 532;
+
+        // ------------------------------shop id-------------------------------------
+        // npcname_shoporder
+        public static final int SHOP_BUNMA_QK_0 = 500;
+        public static final int SHOP_DENDE_0 = 501;
+        public static final int SHOP_APPULE_0 = 502;
+        public static final int SHOP_SANTA_0 = 503;
+        public static final int SHOP_SANTA_1 = 504;
+        public static final int SHOP_URON_0 = 505;
+        public static final int SHOP_BA_HAT_MIT_0 = 506;
+        public static final int SHOP_BA_HAT_MIT_1 = 507;
+        public static final int SHOP_BA_HAT_MIT_2 = 508;
+        public static final int SIDE_BOX_LUCKY_ROUND = 509;
+        public static final int SHOP_BUNMA_TL_0 = 510;
+        public static final int SIDE_BOX_ITEM_REWARD = 511;
+        public static final int MAIL_BOX = 5558;
+        public static final int CONFIRM_REMOVE_ALL_ITEM_MAIL_BOX = 5559;
+        public static final int SHOP_LEARN_SKILL = 5560;
+        public static final int MENU_KOL = 5561;
+
+        public static final int CHUC_NANG_PHA_LE = 0;
+        public static final int PHA_LE_HOA_TRANG_BI = 2;
+        public static final int CHUYEN_HOA_TRANG_BI = 3;
+
+        public static final int SACH_TUYET_KY = 0;
+        public static final int DONG_THANH_SACH_CU = 1;
+        public static final int DOI_SACH_TUYET_KY = 2;
+
+        public static final int HOC_TUYET_KY = 0;
+
+        public static final int LEARN_SKILL = 10;
+        public static final int FAST_LEARN_SKILL = 11;
+
+        public static final int CHE_TAO_TRANG_BI_THIEN_SU = 1;
+
+        public static final int HOP_QUA_THAN_LINH = 251003;
+
+        public static final int SET_TLTD = 1200;
+        public static final int SET_TLNM = 1201;
+        public static final int SET_TLXD = 1202;
+        public static final int SET_HDTD = 1300;
+        public static final int SET_HDNM = 1301;
+        public static final int SET_HDXD = 1302;
+        public static final int SET_VAI_THO_TD = 1303;
+        public static final int SET_VAI_THO_NM = 1304;
+        public static final int SET_VAI_THO_XD = 1305;
+        public static final int MENU_OPTION_USE_ITEM1703 = 1703;
+        public static final int MENU_OPTION_USE_ITEM1704 = 1704;
+        public static final int MENU_OPTION_USE_ITEM1536 = 1536;
+        public static final int RECEIVE_KOL_TASK = 251014;
+        public static final int MENU_QUAN_LY_SERVER = 251015;
+
+        public static final int MENU_OPTION_USE_ITEM1806 = 1806;
+        public static final int MENU_OPTION_USE_ITEM1807 = 1807;
+        public static final int MENU_OPTION_USE_ITEM1808 = 1808;
+        public static final int MENU_OPEN_SUKIEN_BINH = 1809;
+
+        // poke
+        public static final int MENU_DOI_THUONG = 1815;
+        public static final int MENU_TOP_BONG_MASTER = 1816;
+        public static final int MENU_TOP_THANG_9_VIP = 1817;
+        public static final int MENU_TOP_THANG_9 = 1818;
+
+        // ðŸŽƒ Halloween Event Menus
+        public static final int MENU_TOP_HALLOWEEN_MASTER = 1901; // Top Halloween tá»•ng há»£p (Master)
+        public static final int MENU_TOP_HOP_KEO_HALLOWEEN = 1902; // Top Há»™p Káº¹o Ma Quá»·
+        public static final int MENU_TOP_THIEP_HALLOWEEN = 1903; // Top Thiá»‡p Ma Halloween
+
+        // event trung thu
+        public static final int MENU_HOP_QUA_TRUNG_THU_VIP = 1819;
+        public static final int MENU_LONG_DEN_TREO = 1820;
+        // event 20-11 -halowen
+        public static final int MENU_TRA_HOA_CUC = 1821;
+        public static final int MENU_MA_QUY = 1822;
+        public static final int MENU_CAPSULE_VIP = 1823;
+        public static final int MENU_THIEP_CHUC_VIP = 1824;
+        public static final int MENU_HOP_QUA_2010 = 1825;
+        // menu náº¥u bÃ¡nh
+        public static final int MENU_DUA_TOP = 1810;
+        public static final int MENU_BANH_TET = 1811;
+        public static final int MENU_BANH_TET_2 = 1812;
+        public static final int MENU_BANH_CHUNG = 1813;
+        public static final int MENU_BANH_CHUNG_2 = 1814;
+        public static final int BASE_MENU_INDEX = 1815;
+        // menu náº¥u bÃ¡nh trung thu
+        public static final int MENU_BANH_TRUNG_THU_GA_QUAY = 1817;
+        public static final int MENU_BANH_TRUNG_THU_GA_QUAY_2 = 1816;
+        public static final int MENU_BANH_TRUNG_THU_GA_QUAY_HAO_HAN = 1818;
+        public static final int MENU_BANH_TRUNG_THU_GA_QUAY_HAO_HAN_2 = 1819;
+        public static final int MENU_BANH_TRUNG_THU_HAT_SEN = 1820;
+        public static final int MENU_BANH_TRUNG_THU_HAT_SEN_2 = 1821;
+        public static final int MENU_DOI_THO_CUNG = 1822;
+        // cÃ¢y thÃ´ng noel
+        public static final int MENU_DOI_VPSK = 325236;
+        public static final int MENU_DOI_VPSK_2 = 325237;
+        public static final int MENU_DOI_VPSK_1 = 325238;
+        public static final int MENI_XEM_DIEM = 235236;
+        public static final int MAY_DAM = 235239;
+
+        public static final int MENU_OPEN_MMB_WITH_JAR = 1001;
+        public static final int MENU_OPEN_MMB_NO_JAR = 1002;
+        public static final int MENU_NOT_OPEN_MMB_WITH_JAR = 1003;
+        public static final int MENU_NOT_OPEN_MMB_NO_JAR = 1004;
+        public static final int BUA_HO_TRO = 1005;
+        public static final int BINH_HUT_NANG_LUONG = 1006;
+        public static final int MENU_NANG_GIOI_HAN = 1007;
+        public static final int LAM_HOP_KEO_MA_QUY = 533;
+        public static final int LAM_HOP_KEO_MA_QUY_2 = 532;
+        public static final int LAM_HOP_KEO_MA_QUY_x10 = 534;
+        public static final int LAM_HOP_KEO_MA_QUY_x10_2 = 535;
+        // menu envent 20-11
+        public static final int LAM_TUI_TRA_KHO = 517;
+        public static final int LAM_TUI_TRA_KHO_2 = 518;
+        public static final int HOP_TRA = 519;
+        public static final int HOP_TRA_2 = 520;
+        public static final int HOP_TRA_HOA_CUC = 521;
+        public static final int HOP_TRA_HOA_CUC_2 = 522;
+        public static final int THIEP_CHUC_THUONG_2 = 523;
+        public static final int THIEP_CHUC_THUONG = 524;
+        public static final int THIEP_CHUC_DAC_BIET = 525;
+        public static final int THIEP_CHUC_DAC_BIET_2 = 526;
+        public static final int TRANG_TRI_THUONG = 527;
+        public static final int TRANG_TRI_THUONG_2 = 528;
+        public static final int TRANG_TRI_VIP = 531;
+        public static final int TRANG_TRI_VIP_2 = 530;
+        // skh
+        public static final int MENU_OPTION_USE_ITEM1655 = 1655;
+        public static final int menutd = 1106;
+        public static final int menunm = 1107;
+        public static final int menuxd = 1108;
+}

@@ -19,6 +19,7 @@ public class EventManager {
     public static boolean EVENT_POKEMON = false;
     public static boolean TEACHERS_DAY = false;
     public static boolean PHO_ANH_HAI = false;
+    public static boolean EVENT_RANKING_REWARD = false;
 
     public static EventManager gI() {
         if (instance == null) {

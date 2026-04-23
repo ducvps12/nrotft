@@ -3,8 +3,8 @@ package nro.services;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import consts.ConstPlayer;
@@ -336,9 +336,12 @@ public class InventoryService {
                 Service.gI().sendThongBaoOK(player.isPet ? ((Pet) player).master : player, "Trang bị không phù hợp!");
                 return sItem;
         }
+        // Đệ 3k Kilis (typePet >= 2) được xài đồ cả 3 hệ
         if (item.template.gender < 3 && item.template.gender != player.gender) {
-            Service.gI().sendThongBaoOK(player.isPet ? ((Pet) player).master : player, "Trang bị không phù hợp!");
-            return sItem;
+            if (!(player.isPet && ((Pet) player).typePet >= 2)) {
+                Service.gI().sendThongBaoOK(player.isPet ? ((Pet) player).master : player, "Trang bị không phù hợp!");
+                return sItem;
+            }
         }
         long powerRequire = item.template.strRequire;
         for (Item.ItemOption io : item.itemOptions) {

@@ -4,7 +4,7 @@ package services.func;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import boss.Boss;
@@ -947,6 +947,26 @@ public class UseItem {
             return;
         }
 
+        // ⭐ TUYỆT THẾ ĐỆ TỬ: 6000 Kilis + đệ 3k kilis (typePet 2/3/4) + power >= 100 tỷ
+        if (item.hasOption(249, 6000)
+                && player.pet != null
+                && (player.pet.typePet == 2 || player.pet.typePet == 3 || player.pet.typePet == 4)
+                && player.pet.nPoint.power >= 100_000_000_000L) {
+
+            byte limitPower = player.pet.nPoint.limitPower;
+            int gender = player.pet.gender;
+
+            PetService.gI().deletePet(player);
+            PetService.gI().createTuyetThePet(player, gender, limitPower);
+
+            InventoryService.gI().removeItemBag(player, item);
+            InventoryService.gI().sendItemBag(player);
+            Service.gI().sendThongBao(player, "Chúc mừng! Bạn đã nhận được Tuyệt Thế Đệ Tử!");
+            CombineService.gI().sendEffectOpenItem(player, icon[0], icon[1]);
+            return;
+        }
+
+        // ⭐ ĐỆ 3K KILIS: Logic cũ
         if (!item.hasOption(249, 3000)) {
             Service.gI().sendThongBao(player, "Cần ít nhất 3000 sức mạnh Kilis để mở!");
             return;

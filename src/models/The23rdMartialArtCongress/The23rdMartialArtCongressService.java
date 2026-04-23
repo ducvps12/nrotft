@@ -1,13 +1,5 @@
 package models.The23rdMartialArtCongress;
 
-/*
- *
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
-
 import map.Zone;
 import nro.player.Player;
 import network.Message;
@@ -41,7 +33,7 @@ public class The23rdMartialArtCongressService {
                 mc.setRound(player.levelWoodChest);
                 mc.toTheNextRound();
                 The23rdMartialArtCongressManager.gI().add(mc);
-                Service.gI().sendThongBao(player, "Số thứ tự của ngươi là 1 chuẩn bị thi đấu nhé.");
+                Service.gI().sendThongBao(player, "Số thứ tự của người là 1 chuẩn bị thi đấu nhé.");
                 Service.gI().releaseCooldownSkill(player);
                 player.isPKDHVT = true;
                 player.lastTimePKDHVT23 = System.currentTimeMillis();

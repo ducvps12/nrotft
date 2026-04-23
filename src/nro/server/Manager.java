@@ -4,7 +4,7 @@ package nro.server;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import boss.boss_manifest.LuyenTap.NPC_MrPôPô;
@@ -1053,13 +1053,13 @@ public final class Manager {
                 if (itemsBodyJson != null) {
                     JSONArray dataArray = (JSONArray) JSONValue.parse(itemsBodyJson);
                     if (dataArray != null) {
-                        // slot 0 → body
+                        // slot 0 â†’ body
                         body = getItemPart(dataArray, 0, body, "body");
 
-                        // slot 1 → leg
+                        // slot 1 â†’ leg
                         leg = getItemPart(dataArray, 1, leg, "leg");
 
-                        // slot 5 → head/body/leg override
+                        // slot 5 â†’ head/body/leg override
                         short[] parts = getItemParts(dataArray, 5, head, body, leg);
                         head = parts[0];
                         body = parts[1];
@@ -1837,7 +1837,7 @@ public final class Manager {
         return demConLai(timeSuKienThiepHalloweenNhanGiai);
     }
 
-    // ======== TÚI MÙ HALLOWEEN ========
+    // ======== TÃšI MÃ™ HALLOWEEN ========
     public static String demTimeTuiMuHalloween() {
         return demConLai(timeSuKienTuiMuHalloweenEnd);
     }

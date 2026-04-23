@@ -703,6 +703,66 @@ public class TopService {
         }
     }
 
+    public void showListTopSuKien(Player player) {
+        Message msg = null;
+        try (Connection con = DBConnecter.getConnectionServer();
+             PreparedStatement ps = con.prepareStatement(ConstSQL.TOP_SU_KIEN);
+             ResultSet rs = ps.executeQuery()) {
+
+            List<String[]> topList = new ArrayList<>();
+            while (rs.next()) {
+                String name = rs.getString("name");
+                int diem = rs.getInt("diem_su_kien");
+                byte gender = rs.getByte("gender");
+                String itemsBody = rs.getString("items_body");
+                topList.add(new String[]{name, String.valueOf(diem), String.valueOf(gender), itemsBody});
+            }
+
+            msg = new Message(-96);
+            msg.writer().writeByte(0);
+            msg.writer().writeUTF("Top 10 Sự Kiện");
+            msg.writer().writeByte(topList.size());
+
+            for (int i = 0; i < topList.size(); i++) {
+                String[] data = topList.get(i);
+                byte gender = Byte.parseByte(data[2]);
+                msg.writer().writeInt(i + 1);
+                msg.writer().writeInt(i + 1);
+
+                // Parse items_body for display
+                try {
+                    JSONArray items = (JSONArray) org.json.simple.JSONValue.parse(data[3]);
+                    if (items != null && items.size() > 0) {
+                        JSONArray item0 = (JSONArray) org.json.simple.JSONValue.parse(items.get(0).toString());
+                        short head = Short.parseShort(String.valueOf(item0.get(0)));
+                        msg.writer().writeShort(head != -1 ? head : (gender == 0 ? 64 : gender == 1 ? 9 : 6));
+                    } else {
+                        msg.writer().writeShort(gender == 0 ? 64 : gender == 1 ? 9 : 6);
+                    }
+                } catch (Exception ex) {
+                    msg.writer().writeShort(gender == 0 ? 64 : gender == 1 ? 9 : 6);
+                }
+
+                if (player.getSession().version >= 214) {
+                    msg.writer().writeShort(-1);
+                }
+
+                // Body & Leg defaults
+                msg.writer().writeShort(gender == 0 ? 0 : gender == 1 ? 1 : 2);
+                msg.writer().writeShort(gender == 0 ? 6 : gender == 1 ? 7 : 8);
+
+                msg.writer().writeUTF(data[0]); // name
+                msg.writer().writeUTF(""); // time placeholder
+                msg.writer().writeUTF("Điểm SK: " + data[1]);
+            }
+
+            player.sendMessage(msg);
+            msg.cleanup();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void showTopClanKhoBau(Player player) {
         TopKhoBau.getInstance().load();
         List<Clan> list = TopKhoBau.getInstance().getList();

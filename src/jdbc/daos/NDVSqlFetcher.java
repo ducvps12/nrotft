@@ -4,7 +4,7 @@ package jdbc.daos;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import models.Card.OptionCard;
@@ -260,6 +260,11 @@ public class NDVSqlFetcher {
             player.event.setEventPointQuai(rs.getInt("event_point_quai"));
             player.event.setEventPointQuyLao(rs.getInt("diem_quy_lao"));
             player.event.setEventPointPhaoBong(rs.getInt("phaobong"));
+            try {
+                player.event.setDiemSuKien(rs.getInt("diem_su_kien"));
+            } catch (Exception e) {
+                player.event.setDiemSuKien(0);
+            }
 
             player.pointfusion.setHpFusion(rs.getInt("hp_point_fusion"));
             player.pointfusion.setMpFusion(rs.getInt("mp_point_fusion"));

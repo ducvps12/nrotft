@@ -1215,11 +1215,8 @@ public class PlayersPanel extends JPanel {
                     // NEW: dataBadges
                     originalData.put("dataBadges", rs.getString("dataBadges"));
 
-                    JPanel pMainInfo = new JPanel(new GridBagLayout());
+                    JPanel pMainInfo = new JPanel(new GridLayout(2, 2, 15, 15));
                     pMainInfo.setBorder(new EmptyBorder(15, 15, 15, 15));
-                    GridBagConstraints g = new GridBagConstraints();
-                    g.fill = GridBagConstraints.HORIZONTAL;
-                    g.insets = new Insets(5, 5, 5, 5);
 
                     JPanel pAcc = createSectionPanel("Thông tin Tài khoản");
                     addLabelInput(pAcc, "VND:", rs.getString("cash"), "cash", inputs);
@@ -1261,21 +1258,13 @@ public class PlayersPanel extends JPanel {
                     JsonArray inv = new JsonParser().parse(originalData.get("data_inventory")).getAsJsonArray();
                     addLabelInput(pAsset, "Vàng:", inv.get(0).getAsString(), "gold", inputs);
                     addLabelInput(pAsset, "Ngọc xanh:", inv.get(1).getAsString(), "gem", inputs);
-                    addLabelInput(pAsset, "Hồng ngọc:", inv.size() > 2 ? inv.get(2).getAsString() : "0", "ruby",
-                            inputs);
+                    addLabelInput(pAsset, "Hồng ngọc:", inv.size() > 2 ? inv.get(2).getAsString() : "0", "ruby", inputs);
 
-                    g.gridx = 0;
-                    g.gridy = 0;
-                    g.weightx = 1.0;
-                    pMainInfo.add(pAcc, g);
-                    g.gridy = 1;
-                    pMainInfo.add(pChar, g);
-                    g.gridy = 2;
-                    pMainInfo.add(pPoint, g);
-                    g.gridy = 3;
-                    g.weighty = 1.0;
-                    g.anchor = GridBagConstraints.NORTH;
-                    pMainInfo.add(pAsset, g);
+                    pMainInfo.add(pAcc);
+                    pMainInfo.add(pPoint);
+                    pMainInfo.add(pChar);
+                    pMainInfo.add(pAsset);
+
 
                     JTabbedPane tabItems = new JTabbedPane();
                     DefaultTableModel mBody = createItemModel();
@@ -1313,26 +1302,24 @@ public class PlayersPanel extends JPanel {
                                 gp.gridy = 0;
 
                                 JPanel pPetInfo = createSectionPanel("Thông tin cơ bản");
+                                pPetInfo.setLayout(new GridLayout(0, 2, 10, 10));
+
                                 JComboBox<String> cbPetType = new JComboBox<>(
                                         new String[] { "0 - Mabu", "1 - Fide", "2 - Cadic", "3 - Pic", "4 - Quy lão" });
                                 cbPetType.setEditable(true);
                                 cbPetType.setSelectedItem(infoArr.get(0).getAsString());
                                 inputs.put("pet_type", cbPetType);
-                                JPanel pT = new JPanel(new BorderLayout());
-                                pT.add(new JLabel("Loại Đệ:"), BorderLayout.WEST);
-                                pT.add(cbPetType);
-                                pPetInfo.add(pT);
+                                pPetInfo.add(new JLabel("Loại Đệ:"));
+                                pPetInfo.add(cbPetType);
 
                                 JComboBox<String> cbPetGender = new JComboBox<>(
                                         new String[] { "0 - Trái đất", "1 - Namếc", "2 - Xayda" });
                                 cbPetGender.setSelectedIndex(infoArr.get(1).getAsInt());
                                 inputs.put("pet_gender", cbPetGender);
-                                JPanel pG = new JPanel(new BorderLayout());
-                                pG.add(new JLabel("Hệ:"), BorderLayout.WEST);
-                                pG.add(cbPetGender);
-                                pPetInfo.add(pG);
+                                pPetInfo.add(new JLabel("Hệ:"));
+                                pPetInfo.add(cbPetGender);
 
-                                addLabelInput(pPetInfo, "Tên Đệ tử:", infoArr.get(2).getAsString(), "pet_name", inputs);
+                                addLabelInputGrid(pPetInfo, "Tên Đệ tử:", infoArr.get(2).getAsString(), "pet_name", inputs);
 
                                 JComboBox<String> cbPetStatus = new JComboBox<>(new String[] { "0 - Đi theo",
                                         "1 - Bảo vệ", "2 - Tấn công", "3 - Về nhà", "4 - Hợp thể" });
@@ -1341,10 +1328,9 @@ public class PlayersPanel extends JPanel {
                                 } catch (Exception ex) {
                                 }
                                 inputs.put("pet_status", cbPetStatus);
-                                JPanel pS = new JPanel(new BorderLayout());
-                                pS.add(new JLabel("Trạng thái:"), BorderLayout.WEST);
-                                pS.add(cbPetStatus);
-                                pPetInfo.add(pS);
+                                pPetInfo.add(new JLabel("Trạng thái:"));
+                                pPetInfo.add(cbPetStatus);
+                                
                                 pPetContent.add(pPetInfo, gp);
 
                                 gp.gridy = 1;

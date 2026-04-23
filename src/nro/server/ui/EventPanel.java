@@ -25,7 +25,7 @@ public class EventPanel extends JPanel {
     private static final String[] EVENT_NAMES = {
             "Halloween", "8/3 Quốc Tế PN", "Giáng Sinh", "Tết Nguyên Đán",
             "Trung Thu", "Giỗ Tổ", "Top Up (Mặc định)", "Pokemon",
-            "20/11", "Phở Anh Hai"
+            "20/11", "Phở Anh Hai", "Sự Kiện Hè"
     };
 
     // Mô tả chi tiết cho từng sự kiện
@@ -39,12 +39,13 @@ public class EventPanel extends JPanel {
             "Nạp thẻ tích điểm, bảng xếp hạng nạp thẻ",
             "Bắt Pokemon, tiến hóa, đấu trường Pokemon",
             "Ngày Nhà giáo VN, nhiệm vụ tri ân thầy cô",
-            "Nấu phở đặc biệt, thu thập nguyên liệu hiếm"
+            "Nấu phở đặc biệt, thu thập nguyên liệu hiếm",
+            "Thu thập vỏ sò, kem tươi, đổi quà mùa hè đặc biệt"
     };
 
     // Emoji cho mỗi sự kiện
     private static final String[] EVENT_ICONS = {
-            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜"
+            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜", "🏖️"
     };
 
     // Màu cho mỗi sự kiện
@@ -58,7 +59,8 @@ public class EventPanel extends JPanel {
             new Color(0, 120, 215),    // Top Up - xanh
             new Color(255, 230, 0),    // Pokemon - vàng
             new Color(142, 68, 173),   // 20/11 - tím
-            new Color(210, 105, 30)    // Phở - nâu cam
+            new Color(210, 105, 30),   // Phở - nâu cam
+            new Color(0, 191, 255)     // Mùa Hè - xanh dương nhạt (DeepSkyBlue)
     };
 
     public EventPanel() {
@@ -202,8 +204,19 @@ public class EventPanel extends JPanel {
         leftPanel.add(chk);
         leftPanel.add(lblIcon);
 
+        // Right side: Detail button
+        JButton btnDetail = new JButton("ℹ️ Chi tiết");
+        btnDetail.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnDetail.setFocusPainted(false);
+        btnDetail.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnDetail.setBackground(new Color(240, 248, 255));
+        btnDetail.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, EVENT_DESCS[index], "Chi tiết sự kiện - " + EVENT_NAMES[index], JOptionPane.INFORMATION_MESSAGE);
+        });
+
         card.add(leftPanel, BorderLayout.WEST);
         card.add(infoPanel, BorderLayout.CENTER);
+        card.add(btnDetail, BorderLayout.EAST);
 
         // Toggle border color on check
         chk.addActionListener(e -> {

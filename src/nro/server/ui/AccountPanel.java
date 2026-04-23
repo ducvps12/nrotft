@@ -354,13 +354,13 @@ public class AccountPanel extends JPanel {
                 server.setText(rs.getString("server_login"));
                 
                 // Mapping: VND = cash, Đã Nạp = danap
-                vnd.setText(String.valueOf(rs.getInt("cash")));
-                danap.setText(String.valueOf(rs.getInt("danap")));
+                vnd.setText(String.valueOf(rs.getLong("cash")));
+                danap.setText(String.valueOf(rs.getLong("danap")));
                 gold.setText(String.valueOf(rs.getLong("vang")));
-                point.setText(String.valueOf(rs.getInt("tichdiem")));
+                point.setText(String.valueOf(rs.getLong("tichdiem")));
 
                 for (String key : events.keySet()) {
-                    try { events.get(key).setText(String.valueOf(rs.getInt(key))); } catch (Exception ex) {}
+                    try { events.get(key).setText(String.valueOf(rs.getLong(key))); } catch (Exception ex) {}
                 }
             }
         } catch (Exception e) { e.printStackTrace(); }
@@ -393,12 +393,12 @@ public class AccountPanel extends JPanel {
                 ps.setInt(i++, safeInt(vip));
                 ps.setInt(i++, safeInt(server));
                 
-                ps.setInt(i++, safeInt(vnd)); // cash
-                ps.setInt(i++, safeInt(danap)); // danap
+                ps.setLong(i++, safeLong(vnd)); // cash
+                ps.setLong(i++, safeLong(danap)); // danap
                 ps.setLong(i++, safeLong(gold));
-                ps.setInt(i++, safeInt(point));
+                ps.setLong(i++, safeLong(point));
                 
-                for (String k : events.keySet()) ps.setInt(i++, safeInt(events.get(k)));
+                for (String k : events.keySet()) ps.setLong(i++, safeLong(events.get(k)));
                 ps.setInt(i++, id);
 
                 ps.executeUpdate();
@@ -592,8 +592,8 @@ public class AccountPanel extends JPanel {
                     row.add(ban == 1 ? "ĐÃ BAN" : (active == 1 ? "Active" : "Chưa KH"));
                     
                     row.add(rs.getInt("vip"));
-                    row.add(formatNum(rs.getInt("cash"))); // VND
-                    row.add(formatNum(rs.getInt("danap"))); // Đã nạp
+                    row.add(formatNum(rs.getLong("cash"))); // VND
+                    row.add(formatNum(rs.getLong("danap"))); // Đã nạp
                     Timestamp ts = rs.getTimestamp("create_time");
                     row.add(ts != null ? DATE_FMT.format(ts) : "N/A");
                     

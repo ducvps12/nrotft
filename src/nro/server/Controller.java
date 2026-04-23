@@ -3,8 +3,8 @@ package nro.server;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import boss.Boss;
@@ -678,7 +678,12 @@ public class Controller implements IMessageHandler {
                     DataGame.sendVersionRes(_session);
                     break;
                 case -111:
-                    DataGame.sendDataImageVersion(_session);
+                    // Anti-spam: chỉ xử lý -111 tối đa 1 lần / 5 giây / session
+                    long now111 = System.currentTimeMillis();
+                    if (now111 - _session.lastTimeDataImageRequest > 5000) {
+                        _session.lastTimeDataImageRequest = now111;
+                        DataGame.sendDataImageVersion(_session);
+                    }
                     break;
                 case -20:
                     if (player != null && !player.isClone && !player.isDie()) {
@@ -1060,9 +1065,21 @@ public class Controller implements IMessageHandler {
         }
     }
 
+    public static String serverNotify = null;
+    public static long lastModifiedNotify = 0;
+
     private void sendThongBaoServer(Player player) {
-        Service.gI().sendThongBaoFromAdmin(player,
-                "Khuyến mãi nạp X3 từ 12 đến hết ngày 13 mọi vũ trụ.\n"
+        java.io.File f = new java.io.File("data/server_notify.txt");
+        if (f.exists() && f.lastModified() != lastModifiedNotify) {
+            try {
+                byte[] bytes = java.nio.file.Files.readAllBytes(f.toPath());
+                serverNotify = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                lastModifiedNotify = f.lastModified();
+            } catch (Exception e) {
+            }
+        }
+        if (serverNotify == null) {
+            serverNotify = "Khuyến mãi nạp X3 từ 12 đến hết ngày 13 mọi vũ trụ.\n"
                         + "3X EXP từ ngày 11 đến 14 tháng 7.\n"
                         + "Tham gia sự kiện hè siêu nóng!\n"
                         + "Đua Top hấp dẫn để nhận các vật phẩm giá trị.\n"
@@ -1070,7 +1087,9 @@ public class Controller implements IMessageHandler {
                         + "Săn mặt trời để nhận cờ vĩnh viễn đeo sau lưng.\n"
                         + "Tìm vỏ sò để đổi phần thưởng hấp dẫn.\n"
                         + "Vòng quay may mắn nhận nhiều vật phẩm thú vị.\n"
-                        + "Chi tiết xem tại diễn đàn, fanpage.");
+                        + "Chi tiết xem tại diễn đàn, fanpage.";
+        }
+        Service.gI().sendThongBaoFromAdmin(player, serverNotify);
     }
 
     private void clearVTSK(Player player) {

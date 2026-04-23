@@ -1,12 +1,5 @@
 package models.WorldMartialArtsTournament;
 
-/*
- *
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
 import utils.Functions;
 import consts.ConstPlayer;
 import consts.ConstTournament;
@@ -45,7 +38,7 @@ public final class WorldMartialArtsTournament implements Runnable {
         this.init();
     }
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();// có thể lỗi
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     private void init() {
         player_1.totalDamageTaken = 0;
@@ -235,7 +228,6 @@ public final class WorldMartialArtsTournament implements Runnable {
                 int gem = WorldMartialArtsTournamentManager.gI().gem;
                 int gold = WorldMartialArtsTournamentManager.gI().thoiVang;
                 if (gold > 0) {
-                    // plWin.inventory.gold++;
                     Service.gI().dropAndPickItem(plWin, 457, gold);
                     Service.gI().sendThongBao(plWin, "Bạn vừa nhận thưởng " + gold + " thỏi vàng");
                 } else {

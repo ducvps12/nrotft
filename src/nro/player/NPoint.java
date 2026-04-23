@@ -4,7 +4,7 @@ package nro.player;
  *
  *
  *  Box ZALO:
- *  sdt zalo: 0372875491
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import models.Card.Card;
@@ -958,6 +958,7 @@ public class NPoint {
                 hpBonusMap.put(2, new int[] { 20 }); // Berus
                 hpBonusMap.put(3, new int[] { 15 }); // Pic
                 hpBonusMap.put(4, new int[] { 25 }); // Black
+                hpBonusMap.put(5, new int[] { 20 }); // Tuyệt Thế
             }
 
             // PORATA2
@@ -966,6 +967,7 @@ public class NPoint {
                 hpBonusMap.put(2, new int[] { 25 }); // Berus
                 hpBonusMap.put(3, new int[] { 20 }); // Pic
                 hpBonusMap.put(4, new int[] { 30 }); // Black
+                hpBonusMap.put(5, new int[] { 20 }); // Tuyệt Thế
             }
 
             // PORATA3
@@ -974,6 +976,7 @@ public class NPoint {
                 hpBonusMap.put(2, new int[] { 25 }); // Berus
                 hpBonusMap.put(3, new int[] { 20 }); // Pic
                 hpBonusMap.put(4, new int[] { 30 }); // Black
+                hpBonusMap.put(5, new int[] { 20 }); // Tuyệt Thế
             }
             // Fusion PORATA4
             if (typeFusion == ConstPlayer.HOP_THE_PORATA4) {
@@ -981,6 +984,7 @@ public class NPoint {
                 hpBonusMap.put(2, new int[] { 30 }); // Berus
                 hpBonusMap.put(3, new int[] { 25 }); // Pic
                 hpBonusMap.put(4, new int[] { 35 }); // Black
+                hpBonusMap.put(5, new int[] { 20 }); // Tuyệt Thế
             }
 
             if (pet.master.pet_hp_up > 0) {
@@ -1169,6 +1173,7 @@ public class NPoint {
                     case 2 -> bonusMap.put(typePet, 20); // Berus
                     case 3 -> bonusMap.put(typePet, 15); // Pic
                     case 4 -> bonusMap.put(typePet, 25); // Black
+                    case 5 -> bonusMap.put(typePet, 20); // Tuyệt Thế
                 }
             }
 
@@ -1179,6 +1184,7 @@ public class NPoint {
                     case 2 -> bonusMap.put(typePet, 25); // Berus
                     case 3 -> bonusMap.put(typePet, 20); // Pic
                     case 4 -> bonusMap.put(typePet, 30); // Black
+                    case 5 -> bonusMap.put(typePet, 20); // Tuyệt Thế
                 }
             }
 
@@ -1189,6 +1195,7 @@ public class NPoint {
                     case 2 -> bonusMap.put(typePet, 35); // Berus
                     case 3 -> bonusMap.put(typePet, 30); // Pic
                     case 4 -> bonusMap.put(typePet, 40); // Black
+                    case 5 -> bonusMap.put(typePet, 20); // Tuyệt Thế
                 }
             }
             // Fusion PORATA4
@@ -1202,6 +1209,8 @@ public class NPoint {
                         bonusMap.put(typePet, 30); // Pic
                     case 4 ->
                         bonusMap.put(typePet, 40); // Black
+                    case 5 ->
+                        bonusMap.put(typePet, 20); // Tuyệt Thế
                 }
             }
 
@@ -1359,13 +1368,14 @@ public class NPoint {
             // Tạo biến cộng dồn % dame bonus
             int bonusDame = 0;
 
-            // Tăng dame theo điều kiện PORATA1 hoặc PORATA2
+            // Tăng dame theo điều kiện PORATA1
             if (typeFusion == ConstPlayer.HOP_THE_PORATA) {
                 switch (typePet) {
                     case 1 -> bonusDame += 10; // Mabư
                     case 2 -> bonusDame += 20; // Berus
                     case 3 -> bonusDame += 15; // Pic
                     case 4 -> bonusDame += 25; // Black
+                    case 5 -> bonusDame += 20; // Tuyệt Thế
                 }
             }
 
@@ -1376,6 +1386,7 @@ public class NPoint {
                     case 2 -> bonusDame += 25; // Berus
                     case 3 -> bonusDame += 20; // Pic
                     case 4 -> bonusDame += 30; // Black
+                    case 5 -> bonusDame += 20; // Tuyệt Thế
                 }
             }
 
@@ -1386,6 +1397,7 @@ public class NPoint {
                     case 2 -> bonusDame += 30; // Berus
                     case 3 -> bonusDame += 25; // Pic
                     case 4 -> bonusDame += 35; // Black
+                    case 5 -> bonusDame += 20; // Tuyệt Thế
                 }
             }
             // Tăng dame riêng PORATA4
@@ -1399,6 +1411,8 @@ public class NPoint {
                         bonusDame += 30; // Pic
                     case 4 ->
                         bonusDame += 40; // Black
+                    case 5 ->
+                        bonusDame += 20; // Tuyệt Thế
                 }
             }
 

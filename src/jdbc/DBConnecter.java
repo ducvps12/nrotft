@@ -25,7 +25,7 @@ public class DBConnecter {
     private static String DB_PORT = "3306";
     public static String DB_DATA = "nrotft";
     public static String DB_USER = "root";
-    private static String DB_PASSWORD = "";
+    private static String DB_PASSWORD = "Nro@2026!";
     private static int MIN_CONN = 5;
     private static int MAX_CONN = 20;
     private static long MAX_LIFE_TIME = 600000L;

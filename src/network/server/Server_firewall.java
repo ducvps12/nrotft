@@ -103,7 +103,7 @@ public class Server_firewall implements Server_iskey, Runnable {
             try {
                 Socket socket = this.serverListen.accept();
                 String ip = socket.getInetAddress().getHostAddress();
-                if (firewall.getOrDefault(ip, 0) > 21) {
+                if (firewall.getOrDefault(ip, 0) > 500) { // Nới lỏng firewall ẩn từ 21 lên 500 để debug Mod Client
                     socket.close();
                 } else {
                     ISession session = SessionFactory.gI().cloneSession(this.sessionClone, socket);

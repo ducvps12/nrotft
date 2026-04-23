@@ -3,8 +3,8 @@ package consts;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 public class ConstPlayer {
@@ -17,7 +17,7 @@ public class ConstPlayer {
                         { 0, 22, 23, 24, 30 }, // nm
                         { 20, 20, 21, 23, 25 } // xd
         };
-        // SỬA NGOẠI HÌNH TỪ LV 1-5 Ở ĐÂY
+        // SỬA NGOẠI HÌNH TỪ LV 1-5 Ở �?ÂY
         public static final short[][] HEADBIENHINH = {
                         { 1773, 1779, 1777, 1776, 1778 }, // head TD
                         { 1767, 1780, 1781, 1782, 1784 }, // haed NM

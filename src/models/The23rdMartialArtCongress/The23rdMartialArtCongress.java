@@ -1,13 +1,5 @@
 package models.The23rdMartialArtCongress;
 
-/*
- *
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
-
 import boss.boss_manifest.The23rdMartialArtCongress.TauPayPay;
 import boss.boss_manifest.The23rdMartialArtCongress.PonPut;
 import boss.boss_manifest.The23rdMartialArtCongress.Pocolo;
@@ -79,19 +71,16 @@ public class The23rdMartialArtCongress {
                     break;
                 case 11:
                     PlayerService.gI().playerMove(npc, npc.location.x, 264);
-                    Service.gI().chat(npc, "Trận đấu giữa " + player.name + " vs " + boss.name + " sắp diễn ra"); // 7
-                                                                                                                  // STUN
+                    Service.gI().chat(npc, "Trận đấu giữa " + player.name + " vs " + boss.name + " sắp diễn ra");
                     break;
                 case 7:
-                    Service.gI().chat(npc, "Xin quý vị khán giả cho 1 tràng pháo tay cổ vũ cho 2 đấu thủ nào"); // 3
-                                                                                                                // STUN
+                    Service.gI().chat(npc, "Xin quý vị khán giả cho 1 tràng pháo tay cổ vũ cho 2 đấu thủ nào");
                     break;
                 case 4:
-                    Service.gI().chat(npc, "Mọi người hãy ổn định chỗ ngồi, trận đấu sẽ bắt đầu sau 3 giây nữa"); // 0
-                                                                                                                  // STUN
+                    Service.gI().chat(npc, "Mọi người hãy ổn định chỗ ngồi, trận đấu sẽ bắt đầu sau 3 giây nữa");
                     break;
                 case 3:
-                    Service.gI().chat(npc, "Trận đấu bắt đầu"); // -1 STUN
+                    Service.gI().chat(npc, "Trận đấu bắt đầu");
                     break;
                 case 2:
                     PlayerService.gI().playerMove(npc, npc.location.x, 360);

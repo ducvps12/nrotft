@@ -2,8 +2,8 @@ package nro.services;
 
 /*
  *
- *  Box ZALO: https://zalo.me/g/hfaysi616
- *  SDT ZALO: 0372875491
+ *  Box ZALO: https://zalo.me/g/irufas657
+ *  SDT ZALO: 0376263452
  *  Chuyên chỉnh sửa, mua bán source NRO,...
  */
 import consts.ConstPlayer;
@@ -11,6 +11,7 @@ import nro.player.NewPet;
 import nro.player.Pet;
 import nro.player.Player;
 import services.func.ChangeMapService;
+import skill.Skill;
 import utils.SkillUtil;
 import utils.Util;
 
@@ -246,7 +247,7 @@ public class PetService {
         pet.nPoint.defg = data[3];
         pet.nPoint.critg = data[4];
 
-        int itemBodySize = (pet.typePet >= 2) ? 7 : 7;
+        int itemBodySize = (pet.typePet >= 2) ? 9 : 7;
         for (int i = 0; i < itemBodySize; i++) {
             pet.inventory.itemsBody.add(ItemService.gI().createItemNull());
         }
@@ -255,6 +256,68 @@ public class PetService {
         for (int i = 0; i < 6; i++) {
             pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
         }
+
+        pet.nPoint.setFullHpMp();
+        player.pet = pet;
+    }
+
+    // ===========================================================
+    // =============== TUYỆT THẾ ĐỆ TỬ (typePet=5) =============
+    // ===========================================================
+    private int[] getDataPetTuyetThe() {
+        return new int[] { 900_000, 900_000, 40_000, Util.nextInt(50, 120), Util.nextInt(5, 15) };
+    }
+
+    public void createTuyetThePet(Player player, int gender, byte limitPower) {
+        int[] data = getDataPetTuyetThe();
+
+        Pet pet = new Pet(player);
+        pet.name = "$Tuyệt Thế Đệ Tử";
+        pet.gender = (byte) gender;
+        pet.id = player.isPl() ? -player.id : -Math.abs(player.id) - 100000;
+
+        pet.nPoint.power = player.pet != null ? player.pet.nPoint.power : 100_000_000_000L;
+        pet.typePet = 5;
+        pet.nPoint.limitPower = limitPower;
+
+        pet.nPoint.stamina = pet.nPoint.maxStamina = 1000;
+        pet.nPoint.hpg = data[0];
+        pet.nPoint.mpg = data[1];
+        pet.nPoint.dameg = data[2];
+        pet.nPoint.defg = data[3];
+        pet.nPoint.critg = data[4];
+
+        // 10 ô trang bị (thêm 1 ô pet so với đệ 3k kilis = 9+1)
+        int itemBodySize = 10;
+        for (int i = 0; i < itemBodySize; i++) {
+            pet.inventory.itemsBody.add(ItemService.gI().createItemNull());
+        }
+
+        // Skill 1: Đấm (random)
+        pet.playerSkill.skills.add(SkillUtil.createSkill(Util.nextInt(0, 2) * 2, 1));
+        // Skill 2: Galick
+        pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.GALICK, 1));
+        // Skill 3: Random (TDHS/TTNL/Kaioken)
+        int rd3 = Util.nextInt(1, 100);
+        if (rd3 <= 33) {
+            pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.THAI_DUONG_HA_SAN, 1));
+        } else if (rd3 <= 66) {
+            pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.TAI_TAO_NANG_LUONG, 1));
+        } else {
+            pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.KAIOKEN, 1));
+        }
+        // Skill 4: Kame
+        pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.KAMEJOKO, 1));
+        // Skill 5: Theo gender sư phụ (master.gender)
+        switch (player.gender) {
+            case 0 -> pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.SUPER_KAME, 1));
+            case 1 -> pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.MA_PHONG_BA, 1));
+            case 2 -> pet.playerSkill.skills.add(SkillUtil.createSkill(Skill.LIEN_HOAN_CHUONG, 1));
+            default -> pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
+        }
+        // Skill 6, 7: Empty
+        pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
+        pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
 
         pet.nPoint.setFullHpMp();
         player.pet = pet;

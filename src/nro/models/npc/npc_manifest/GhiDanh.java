@@ -1,11 +1,5 @@
 package nro.models.npc.npc_manifest;
 
-/**
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
 import consts.ConstNpc;
 import item.Item;
 import models.The23rdMartialArtCongress.The23rdMartialArtCongressService;
@@ -51,7 +45,6 @@ public class GhiDanh extends Npc {
                     }
                     long goldchallenge = pl.goldChallenge;
                     long rubychallenge = pl.rubyChallenge;
-                    // Hướng dẫn thêm - Hủy\nđăng kí - về dhvt
                     if (pl.levelWoodChest == 0) {
                         menuselect = new String[] { "Hướng\ndẫn\nthêm",
                                 "Thi đấu\n" + Util.numberToMoney(rubychallenge) + " hồng ngọc",

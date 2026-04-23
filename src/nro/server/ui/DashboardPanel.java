@@ -79,6 +79,7 @@ public class DashboardPanel extends JPanel {
     // --- UI Components ---
     private JLabel lblStatus, lblPlayerCount, lblCountdown;
     private JLabel lblCpuUsage, lblRamUsage, lblThreadCount, lblSessionCount;
+    private JLabel lblLastRefresh;
     private JLabel lblGiftcodeInfo, lblConsignItemsCount, lblBossStatus, lblUptime;
     
     // Log Component
@@ -363,6 +364,15 @@ public class DashboardPanel extends JPanel {
         }
     }
 
+    // Analytics data
+    private final java.util.List<Integer> onlineHistory24h = java.util.Collections.synchronizedList(new java.util.ArrayList<>());
+    private int[] raceDistribution = {0, 0, 0}; // Trái đất, Namek, Xayda
+    private String[][] topPlayers = new String[0][0]; // name, level
+    private int totalAccounts = 0, totalCharacters = 0;
+    private long totalGold = 0, totalRuby = 0;
+    private JPanel chartBarPanel, chartPiePanel, chartLinePanel, chartArchPanel;
+    private JLabel lblStatAccounts, lblStatCharacters, lblStatGold, lblStatRuby;
+
     private void initMainLayout() {
         JPanel container = new JPanel(new GridBagLayout());
         container.setBackground(Color.WHITE);
@@ -385,6 +395,30 @@ public class DashboardPanel extends JPanel {
         // 4. Game Stats
         gbc.gridy++;
         container.add(createGameStatsPanel(), gbc);
+
+        // ===== NEW: ANALYTICS SECTION =====
+
+        // 4.1 Extended Stat Cards
+        gbc.gridy++;
+        container.add(createExtendedStatCards(), gbc);
+
+        // 4.2 Charts Row: Bar Chart + Pie Chart
+        JPanel chartsRow = new JPanel(new GridLayout(1, 2, 10, 0));
+        chartsRow.setOpaque(false);
+        chartsRow.add(createBarChartPanel());
+        chartsRow.add(createPieChartPanel());
+        gbc.gridy++;
+        container.add(chartsRow, gbc);
+
+        // 4.3 24h Online Line Chart
+        gbc.gridy++;
+        container.add(createOnlineLineChartPanel(), gbc);
+
+        // 4.4 Server Architecture Diagram
+        gbc.gridy++;
+        container.add(createArchitectureDiagramPanel(), gbc);
+
+        // ===== END ANALYTICS =====
 
         // 4.5. Connection Monitor Panel
         gbc.gridy++;
@@ -425,14 +459,21 @@ public class DashboardPanel extends JPanel {
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         add(scroll, BorderLayout.CENTER);
+
+        // Load analytics data
+        refreshAnalyticsData();
     }
 
     // ================= UI PARTS =================
 
     private JPanel createHeaderPanel() {
-        JPanel p = new JPanel(new GridLayout(1, 3, 20, 0));
+        JPanel p = new JPanel(new BorderLayout(10, 0));
         p.setOpaque(false);
         p.setBorder(new EmptyBorder(0, 10, 10, 10));
+
+        // Left: Status labels
+        JPanel leftPanel = new JPanel(new GridLayout(1, 3, 20, 0));
+        leftPanel.setOpaque(false);
 
         lblStatus = ServerGuiUtils.createStyledLabel("● Server Online", 20, true);
         lblStatus.setForeground(new Color(0, 153, 51));
@@ -441,9 +482,44 @@ public class DashboardPanel extends JPanel {
         lblCountdown = ServerGuiUtils.createStyledLabel("Sẵn sàng", 16, false);
         lblCountdown.setForeground(Color.GRAY);
 
-        p.add(lblStatus);
-        p.add(lblPlayerCount);
-        p.add(lblCountdown);
+        leftPanel.add(lblStatus);
+        leftPanel.add(lblPlayerCount);
+        leftPanel.add(lblCountdown);
+
+        // Right: Refresh button + last refresh time
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        rightPanel.setOpaque(false);
+
+        lblLastRefresh = new JLabel(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        lblLastRefresh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblLastRefresh.setForeground(Color.GRAY);
+
+        JButton btnRefreshAll = new JButton("🔄 Làm Mới");
+        btnRefreshAll.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnRefreshAll.setForeground(Color.WHITE);
+        btnRefreshAll.setBackground(new Color(0, 120, 215));
+        btnRefreshAll.setFocusPainted(false);
+        btnRefreshAll.setBorderPainted(false);
+        btnRefreshAll.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnRefreshAll.setPreferredSize(new Dimension(120, 32));
+        btnRefreshAll.addActionListener(e -> refreshEntireDashboard());
+        // Hover effect
+        btnRefreshAll.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnRefreshAll.setBackground(new Color(0, 90, 180));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnRefreshAll.setBackground(new Color(0, 120, 215));
+            }
+        });
+
+        rightPanel.add(lblLastRefresh);
+        rightPanel.add(btnRefreshAll);
+
+        p.add(leftPanel, BorderLayout.CENTER);
+        p.add(rightPanel, BorderLayout.EAST);
         return p;
     }
 
@@ -1107,6 +1183,561 @@ public class DashboardPanel extends JPanel {
         d.setVisible(true);
     }
     
+    // ================= ANALYTICS PANELS =================
+
+    /** Extended Stat Cards - Database aggregate stats */
+    private JPanel createExtendedStatCards() {
+        JPanel p = new JPanel(new GridLayout(1, 4, 10, 0));
+        p.setOpaque(false);
+        p.setBorder(ServerGuiUtils.createSectionBorder("📊 Thống Kê Tổng Hợp (Database)"));
+
+        lblStatAccounts = createAnalyticsCard("Tổng Tài Khoản", "...", new Color(0, 120, 215));
+        lblStatCharacters = createAnalyticsCard("Tổng Nhân Vật", "...", new Color(40, 167, 69));
+        lblStatGold = createAnalyticsCard("Tổng Vàng", "...", new Color(255, 152, 0));
+        lblStatRuby = createAnalyticsCard("Tổng Ruby", "...", new Color(220, 53, 69));
+
+        p.add(lblStatAccounts);
+        p.add(lblStatCharacters);
+        p.add(lblStatGold);
+        p.add(lblStatRuby);
+        return p;
+    }
+
+    private JLabel createAnalyticsCard(String title, String value, Color color) {
+        String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        JLabel lbl = new JLabel("<html><div style='text-align:center;padding:8px;'>"
+                + "<span style='font-size:10px;color:#888;'>" + title + "</span><br>"
+                + "<span style='font-size:18px;color:" + hex + ";font-weight:bold;'>" + value + "</span>"
+                + "</div></html>", SwingConstants.CENTER);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lbl.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                new javax.swing.border.EmptyBorder(5, 5, 5, 5)));
+        lbl.setOpaque(true);
+        lbl.setBackground(Color.WHITE);
+        return lbl;
+    }
+
+    private void updateAnalyticsCard(JLabel lbl, String title, String value, Color color) {
+        String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        lbl.setText("<html><div style='text-align:center;padding:8px;'>"
+                + "<span style='font-size:10px;color:#888;'>" + title + "</span><br>"
+                + "<span style='font-size:18px;color:" + hex + ";font-weight:bold;'>" + value + "</span>"
+                + "</div></html>");
+    }
+
+    /** Bar Chart Panel - Top 10 players by level */
+    private JPanel createBarChartPanel() {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(ServerGuiUtils.createSectionBorder("📊 Top 10 Người Chơi (Level)"));
+
+        chartBarPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawBarChart((Graphics2D) g);
+            }
+        };
+        chartBarPanel.setBackground(new Color(250, 250, 252));
+        chartBarPanel.setPreferredSize(new Dimension(0, 250));
+        wrapper.add(chartBarPanel, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private void drawBarChart(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int w = chartBarPanel.getWidth() - 80;
+        int h = chartBarPanel.getHeight() - 50;
+        int ox = 60, oy = 15;
+
+        if (topPlayers.length == 0) {
+            g2.setColor(new Color(150, 150, 150));
+            g2.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+            g2.drawString("Đang tải dữ liệu...", w / 2 - 50, h / 2);
+            return;
+        }
+
+        long maxLevel = 1;
+        for (String[] p : topPlayers) {
+            long lv = 0;
+            try { lv = Long.parseLong(p[1]); } catch (Exception e) {}
+            if (lv < 0) lv = 0;
+            if (lv > maxLevel) maxLevel = lv;
+        }
+        maxLevel = ((maxLevel / 10) + 1) * 10;
+
+        // Grid lines
+        g2.setColor(new Color(235, 235, 235));
+        for (int i = 0; i <= 5; i++) {
+            int y = oy + h - (h * i / 5);
+            g2.drawLine(ox, y, ox + w, y);
+            g2.setColor(new Color(150, 150, 150));
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            g2.drawString(String.valueOf(maxLevel * i / 5), 5, y + 4);
+            g2.setColor(new Color(235, 235, 235));
+        }
+
+        // Bars
+        int barCount = topPlayers.length;
+        int barW = Math.min(40, (w - 20) / Math.max(barCount, 1) - 8);
+        int gap = (w - barCount * barW) / (barCount + 1);
+
+        Color[] barColors = {
+            new Color(0, 120, 215), new Color(40, 167, 69), new Color(255, 152, 0),
+            new Color(220, 53, 69), new Color(142, 68, 173), new Color(0, 172, 105),
+            new Color(255, 87, 34), new Color(63, 81, 181), new Color(255, 179, 0),
+            new Color(108, 117, 125)
+        };
+
+        for (int i = 0; i < barCount; i++) {
+            long level = 0;
+            try { level = Long.parseLong(topPlayers[i][1]); } catch (Exception e) {}
+            if (level < 0) level = 0;
+            int barH = (int) ((long) h * level / maxLevel);
+            int bx = ox + gap + i * (barW + gap);
+            int by = oy + h - barH;
+
+            // Bar gradient
+            Color c = barColors[i % barColors.length];
+            GradientPaint gp = new GradientPaint(bx, by, c, bx, by + barH, c.darker());
+            g2.setPaint(gp);
+            g2.fillRoundRect(bx, by, barW, barH, 4, 4);
+
+            // Value label
+            g2.setColor(c.darker());
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            String valStr = String.valueOf(level);
+            int tw = g2.getFontMetrics().stringWidth(valStr);
+            g2.drawString(valStr, bx + (barW - tw) / 2, by - 3);
+
+            // Name label (rotated)
+            g2.setColor(new Color(80, 80, 80));
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+            String name = topPlayers[i][0];
+            if (name.length() > 8) name = name.substring(0, 7) + "..";
+            tw = g2.getFontMetrics().stringWidth(name);
+            g2.drawString(name, bx + (barW - tw) / 2, oy + h + 14);
+        }
+
+        // Axes
+        g2.setColor(new Color(100, 100, 100));
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawLine(ox, oy, ox, oy + h);
+        g2.drawLine(ox, oy + h, ox + w, oy + h);
+    }
+
+    /** Pie Chart Panel - Race distribution */
+    private JPanel createPieChartPanel() {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(ServerGuiUtils.createSectionBorder("🥧 Phân Bố Chủng Tộc"));
+
+        chartPiePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawPieChart((Graphics2D) g);
+            }
+        };
+        chartPiePanel.setBackground(new Color(250, 250, 252));
+        chartPiePanel.setPreferredSize(new Dimension(0, 250));
+        wrapper.add(chartPiePanel, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private void drawPieChart(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int w = chartPiePanel.getWidth();
+        int h = chartPiePanel.getHeight();
+
+        int total = raceDistribution[0] + raceDistribution[1] + raceDistribution[2];
+        if (total == 0) {
+            g2.setColor(new Color(150, 150, 150));
+            g2.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+            g2.drawString("Đang tải dữ liệu...", w / 2 - 60, h / 2);
+            return;
+        }
+
+        String[] names = {"Trái Đất", "Namek", "Xayda"};
+        Color[] colors = {
+            new Color(0, 120, 215),   // Blue
+            new Color(40, 167, 69),   // Green
+            new Color(220, 53, 69)    // Red
+        };
+
+        int pieSize = Math.min(w - 120, h - 40) - 10;
+        int px = (w - 120) / 2 - pieSize / 2;
+        int py = (h - pieSize) / 2;
+
+        int startAngle = 0;
+        for (int i = 0; i < 3; i++) {
+            int arcAngle = (int) Math.round(360.0 * raceDistribution[i] / total);
+            if (i == 2) arcAngle = 360 - startAngle; // Fix rounding
+
+            // Draw slice
+            g2.setColor(colors[i]);
+            g2.fillArc(px, py, pieSize, pieSize, startAngle, arcAngle);
+
+            // Border
+            g2.setColor(Color.WHITE);
+            g2.setStroke(new BasicStroke(2f));
+            g2.drawArc(px, py, pieSize, pieSize, startAngle, arcAngle);
+
+            startAngle += arcAngle;
+        }
+
+        // Center hole (donut)
+        int holeSize = pieSize / 3;
+        g2.setColor(new Color(250, 250, 252));
+        g2.fillOval(px + pieSize / 2 - holeSize / 2, py + pieSize / 2 - holeSize / 2, holeSize, holeSize);
+
+        // Total in center
+        g2.setColor(new Color(60, 60, 60));
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        String totalStr = String.valueOf(total);
+        int tw = g2.getFontMetrics().stringWidth(totalStr);
+        g2.drawString(totalStr, px + pieSize / 2 - tw / 2, py + pieSize / 2 + 5);
+
+        // Legend
+        int legendX = w - 115;
+        int legendY = h / 2 - 40;
+        for (int i = 0; i < 3; i++) {
+            g2.setColor(colors[i]);
+            g2.fillRoundRect(legendX, legendY + i * 25, 14, 14, 3, 3);
+            g2.setColor(new Color(60, 60, 60));
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            int pct = (int) Math.round(100.0 * raceDistribution[i] / total);
+            g2.drawString(names[i] + " (" + pct + "%)", legendX + 20, legendY + i * 25 + 12);
+        }
+    }
+
+    /** 24h Online Line Chart */
+    private JPanel createOnlineLineChartPanel() {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(ServerGuiUtils.createSectionBorder("📈 Biểu Đồ Online 24h (5 phút/điểm)"));
+
+        chartLinePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawOnlineLineChart((Graphics2D) g);
+            }
+        };
+        chartLinePanel.setBackground(new Color(250, 250, 252));
+        chartLinePanel.setPreferredSize(new Dimension(0, 220));
+        wrapper.add(chartLinePanel, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private void drawOnlineLineChart(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int w = chartLinePanel.getWidth() - 70;
+        int h = chartLinePanel.getHeight() - 40;
+        int ox = 55, oy = 10;
+
+        synchronized (onlineHistory24h) {
+            if (onlineHistory24h.isEmpty()) {
+                g2.setColor(new Color(150, 150, 150));
+                g2.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+                g2.drawString("Đang thu thập... (cập nhật mỗi 5 phút)", w / 2 - 100, h / 2);
+                return;
+            }
+
+            int maxVal = Math.max(10, onlineHistory24h.stream().mapToInt(Integer::intValue).max().orElse(10));
+            maxVal = ((maxVal / 5) + 1) * 5;
+
+            // Grid
+            g2.setColor(new Color(235, 235, 235));
+            for (int i = 0; i <= 5; i++) {
+                int y = oy + h - (h * i / 5);
+                g2.drawLine(ox, y, ox + w, y);
+                g2.setColor(new Color(150, 150, 150));
+                g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                g2.drawString(String.valueOf(maxVal * i / 5), 5, y + 4);
+                g2.setColor(new Color(235, 235, 235));
+            }
+
+            int size = onlineHistory24h.size();
+            if (size >= 2) {
+                int[] xp = new int[size];
+                int[] yp = new int[size];
+                for (int i = 0; i < size; i++) {
+                    xp[i] = ox + (w * i / (size - 1));
+                    yp[i] = oy + h - (int) ((long) h * onlineHistory24h.get(i) / maxVal);
+                }
+
+                // Fill area
+                int[] fillX = new int[size + 2];
+                int[] fillY = new int[size + 2];
+                System.arraycopy(xp, 0, fillX, 0, size);
+                System.arraycopy(yp, 0, fillY, 0, size);
+                fillX[size] = xp[size - 1]; fillY[size] = oy + h;
+                fillX[size + 1] = xp[0]; fillY[size + 1] = oy + h;
+                g2.setColor(new Color(0, 120, 215, 30));
+                g2.fillPolygon(fillX, fillY, size + 2);
+
+                // Line
+                g2.setColor(new Color(0, 120, 215));
+                g2.setStroke(new BasicStroke(2.5f));
+                g2.drawPolyline(xp, yp, size);
+
+                // Dots
+                for (int i = 0; i < size; i++) {
+                    g2.setColor(new Color(0, 120, 215));
+                    g2.fillOval(xp[i] - 3, yp[i] - 3, 6, 6);
+                }
+
+                // Last value
+                int lastVal = onlineHistory24h.get(size - 1);
+                g2.setColor(new Color(0, 120, 215));
+                g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                g2.drawString(String.valueOf(lastVal), xp[size - 1] + 5, yp[size - 1] - 5);
+            }
+
+            // Axes
+            g2.setColor(new Color(100, 100, 100));
+            g2.setStroke(new BasicStroke(1f));
+            g2.drawLine(ox, oy, ox, oy + h);
+            g2.drawLine(ox, oy + h, ox + w, oy + h);
+
+            // X-axis label
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            g2.drawString("← Cũ nhất", ox, oy + h + 15);
+            g2.drawString("Mới nhất →", ox + w - 55, oy + h + 15);
+        }
+    }
+
+    /** Server Architecture Diagram */
+    private JPanel createArchitectureDiagramPanel() {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(ServerGuiUtils.createSectionBorder("🏗 Sơ Đồ Kiến Trúc Server"));
+
+        chartArchPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawArchitectureDiagram((Graphics2D) g);
+            }
+        };
+        chartArchPanel.setBackground(new Color(250, 250, 252));
+        chartArchPanel.setPreferredSize(new Dimension(0, 180));
+        wrapper.add(chartArchPanel, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private void drawArchitectureDiagram(Graphics2D g2) {
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int w = chartArchPanel.getWidth();
+        int h = chartArchPanel.getHeight();
+
+        // Components layout
+        int boxW = 130, boxH = 55;
+        int cy = h / 2;
+
+        // Positions
+        int[] posX = {40, 220, 400, 580, 720};
+        String[] labels = {"📱 Clients", "🔥 Firewall", "🔄 Proxy", "⚡ Game Server", "💾 Database"};
+        String[] subs = {"Players", "Anti-DDoS", "Load Balancer", "Main Engine", "MySQL"};
+        Color[] bgColors = {
+            new Color(0, 120, 215), new Color(220, 53, 69), new Color(255, 152, 0),
+            new Color(40, 167, 69), new Color(63, 81, 181)
+        };
+
+        // Scale if needed
+        float scale = 1f;
+        if (w < 880) {
+            scale = (float) w / 900f;
+        }
+
+        Graphics2D gs = (Graphics2D) g2.create();
+        if (scale < 1f) {
+            gs.scale(scale, 1);
+        }
+
+        // Draw connections first
+        gs.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        for (int i = 0; i < posX.length - 1; i++) {
+            int x1 = posX[i] + boxW;
+            int x2 = posX[i + 1];
+            gs.setColor(new Color(180, 180, 180));
+            gs.drawLine(x1, cy, x2, cy);
+
+            // Arrow
+            int arrowX = x2 - 6;
+            gs.setColor(bgColors[i + 1]);
+            gs.fillPolygon(new int[]{arrowX, arrowX - 8, arrowX - 8}, new int[]{cy, cy - 5, cy + 5}, 3);
+        }
+
+        // Draw boxes
+        for (int i = 0; i < posX.length; i++) {
+            int bx = posX[i];
+            int by = cy - boxH / 2;
+
+            // Shadow
+            gs.setColor(new Color(0, 0, 0, 20));
+            gs.fillRoundRect(bx + 2, by + 3, boxW, boxH, 10, 10);
+
+            // Box
+            GradientPaint gp = new GradientPaint(bx, by, bgColors[i], bx, by + boxH, bgColors[i].darker());
+            gs.setPaint(gp);
+            gs.fillRoundRect(bx, by, boxW, boxH, 10, 10);
+
+            // Highlight
+            gs.setColor(new Color(255, 255, 255, 40));
+            gs.fillRoundRect(bx + 1, by + 1, boxW - 2, boxH / 2, 9, 9);
+
+            // Text
+            gs.setColor(Color.WHITE);
+            gs.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            FontMetrics fm = gs.getFontMetrics();
+            int tw = fm.stringWidth(labels[i]);
+            gs.drawString(labels[i], bx + (boxW - tw) / 2, cy - 3);
+
+            gs.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            fm = gs.getFontMetrics();
+            tw = fm.stringWidth(subs[i]);
+            gs.drawString(subs[i], bx + (boxW - tw) / 2, cy + 14);
+
+            // Status dot
+            gs.setColor(new Color(0, 220, 80));
+            gs.fillOval(bx + boxW - 14, by + 5, 8, 8);
+        }
+
+        // Flow labels
+        gs.setColor(new Color(120, 120, 120));
+        gs.setFont(new Font("Segoe UI", Font.ITALIC, 9));
+        for (int i = 0; i < posX.length - 1; i++) {
+            int midX = (posX[i] + boxW + posX[i + 1]) / 2;
+            gs.drawString("→", midX - 5, cy - 12);
+        }
+
+        gs.dispose();
+    }
+
+    /** Manually refresh the entire dashboard: connection monitor + analytics + game stats */
+    private void refreshEntireDashboard() {
+        addLog("DASHBOARD: Đang làm mới dữ liệu...");
+        // Update timestamp
+        lblLastRefresh.setText(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        // Refresh connection monitor
+        refreshConnectionMonitor();
+        // Refresh analytics from DB (runs in background thread)
+        scheduler.execute(() -> {
+            try {
+                doRefreshAnalyticsFromDB();
+            } catch (Exception e) {
+                addLog("Refresh error: " + e.getMessage());
+            }
+        });
+        addLog("DASHBOARD: Làm mới hoàn tất.");
+    }
+
+    /** Refresh analytics data from database (auto-scheduled every 5 min) */
+    private void refreshAnalyticsData() {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                doRefreshAnalyticsFromDB();
+            } catch (Exception e) {
+                addLog("Analytics refresh error: " + e.getMessage());
+            }
+        }, 2, 300, TimeUnit.SECONDS);
+    }
+
+    /** Core DB refresh logic - called by both auto-scheduler and manual refresh button */
+    private void doRefreshAnalyticsFromDB() {
+        try (Connection con = jdbc.DBConnecter.getConnectionServer()) {
+            // Total accounts
+            try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM account");
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) totalAccounts = rs.getInt(1);
+            }
+
+            // Total characters
+            try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM player");
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) totalCharacters = rs.getInt(1);
+            }
+
+            // Total gold
+            try (PreparedStatement ps = con.prepareStatement("SELECT COALESCE(SUM(vang), 0) FROM account");
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) totalGold = rs.getLong(1);
+            }
+
+            // Total ruby
+            try (PreparedStatement ps = con.prepareStatement("SELECT COALESCE(SUM(thoi_vang), 0) FROM account");
+                 ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) totalRuby = rs.getLong(1);
+            }
+
+            // Race distribution (gender: 0=Trái Đất, 1=Namek, 2=Xayda)
+            int[] dist = {0, 0, 0};
+            try (PreparedStatement ps = con.prepareStatement("SELECT gender, COUNT(*) FROM player GROUP BY gender");
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int g = rs.getInt(1);
+                    if (g >= 0 && g <= 2) dist[g] = rs.getInt(2);
+                }
+            }
+            raceDistribution = dist;
+
+            // Top 10 players by power
+            java.util.List<String[]> tops = new java.util.ArrayList<>();
+            try (PreparedStatement ps = con.prepareStatement(
+                    "SELECT name, COALESCE(power, 0) FROM player ORDER BY power DESC LIMIT 10");
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString(1);
+                    long power = rs.getLong(2);
+                    if (name != null && !name.isEmpty()) {
+                        tops.add(new String[]{name, String.valueOf(power)});
+                    }
+                }
+            } catch (Exception e2) {
+                addLog("Top players query failed: " + e2.getMessage());
+            }
+            topPlayers = tops.toArray(new String[0][0]);
+
+            // Record online count for chart
+            int online = (Client.gI() != null) ? Client.gI().getPlayers().size() : 0;
+            synchronized (onlineHistory24h) {
+                onlineHistory24h.add(online);
+                if (onlineHistory24h.size() > 288) {
+                    onlineHistory24h.remove(0);
+                }
+            }
+
+        } catch (Exception e) {
+            addLog("Analytics refresh error: " + e.getMessage());
+        }
+
+        // Update UI on EDT
+        SwingUtilities.invokeLater(() -> {
+            String goldStr = formatLargeNumber(totalGold);
+            String rubyStr = formatLargeNumber(totalRuby);
+
+            updateAnalyticsCard(lblStatAccounts, "Tổng Tài Khoản", String.valueOf(totalAccounts), new Color(0, 120, 215));
+            updateAnalyticsCard(lblStatCharacters, "Tổng Nhân Vật", String.valueOf(totalCharacters), new Color(40, 167, 69));
+            updateAnalyticsCard(lblStatGold, "Tổng Vàng", goldStr, new Color(255, 152, 0));
+            updateAnalyticsCard(lblStatRuby, "Tổng Ruby", rubyStr, new Color(220, 53, 69));
+
+            if (chartBarPanel != null) chartBarPanel.repaint();
+            if (chartPiePanel != null) chartPiePanel.repaint();
+            if (chartLinePanel != null) chartLinePanel.repaint();
+            if (chartArchPanel != null) chartArchPanel.repaint();
+        });
+    }
+
+    private String formatLargeNumber(long num) {
+        if (num >= 1_000_000_000L) return String.format("%.1fB", num / 1_000_000_000.0);
+        if (num >= 1_000_000L) return String.format("%.1fM", num / 1_000_000.0);
+        if (num >= 1_000L) return String.format("%.1fK", num / 1_000.0);
+        return String.valueOf(num);
+    }
+
     private JPanel createLogPanel() {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
@@ -1268,10 +1899,9 @@ public class DashboardPanel extends JPanel {
             });
         }, 0, 1, TimeUnit.SECONDS);
 
-        // Connection Monitor refresh (every 3 seconds)
-        scheduler.scheduleAtFixedRate(() -> {
-            SwingUtilities.invokeLater(() -> refreshConnectionMonitor());
-        }, 1, 3, TimeUnit.SECONDS);
+        // Connection Monitor: NO auto-refresh (manual only via Refresh button)
+        // Initial load
+        SwingUtilities.invokeLater(() -> refreshConnectionMonitor());
     }
 
     private void updateUptime() {

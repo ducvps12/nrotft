@@ -58,19 +58,46 @@ public class OngGohan extends Npc {
         {1000000, 1300000}, {2000000, 3500000}, {5000000, 10000000}
     };
 
-    // ===================== MENU GỐC =====================
+    // ===================== INDEX MENU MỚI =====================
+    // Menu gốc: BASE_MENU (hiển thị tổng quan + 8 nút chức năng chính)
+    // Menu con cấp 1:
+    private static final int MENU_NAP_TIEN = ConstNpc.NAP_TIEN;       // 503
+    private static final int MENU_QUA_MIEN_PHI = 991;
+    private static final int MENU_DIEM_DANH = 111;
+    private static final int MENU_QUA_THANH_TICH = ConstNpc.MOC_QUA_TANG; // 507
+    private static final int MENU_MOC_NAP = 1115;
+    private static final int MENU_MOC_BOSS = 1116;
+    private static final int MENU_XOA_DE = 12456;
+    private static final int MENU_THANH_VIEN = 782;
+    private static final int MENU_HOM_THU = ConstNpc.MAIL_BOX;
+    private static final int MENU_KHAC = 992;
+
+    // ===================== MENU GỐC - TỐI ƯU =====================
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player) && !TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
-            createOtherMenu(player, ConstNpc.BASE_MENU,
-                    "Xin chào!\nTại đây con có thể thực hiện:\n"
-                    + "- Nạp tiền, vàng, ngọc\n"
-                    + "- Mở thành viên / Hỗ trợ nhiệm vụ\n"
-                    + "- Nhận quà miễn phí (Ngọc / Điểm danh)\n"
-                    + "- Đổi mật khẩu / quên mã bảo vệ\n"
-                    + "- Nhập GiftCode\n",
-                    "Đổi Mật Khẩu", "GiftCode", "Nạp tiền",
-                    "Quà Miễn Phí", "Quên Mã Bảo Vệ?", "Khác");
+            String cash = Util.mumberToLouis(player.getSession().cash);
+            String goldBar = Util.mumberToLouis(player.getSession().goldBar);
+            boolean isActive = player.getSession().actived;
+            int mailCount = player.inventory.itemsMailBox.size()
+                    - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsMailBox);
+
+            // Header hiển thị thông tin ngay tại menu gốc
+            String info = "|7|━━━ THÔNG TIN TÀI KHOẢN ━━━\n"
+                    + "|1|Số dư: " + cash + " VNĐ\n"
+                    + "|8|Thỏi vàng (giữ hộ): " + goldBar + "\n"
+                    + "|2|Thành viên: " + (isActive ? "✓ Đã kích hoạt" : "✗ Chưa kích hoạt") + "\n"
+                    + "|3|Hòm thư: " + mailCount + " món\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                    + "Chọn chức năng bên dưới:";
+
+            createOtherMenu(player, ConstNpc.BASE_MENU, info,
+                    "Nạp Tiền\n& Đổi VNĐ",
+                    "Quà\nMiễn Phí",
+                    "Hòm Thư\n(" + mailCount + " món)",
+                    "Đổi\nMật Khẩu",
+                    "GiftCode",
+                    "Hỗ Trợ\n& Khác");
         }
     }
 
@@ -83,72 +110,83 @@ public class OngGohan extends Npc {
         switch (player.iDMark.getIndexMenu()) {
             case ConstNpc.BASE_MENU ->
                 handleBaseMenu(player, select);
-            case 111 ->
-                handleFreeItemMenu(player, select);
-            case 112 ->
-                handleNhanQuaMenu(player, select);
-            case 991 ->
-                handleFreeGiftMenu(player, select);
-            case 992 ->
-                handleOtherOptionsMenu(player, select);
-            case ConstNpc.MAIL_BOX ->
-                handleMailBox(player, select);
-            case ConstNpc.NAP_TIEN ->
+            case MENU_NAP_TIEN ->
                 handleNapTienMenu(player, select);
-            case ConstNpc.MOC_QUA_TANG ->
+            case MENU_QUA_MIEN_PHI ->
+                handleFreeGiftMenu(player, select);
+            case MENU_DIEM_DANH ->
+                handleFreeItemMenu(player, select);
+            case MENU_QUA_THANH_TICH ->
                 handleNhanQuaMenu(player, select);
-            case ConstNpc.CHUYEN_KHOAN -> handleChuyenKhoan(player, select);
-            case ConstNpc.CONTENT_CHUYEN_KHOAN -> handleChuyenKhoanqr(player, select);
+            case MENU_MOC_NAP ->
+                handleMocNap(player, select);
+            case MENU_MOC_BOSS ->
+                handleMocBoss(player, select);
+            case MENU_XOA_DE ->
+                handleDeletePet(player, select);
+            case MENU_THANH_VIEN ->
+                handleMemberActivation(player, select);
+            case MENU_HOM_THU ->
+                handleMailBox(player, select);
+            case MENU_KHAC ->
+                handleOtherOptionsMenu(player, select);
+            case ConstNpc.CHUYEN_KHOAN ->
+                handleChuyenKhoan(player, select);
+            case ConstNpc.CONTENT_CHUYEN_KHOAN ->
+                handleChuyenKhoanqr(player, select);
             case ConstNpc.NAP_VANG ->
                 handleNapVang(player, select);
             case ConstNpc.NAP_NGOC ->
                 handleNapNgoc(player, select);
-            case 12456 ->
-                handleDeletePet(player, select);
-            case 1115 ->
-                handleMocNap(player, select);
-            case 1116 ->
-                handleMocBoss(player, select);
-            case 782 ->
-                handleMemberActivation(player, select);
         }
     }
 
-    // ===================== MENU PHỤ =====================
+    // ===================== XỬ LÝ MENU GỐC =====================
     private void handleBaseMenu(Player player, int select) {
         switch (select) {
-            case 0 ->
-                Input.gI().createFormChangePassword(player);
-            case 1 ->
-                Input.gI().createFormGiftCode(player);
-            case 2 ->
+            case 0 -> // Nạp Tiền & Đổi VNĐ
                 showNapTienMenu(player);
-            case 3 ->
-                createOtherMenu(player, 991, "Chọn phần quà miễn phí:", "Nhận\nngọc Xanh","Điểm Danh\nHàng Ngày","Nhận Quà\nThành Tích", "Đóng");
-            case 4 ->
-                Input.gI().createFormMBV(player);
-            case 5 ->
-                openOtherOptions(player);
+            case 1 -> // Quà Miễn Phí
+                showFreeGiftMenu(player);
+            case 2 -> // Hòm Thư
+                openMailBoxDirect(player);
+            case 3 -> // Đổi Mật Khẩu
+                Input.gI().createFormChangePassword(player);
+            case 4 -> // GiftCode
+                Input.gI().createFormGiftCode(player);
+            case 5 -> // Hỗ Trợ & Khác
+                showOtherMenu(player);
         }
+    }
+
+    // ===================== QUÀ MIỄN PHÍ (GỘP 1 CẤP) =====================
+    private void showFreeGiftMenu(Player player) {
+        int diemDanh = player.getSession().diemdanh;
+        String msg = "|7|━━━ QUÀ MIỄN PHÍ ━━━\n"
+                + "|1|Điểm danh hiện tại: " + diemDanh + " ngày\n"
+                + "|8|Ngọc xanh: " + Util.mumberToLouis(player.inventory.gem) + "\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+        createOtherMenu(player, MENU_QUA_MIEN_PHI, msg,
+                "Nhận\nNgọc Xanh",
+                "Điểm Danh\nHàng Ngày",
+                "Nhận Quà\nĐiểm Danh",
+                "Quà\nThành Tích",
+                "Nhận\nĐệ Tử",
+                "Đóng");
     }
 
     private void handleFreeGiftMenu(Player player, int select) {
         switch (select) {
-            case 0 ->
+            case 0 -> // Nhận Ngọc Xanh trực tiếp
                 giveFreeGem(player);
-//            case 1 ->
-//                giveFreePet(player);
-            case 1 ->
-                this.createOtherMenu(player, 111,
-                        "Xin chào hãy thực hiện!\n"
-                        + "Điểm Danh để ghi nhận ngày tham gia.\n"
-                        + "Khi đủ điều kiện, nhấn Nhận Quà để lấy vào hành trang.\n"
-                        + "\nKhông tốn gì cả, chăm chỉ mỗi ngày nhé!",
-                        "Nhận Quà",
-                        "Điểm Danh",
-                        "Đóng");
-            case 2 ->
+            case 1 -> // Điểm Danh trực tiếp
+                thucHienDiemDanh(player);
+            case 2 -> // Nhận Quà Điểm Danh → mở shop
+                ShopService.gI().opendShop(player, "DIEM_DANH", false);
+            case 3 -> // Quà Thành Tích
                 showQuaTangMenu(player);
+            case 4 -> // Nhận Đệ Tử
+                giveFreePet(player);
         }
     }
 
@@ -185,18 +223,32 @@ public class OngGohan extends Npc {
         }
     }
 
-    private void openOtherOptions(Player player) {
+    // ===================== HỖ TRỢ & KHÁC (GỘP) =====================
+    private void showOtherMenu(Player player) {
         if (player.getSession() == null) {
             return;
         }
 
-        // Nếu đã mở thành viên thì ẩn mục "Mở thành viên"
-        if (player.getSession().actived) {
-            createOtherMenu(player, 992, "Tùy chọn khác:",
-                    "Xóa đệ", "Hỗ trợ nhiệm vụ", "Hòm thư", "Đóng");
+        boolean isActive = player.getSession().actived;
+
+        String msg = "|7|━━━ HỖ TRỢ & TIỆN ÍCH ━━━\n"
+                + "|1|Quên Mã Bảo Vệ → nhập lại\n"
+                + "|8|Xóa đệ cần 10K VNĐ\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        if (isActive) {
+            createOtherMenu(player, MENU_KHAC, msg,
+                    "Quên Mã\nBảo Vệ",
+                    "Hỗ Trợ\nNhiệm Vụ",
+                    "Xóa Đệ",
+                    "Đóng");
         } else {
-            createOtherMenu(player, 992, "Tùy chọn khác:",
-                    "Xóa đệ", "Hỗ trợ nhiệm vụ", "Hòm thư", "Mở thành viên", "Đóng");
+            createOtherMenu(player, MENU_KHAC, msg,
+                    "Quên Mã\nBảo Vệ",
+                    "Hỗ Trợ\nNhiệm Vụ",
+                    "Xóa Đệ",
+                    "Mở\nThành Viên",
+                    "Đóng");
         }
     }
 
@@ -206,95 +258,131 @@ public class OngGohan extends Npc {
         }
 
         if (player.getSession().actived) {
-            // menu đã ẩn mục "Mở thành viên" -> select chỉ còn 0..3
             switch (select) {
-                case 0 ->
-                    createOtherMenu(player, 12456, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
-                case 1 ->
+                case 0 -> // Quên Mã Bảo Vệ
+                    Input.gI().createFormMBV(player);
+                case 1 -> // Hỗ Trợ Nhiệm Vụ
                     supportTask(player);
-                case 2 ->
-                    createOtherMenu(player, ConstNpc.MAIL_BOX,
-                            "Chào con\nĐây là hòm thư nhận quà từ sự kiện, đua top hoặc Admin",
-                            "Hòm Thư\n(" + (player.inventory.itemsMailBox.size()
-                            - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsMailBox)) + " món)",
-                            "Xóa Hết\nHòm Thư", "Đóng");
+                case 2 -> // Xóa Đệ
+                    createOtherMenu(player, MENU_XOA_DE, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
             }
         } else {
-            // menu có mục "Mở thành viên"
             switch (select) {
-                case 0 ->
-                    createOtherMenu(player, 12456, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
-                case 1 ->
+                case 0 -> // Quên Mã Bảo Vệ
+                    Input.gI().createFormMBV(player);
+                case 1 -> // Hỗ Trợ Nhiệm Vụ
                     supportTask(player);
-                case 2 ->
-                    createOtherMenu(player, ConstNpc.MAIL_BOX,
-                            "Chào con\nĐây là hòm thư nhận quà từ sự kiện, đua top hoặc Admin",
-                            "Hòm Thư\n(" + (player.inventory.itemsMailBox.size()
-                            - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsMailBox)) + " món)",
-                            "Xóa Hết\nHòm Thư", "Đóng");
-                case 3 ->
+                case 2 -> // Xóa Đệ
+                    createOtherMenu(player, MENU_XOA_DE, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
+                case 3 -> // Mở Thành Viên
                     showMemberMenu(player);
             }
         }
     }
 
-    // ===================== NẠP TIỀN =====================
+    // ===================== NẠP TIỀN (HIỂN THỊ ĐẦY ĐỦ) =====================
     private void showNapTienMenu(Player player) {
-        String msg = "Số dư của con là: " + Util.mumberToLouis(player.getSession().cash) + " VND\n"
-                + "Ta đang giữ giúp con " + Util.mumberToLouis(player.getSession().goldBar) + " thỏi vàng";
-        createOtherMenu(player, ConstNpc.NAP_TIEN, msg,
-                "Nạp VNĐ", "Nạp vàng", "Nạp Ngọc", "Nhận\nThỏi vàng", "Đóng");
+        String cash = Util.mumberToLouis(player.getSession().cash);
+        String goldBar = Util.mumberToLouis(player.getSession().goldBar);
+
+        String msg = "|7|━━━ NẠP TIỀN & ĐỔI VNĐ ━━━\n"
+                + "|1|Số dư: " + cash + " VNĐ\n"
+                + "|8|Thỏi vàng (giữ hộ): " + goldBar + "\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        createOtherMenu(player, MENU_NAP_TIEN, msg,
+                "Nạp VNĐ\n(ATM/QR)",
+                "Đổi VNĐ\n→ Thỏi Vàng",
+                "Đổi VNĐ\n→ Hồng Ngọc",
+                "Nhận\nThỏi Vàng",
+                "Hướng Dẫn\nBONUS",
+                "Đóng");
     }
     
     // ===================== MỐC QUÀ TẶNG =====================
     private void showQuaTangMenu(Player player) {
-        String msg = "Số dư của con là: " + Util.mumberToLouis(player.getSession().cash) + " VND\n"
-                + "Ta đang giữ giúp con " + Util.mumberToLouis(player.getSession().goldBar) + " thỏi vàng";
-        createOtherMenu(player, ConstNpc.MOC_QUA_TANG, msg,
-                "Mốc\nĐã Nạp", "Mốc\nSăn Boss", "Đóng");
+        String cash = Util.mumberToLouis(player.getSession().cash);
+        String goldBar = Util.mumberToLouis(player.getSession().goldBar);
+
+        String msg = "|7|━━━ QUÀ THÀNH TÍCH ━━━\n"
+                + "|1|Số dư: " + cash + " VNĐ\n"
+                + "|8|Thỏi vàng (giữ hộ): " + goldBar + "\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        createOtherMenu(player, MENU_QUA_THANH_TICH, msg,
+                "Mốc\nĐã Nạp",
+                "Mốc\nSăn Boss",
+                "Đóng");
     }
     
     private void handleNhanQuaMenu(Player player, int select) {
         switch (select) {
             case 0 -> {
-                this.createOtherMenu(player, 1115, "Nạp đạt mốc nhận quà he :3", "Xem quà mốc nạp", "Nhận quà mốc nạp", "Đóng");
+                this.createOtherMenu(player, MENU_MOC_NAP,
+                        "|7|━━━ MỐC NẠP ━━━\n"
+                        + "|1|Nạp đạt mốc nhận quà!\n"
+                        + "|8|Reset vào thứ 2 hàng tuần\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                        "Xem Quà\nMốc Nạp",
+                        "Nhận Quà\nMốc Nạp",
+                        "Đóng");
             }
             case 1 -> {
-                this.createOtherMenu(player, 1116, "Quà săn boss đạt mốc thì nhận quà he :3", "Xem\nquà mốc\nSăn Boss", "Nhận\nquà mốc\nSăn Boss", "Đóng");
+                this.createOtherMenu(player, MENU_MOC_BOSS,
+                        "|7|━━━ MỐC SĂN BOSS ━━━\n"
+                        + "|1|Săn boss đạt mốc nhận quà!\n"
+                        + "|8|Reset vào cuối tháng\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                        "Xem Quà\nMốc Boss",
+                        "Nhận Quà\nMốc Boss",
+                        "Đóng");
             }
         }
     }
 
     private void handleNapTienMenu(Player player, int select) {
         switch (select) {
-            case 0 -> createOtherMenu(player, ConstNpc.CHUYEN_KHOAN,
-                "Nạp Coin ATM tự động " + ServerManager.NAME
-                + "\n|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
-                + "|8|Tỉ lệ Nạp X1 GIÁ TRỊ NẠP\n"
-                + "|2|Chọn đúng mệnh giá. Sai sẽ không được cộng tiền\n"
-                + "|7|Đợi 1-3 phút để hệ thống xử lý\n"
-                + "|2|Nếu quá 5 phút chưa nhận liên hệ Admin",
-                "Tạo giao dịch", "Xem lịch sử\ngiao dịch", "Hướng Dẫn\nBONUS");
-            case 1 -> {
+            case 0 -> // Nạp VNĐ (ATM/QR)
+                createOtherMenu(player, ConstNpc.CHUYEN_KHOAN,
+                    "|7|━━━ NẠP COIN ATM ━━━\n"
+                    + "|1|Server: " + ServerManager.NAME + "\n"
+                    + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                    + "|8|Tỉ lệ: X1 GIÁ TRỊ NẠP\n"
+                    + "|2|Chọn đúng mệnh giá. Sai = không cộng\n"
+                    + "|7|Đợi 1-3p để hệ thống xử lý\n"
+                    + "|2|Quá 5 phút chưa nhận → liên hệ Admin\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━",
+                    "Tạo\nGiao Dịch",
+                    "Lịch Sử\nGiao Dịch",
+                    "Đóng");
+            case 1 -> { // Đổi VNĐ → Thỏi Vàng
                 List<String> menu = new ArrayList<>();
                 for (int[] option : NAP_VANG) {
-                    menu.add(Util.mumberToLouis(option[0]) + "\n" + Util.mumberToLouis(option[1] * COST_NAP_VANG) + " Thỏi vàng");
+                    menu.add(Util.mumberToLouis(option[0]) + "\n" + Util.mumberToLouis(option[1] * COST_NAP_VANG) + " Thỏi");
                 }
-                createOtherMenu(player, ConstNpc.NAP_VANG, "Ta sẽ giữ giúp con.\nCần thì quay lại gặp ta!", menu.toArray(new String[0]));
+                createOtherMenu(player, ConstNpc.NAP_VANG,
+                        "|7|━━━ ĐỔI VNĐ → THỎI VÀNG ━━━\n"
+                        + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                        + "|8|Chọn mệnh giá muốn đổi:\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                        menu.toArray(new String[0]));
             }
-            case 2 -> {
+            case 2 -> { // Đổi VNĐ → Hồng Ngọc
                 List<String> menu = new ArrayList<>();
                 for (int[] option : NAP_NGOC) {
-                    menu.add(Util.mumberToLouis(option[0]) + "\n" + Util.mumberToLouis(option[1] * COST_NAP_NGOC) + " Hồng Ngọc");
+                    menu.add(Util.mumberToLouis(option[0]) + "\n" + Util.mumberToLouis(option[1] * COST_NAP_NGOC) + " Ngọc");
                 }
-                createOtherMenu(player, ConstNpc.NAP_NGOC, "Ta sẽ giữ giúp con.\nCần thì quay lại gặp ta!", menu.toArray(new String[0]));
+                createOtherMenu(player, ConstNpc.NAP_NGOC,
+                        "|7|━━━ ĐỔI VNĐ → HỒNG NGỌC ━━━\n"
+                        + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                        + "|8|Chọn mệnh giá muốn đổi:\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                        menu.toArray(new String[0]));
             }
-            case 3 -> {
+            case 3 -> // Nhận Thỏi Vàng
                 receiveGoldBar(player);
-            }
-//            case 4 -> {
-//                showQuaTangMenu(player);
-//            }
+            case 4 -> // Hướng Dẫn BONUS
+                NpcService.gI().createTutorial(player, tempId, this.avartar, ConstNpc.HUONG_DAN_NAP);
         }
     }
 
@@ -450,8 +538,6 @@ public class OngGohan extends Npc {
             }
             case 1 ->
                 ChuyenKhoanManager.ShowTransaction(player);
-            case 2 ->
-                NpcService.gI().createTutorial(player, tempId, this.avartar, ConstNpc.HUONG_DAN_NAP);
         }
     }
 
@@ -567,7 +653,21 @@ public class OngGohan extends Npc {
         }
     }
 
-    // ===================== HÒM THƯ =====================
+    // ===================== HÒM THƯ (TRỰC TIẾP) =====================
+    private void openMailBoxDirect(Player player) {
+        int mailCount = player.inventory.itemsMailBox.size()
+                - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsMailBox);
+
+        createOtherMenu(player, MENU_HOM_THU,
+                "|7|━━━ HÒM THƯ ━━━\n"
+                + "|1|Bạn có " + mailCount + " vật phẩm trong hòm thư\n"
+                + "|8|Quà từ sự kiện, đua top hoặc Admin\n"
+                + "|7|━━━━━━━━━━━━━━━━━━",
+                "Mở\nHòm Thư",
+                "Xóa Hết\nHòm Thư",
+                "Đóng");
+    }
+
     private void handleMailBox(Player player, int select) {
         switch (select) {
             case 0 ->
@@ -590,10 +690,13 @@ public class OngGohan extends Npc {
         DecimalFormat df = new DecimalFormat("#,###");
         String formattedCash = df.format(player.getSession().cash);
 
-        createOtherMenu(player, 782,
-                "|2|Mở thành viên giá 20.000 VNĐ\n"
-                + "|7|Bạn đã nạp: " + formattedCash + " đồng",
-                "Mở", "Đóng");
+        createOtherMenu(player, MENU_THANH_VIEN,
+                "|7|━━━ MỞ THÀNH VIÊN ━━━\n"
+                + "|2|Giá: 20.000 VNĐ\n"
+                + "|1|Số dư: " + formattedCash + " VNĐ\n"
+                + "|7|━━━━━━━━━━━━━━━━━━",
+                "Mở\nThành Viên",
+                "Đóng");
     }
 
     private void handleMemberActivation(Player player, int select) {

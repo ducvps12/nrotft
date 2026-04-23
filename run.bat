@@ -8,16 +8,13 @@ title NROTFT Server
 set MIN_RAM=1G
 set MAX_RAM=4G
 
+setlocal enabledelayedexpansion
 :: Doc RAM tu file config (neu ton tai)
 if exist ram_config.txt (
-    for /f "tokens=1 delims=" %%a in ('more +0 ram_config.txt') do (
-        set MIN_RAM=%%a
-        goto :readmax
-    )
-    :readmax
     set /a linenum=0
-    for /f "tokens=1 delims=" %%a in (ram_config.txt) do (
+    for /f "usebackq tokens=1 delims=" %%a in ("ram_config.txt") do (
         set /a linenum+=1
+        if !linenum! equ 1 set MIN_RAM=%%a
         if !linenum! equ 2 set MAX_RAM=%%a
     )
 )
@@ -33,5 +30,5 @@ echo RAM Khoi dong:    %MIN_RAM%
 echo RAM Toi da:       %MAX_RAM%
 echo =========================================================
 
-"C:\Program Files\Java\jdk-22\bin\java.exe" %JAVA_OPTS% -cp "dist\NROTFT.jar;lib\*" nro.server.ServerManager
+"C:\Program Files\Java\jdk-21\bin\java.exe" %JAVA_OPTS% -cp "dist\NROTFT.jar;lib\*" nro.server.ServerManager
 pause

@@ -1,12 +1,5 @@
 package boss.boss_manifest.RedRibbonHQ;
 
-/*
- *
- *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
- * Chuyên chỉnh sữa mua bán source nro,...
- */
 
 import consts.ConstPlayer;
 import boss.*;

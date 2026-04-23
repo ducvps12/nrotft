@@ -2,7 +2,7 @@ package nro.server;
 
 /*
  * @Author:  minhluong
- * @Zalo: 0372875491
+ * @Zalo: 0376263452
  */
 import boss.Boss;
 import boss.BossID;
@@ -70,7 +70,7 @@ import nro.services.ItemService;
 import nro.services.Service;
 import nro.services.TaskService;
 
-import com.formdev.flatlaf.FlatLightLaf; // ✅ Light mode theme
+import com.formdev.flatlaf.FlatLightLaf; // âœ… Light mode theme
 import event.EventManager;
 import java.time.format.DateTimeFormatter;
 import org.pcap4j.core.NotOpenException;
@@ -155,7 +155,7 @@ public class ServerManagerUI1 extends JFrame {
      */
     private void initTaskManagerUI() {
 
-        setTitle("Server Manager — Task Manager Style");
+        setTitle("Server Manager â€” Task Manager Style");
 
         getContentPane().removeAll();
         setLayout(new BorderLayout());

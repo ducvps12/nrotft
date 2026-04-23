@@ -3,8 +3,8 @@ package models.GiftCode;
 /*
  *
  *
- *  Box ZALO:https://zalo.me/g/hfaysi616
- *  sdt zalo: 0372875491
+ *  Box ZALO:https://zalo.me/g/irufas657
+ *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
 import consts.ConstNpc;
@@ -18,6 +18,7 @@ import java.util.Set;
 
 import jdbc.DBConnecter;
 import jdbc.NDVDB;
+import jdbc.daos.PlayerDAO;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -116,6 +117,16 @@ public class GiftCodeService {
                     case -3 -> {
                         player.inventory.ruby = Math.min(player.inventory.ruby + quantity, 20000);
                         textGift += "|4|" + quantity + " ngọc khóa\b";
+                    }
+                    case -4 -> {
+                        // Mở thành viên miễn phí qua giftcode
+                        if (!player.getSession().actived) {
+                            player.getSession().actived = true;
+                            PlayerDAO.updateActive(player, 1);
+                            textGift += "|6|✓ Mở Thành Viên thành công!\b";
+                        } else {
+                            textGift += "|1|Bạn đã là Thành Viên rồi\b";
+                        }
                     }
                     default -> {
                         Item itemGiftTemplate = ItemService.gI().createNewItem((short) idItem);

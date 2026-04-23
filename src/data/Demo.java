@@ -1,6 +1,6 @@
 package data;
 
-//Small version là kích thước của các icon chia lấy dư cho 127.
+//Small version là kích thước của các icon chia lấy dư cho 127
 // có tác dụng là để kiểm tra kích thước của icon trên server và icon đã lưu trên máy xem có cùng kích thước hay không.
 // nếu khác kích thước nó sẽ request icon mới.
 // nếu bạn điền bừa small version hoặc ghi kích thước không đúng nó sẽ request icon liên tục

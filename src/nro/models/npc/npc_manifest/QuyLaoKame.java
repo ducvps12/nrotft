@@ -150,6 +150,8 @@ public class QuyLaoKame extends Npc {
                 if (ruacon != null && ruacon.quantity >= 1) {
                     menu.add("Giao\nRùa con");
                 }
+                // Menu đổi Hộp Quà Sự Kiện
+                menu.add("Đổi Hộp\nQuà SK");
             } else {
                 menu.add("Giao\nLân con");
             }
@@ -206,6 +208,9 @@ public class QuyLaoKame extends Npc {
                 break;
             case 15:
                 handleMenu15(player, select);
+                break;
+            case 88: // Menu xác nhận đổi hộp quà sự kiện
+                handleConfirmDoiHopQuaSK(player, select);
                 break;
         }
     }
@@ -281,6 +286,11 @@ public class QuyLaoKame extends Npc {
 
         if (chosen.equals("Giao\nLân con")) {
             RewardService.gI().rewardLancon(player);
+            return;
+        }
+
+        if (chosen.equals("Đổi Hộp\nQuà SK")) {
+            handleDoiHopQuaSuKien(player);
             return;
         }
 
@@ -927,5 +937,158 @@ public class QuyLaoKame extends Npc {
             }
         }
         return details.toString();
+    }
+
+    // ======================== Đổi Hộp Quà Sự Kiện ========================
+    private void handleDoiHopQuaSuKien(Player player) {
+        if (EventManager.EVENT_RANKING_REWARD) {
+            Service.gI().sendThongBao(player, "Sự kiện đang phát thưởng, không thể đổi quà!");
+            return;
+        }
+
+        // Kiểm tra vật phẩm
+        Item voOc = InventoryService.gI().findItemBag(player, 695);
+        Item voSo = InventoryService.gI().findItemBag(player, 696);
+        Item conCua = InventoryService.gI().findItemBag(player, 697);
+        Item saoBien = InventoryService.gI().findItemBag(player, 698);
+        Item daNguSac = InventoryService.gI().findItemBag(player, 674);
+
+        int slVoOc = (voOc != null) ? voOc.quantity : 0;
+        int slVoSo = (voSo != null) ? voSo.quantity : 0;
+        int slConCua = (conCua != null) ? conCua.quantity : 0;
+        int slSaoBien = (saoBien != null) ? saoBien.quantity : 0;
+        int slDaNguSac = (daNguSac != null) ? daNguSac.quantity : 0;
+        long gold = player.inventory.gold;
+
+        String info = "Yêu cầu đổi Hộp Quà Sự Kiện:\n"
+                + "- 10 Vỏ Ốc [" + slVoOc + "/10]\n"
+                + "- 10 Vỏ Sò [" + slVoSo + "/10]\n"
+                + "- 10 Con Cua [" + slConCua + "/10]\n"
+                + "- 10 Sao Biển [" + slSaoBien + "/10]\n"
+                + "- 5 Đá Ngũ Sắc [" + slDaNguSac + "/5]\n"
+                + "- 50.000.000 vàng [" + Util.numberToMoney(gold) + "]\n"
+                + "Tỉ lệ thành công: 50%\n"
+                + "Điểm sự kiện hiện tại: " + player.event.getDiemSuKien();
+
+        this.createOtherMenu(player, 88, info, "Đổi ngay", "Đóng");
+    }
+
+    private void handleConfirmDoiHopQuaSK(Player player, int select) {
+        if (select != 0) return;
+
+        if (EventManager.EVENT_RANKING_REWARD) {
+            Service.gI().sendThongBao(player, "Sự kiện đang phát thưởng, không thể đổi quà!");
+            return;
+        }
+
+        // Kiểm tra đủ vật liệu
+        Item voOc = InventoryService.gI().findItemBag(player, 695);
+        Item voSo = InventoryService.gI().findItemBag(player, 696);
+        Item conCua = InventoryService.gI().findItemBag(player, 697);
+        Item saoBien = InventoryService.gI().findItemBag(player, 698);
+        Item daNguSac = InventoryService.gI().findItemBag(player, 674);
+
+        if (voOc == null || voOc.quantity < 10) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 10 Vỏ Ốc!");
+            return;
+        }
+        if (voSo == null || voSo.quantity < 10) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 10 Vỏ Sò!");
+            return;
+        }
+        if (conCua == null || conCua.quantity < 10) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 10 Con Cua!");
+            return;
+        }
+        if (saoBien == null || saoBien.quantity < 10) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 10 Sao Biển!");
+            return;
+        }
+        if (daNguSac == null || daNguSac.quantity < 5) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 5 Đá Ngũ Sắc!");
+            return;
+        }
+        if (player.inventory.gold < 50_000_000) {
+            Service.gI().sendThongBao(player, "Bạn cần ít nhất 50.000.000 vàng!");
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+            Service.gI().sendThongBao(player, "Hành trang đầy, hãy dọn chỗ trống!");
+            return;
+        }
+
+        // Trừ vật liệu
+        InventoryService.gI().subQuantityItemsBag(player, voOc, 10);
+        InventoryService.gI().subQuantityItemsBag(player, voSo, 10);
+        InventoryService.gI().subQuantityItemsBag(player, conCua, 10);
+        InventoryService.gI().subQuantityItemsBag(player, saoBien, 10);
+        InventoryService.gI().subQuantityItemsBag(player, daNguSac, 5);
+        player.inventory.gold -= 50_000_000;
+
+        // 50% tỉ lệ thành công
+        if (!Util.isTrue(50, 100)) {
+            Service.gI().sendThongBao(player, "Đổi thất bại! Vật liệu đã bị mất.");
+            PlayerService.gI().sendInfoHpMpMoney(player);
+            InventoryService.gI().sendItemBag(player);
+            return;
+        }
+
+        // Thành công: +1 điểm sự kiện
+        player.event.addDiemSuKien(1);
+
+        // Random phần thưởng
+        int rand = Util.nextInt(1, 1000);
+        Item reward = null;
+        String rewardName = "";
+
+        if (rand <= 1) {
+            // 0.1% — Ngọc xanh x10
+            player.inventory.gem += 10;
+            rewardName = "10 Ngọc Xanh";
+        } else if (rand <= 41) {
+            // 4% — Costume Black Goku SSJ White (904) - thời hạn random 1-3 ngày
+            int days = Util.nextInt(1, 3);
+            reward = ItemService.gI().createNewItem((short) 904, 1);
+            reward.itemOptions.add(new Item.ItemOption(50, 25)); // 25% HP
+            reward.itemOptions.add(new Item.ItemOption(77, 25)); // 25% KI
+            reward.itemOptions.add(new Item.ItemOption(103, 25)); // 25% SD
+            reward.itemOptions.add(new Item.ItemOption(211, 20)); // 20% SD chí mạng
+            reward.itemOptions.add(new Item.ItemOption(95, 50)); // 50% tăng tỉ lệ rơi đồ
+            reward.itemOptions.add(new Item.ItemOption(93, days)); // thời hạn ngày
+            reward.createTime = System.currentTimeMillis();
+            rewardName = "Cải Trang Black Goku (" + days + " ngày)";
+        } else if (rand <= 141) {
+            // 10% — Hộp quà thường (1227)
+            reward = ItemService.gI().createNewItem((short) 1227, 1);
+            rewardName = "Hộp Quà Thường";
+        } else if (rand <= 241) {
+            // 10% — Hộp quà chỉnh chu (1511)
+            reward = ItemService.gI().createNewItem((short) 1511, 1);
+            rewardName = "Hộp Quà Chỉnh Chu";
+        } else if (rand <= 641) {
+            // 40% — Đá bảo vệ (987) x1
+            reward = ItemService.gI().createNewItem((short) 987, 1);
+            rewardName = "Đá Bảo Vệ x1";
+        } else if (rand <= 841) {
+            // 20% — Thỏi vàng (457) x random 1-10
+            int qty = Util.nextInt(1, 10);
+            reward = ItemService.gI().createNewItem((short) 457, qty);
+            rewardName = "Thỏi Vàng x" + qty;
+        } else {
+            // 20% — Đá ngũ sắc (674) x random 1-10
+            int qty = Util.nextInt(1, 10);
+            reward = ItemService.gI().createNewItem((short) 674, qty);
+            rewardName = "Đá Ngũ Sắc x" + qty;
+        }
+
+        if (reward != null) {
+            InventoryService.gI().addItemBag(player, reward);
+            InventoryService.gI().sendItemBag(player);
+        }
+        PlayerService.gI().sendInfoHpMpMoney(player);
+
+        Service.gI().sendThongBao(player,
+                "Đổi thành công!\nPhần thưởng: " + rewardName
+                + "\nĐiểm sự kiện: " + player.event.getDiemSuKien());
     }
 }

@@ -281,7 +281,8 @@ public class TrafficPanel extends JPanel {
                             try {
                                 String ip = "N/A";
                                 String name = pl.name != null ? pl.name : "Unknown";
-                                if (pl.getSession() != null && pl.getSession() instanceof MySession ms) {
+                                if (pl.getSession() != null) {
+                                    MySession ms = pl.getSession();
                                     ip = ms.ipAddress != null ? ms.ipAddress : "N/A";
                                 }
                                 ipToPlayers.computeIfAbsent(ip, k -> new ArrayList<>()).add(name);

@@ -152,6 +152,8 @@ public class PlayerEvent {
     private int eventPointQuai;
     private int eventPointQuyLao;
     private int eventPointMoc;
+    private int diemSuKien;
+    private boolean daNhanThuongSuKien;
     private Player player;
     private boolean cookingChungCake;
     private int timeCookChungCake;
@@ -217,6 +219,30 @@ public class PlayerEvent {
 
     public void addEventPointMoc(int num) {
         eventPointMoc += num;
+    }
+
+    public int getDiemSuKien() {
+        return diemSuKien;
+    }
+
+    public void setDiemSuKien(int diemSuKien) {
+        this.diemSuKien = diemSuKien;
+    }
+
+    public void addDiemSuKien(int num) {
+        diemSuKien += num;
+    }
+
+    public void subDiemSuKien(int num) {
+        diemSuKien -= num;
+    }
+
+    public boolean isDaNhanThuongSuKien() {
+        return daNhanThuongSuKien;
+    }
+
+    public void setDaNhanThuongSuKien(boolean daNhanThuongSuKien) {
+        this.daNhanThuongSuKien = daNhanThuongSuKien;
     }
 
     public void update() {
