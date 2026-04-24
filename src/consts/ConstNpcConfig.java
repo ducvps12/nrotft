@@ -9,7 +9,7 @@ public class ConstNpcConfig {
     private Player player;
 
     public static final int GIA_X = 1;
-    public static final String SDT = "035176187";
+    public static final String SDT = "24488671";
     public static final String MANAP = "bar ";
     public static boolean readInt = false;//true đọc int, false đọc long
 

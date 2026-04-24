@@ -35,7 +35,7 @@ public class Bardock extends Npc {
                                 "\b|1|Đây là nơi ngươi có thể đổi bất cứ thứ gì"
                                         + "\nMiễn là ngươi có tiền"
                                         + "\b\n|3| Nạp VND giá trị ( cứ 20k được <20.000 VND> và <20.000 VND> trong game)"
-                                        + "\b|5|MBBANK: " + ConstNpcConfig.SDT + " \n"
+                                        + "\b|5|ACB: " + ConstNpcConfig.SDT + " \n"
                                         + "|1|Nội dung chuyển khoản: " + ConstNpcConfig.MANAP + ""
                                         + player.getSession().userId + "\n"
                                         + "\b|3|Lưu ý: Chỉ giao dịch nạp tiền qua duy nhất qua admin Emti,\n"
@@ -142,7 +142,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de31)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de31, "MUA_DE", "FideNhi Cost:" + ConstNpcConfig.de31)) {
                             // PetService.gI().createPetFideNhi(player, player.pet != null, player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Fide Nhí");
                         } else {
@@ -166,7 +166,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de32)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de32, "MUA_DE", "CellNhi Cost:" + ConstNpcConfig.de32)) {
                             // PetService.gI().createPetCellNhi(player, player.pet != null, player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Cell Nhí");
                         } else {
@@ -190,7 +190,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de33)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de33, "MUA_DE", "BuuNhi Cost:" + ConstNpcConfig.de33)) {
                             // PetService.gI().createPetBuuNhi(player, player.pet != null, player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Bưu Nhí");
                         } else {
@@ -214,7 +214,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de34)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de34, "MUA_DE", "AdrBeach Cost:" + ConstNpcConfig.de34)) {
                             // PetService.gI().createPetAdrBeach(player, player.pet != null, player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Adr Bãi biển");
                         } else {
@@ -238,7 +238,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de35)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de35, "MUA_DE", "BuuGay Cost:" + ConstNpcConfig.de35)) {
                             // PetService.gI().createPetMabuGay(player, player.pet != null, player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Bưu Gầy");
                         } else {
@@ -261,7 +261,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.de36)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.de36, "MUA_DE", "Berrus Cost:" + ConstNpcConfig.de36)) {
                             // PetService.gI().createPetBerrusNhi(player, player.pet != null,
                             // player.gender);
                             Service.gI().sendThongBao(player, "Bạn đã nhận được đệ Berrus");
@@ -279,7 +279,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.skill23)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.skill23, "DOI_SKILL", "Skill23 Cost:" + ConstNpcConfig.skill23)) {
                             if (player.pet != null) {
                                 if (player.pet.playerSkill.skills.get(1).skillId != -1) {
                                     player.pet.openSkill2();
@@ -303,7 +303,7 @@ public class Bardock extends Npc {
                             return;
                         }
 
-                        if (PlayerDAO.subcash(player, ConstNpcConfig.skill24)) {
+                        if (PlayerDAO.subcash(player, ConstNpcConfig.skill24, "DOI_SKILL", "Skill24 Cost:" + ConstNpcConfig.skill24)) {
                             if (player.pet != null) {
                                 if (player.pet.playerSkill.skills.get(1).skillId != -1) {
                                     player.pet.openSkill2();

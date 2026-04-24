@@ -1698,6 +1698,7 @@ public class ServerManagerUI1 extends JFrame {
                         giftcode.detail.put(itemId, quantity);
                     }
                 }
+                try { giftcode.active = rs.getBoolean("active"); } catch (Exception e) { giftcode.active = false; }
                 GiftCodeManager.gI().listGiftCode.add(giftcode);
             }
             Logger.success("Successfully reloaded " + GiftCodeManager.gI().listGiftCode.size() + " giftcodes.\n");
@@ -1836,6 +1837,7 @@ public class ServerManagerUI1 extends JFrame {
                     }
                     int updatedAccountId = PlayerDAO.addVnd(player.name, vndAmount);
                     if (updatedAccountId != -1) {
+                        nro.server.CashAuditLog.logAdd(player, vndAmount, "ADMIN_PANEL", "BuffVND via ServerUI");
                         player.getSession().cash += vndAmount;
                         Service.gI().sendThongBao(player,
                                 "Bạn đã được cộng " + vndAmount + " VND vào tài khoản của bạn.");
@@ -1877,6 +1879,7 @@ public class ServerManagerUI1 extends JFrame {
     private void startServerProcesses() {
         loadMaintenanceConfig();
         ServerManager.gI().run();
+        CashAuditLog.createTable(); // Tạo bảng truy vết VND nếu chưa có
         if (AutoMaintenance.AutoMaintenance) {
             AutoMaintenance.gI().start();
         }

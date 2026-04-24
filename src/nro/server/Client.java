@@ -67,6 +67,17 @@ public class Client implements Runnable {
         }
         if (!players.contains(player)) {
             this.players.add(player);
+            // Gửi thông báo Telegram khi player vào game
+            try {
+                String ip = "N/A";
+                int userId = 0;
+                if (player.getSession() instanceof MySession ms) {
+                    ip = ms.ipAddress != null ? ms.ipAddress : "N/A";
+                    userId = ms.userId;
+                }
+                NotificationService.gI().notifyPlayerLogin(
+                    player.name != null ? player.name : "Unknown", userId, ip);
+            } catch (Exception ignored) {}
         }
 
     }

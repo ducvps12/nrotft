@@ -4,15 +4,18 @@ import lombok.Getter;
 
 @Getter
 public class TransactionHistory {
-    private String postingDate;
+    // ACB API fields
+    private double amount;
+    private String description;
+    private long postingDate;
+    private String type;
 
+    // Legacy MB fields (kept for backward compatibility)
     private String transactionDate;
-
     private String accountNo;
     private String creditAmount;
     private String debitAmount;
     private String currency;
-    private String description;
     private String availableBalance;
     private String beneficiaryAccount;
     private String refNo;
@@ -23,7 +26,13 @@ public class TransactionHistory {
     private String docId;
     private String transactionType;
 
-    // Constructors, getters, and setters
-
-    // You can generate these using your IDE or manually write them.
+    /**
+     * Get the transaction amount - supports both ACB and MB format
+     */
+    public String getCreditAmount() {
+        if (creditAmount != null && !creditAmount.isEmpty()) {
+            return creditAmount;
+        }
+        return String.valueOf(amount);
+    }
 }

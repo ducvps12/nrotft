@@ -190,16 +190,20 @@ public class GiftcodePanel extends JPanel {
         JButton btnAdd = createStyledButton("Tạo Code Mới", new Color(40, 167, 69), Color.WHITE);
         JButton btnReload = createStyledButton("Tải lại", new Color(0, 123, 255), Color.WHITE);
         JButton btnDelete = createStyledButton("Xóa Code", new Color(220, 53, 69), Color.WHITE);
+        JButton btnActive = createStyledButton("✅ Active", new Color(255, 152, 0), Color.WHITE);
+        JButton btnDeactive = createStyledButton("❌ Deactive", new Color(108, 117, 125), Color.WHITE);
 
         btnAdd.addActionListener(e -> openGiftcodeEditor(null)); 
         btnReload.addActionListener(e -> loadDataFromDB());
         btnDelete.addActionListener(e -> deleteSelectedGiftcode());
+        btnActive.addActionListener(e -> toggleActiveStatus(true));
+        btnDeactive.addActionListener(e -> toggleActiveStatus(false));
 
-        top.add(btnAdd); top.add(btnReload); top.add(btnDelete);
+        top.add(btnAdd); top.add(btnReload); top.add(btnDelete); top.add(btnActive); top.add(btnDeactive);
         add(top, BorderLayout.NORTH);
 
         // Table
-        String[] columns = {"ID", "Mã Code", "Lượt còn", "Ngày tạo", "Hết hạn", "Loại", "Chi tiết (JSON)"};
+        String[] columns = {"ID", "Mã Code", "Lượt còn", "Ngày tạo", "Hết hạn", "Loại", "Trạng thái", "Chi tiết (JSON)"};
         model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -252,7 +256,24 @@ public class GiftcodePanel extends JPanel {
         table.getColumnModel().getColumn(3).setCellRenderer(dateRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(dateRenderer);
         
-        table.getColumnModel().getColumn(6).setPreferredWidth(300); 
+        table.getColumnModel().getColumn(7).setPreferredWidth(300); 
+
+        // Format cột Trạng thái (Active/Inactive)
+        table.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer(){
+            @Override public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setFont(FONT_BOLD);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                if ("ACTIVE".equals(value)) {
+                    setForeground(new Color(40, 167, 69));
+                    setBackground(isSelected ? table.getSelectionBackground() : new Color(220, 255, 220));
+                } else {
+                    setForeground(new Color(220, 53, 69));
+                    setBackground(isSelected ? table.getSelectionBackground() : new Color(255, 230, 230));
+                }
+                return this;
+            }
+        });
 
         // Double click sửa
         table.addMouseListener(new MouseAdapter() {
@@ -283,10 +304,14 @@ public class GiftcodePanel extends JPanel {
                     row.add(rs.getString("datecreate")); // Giữ nguyên chuỗi gốc, renderer sẽ xử lý
                     row.add(rs.getString("expired"));
                     row.add(rs.getInt("type"));
+                    try { row.add(rs.getBoolean("active") ? "ACTIVE" : "INACTIVE"); } catch (Exception ex) { row.add("INACTIVE"); }
                     row.add(rs.getString("detail"));
                     SwingUtilities.invokeLater(() -> model.addRow(row));
                 }
             } catch (Exception e) { e.printStackTrace(); }
+
+            // Tự động thêm cột active nếu chưa có
+            ensureActiveColumn();
         }).start();
     }
     
@@ -329,7 +354,7 @@ public class GiftcodePanel extends JPanel {
         // Code & Count
         JTextField txtCode = new JTextField(rowIndex != null ? model.getValueAt(rowIndex, 1).toString() : "GIFT" + System.currentTimeMillis()/1000, 15);
         txtCode.setFont(new Font("Segoe UI", Font.BOLD, 14)); txtCode.setForeground(new Color(180, 0, 0));
-        JTextField txtCount = new JTextField(rowIndex != null ? model.getValueAt(rowIndex, 2).toString() : "100", 10);
+        JTextField txtCount = new JTextField(rowIndex != null ? model.getValueAt(rowIndex, 2).toString() : "1", 10);
         
         gbc.gridx=0; gbc.gridy=0; infoPanel.add(new JLabel("Mã Code:"), gbc);
         gbc.gridx=1; infoPanel.add(txtCode, gbc);
@@ -388,7 +413,7 @@ public class GiftcodePanel extends JPanel {
         iTable.getColumnModel().getColumn(4).setPreferredWidth(300);
 
         if (rowIndex != null) {
-            loadItemsToTable((String) model.getValueAt(rowIndex, 6), iModel);
+            loadItemsToTable((String) model.getValueAt(rowIndex, 7), iModel);
         }
 
         JPanel iTool = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -845,5 +870,58 @@ public class GiftcodePanel extends JPanel {
                 model.addRow(new Object[]{id, param, desc});
             }
         } catch (Exception e) {}
+    }
+
+    // ========================================================================
+    // ACTIVE / DEACTIVE GIFTCODE
+    // ========================================================================
+    private void toggleActiveStatus(boolean active) {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một Code trong bảng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (int) model.getValueAt(row, 0);
+        String code = (String) model.getValueAt(row, 1);
+        String status = active ? "ACTIVE" : "INACTIVE";
+        String msg = active 
+            ? "Kích hoạt Code [" + code + "]?\nUser sẽ có thể nhập code này." 
+            : "Tắt Code [" + code + "]?\nUser sẽ KHÔNG thể nhập code này.";
+
+        if (JOptionPane.showConfirmDialog(this, msg, "Xác nhận " + status, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            new Thread(() -> {
+                try (Connection conn = getConnection(); 
+                     PreparedStatement ps = conn.prepareStatement("UPDATE giftcode SET active = ? WHERE id = ?")) {
+                    ps.setBoolean(1, active);
+                    ps.setInt(2, id);
+                    ps.executeUpdate();
+                    SwingUtilities.invokeLater(() -> {
+                        model.setValueAt(status, row, 6);
+                        JOptionPane.showMessageDialog(this, 
+                            "Code [" + code + "] → " + status + " thành công!", 
+                            "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                    });
+                } catch (Exception e) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage()));
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * Tự động thêm cột 'active' vào bảng giftcode nếu chưa có
+     */
+    private void ensureActiveColumn() {
+        new Thread(() -> {
+            try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("ALTER TABLE giftcode ADD COLUMN IF NOT EXISTS active TINYINT(1) DEFAULT 0");
+            } catch (Exception e) {
+                // Column có thể đã tồn tại - bỏ qua
+                try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+                    // Fallback cho MySQL cũ không hỗ trợ IF NOT EXISTS
+                    try { stmt.executeUpdate("ALTER TABLE giftcode ADD COLUMN active TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
+                } catch (Exception ignored) {}
+            }
+        }).start();
     }
 }

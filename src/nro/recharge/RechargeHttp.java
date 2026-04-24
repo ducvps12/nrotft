@@ -132,6 +132,7 @@ public class RechargeHttp {
         Player pl = Client.gI().getPlayerByUser(accountId);
         if (pl != null) {
             try {
+                nro.server.CashAuditLog.logAdd(pl, soTienCong, "RECHARGE_HTTP", "Sepay TransID:" + transId + " Amount:" + amount + " HeSo:" + HE_SO_SU_KIEN);
                 pl.getSession().cash += soTienCong;
                 pl.danap += amount;
             } catch (Exception ignored) {}

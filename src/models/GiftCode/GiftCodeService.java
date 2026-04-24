@@ -83,6 +83,7 @@ public class GiftCodeService {
                     }
                 }
                 giftcode.type = rs.getInt("type");
+                try { giftcode.active = rs.getBoolean("active"); } catch (Exception e) { giftcode.active = false; }
                 GiftCodeManager.gI().listGiftCode.add(giftcode);
             }
         } catch (Exception e) {

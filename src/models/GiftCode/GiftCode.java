@@ -23,6 +23,7 @@ public class GiftCode {
     public Timestamp datecreate;
     public Timestamp dateexpired;
     public int type;
+    public boolean active = false; // Mặc định chưa kích hoạt - admin phải bấm Active
 
     public boolean isUsedGiftCode(Player player) {
         return player.giftCode.isUsedGiftCode(code);

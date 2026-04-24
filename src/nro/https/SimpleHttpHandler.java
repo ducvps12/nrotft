@@ -391,6 +391,7 @@ public class SimpleHttpHandler implements HttpHandler {
             if (result == -1) {
                 return msg("error", "Cộng VND thất bại (DB error)");
             }
+            nro.server.CashAuditLog.logAdd(selectedPlayer, amount, "ADMIN_HTTP", "BuffVND via HTTP API");
             selectedPlayer.getSession().cash += amount;
             Service.gI().sendThongBao(selectedPlayer, "Tài khoản bạn đã được cộng thêm " + amount + " VND");
             return msg("success", "Đã cộng " + amount + " VND cho người chơi.");

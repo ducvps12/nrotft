@@ -788,13 +788,22 @@ public class DashboardPanel extends JPanel {
         p.setOpaque(false);
         p.setBorder(ServerGuiUtils.createSectionBorder("🌐 Thông Tin Mạng (Network Info)"));
 
-        // LINK_IP_PORT
-        String linkIpPort = data.DataGame.LINK_IP_PORT;
-        JLabel lblLink = new JLabel("<html><b>LINK_IP_PORT:</b><br>" + escapeHtml(linkIpPort) + "</html>");
+        // Đọc từ config.properties - cùng nguồn với Quick Settings
+        Properties netProps = new Properties();
+        try (FileReader fr = new FileReader("data/config/config.properties")) {
+            netProps.load(fr);
+        } catch (Exception ignored) {}
+
+        String cfgIp = netProps.getProperty("server.ip_host", "N/A");
+        String cfgPort = netProps.getProperty("server.port_proxy", "N/A");
+        String cfgName = netProps.getProperty("server.name", "N/A");
+
+        // Server IP:Port
+        JLabel lblLink = new JLabel("<html><b>Server IP:</b><br>" + escapeHtml(cfgIp) + ":" + cfgPort + "</html>");
         lblLink.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
-        // Server Port
-        JLabel lblPort = new JLabel("<html><b>Game Port:</b><br>" + nro.server.AntiDDoS_BY_Barcoll.REAL_PORT + "</html>");
+        // Game Port
+        JLabel lblPort = new JLabel("<html><b>Game Port:</b><br>" + cfgPort + "</html>");
         lblPort.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         // Proxy Status
@@ -803,7 +812,7 @@ public class DashboardPanel extends JPanel {
         lblProxy.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         // Server Name
-        JLabel lblName = new JLabel("<html><b>Server Name:</b><br>" + (nro.server.ServerManager.NAME != null ? nro.server.ServerManager.NAME : "N/A") + "</html>");
+        JLabel lblName = new JLabel("<html><b>Server Name:</b><br>" + escapeHtml(cfgName) + "</html>");
         lblName.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         p.add(lblLink);
@@ -835,7 +844,20 @@ public class DashboardPanel extends JPanel {
         lblTotalConnections.setForeground(new Color(0, 102, 204));
 
         JButton btnRefresh = ServerGuiUtils.createStyledButton("Làm mới", new Color(108, 117, 125), Color.WHITE);
-        btnRefresh.addActionListener(e -> refreshConnectionMonitor());
+        btnRefresh.addActionListener(e -> {
+            refreshConnectionMonitor();
+            // Flash feedback
+            Color origBg = btnRefresh.getBackground();
+            btnRefresh.setBackground(new Color(40, 167, 69));
+            btnRefresh.setText("✔ Đã làm mới!");
+            addLog("CONNECTION MONITOR: Đã làm mới danh sách kết nối.");
+            Timer timer = new Timer(1500, evt -> {
+                btnRefresh.setBackground(origBg);
+                btnRefresh.setText("Làm mới");
+            });
+            timer.setRepeats(false);
+            timer.start();
+        });
 
         JButton btnKickAll = ServerGuiUtils.createStyledButton("Kick All", new Color(220, 53, 69), Color.WHITE);
         btnKickAll.addActionListener(e -> {
@@ -1230,7 +1252,7 @@ public class DashboardPanel extends JPanel {
     private JPanel createBarChartPanel() {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
-        wrapper.setBorder(ServerGuiUtils.createSectionBorder("📊 Top 10 Người Chơi (Level)"));
+        wrapper.setBorder(ServerGuiUtils.createSectionBorder(" 📊 Top 10 Người Chơi (Sức Mạnh)"));
 
         chartBarPanel = new JPanel() {
             @Override
@@ -1248,8 +1270,8 @@ public class DashboardPanel extends JPanel {
     private void drawBarChart(Graphics2D g2) {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int w = chartBarPanel.getWidth() - 80;
-        int h = chartBarPanel.getHeight() - 50;
-        int ox = 60, oy = 15;
+        int h = chartBarPanel.getHeight() - 60;
+        int ox = 60, oy = 20;
 
         if (topPlayers.length == 0) {
             g2.setColor(new Color(150, 150, 150));
@@ -1265,7 +1287,11 @@ public class DashboardPanel extends JPanel {
             if (lv < 0) lv = 0;
             if (lv > maxLevel) maxLevel = lv;
         }
-        maxLevel = ((maxLevel / 10) + 1) * 10;
+        // Round max to a nice number
+        if (maxLevel >= 1_000_000_000L) maxLevel = ((maxLevel / 1_000_000_000L) + 1) * 1_000_000_000L;
+        else if (maxLevel >= 1_000_000L) maxLevel = ((maxLevel / 1_000_000L) + 1) * 1_000_000L;
+        else if (maxLevel >= 1_000L) maxLevel = ((maxLevel / 1_000L) + 1) * 1_000L;
+        else maxLevel = ((maxLevel / 10) + 1) * 10;
 
         // Grid lines
         g2.setColor(new Color(235, 235, 235));
@@ -1274,13 +1300,14 @@ public class DashboardPanel extends JPanel {
             g2.drawLine(ox, y, ox + w, y);
             g2.setColor(new Color(150, 150, 150));
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-            g2.drawString(String.valueOf(maxLevel * i / 5), 5, y + 4);
+            g2.drawString(formatChartLabel(maxLevel * i / 5), 2, y + 4);
             g2.setColor(new Color(235, 235, 235));
         }
 
         // Bars
         int barCount = topPlayers.length;
-        int barW = Math.min(40, (w - 20) / Math.max(barCount, 1) - 8);
+        int totalGap = barCount + 1;
+        int barW = Math.max(20, Math.min(50, (w - totalGap * 6) / Math.max(barCount, 1)));
         int gap = (w - barCount * barW) / (barCount + 1);
 
         Color[] barColors = {
@@ -1295,6 +1322,7 @@ public class DashboardPanel extends JPanel {
             try { level = Long.parseLong(topPlayers[i][1]); } catch (Exception e) {}
             if (level < 0) level = 0;
             int barH = (int) ((long) h * level / maxLevel);
+            if (barH < 2 && level > 0) barH = 2;
             int bx = ox + gap + i * (barW + gap);
             int by = oy + h - barH;
 
@@ -1304,18 +1332,18 @@ public class DashboardPanel extends JPanel {
             g2.setPaint(gp);
             g2.fillRoundRect(bx, by, barW, barH, 4, 4);
 
-            // Value label
+            // Value label (formatted)
             g2.setColor(c.darker());
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            String valStr = String.valueOf(level);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 9));
+            String valStr = formatChartLabel(level);
             int tw = g2.getFontMetrics().stringWidth(valStr);
-            g2.drawString(valStr, bx + (barW - tw) / 2, by - 3);
+            g2.drawString(valStr, bx + (barW - tw) / 2, by - 4);
 
-            // Name label (rotated)
-            g2.setColor(new Color(80, 80, 80));
+            // Name label
+            g2.setColor(new Color(60, 60, 60));
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 9));
             String name = topPlayers[i][0];
-            if (name.length() > 8) name = name.substring(0, 7) + "..";
+            if (name.length() > 10) name = name.substring(0, 9) + "..";
             tw = g2.getFontMetrics().stringWidth(name);
             g2.drawString(name, bx + (barW - tw) / 2, oy + h + 14);
         }
@@ -1325,6 +1353,14 @@ public class DashboardPanel extends JPanel {
         g2.setStroke(new BasicStroke(1f));
         g2.drawLine(ox, oy, ox, oy + h);
         g2.drawLine(ox, oy + h, ox + w, oy + h);
+    }
+
+    /** Format large numbers for chart labels: 2.3B, 150M, 12K */
+    private String formatChartLabel(long num) {
+        if (num >= 1_000_000_000L) return String.format("%.1fB", num / 1_000_000_000.0);
+        if (num >= 1_000_000L) return String.format("%.1fM", num / 1_000_000.0);
+        if (num >= 1_000L) return String.format("%.1fK", num / 1_000.0);
+        return String.valueOf(num);
     }
 
     /** Pie Chart Panel - Race distribution */

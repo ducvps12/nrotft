@@ -1380,6 +1380,10 @@ public class PlayerDAO {
     }
 
     public static boolean subcash(Player player, int num) {
+        return subcash(player, num, "UNKNOWN", "");
+    }
+
+    public static boolean subcash(Player player, int num, String source, String detail) {
         String updateQuery = "UPDATE account SET cash = cash - ?, vnd = vnd - ? WHERE id = ?";
         try (Connection con = DBConnecter.getConnectionServer();
                 PreparedStatement ps = con.prepareStatement(updateQuery)) {
@@ -1388,6 +1392,7 @@ public class PlayerDAO {
             ps.setInt(3, player.getSession().userId);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
+                nro.server.CashAuditLog.logSub(player, num, source, detail);
                 player.getSession().cash -= num;
                 player.getSession().vnd -= num;
                 return true;
@@ -1401,6 +1406,10 @@ public class PlayerDAO {
     }
 
     public static boolean addcash(int id, int num) {
+        return addcash(id, num, "UNKNOWN", "");
+    }
+
+    public static boolean addcash(int id, int num, String source, String detail) {
         String updateQuery = "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ? WHERE id = ?";
         try (Connection con = DBConnecter.getConnectionServer();
                 PreparedStatement ps = con.prepareStatement(updateQuery)) {
@@ -1409,6 +1418,7 @@ public class PlayerDAO {
             ps.setInt(3, num);
             ps.setInt(4, id);
             ps.executeUpdate();
+            nro.server.CashAuditLog.logAdd(id, null, num, source, detail);
             return true;
         } catch (SQLException e) {
             Logger.error(" Lỗi của EMTI ở hàm addcash");
@@ -1876,6 +1886,10 @@ public class PlayerDAO {
     }
 
     public static void addCash(Player player, int ruby) {
+        addCash(player, ruby, "UNKNOWN", "");
+    }
+
+    public static void addCash(Player player, int ruby, String source, String detail) {
         PreparedStatement ps = null;
         try (Connection con = DBConnecter.gI().getConnectionForSaveData();) {
             ps = con.prepareStatement("update account set cash = (cash + ?), vnd = (vnd + ?) where id = ?");
@@ -1883,6 +1897,7 @@ public class PlayerDAO {
             ps.setInt(2, ruby);
             ps.setInt(3, player.getSession().userId);
             ps.executeUpdate();
+            nro.server.CashAuditLog.logAdd(player, ruby, source, detail);
             player.getSession().vnd += ruby;
         } catch (Exception e) {
             System.out.println("Loi player " + player.name);

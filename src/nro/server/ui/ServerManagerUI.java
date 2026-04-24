@@ -1,6 +1,7 @@
 package nro.server.ui;
 
 import nro.server.ServerManager;
+import nro.server.NotificationService;
 import firewall.ProxyManager;
 import nro.server.AutoSaveManager;
 
@@ -258,12 +259,16 @@ public class ServerManagerUI extends JFrame {
             if (autoStarted > 0) {
                 System.out.println(">> Anti-DDoS: Auto-started " + autoStarted + " proxy(s)");
             }
+            // Gửi thông báo Telegram: Server đã khởi động
+            try { NotificationService.gI().notifyServerStart(); } catch (Exception ignored) {}
             EventQueue.invokeLater(() -> setVisible(true));
         }).start();
     }
 
     private void shutdownServer() {
         try {
+            // Gửi thông báo Telegram: Server đang tắt
+            try { NotificationService.gI().notifyServerStop("Admin shutdown"); } catch (Exception ignored) {}
             if (ProxyManager.getInstance() != null)
                 ProxyManager.getInstance().stopAll();
             if (AutoSaveManager.getInstance() != null)

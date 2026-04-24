@@ -26,6 +26,18 @@ ram_config.txt
 Thumbs.db
 .DS_Store
 
+# Large archives
+*.rar
+*.zip
+*.7z
+*.tar.gz
+
+# SQL backups
+backup_*.sql
+
+# Encoding test files
+src/encoding_test*.txt
+
 # Temporary
 *.class
 *.tmp

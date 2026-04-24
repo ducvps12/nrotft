@@ -230,9 +230,9 @@ public class Input {
                                     "Con đã tạo thành công giao dịch Với Mệnh Giá Là: " + Util.mumberToLouis(money)
                                             + " VNĐ\n"
                                             + "Vui Lòng Chuyển Khoản Theo Cú Pháp Như Sau:\n"
-                                            + "Ngân Hàng: MBBANK\n"
-                                            + "Chủ TK: HO QUOC KHANG\n"
-                                            + "STK: 0000331855198\n"
+                                            + "Ngân Hàng: ACB\n"
+                                            + "Chủ TK: MAI XUAN ANH\n"
+                                            + "STK: 24488671\n"
                                             + "Nội Dung: " + description + "\n"
                                             + "|7|HOẶC CÓ THỂ QUÉT QR BÊN DƯỚI\n"
                                             + "|1|LƯU Ý: ĐỢI 1-3 PHÚT TIỀN SẼ TỰ ĐỘNG CỘNG VÀO TÀI KHOẢN CỦA BẠN",
@@ -352,7 +352,7 @@ public class Input {
                             int accountId = rs.getInt("account_id");
                             int playerId = rs.getInt("id");
 
-                            if (PlayerDAO.addcash(accountId, addcash)) {
+                            if (PlayerDAO.addcash(accountId, addcash, "ADMIN_BUFF", "By:" + player.name + " To:" + playerName)) {
                                 Service.gI().sendThongBao(player,
                                         "Bạn đã buff cho " + playerName + " " + addcash + " VNĐ");
 
@@ -513,8 +513,8 @@ public class Input {
                 return;
             }
             if (coin >= 20000 && coin <= 100000000) {
-                PlayerDAO.subcash(player, coin);
                 int sl = (itemId == 457) ? coin / rate : coin;
+                PlayerDAO.subcash(player, coin, "DOI_VAT_PHAM", "ItemID:" + itemId + " SL:" + sl);
                 Item item = ItemService.gI().createNewItem((short) itemId, sl);
                 InventoryService.gI().addItemBag(player, item);
                 InventoryService.gI().sendItemBag(player);

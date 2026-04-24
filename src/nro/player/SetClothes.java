@@ -163,7 +163,6 @@ public class SetClothes {
                             lienHoan++;
                             break;
                         case 252:
-                        case 255:
                             isActSet = true;
                             giamSatThuong++;
                             break;
@@ -248,6 +247,8 @@ public class SetClothes {
         this.nail = 0;
 
         this.cadicM = 0;
+
+        this.setTiemNang = 0;
 
         this.setDHD = 0;
         this.worldcup = 0;

@@ -123,7 +123,7 @@ public class Santa extends Npc {
         }
 
         // dùng cash thay vì vnd
-        if (!PlayerDAO.subcash(player, 10000)) {
+        if (!PlayerDAO.subcash(player, 10000, "NANG_CAP_BANG", "ClanLv:" + player.clan.level)) {
             Service.gI().sendThongBao(player, "Bạn không đủ 10.000 VNĐ");
             return;
         }
@@ -165,7 +165,7 @@ public class Santa extends Npc {
         }
 
         // cộng cash DB
-        if (!PlayerDAO.addcash(player.getSession().userId, vndNhan)) {
+        if (!PlayerDAO.addcash(player.getSession().userId, vndNhan, "DOI_XU_VND", "Xu:" + xuCan + " VND:" + vndNhan)) {
             Service.gI().sendThongBao(player, "Lỗi cộng VNĐ");
             return;
         }

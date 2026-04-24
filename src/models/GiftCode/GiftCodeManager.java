@@ -49,6 +49,7 @@ public class GiftCodeManager {
                 gc.datecreate = rs.getTimestamp("datecreate");
                 gc.dateexpired = rs.getTimestamp("expired");
                 gc.type = rs.getInt("type");
+                try { gc.active = rs.getBoolean("active"); } catch (Exception e) { gc.active = false; }
 
                 // Parse JSON detail
                 String detailStr = rs.getString("detail");
@@ -88,6 +89,11 @@ public class GiftCodeManager {
     public GiftCode checkUseGiftCode(Player player, String code) {
         for (GiftCode giftCode : listGiftCode) {
             if (!giftCode.code.equals(code)) continue;
+
+            if (!giftCode.active) {
+                Service.gI().sendThongBao(player, "GiftCode chưa được kích hoạt. Liên hệ Admin!");
+                return null;
+            }
 
             if (giftCode.countLeft <= 0) {
                 Service.gI().sendThongBao(player, "Giftcode đã hết lượt nhập");

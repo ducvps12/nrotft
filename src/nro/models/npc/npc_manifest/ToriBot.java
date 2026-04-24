@@ -167,7 +167,7 @@ public void openBaseMenu(Player player) {
     }
 
     // trừ tiền trước
-    PlayerDAO.subcash(player, cost);
+    PlayerDAO.subcash(player, cost, "MUA_VIP", "VIP:" + vip + " Cost:" + cost);
 
     // lưu đã mua
     PlayerDAO.setPremium(player, vip);

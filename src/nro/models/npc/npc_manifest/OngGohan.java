@@ -548,7 +548,7 @@ public class OngGohan extends Npc {
                 Service.gI().LinkService(player, 10684,
                         "Ấn quét để được tự động chuyển sang trình duyệt webiste\n"
                         + "Nếu có thắc mắc gì liên hệ admin để được giải quyết\n"
-                        + "Hãy đợi admin rep nhé<3", "https://img.vietqr.io/image/MB-0000331855198-compact2.png?amount=" + transaction.amount + "&addInfo=" + transaction.description, "Quét QR");
+                        + "Hãy đợi admin rep nhé<3", "https://img.vietqr.io/image/ACB-24488671-compact2.png?amount=" + transaction.amount + "&addInfo=" + transaction.description, "Quét QR");
             }
             case 1 -> Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
         }
@@ -569,7 +569,7 @@ public class OngGohan extends Npc {
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
 
-        PlayerDAO.subcash(player, NAP_VANG[select][0]);
+        PlayerDAO.subcash(player, NAP_VANG[select][0], "DOI_THOI_VANG", "Menh:" + NAP_VANG[select][0] + " SL:" + NAP_VANG[select][1]);
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.DAI_GIA_MOI_NHU, NAP_VANG[select][0]);
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.EM_XINH_EM_DEP, NAP_VANG[select][0]);
         Service.gI().sendThongBao(player, "Bạn nhận được " + Util.mumberToLouis(NAP_VANG[select][1]) + " Thỏi vàng");
@@ -590,7 +590,7 @@ public class OngGohan extends Npc {
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
 
-        PlayerDAO.subcash(player, NAP_NGOC[select][0]);
+        PlayerDAO.subcash(player, NAP_NGOC[select][0], "DOI_HONG_NGOC", "Menh:" + NAP_NGOC[select][0] + " SL:" + NAP_NGOC[select][1]);
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.BI_MOC_SACH_TUI, NAP_NGOC[select][0]);
         Service.gI().sendThongBao(player, "Bạn nhận được " + Util.mumberToLouis(NAP_NGOC[select][1]) + " Hồng Ngọc");
     }

@@ -400,7 +400,7 @@ public class ChuyenKhoanManager {
         List<Transaction> transactions = GetTransactionAuto();
 
         if (!transactions.isEmpty()) {
-            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapimb/Conchongungoc1@/0000331855198/5c03ffbe2f5d585a0593bf5b9aa31d17");
+            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1");
             JsonResponse response = parseApiResponse(history);
 
             if (response != null && response.getData() != null && !response.getData().isEmpty()) {
@@ -447,7 +447,7 @@ public class ChuyenKhoanManager {
 
         if (canCheck) {
             transaction = GetTransactionById(player.id, transactionId);
-            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapimb/Conchongungoc1@/0000331855198/5c03ffbe2f5d585a0593bf5b9aa31d17");
+            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1");
 
             JsonResponse response = parseApiResponse(history);
 
@@ -465,7 +465,7 @@ public class ChuyenKhoanManager {
                         int totalAmount = (int) (coin * 10 + bonus); // Cộng số tiền nạp + bonus
 
                         // Cập nhật tài khoản người chơi
-                        PlayerDAO.addCash(player, totalAmount); // Cộng số tiền vào tài khoản người chơi
+                        PlayerDAO.addCash(player, totalAmount, "BANK_ATM", "TransactionID:" + transactionId + " Amount:" + transaction.amount + " Bonus:" + bonus); // Cộng số tiền vào tài khoản người chơi
                         PlayerDAO.addDaNap(player, totalAmount); // Cộng tổng tiền nạp
 
                         // Cập nhật các giá trị session cho người chơi
@@ -474,6 +474,13 @@ public class ChuyenKhoanManager {
 
                         // In ra thông tin giao dịch
                         System.out.println("ADD COIN: " + totalAmount + " + Bonus: " + bonus);
+
+                        // Gửi thông báo Telegram về giao dịch nạp tiền
+                        try {
+                            NotificationService.gI().notifyRecharge(
+                                player.name != null ? player.name : "ID:" + player.id,
+                                (long) transaction.amount, "ATM Bank (Manual)");
+                        } catch (Exception ignored) {}
 
                         // Thông báo cho người chơi về số tiền nhận được (bao gồm cả bonus)
                         Service.gI().sendThongBao(player, "Bạn nhận được tiền là: " + (coin * 10) + " và thưởng: " + bonus);
@@ -504,7 +511,7 @@ public class ChuyenKhoanManager {
                     int totalAmount = (int) (transaction.amount * 10 + bonus);
 
                     // Cập nhật tài khoản người chơi
-                    PlayerDAO.addCash(player, totalAmount);
+                    PlayerDAO.addCash(player, totalAmount, "BANK_AUTO", "TransactionID:" + transaction.id + " Amount:" + transaction.amount + " Bonus:" + bonus);
                     PlayerDAO.addDaNap(player, totalAmount);
 
                     // Cập nhật các giá trị session cho người chơi
@@ -513,6 +520,13 @@ public class ChuyenKhoanManager {
 
                     // In ra số tiền thưởng đã thêm
                     System.out.println("ADD COIN: " + transaction.amount * 10 + " + Thưởng: " + bonus);
+
+                    // Gửi thông báo Telegram về giao dịch nạp tiền tự động
+                    try {
+                        NotificationService.gI().notifyRecharge(
+                            player.name != null ? player.name : "ID:" + player.id,
+                            transaction.amount, "ATM Bank (Auto)");
+                    } catch (Exception ignored) {}
                     Service.gI().sendThongBao(player, "Bạn nhận được tiền là: " + (transaction.amount * 10) + " và thưởng: " + bonus);
 
                     // Cập nhật giao dịch đã hoàn thành

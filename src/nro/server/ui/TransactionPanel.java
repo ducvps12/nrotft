@@ -610,6 +610,7 @@ public class TransactionPanel extends JPanel {
                         Player pl = Client.gI().getPlayerByUser(accountId);
                         if (pl != null) {
                             try {
+                                nro.server.CashAuditLog.logAdd(pl, soTienCong, "TX_PANEL_CRON", "TX#" + txId + " AutoMatch");
                                 pl.getSession().cash += soTienCong;
                                 pl.danap += amount;
                             } catch (Exception ignored) {}
@@ -790,7 +791,7 @@ public class TransactionPanel extends JPanel {
                     // Notify player
                     Player pl = Client.gI().getPlayerByUser(accountId);
                     if (pl != null) {
-                        try { pl.getSession().cash += amount; pl.danap += amount; } catch (Exception ignored) {}
+                        try { nro.server.CashAuditLog.logAdd(pl, amount, "TX_PANEL_MANUAL", "ManualApprove AccID:" + accountId); pl.getSession().cash += amount; pl.danap += amount; } catch (Exception ignored) {}
                         Service.gI().sendThongBao(pl, "Nạp thành công " + String.format("%,d", amount) + " VNĐ");
                         Service.gI().sendMoney(pl);
                     }
