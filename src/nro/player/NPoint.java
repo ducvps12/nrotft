@@ -2080,7 +2080,7 @@ public class NPoint {
     }
 
     public long calSubTNSM(long tiemNang) {
-        tiemNang = (long) (tiemNang * 0.75);
+        tiemNang = (long) (tiemNang * 0.3);
         if (player.nPoint.power >= 80_000_000_000L) {
             tiemNang = tiemNang / 70;
         } else if (player.nPoint.power >= 60_000_000_000L) {
