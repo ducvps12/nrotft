@@ -667,7 +667,7 @@ public class DashboardPanel extends JPanel {
             try {
                 double rate = Double.parseDouble(txtExp.getText().trim());
                 if (rate > 0) {
-                    Manager.RATE_EXP_SERVER = (int) rate;
+                    Manager.RATE_EXP_SERVER = rate;
                     addLog("Config: EXP Rate updated to x" + Manager.RATE_EXP_SERVER);
                     Service.gI().sendThongBaoAllPlayer("Server EXP Rate: x" + Manager.RATE_EXP_SERVER);
                 }

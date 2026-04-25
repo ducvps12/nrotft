@@ -100,7 +100,7 @@ public final class Manager {
     public static int MAX_PER_IP = 10;
     public static int MAX_PLAYER = 2000;
     public static int EVENT_SEVER = 0;
-    public static int RATE_EXP_SERVER = 1;
+    public static double RATE_EXP_SERVER = 1.0;
     public static boolean LOCAL = false;
     public static boolean TEST = false;
     public static boolean DAO_AUTO_UPDATER = false;
@@ -1221,7 +1221,7 @@ public final class Manager {
             MAX_PLAYER = Integer.parseInt(String.valueOf(value));
         }
         if ((value = properties.get("server.expserver")) != null) {
-            RATE_EXP_SERVER = Byte.parseByte(String.valueOf(value));
+            RATE_EXP_SERVER = Double.parseDouble(String.valueOf(value));
         }
         if ((value = properties.get("server.local")) != null) {
             LOCAL = String.valueOf(value).toLowerCase().equals("true");

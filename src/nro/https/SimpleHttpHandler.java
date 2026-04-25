@@ -285,8 +285,8 @@ public class SimpleHttpHandler implements HttpHandler {
     private JSONObject updateExpRate(Map<String, List<String>> params) {
         String v = getParam(params, "value", "0");
         try {
-            // Chuyển giá trị nhập vào thành số nguyên
-            int newRate = (int) Double.parseDouble(v);
+            // Chuyển giá trị nhập vào thành số thập phân
+            double newRate = Double.parseDouble(v);
 
             if (newRate <= 0) {
                 return msg("error", "Giá trị EXP phải lớn hơn 0!");
@@ -535,7 +535,7 @@ public class SimpleHttpHandler implements HttpHandler {
         String v = getParam(params, "value", "1");
         try {
             double mul = Double.parseDouble(v);
-            Manager.RATE_EXP_SERVER = (int) (Manager.RATE_EXP_SERVER * mul);
+            Manager.RATE_EXP_SERVER = Manager.RATE_EXP_SERVER * mul;
             String notify = "Admin đã tăng EXP server x" + mul;
             if (Client.gI() != null) {
                 for (Player p : Client.gI().getPlayers()) {

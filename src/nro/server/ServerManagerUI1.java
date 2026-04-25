@@ -1424,7 +1424,7 @@ public class ServerManagerUI1 extends JFrame {
                             JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                Manager.RATE_EXP_SERVER = (int) newRate;
+                Manager.RATE_EXP_SERVER = newRate;
                 lblInfo.setText("Tỷ lệ EXP server được cập nhật thành x" + Manager.RATE_EXP_SERVER);
                 String notification = "Admin vừa điều chỉnh tỷ lệ kinh nghiệm máy chủ thành x"
                         + Manager.RATE_EXP_SERVER;

@@ -817,7 +817,7 @@ public class SettingsPanel extends JPanel {
 
     private void applyGameConfigLive() {
         try {
-            int expRate = Integer.parseInt(tfExpRate.getText().trim());
+            double expRate = Double.parseDouble(tfExpRate.getText().trim());
             if (expRate > 0) {
                 Manager.RATE_EXP_SERVER = expRate;
                 Service.gI().sendThongBaoAllPlayer("Server EXP Rate: x" + expRate);
