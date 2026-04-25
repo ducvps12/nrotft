@@ -525,7 +525,7 @@ public class ChuyenKhoanManager {
                     try {
                         NotificationService.gI().notifyRecharge(
                             player.name != null ? player.name : "ID:" + player.id,
-                            transaction.amount, "ATM Bank (Auto)");
+                            (long) transaction.amount, "ATM Bank (Auto)");
                     } catch (Exception ignored) {}
                     Service.gI().sendThongBao(player, "Bạn nhận được tiền là: " + (transaction.amount * 10) + " và thưởng: " + bonus);
 

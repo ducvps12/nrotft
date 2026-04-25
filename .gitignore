@@ -1,19 +1,35 @@
+# ==========================================
 # Build output
+# ==========================================
 build/
 dist/
-nbproject/private/
+out/
+*.class
 
-# Libraries (quá lớn)
-lib/
-
+# ==========================================
 # IDE
+# ==========================================
 .idea/
 *.iml
 .vscode/
 .vs/
 *.nb-*
+nbproject/private/
+nbproject/*.xml~
 
-# Runtime
+# ==========================================
+# Libraries (too large for git)
+# ==========================================
+lib/
+
+# ==========================================
+# JAR files
+# ==========================================
+*.jar
+
+# ==========================================
+# Runtime / generated files
+# ==========================================
 *.log
 *.hprof
 heapdump.hprof
@@ -21,23 +37,52 @@ ddos_blocked.json
 firewall_config.json
 vn_ip_ranges.txt
 ram_config.txt
+blocked_ips.txt
+maintenanceConfig.txt
+active_event.txt
+compile_log.txt
+sources.txt
+sources.lst
 
-# OS
+# ==========================================
+# OS files
+# ==========================================
 Thumbs.db
 .DS_Store
+desktop.ini
 
-# Large archives
+# ==========================================
+# Archives
+# ==========================================
 *.rar
 *.zip
 *.7z
 *.tar.gz
 
-# SQL backups
+# ==========================================
+# SQL backups (keep sql/ folder)
+# ==========================================
 backup_*.sql
 
+# ==========================================
+# Temp / debug files at root
+# ==========================================
+tmp_bg_preview/
+META-INF/
+*.tmp
+
+# ==========================================
 # Encoding test files
+# ==========================================
 src/encoding_test*.txt
 
-# Temporary
-*.class
-*.tmp
+# ==========================================
+# Standalone utility scripts (root level)
+# ==========================================
+CheckPlayer.java
+DebugEnc.java
+FixEncoding.java
+TestDB.java
+find_ips.js
+patch.js
+patch.ps1
