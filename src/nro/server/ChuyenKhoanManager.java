@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import jdbc.DBConnecter;
 import jdbc.daos.PlayerDAO;
 import models.JsonResponse;
@@ -33,7 +35,43 @@ import java.util.regex.Pattern;
 public class ChuyenKhoanManager {
 
     private static final String ACB_HISTORY_API = "https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1";
-    private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile("(?i)CHUYEN\\s*TIEN\\s*\\+?\\s*(\\d+)");
+    private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|NAP|ID)?\\s*[:#-]?\\s*(\\d{1,12})");
+
+    public static String buildTransferDescription(Player player) {
+        String username = getAccountUsername(player != null && player.getSession() != null ? player.getSession().userId : -1);
+        if (username == null || username.isBlank()) {
+            username = player != null && player.name != null ? player.name : String.valueOf(player != null ? player.id : 0);
+        }
+        return "chuyen tien " + username.trim();
+    }
+
+    public static String buildVietQrUrl(Transaction transaction) {
+        if (transaction == null) {
+            return "";
+        }
+        String addInfo = URLEncoder.encode(transaction.description == null ? "" : transaction.description, StandardCharsets.UTF_8);
+        return "https://img.vietqr.io/image/ACB-24488671-compact2.png?amount="
+                + Math.round(transaction.amount)
+                + "&addInfo=" + addInfo;
+    }
+
+    private static String getAccountUsername(int accountId) {
+        if (accountId <= 0) {
+            return null;
+        }
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement("SELECT username FROM account WHERE id = ? LIMIT 1")) {
+            ps.setInt(1, accountId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static void InsertTransaction(long playerId, long amount, String description) {
         String sql = """
@@ -254,7 +292,7 @@ public class ChuyenKhoanManager {
         String sql = """
         SELECT * FROM transaction_banking
         WHERE player_id = ?
-        ORDER BY created_date DESC
+        ORDER BY id DESC
         LIMIT 1;
     """;
 
@@ -587,12 +625,13 @@ public class ChuyenKhoanManager {
 
         return "Đã check ATM.\n"
                 + "Lịch sử đọc: " + checked + "\n"
-                + "Lệnh CHUYEN TIEN khớp: " + matched + "\n"
+                + "Giao dịch nhận diện được ID: " + matched + "\n"
                 + "Đã cộng tiền: " + credited + " bill\n"
                 + "Tổng bill đã cộng: " + Util.formatCurrency(totalCreditedAmount) + " VNĐ\n"
                 + "Bỏ qua/đã xử lý: " + skipped
                 + (warning.length() > 0 ? "\n\nCẢNH BÁO ID LẶP:" + warning : "")
-                + (detail.length() > 0 ? "\n\nCHI TIẾT:" + detail : "");
+                + (detail.length() > 0 ? "\n\nCHI TIẾT ĐÃ CỘNG:" + detail : "")
+                + (detail.length() == 0 ? "\n\nGợi ý: nếu bill khớp nhưng không cộng, kiểm tra người chơi có tồn tại theo ID trong nội dung QR không." : "");
     }
 
     private static Transaction findOrCreateWebsiteTransaction(long playerId, long amount, String description) {
@@ -608,6 +647,7 @@ public class ChuyenKhoanManager {
         String sql = """
         SELECT * FROM transaction_banking
         WHERE player_id = ? AND amount = ?
+        AND is_recieve = 0
         AND created_date >= NOW() - INTERVAL 7 DAY
         ORDER BY id DESC
         LIMIT 1;
@@ -723,10 +763,14 @@ public class ChuyenKhoanManager {
             return -1;
         }
         Matcher matcher = WEBSITE_TRANSFER_PATTERN.matcher(description);
-        if (matcher.find()) {
-            return Long.parseLong(matcher.group(1));
+        long lastValidId = -1;
+        while (matcher.find()) {
+            long candidateId = Long.parseLong(matcher.group(1));
+            if (candidateId > 0 && playerExists(candidateId)) {
+                lastValidId = candidateId;
+            }
         }
-        return -1;
+        return lastValidId;
     }
 
     private static boolean isSameAmount(TransactionHistory transactionHistory, double amount) {
@@ -746,6 +790,22 @@ public class ChuyenKhoanManager {
 
     private static String normalizeDescription(String description) {
         return description == null ? "" : description.trim();
+    }
+
+    private static boolean playerExists(long playerId) {
+        if (Client.gI().getPlayer(playerId) != null) {
+            return true;
+        }
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement("SELECT id FROM player WHERE id = ? LIMIT 1")) {
+            ps.setLong(1, playerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 // Hàm tính toán phần thưởng dựa trên số tiền nạp

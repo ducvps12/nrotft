@@ -197,6 +197,7 @@ public class ConstNpc {
         public static final byte PHO_ANH_HAI = 87;
         public static final byte HOA_HONG = 104;
         public static final byte HAI_HOA_HONG = 105;
+        public static final byte BANG_DANH_VONG = 106;
         public static final byte BULMA_THO = 109;
         // ----------------------index menu------------------------------------------
         // menu o len tang map mabu
@@ -290,6 +291,7 @@ public class ConstNpc {
         public static final int MAGIC_TREE_CONFIRM_UPGRADE = 503;
         public static final int MAGIC_TREE_UPGRADE = 504;
         public static final int MAGIC_TREE_CONFIRM_UNUPGRADE = 505;
+        public static final int MENU_POPO_TOWER = 506;
 
         // index menu mabu egg
         public static final int CAN_NOT_OPEN_EGG = 500;

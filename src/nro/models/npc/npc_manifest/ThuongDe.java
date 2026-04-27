@@ -16,6 +16,7 @@ import nro.services.NpcService;
 import nro.services.Service;
 import services.func.ChangeMapService;
 import services.func.LuckyRound;
+import models.PopoTower.PopoTowerService;
 import shop.ShopService;
 
 public class ThuongDe extends Npc {
@@ -40,18 +41,18 @@ public class ThuongDe extends Npc {
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Pôpô là đệ tử của ta, luyện tập với Pôpô con sẽ có thêm nhiều kinh nghiệm\nđánh bại được Pôpô ta sẽ dạy võ công cho con",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nMr.PôPô", "Thách đấu\nMr.PôPô", "Đến\nKaio", "Quay ngọc\nMay mắn");
+                                    "Tập luyện\nvới\nMr.PôPô", "Thách đấu\nMr.PôPô", "Tháp\nPôPô", "Đến\nKaio", "Quay ngọc\nMay mắn");
                         case 3 ->
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Từ nay con sẽ là đệ tử của ta. Ta sẽ truyền cho con tất cả tuyệt kĩ",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nThượng Đế", "Thách đấu\nThượng Đế", "Đến\nKaio",
+                                    "Tập luyện\nvới\nThượng Đế", "Thách đấu\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
                                     "Quay ngọc\nMay mắn");
                         default ->
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Con đã mạnh hơn ta, ta sẽ chỉ đường cho con đến Kaio\nđể gặp thần Vũ Trụ Phương Bắc\nNgài là thần cai quản vũ trụ này, hãy theo ngài ấy học võ công.",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nMr.PôPô", "Tập luyện\nvới\nThượng Đế", "Đến\nKaio",
+                                    "Tập luyện\nvới\nMr.PôPô", "Tập luyện\nvới\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
                                     "Quay ngọc\nMay mắn");
                     }
                 }
@@ -114,8 +115,10 @@ public class ThuongDe extends Npc {
                                 }
                             }
                             case 3 ->
-                                ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
+                                PopoTowerService.gI().openMenu(player, this);
                             case 4 ->
+                                ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
+                            case 5 ->
                                 this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
                                         "Con muốn làm gì nào?", "Quay bằng\nthỏi vàng",
                                         "Vòng quay\nđặc biệt",
@@ -154,6 +157,8 @@ public class ThuongDe extends Npc {
                             default ->
                                 TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
                         }
+                    } else if (player.iDMark.getIndexMenu() == ConstNpc.MENU_POPO_TOWER) {
+                        PopoTowerService.gI().handleMenu(player, this, select);
                     } else if (player.iDMark.getIndexMenu() == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
                         switch (select) {
                             case 0 ->

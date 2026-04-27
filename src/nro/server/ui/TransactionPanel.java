@@ -550,25 +550,16 @@ public class TransactionPanel extends JPanel {
 
                     if (desc == null || desc.isEmpty()) continue;
 
-                    // 2. Parse NAP{id} pattern từ nội dung CK
-                    // Hỗ trợ: NAP66, NAP 66, nap66, NAP_66, nap-66
-                    Matcher m = Pattern.compile("NAP[\\s_\\-]?(\\d+)", Pattern.CASE_INSENSITIVE).matcher(desc);
-                    if (m.find()) {
-                        int accountId = Integer.parseInt(m.group(1));
-
-                        // 3. Verify account exists
-                        try (PreparedStatement psCheck = con.prepareStatement(
-                                "SELECT id, username FROM account WHERE id = ?")) {
-                            psCheck.setInt(1, accountId);
-                            try (ResultSet rsCheck = psCheck.executeQuery()) {
-                                if (rsCheck.next()) {
-                                    String username = rsCheck.getString("username");
-                                    matched.add(new int[]{txId, accountId, amount});
-                                    matchedInfo.add(new String[]{username, desc});
-                                }
-                            }
-                        }
+                    // 2. Parse nội dung CK từ web/game
+                    // Hỗ trợ:
+                    // - chuyen tien admin  -> match account.username = admin
+                    // - NAP66 / NAP 66     -> match account.id = 66
+                    AccountMatch accountMatch = resolveAccountFromDescription(con, desc);
+                    if (accountMatch != null) {
+                        matched.add(new int[]{txId, accountMatch.accountId, amount});
+                        matchedInfo.add(new String[]{accountMatch.username, desc});
                     }
+
                 }
             }
 
@@ -849,6 +840,41 @@ public class TransactionPanel extends JPanel {
             processUnmatchedTransactions();
             SwingUtilities.invokeLater(this::refreshTransactions);
         }).start();
+    }
+
+    private record AccountMatch(int accountId, String username) {}
+
+    private AccountMatch resolveAccountFromDescription(Connection con, String desc) throws SQLException {
+        if (desc == null || desc.isBlank()) {
+            return null;
+        }
+
+        Matcher userMatcher = Pattern.compile("(?i)chuyen\\s*tien\\s+([a-zA-Z0-9_.$@-]{3,32})").matcher(desc);
+        if (userMatcher.find()) {
+            String username = userMatcher.group(1).trim();
+            try (PreparedStatement ps = con.prepareStatement("SELECT id, username FROM account WHERE username = ? LIMIT 1")) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AccountMatch(rs.getInt("id"), rs.getString("username"));
+                    }
+                }
+            }
+        }
+
+        Matcher idMatcher = Pattern.compile("(?i)NAP[\\s_\\-]?(\\d+)").matcher(desc);
+        if (idMatcher.find()) {
+            int accountId = Integer.parseInt(idMatcher.group(1));
+            try (PreparedStatement ps = con.prepareStatement("SELECT id, username FROM account WHERE id = ? LIMIT 1")) {
+                ps.setInt(1, accountId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new AccountMatch(rs.getInt("id"), rs.getString("username"));
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // ===================================================================

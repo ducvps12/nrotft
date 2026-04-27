@@ -11,6 +11,7 @@ import boss.Boss;
 import boss.BossData;
 import boss.BossID;
 import boss.BossStatus;
+import boss.BrolyManager;
 import static boss.BossType.BROLY;
 import consts.ConstPlayer;
 import java.util.logging.Level;
@@ -25,6 +26,7 @@ import utils.Util;
 
 public class Broly extends Boss {
     private long lastTimeAttack;
+    private boolean spawnedSuperBroly;
 
     public Broly() throws Exception {
 
@@ -218,7 +220,11 @@ public class Broly extends Boss {
         int y = this.location.y;
         ChangeMapService.gI().exitMap(this);
         try {
-            new SuperBroly(zone, x, y);
+            if (!spawnedSuperBroly && zone != null && this.nPoint.hpMax >= 16_070_777
+                    && !BrolyManager.gI().checkBosses(zone, BossID.SUPER_BROLY)) {
+                spawnedSuperBroly = true;
+                new SuperBroly(zone, x, y);
+            }
         } catch (Exception ex) {
         }
         this.lastZone = null;

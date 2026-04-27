@@ -574,8 +574,8 @@ public class DashboardPanel extends JPanel {
         p.setOpaque(false);
         p.setBorder(ServerGuiUtils.createSectionBorder("Quick Actions"));
 
-        JButton btnMaint = ServerGuiUtils.createStyledButton("Bảo Trì (2p)", new Color(255, 193, 7), Color.BLACK);
-        btnMaint.addActionListener(e -> confirmMaintenance());
+        JButton btnMaint = ServerGuiUtils.createStyledButton("Bảo Trì", new Color(255, 193, 7), Color.BLACK);
+        btnMaint.addActionListener(e -> showMaintenanceOptions(btnMaint));
 
         JButton btnReload = ServerGuiUtils.createStyledButton("Tải lại DB", new Color(23, 162, 184), Color.WHITE);
         btnReload.addActionListener(e -> showReloadOptions());
@@ -1957,13 +1957,28 @@ public class DashboardPanel extends JPanel {
 
     // ================= ACTIONS LOGIC =================
 
-    private void confirmMaintenance() {
-        if (JOptionPane.showConfirmDialog(this, "Bắt đầu bảo trì sau 2 phút?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+    private void showMaintenanceOptions(Component parent) {
+        JPopupMenu menu = new JPopupMenu();
+        addMaintenanceOption(menu, "Bảo trì sau 2 phút", 2);
+        addMaintenanceOption(menu, "Bảo trì sau 10 phút", 10);
+        addMaintenanceOption(menu, "Bảo trì sau 15 phút", 15);
+        addMaintenanceOption(menu, "Bảo trì sau 30 phút", 30);
+        menu.show(parent, 0, parent.getHeight());
+    }
+
+    private void addMaintenanceOption(JPopupMenu menu, String label, int minutes) {
+        JMenuItem item = new JMenuItem(label);
+        item.addActionListener(e -> confirmMaintenance(minutes));
+        menu.add(item);
+    }
+
+    private void confirmMaintenance(int minutes) {
+        if (JOptionPane.showConfirmDialog(this, "Thông báo toàn server và bắt đầu bảo trì sau " + minutes + " phút?", "Xác nhận bảo trì", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             cancelAllScheduledTasks();
-            Maintenance.gI().start(2); // Gọi hàm bảo trì của server
-            lblStatus.setText("MAINTENANCE STARTING...");
+            Maintenance.gI().start(minutes * 60); // Maintenance dùng đơn vị giây
+            lblStatus.setText("MAINTENANCE IN " + minutes + " MINUTES...");
             lblStatus.setForeground(Color.RED);
-            addLog("ACTION: Bắt đầu chu trình bảo trì (2 phút).");
+            addLog("ACTION: Đã thông báo toàn server, bảo trì sau " + minutes + " phút.");
         }
     }
 
@@ -2234,16 +2249,6 @@ public class DashboardPanel extends JPanel {
         }
     }
 
-    private void addLog(String message) {
-        if (txtLog == null) {
-            return;
-        }
-        SwingUtilities.invokeLater(() -> {
-            String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-            txtLog.append("[" + time + "] " + message + "\n");
-            txtLog.setCaretPosition(txtLog.getDocument().getLength());
-        });
-    }
 
     // ================= INNER CLASSES =================
 

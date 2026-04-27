@@ -43,6 +43,8 @@ public class DauThan extends Npc {
                         }
                         case 2 ->
                             player.magicTree.fastRespawnPea();
+                        case 3 ->
+                            player.magicTree.showMagicTreeGuide();
                         default -> {
                         }
                     }
@@ -53,6 +55,8 @@ public class DauThan extends Npc {
                         player.magicTree.harvestPea();
                     } else if (select == 1) {
                         player.magicTree.showConfirmUpgradeMagicTree();
+                    } else if (select == 2) {
+                        player.magicTree.showMagicTreeGuide();
                     }
                 }
                 case ConstNpc.MAGIC_TREE_CONFIRM_UPGRADE -> {
@@ -64,6 +68,10 @@ public class DauThan extends Npc {
                     if (select == 0) {
                         player.magicTree.fastUpgradeMagicTree();
                     } else if (select == 1) {
+                        player.magicTree.fertilizeByXuNro();
+                    } else if (select == 2) {
+                        player.magicTree.showMagicTreeGuide();
+                    } else if (select == 3) {
                         player.magicTree.showConfirmUnuppgradeMagicTree();
                     }
                 }

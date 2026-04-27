@@ -14,6 +14,7 @@ import boss.BossData;
 import boss.OtherBossManager;
 import boss.BossStatus;
 import boss.BossType;
+import boss.BossID;
 import network.Message;
 import consts.ConstPlayer;
 import java.io.IOException;
@@ -24,6 +25,9 @@ import nro.services.MapService;
 import nro.services.PlayerService;
 import nro.services.Service;
 import nro.services.SkillService;
+import nro.services.ItemService;
+import nro.services.InventoryService;
+import item.Item;
 import services.func.ChangeMapService;
 import utils.Logger;
 import utils.SkillUtil;
@@ -209,9 +213,59 @@ public abstract class TrainingBoss extends Boss {
         this.chatE();
         this.lastTimeAFK = System.currentTimeMillis();
         Service.gI().sendPlayerVS(playerAtt, null, (byte) 0);
+        if (playerAtt.isPopoTowerChallenge && (int) this.id == BossID.MRPOPO) {
+            models.PopoTower.PopoTowerService.gI().win(playerAtt);
+            return;
+        }
         if (playerAtt.isThachDau) {
             playerAtt.levelLuyenTap++;
+            rewardTrainingChallenge(playerAtt);
         }
+    }
+
+    private void rewardTrainingChallenge(Player player) {
+        int xuReward;
+        long goldReward;
+        String milestone;
+        switch ((int) this.id) {
+            case BossID.MRPOPO -> {
+                xuReward = 50;
+                goldReward = 10_000_000L;
+                milestone = "Bạn đã vượt qua Mr.PôPô và mở khóa luyện tập với Thượng Đế!";
+            }
+            case BossID.THUONG_DE -> {
+                xuReward = 80;
+                goldReward = 20_000_000L;
+                milestone = "Bạn đã vượt qua Thượng Đế, cảnh giới luyện tập mới đã mở ra!";
+            }
+            case BossID.THAN_VU_TRU -> {
+                xuReward = 120;
+                goldReward = 35_000_000L;
+                milestone = "Bạn đã vượt qua Thần Vũ Trụ, sức mạnh tu luyện tăng mạnh!";
+            }
+            case BossID.TO_SU_KAIO -> {
+                xuReward = 180;
+                goldReward = 50_000_000L;
+                milestone = "Bạn đã vượt qua Tổ Sư Kaio, bước vào hàng cao thủ luyện tập!";
+            }
+            case BossID.WHIS -> {
+                xuReward = 250;
+                goldReward = 100_000_000L;
+                milestone = "Bạn đã vượt qua Whis, đạt đỉnh cao huấn luyện hiện tại!";
+            }
+            default -> {
+                xuReward = 25;
+                goldReward = 5_000_000L;
+                milestone = "Bạn đã vượt qua thử thách luyện tập!";
+            }
+        }
+        Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
+        InventoryService.gI().addItemBag(player, xuNro);
+        InventoryService.gI().sendItemBag(player);
+        player.inventory.gold += goldReward;
+        PlayerService.gI().sendInfoHpMpMoney(player);
+        Service.gI().sendThongBao(player, milestone + " Nhận " + xuReward + " Xu NRO và "
+                + Util.numberToMoney(goldReward) + " vàng.");
     }
 
     @Override

@@ -14,6 +14,7 @@ import models.Card.RadarCard;
 import jdbc.DBConnecter;
 import consts.ConstPlayer;
 import consts.ConstMap;
+import consts.ConstNpc;
 import data.DataGame;
 import jdbc.daos.ShopDAO;
 import models.Template.*;
@@ -250,6 +251,7 @@ public final class Manager {
             MAPS.add(map);
             map.initMob(mapTemp.mobTemp, mapTemp.mobLevel, mapTemp.mobHp, mapTemp.mobX, mapTemp.mobY);
             map.initNpc(mapTemp.npcId, mapTemp.npcX, mapTemp.npcY);
+            addSkhGuideNpc(map);
 
             // Dùng Virtual Thread để update map
             Thread.startVirtualThread(() -> map.run());
@@ -259,6 +261,18 @@ public final class Manager {
         NPC_MrPopo popo = new NPC_MrPopo();
         popo.initNPC_MrPopo();
         Logger.log("Initialize map successfully!\n");
+    }
+
+    private void addSkhGuideNpc(map.Map map) {
+        if (map == null || map.npcs == null || !MapService.gI().isMapUpSKH(map.mapId)) {
+            return;
+        }
+        short x = 420;
+        short y = (short) map.yPhysicInTop(x, 100);
+        if (y <= 0) {
+            y = 336;
+        }
+        map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
     }
 
     private void loadDatabase() {

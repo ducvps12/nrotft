@@ -782,7 +782,8 @@ public class Mob {
         // Set kich hoat
         if (player.itemTime.isCoBonLa) {
             if (MapService.gI().isMapUpSKH(mapid)) {
-                if (Util.isTrue(20, 100)) {
+                // Cỏ bốn lá: tăng nhẹ cơ hội, nhưng vẫn giữ SKH là vật phẩm hiếm.
+                if (Util.isTrue(1, 3500)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -801,7 +802,8 @@ public class Mob {
             }
         } else {
             if (MapService.gI().isMapUpSKH(mapid)) {
-                if (Util.isTrue(15, 100)) {
+                // Trước đây là 15%, quá cao và làm tràn SKH ở map đầu.
+                if (Util.isTrue(1, 5000)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -820,7 +822,7 @@ public class Mob {
         }
 
         if (player.gender == 2
-                && ((Util.isTrue(15, 100)) || (Manager.TEST && Util.isTrue(5, 10)))
+                && ((Util.isTrue(1, 7000)) || (Manager.TEST && Util.isTrue(5, 10)))
                 && MapService.gI().isMapUpSKH(mapid)) {
 
             short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);

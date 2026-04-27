@@ -1111,6 +1111,11 @@ public class PlayerDAO {
                 dataArray.add(player.traning.getLastTime());
                 dataArray.add(player.traning.getLastTop());
                 dataArray.add(player.traning.getLastRewardTime());
+                dataArray.add(player.popoTowerFloor);
+                dataArray.add(player.popoTowerTodayCount);
+                dataArray.add(player.popoTowerLastDay);
+                dataArray.add(player.popoTowerBestFloor);
+                dataArray.add(player.popoTowerBestTime);
 
                 String dataLuyenTap = dataArray.toJSONString();
                 dataArray.clear();
@@ -1899,6 +1904,7 @@ public class PlayerDAO {
             ps.setInt(4, player.getSession().userId);
             ps.executeUpdate();
             nro.server.CashAuditLog.logAdd(player, ruby, source, detail);
+            // vnd là tổng nạp lịch sử trong session; cash/danap được sync tại nơi gọi sau khi cộng ATM.
             player.getSession().vnd += ruby;
         } catch (Exception e) {
             System.out.println("Loi player " + player.name);

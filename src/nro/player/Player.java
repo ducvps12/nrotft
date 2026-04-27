@@ -126,6 +126,15 @@ public class Player implements Runnable {
     @Setter
     @Getter
     private MySession session;
+
+    public MySession getSession() {
+        return this.session;
+    }
+
+    public void setSession(MySession session) {
+        this.session = session;
+    }
+
     public PlayerEffect effect;
 
     public long id;
@@ -297,6 +306,14 @@ public class Player implements Runnable {
     public ItemEvent itemEvent;
     public int levelLuyenTap;
     public boolean isThachDau;
+    public int popoTowerFloor;
+    public int popoTowerTodayCount;
+    public long popoTowerLastDay;
+    public int popoTowerBestFloor;
+    public long popoTowerBestTime;
+    public boolean isPopoTowerChallenge;
+    public int popoTowerChallengeFloor;
+    public long popoTowerStartTime;
     public int tnsmLuyenTap;
     public boolean dangKyTapTuDong;
     public long lastTimeOffline;
@@ -527,6 +544,7 @@ public class Player implements Runnable {
                 }
                 MajinBuuService.gI().update(this);
                 SuperDivineWaterService.gI().update(this);
+                models.PopoTower.PopoTowerService.gI().update(this);
 
                 // Kiểm tra đi tới tương lai
                 handleGoToFuture();

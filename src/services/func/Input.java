@@ -106,6 +106,8 @@ public class Input {
     public static final int TAIXIU_TAI = 5172;
     public static final int TAIXIU_XIU = 5173;
     public static final int TANG_NGOC_HONG = 5174;
+    public static final int VERIFY_EMAIL_SEND = 5175;
+    public static final int VERIFY_EMAIL_OTP = 5176;
 
     private static Input intance;
 
@@ -127,6 +129,16 @@ public class Input {
                 text[i] = msg.reader().readUTF();
             }
             switch (player.iDMark.getTypeInput()) {
+
+                case VERIFY_EMAIL_SEND: {
+                    nro.server.EmailVerificationService.requestOtp(player, text[0]);
+                    break;
+                }
+
+                case VERIFY_EMAIL_OTP: {
+                    nro.server.EmailVerificationService.verifyOtp(player, text[0]);
+                    break;
+                }
 
                 case TANG_NGOC_HONG: {
                     String senderName = text[0].trim();
@@ -227,7 +239,12 @@ public class Input {
 
                 case CHUYEN_KHOAN: {
                     try {
-                        long money = Long.parseLong(text[0]);
+                        String moneyText = text[0] == null ? "" : text[0].trim();
+                        if (!moneyText.matches("\\d+")) {
+                            Service.gI().sendThongBao(player, "Số tiền nạp chỉ được nhập số. Ví dụ: 10000");
+                            break;
+                        }
+                        long money = Long.parseLong(moneyText);
                         int minRecharge = getEconomyInt("recharge.min_amount", DEFAULT_MIN_RECHARGE);
                         int maxRecharge = getEconomyInt("recharge.max_amount", DEFAULT_MAX_RECHARGE);
                         if (money < minRecharge || money > maxRecharge) {
@@ -235,7 +252,7 @@ public class Input {
                             break;
                         }
 
-                        String description = "CHUYEN TIEN " + player.id;
+                        String description = ChuyenKhoanManager.buildTransferDescription(player);
                         ChuyenKhoanManager.InsertTransaction(player.id, money, description);
 
                         Npc npc = NpcManager.getByIdAndMap(ConstNpc.ONG_GOHAN, player.zone.map.mapId);
@@ -824,6 +841,14 @@ public class Input {
                 msg.cleanup();
             }
         }
+    }
+
+    public void createFormVerifyEmail(Player pl) {
+        createForm(pl, VERIFY_EMAIL_SEND, "Xác minh Email", new SubInput("Nhập email của bạn", ANY));
+    }
+
+    public void createFormVerifyEmailOtp(Player pl) {
+        createForm(pl, VERIFY_EMAIL_OTP, "Nhập OTP Email", new SubInput("Mã OTP 6 số", NUMERIC));
     }
 
     // Các phương thức createForm khác giữ nguyên...

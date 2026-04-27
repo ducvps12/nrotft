@@ -139,6 +139,14 @@ public class Zone {
     @Getter
     public Player Npc;
 
+    public Player getNpc() {
+        return this.Npc;
+    }
+
+    public void setNpc(Player npc) {
+        this.Npc = npc;
+    }
+
     public boolean isFullPlayer() {
         return this.players.size() >= this.maxPlayer;
     }

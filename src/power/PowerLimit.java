@@ -25,4 +25,32 @@ public class PowerLimit {
     private long damage;
     private int defense;
     private int critical;
+
+    public int getId() {
+        return id;
+    }
+
+    public long getPower() {
+        return power;
+    }
+
+    public long getHp() {
+        return hp;
+    }
+
+    public long getMp() {
+        return mp;
+    }
+
+    public long getDamage() {
+        return damage;
+    }
+
+    public int getDefense() {
+        return defense;
+    }
+
+    public int getCritical() {
+        return critical;
+    }
 }

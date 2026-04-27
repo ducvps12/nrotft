@@ -15,6 +15,7 @@ import nro.server.*;
 import nro.services.*;
 import org.json.simple.JSONObject;
 import boss.*;
+import task.SubTaskMain;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
@@ -272,6 +273,10 @@ public class SimpleHttpHandler implements HttpHandler {
                     boostExpApi(params);
                 case "PLAYER_LIST" ->
                     playerList();
+                case "ADMIN_BUFF_SELF" ->
+                    adminBuffSelf(params);
+                case "ADMIN_BUFF_TARGET" ->
+                    adminBuffTarget(params);
                 default ->
                     msg("error", "Lệnh không hợp lệ: " + type);
             };
@@ -629,12 +634,13 @@ public class SimpleHttpHandler implements HttpHandler {
             Thread.startVirtualThread(() -> {
                 try {
                     if (GiftCodeManager.gI() != null) {
-                        GiftCodeManager.gI().listGiftCode.clear();
+                        GiftCodeManager.gI().loadGiftCodeFromDB();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    System.err.println("[AdminAPI] Lỗi reload giftcode: " + e.getMessage());
                 }
             });
-            return msg("success", "Giftcode reload đang chạy nền.");
+            return msg("success", "Giftcode reload đang chạy nền. Cache sẽ nạp lại từ DB.");
         } catch (Exception e) {
             return msg("error", e.getMessage());
         }
@@ -735,6 +741,100 @@ public class SimpleHttpHandler implements HttpHandler {
         } catch (Exception e) {
             return msg("error", e.getMessage());
         }
+    }
+
+    private JSONObject adminBuffSelf(Map<String, List<String>> params) {
+        String name = getParam(params, "player_name", "").trim();
+        Player target = name.isEmpty() ? selectedPlayer : (Client.gI() != null ? Client.gI().getPlayer(name) : null);
+        if (target == null) {
+            return msg("error", "Chưa chọn admin/player online. Dùng SET_PLAYER hoặc truyền player_name.");
+        }
+        if (!target.isAdmin()) {
+            return msg("error", "Chỉ cho phép buff tài khoản admin để test bug.");
+        }
+        return applyAdminBuff(target, params);
+    }
+
+    private JSONObject adminBuffTarget(Map<String, List<String>> params) {
+        if (selectedPlayer == null) {
+            return msg("error", "Chưa chọn người chơi!");
+        }
+        if (!selectedPlayer.isAdmin()) {
+            return msg("error", "Chỉ cho phép buff tài khoản admin để test bug.");
+        }
+        return applyAdminBuff(selectedPlayer, params);
+    }
+
+    private JSONObject applyAdminBuff(Player target, Map<String, List<String>> params) {
+        try {
+            String mode = getParam(params, "mode", "starter").toLowerCase();
+            switch (mode) {
+                case "task" -> completeCurrentSubTask(target);
+                case "nexttask" -> TaskService.gI().sendNextTaskMain(target);
+                case "power" -> {
+                    long amount = Long.parseLong(getParam(params, "amount", "1000000"));
+                    addPowerAndPotential(target, amount, amount);
+                }
+                case "stat" -> buffBaseStats(target,
+                        Long.parseLong(getParam(params, "hp", "1000")),
+                        Long.parseLong(getParam(params, "mp", "1000")),
+                        Long.parseLong(getParam(params, "dame", "100")));
+                case "starter" -> {
+                    addPowerAndPotential(target, 5_000_000L, 5_000_000L);
+                    buffBaseStats(target, 10_000L, 10_000L, 1_000L);
+                    addTestItems(target);
+                }
+                default -> {
+                    return msg("error", "mode không hợp lệ. Dùng: starter, task, nexttask, power, stat");
+                }
+            }
+            target.nPoint.calPoint();
+            PlayerService.gI().sendInfoHpMpMoney(target);
+            Service.gI().point(target);
+            Service.gI().Send_Info_NV(target);
+            PlayerDAO.updatePlayer(target);
+            Service.gI().sendThongBao(target, "Admin buff test thành công: " + mode);
+            return msg("success", "Đã buff test cho admin " + target.name + " mode=" + mode);
+        } catch (Exception e) {
+            return msg("error", "Lỗi admin buff: " + e.getMessage());
+        }
+    }
+
+    private void completeCurrentSubTask(Player player) {
+        if (player.playerTask == null || player.playerTask.taskMain == null) {
+            return;
+        }
+        int index = player.playerTask.taskMain.index;
+        if (index < 0 || index >= player.playerTask.taskMain.subTasks.size()) {
+            return;
+        }
+        SubTaskMain subTask = player.playerTask.taskMain.subTasks.get(index);
+        subTask.count = subTask.maxCount;
+        TaskService.gI().sendUpdateCountSubTask(player);
+        TaskService.gI().sendTaskMain(player);
+    }
+
+    private void addPowerAndPotential(Player player, long power, long potential) {
+        player.nPoint.power = Math.max(0, player.nPoint.power + power);
+        player.nPoint.tiemNang = Math.max(0, player.nPoint.tiemNang + potential);
+        TaskService.gI().checkDoneTaskPower(player, player.nPoint.power);
+    }
+
+    private void buffBaseStats(Player player, long hp, long mp, long dame) {
+        player.nPoint.hpg = Math.max(1, player.nPoint.hpg + hp);
+        player.nPoint.mpg = Math.max(1, player.nPoint.mpg + mp);
+        player.nPoint.dameg = Math.max(1, player.nPoint.dameg + dame);
+        player.nPoint.hp = player.nPoint.hpMax;
+        player.nPoint.mp = player.nPoint.mpMax;
+    }
+
+    private void addTestItems(Player player) {
+        Item goldBar = ItemService.gI().createNewItem((short) 457, 100);
+        Item gem = ItemService.gI().createNewItem((short) 77, 5000);
+        InventoryService.gI().addItemBag(player, goldBar);
+        InventoryService.gI().addItemBag(player, gem);
+        player.inventory.ruby += 5000;
+        InventoryService.gI().sendItemBag(player);
     }
 
     // ==================== UTILITIES ====================

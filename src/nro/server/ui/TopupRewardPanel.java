@@ -62,11 +62,9 @@ public class TopupRewardPanel extends JPanel {
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Cấu hình bảng
-        tableMap.put("Mốc Nạp Tích Lũy (moc_nap)", "moc_nap");
-        tableMap.put("Đua Top Nạp (moc_nap_top)", "moc_nap_top");
+        tableMap.put("Mốc Nạp ATM Tích Lũy (moc_nap)", "moc_nap");
+        tableMap.put("Đua Top Nạp ATM (moc_nap_top)", "moc_nap_top");
         tableMap.put("Mốc Săn Boss (moc_san_boss)", "moc_san_boss");
-        tableMap.put("Mốc Sức Mạnh (moc_suc_manh)", "moc_suc_manh");
-        tableMap.put("Đua Top Sức Mạnh (moc_suc_manh_top)", "moc_suc_manh_top");
         tableMap.put("Đua Top Sự Kiện (moc_su_kien_top)", "moc_su_kien_top");
 
         loadCacheData();

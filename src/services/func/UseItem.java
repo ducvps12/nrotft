@@ -77,6 +77,11 @@ public class UseItem {
     private static final byte ACCEPT_THROW_ITEM = 2;
     private static final byte ACCEPT_USE_ITEM = 3;
 
+    private static final int PEA_BONUS_DAILY_LIMIT = 80;
+    private static final int PEA_BONUS_SD_LIMIT = 2000;
+    private static final int PEA_BONUS_HP_LIMIT = 20000;
+    private static final int PEA_BONUS_KI_LIMIT = 20000;
+
     private static UseItem instance;
 
     private int randClothes(int level) {
@@ -3359,7 +3364,7 @@ public class UseItem {
     }
 
     public void eatPea(Player player) {
-        if (!Util.canDoWithTime(player.lastTimeEatPea, 1000)) {
+        if (!Util.canDoWithTime(player.lastTimeEatPea, 2000)) {
             return;
         }
         player.lastTimeEatPea = System.currentTimeMillis();
@@ -3391,7 +3396,7 @@ public class UseItem {
          */
 
         long hpKiHoiPhuc = 0;
-        int lvPea = Integer.parseInt(pea.template.name.substring(13));
+        int lvPea = getPeaLevel(pea);
 
         for (ItemOption io : pea.itemOptions) {
             if (io.optionTemplate.id == 2) {
@@ -3404,10 +3409,7 @@ public class UseItem {
             }
         }
 
-        player.nPoint.setHp(Util.maxIntValue(player.nPoint.hp + hpKiHoiPhuc));
-        player.nPoint.setMp(Util.maxIntValue(player.nPoint.mp + hpKiHoiPhuc));
-        PlayerService.gI().sendInfoHpMp(player);
-        Service.gI().sendInfoPlayerEatPea(player);
+        // Hồi phục sẽ xử lý sau khi cập nhật bonus chỉ số để HP/KI max mới có hiệu lực ngay.
 
         // hồi cho pet
         if (player.pet != null && player.zone.equals(player.pet.zone) && !player.pet.isDie()) {
@@ -3432,28 +3434,38 @@ public class UseItem {
         player.pea_today_count++;
         player.pea_use_count++;
 
-        if (player.pea_cycle == 0) {
-            int value = Util.nextInt(1, 10);
-            player.nPoint.stamina += value;
-            player.pea_bonus_sd += value;
-            Service.gI().sendThongBao(player, "SD +" + value);
+        boolean canReceiveBonus = player.pea_today_count <= PEA_BONUS_DAILY_LIMIT
+                && (player.pea_bonus_sd < PEA_BONUS_SD_LIMIT
+                        || player.pea_bonus_hp < PEA_BONUS_HP_LIMIT
+                        || player.pea_bonus_ki < PEA_BONUS_KI_LIMIT);
 
-        } else if (player.pea_cycle == 1) {
-            int value = Util.nextInt(10, 100);
-            player.nPoint.hpMax += value;
-            player.pea_bonus_hp += value;
-            Service.gI().sendThongBao(player, "HP +" + value);
+        // trừ item trước khi cộng bonus để tránh spam/dup khi lỗi gửi packet
+        InventoryService.gI().subQuantityItemsBag(player, pea, 1);
+        InventoryService.gI().sendItemBag(player);
 
-        } else {
-            int value = Util.nextInt(10, 100);
-            player.nPoint.mpMax += value;
-            player.pea_bonus_ki += value;
-            Service.gI().sendThongBao(player, "KI +" + value);
+        // cộng chỉ số theo vòng SD -> HP -> KI, có cap để chống tool spam farm vô hạn
+        String bonusText = null;
+        if (canReceiveBonus) {
+            if (player.pea_cycle == 0 && player.pea_bonus_sd < PEA_BONUS_SD_LIMIT) {
+                int value = Math.min(Util.nextInt(1, 10), PEA_BONUS_SD_LIMIT - player.pea_bonus_sd);
+                player.pea_bonus_sd += value;
+                bonusText = "Sức đánh gốc +" + value;
+            } else if (player.pea_cycle == 1 && player.pea_bonus_hp < PEA_BONUS_HP_LIMIT) {
+                int value = Math.min(Util.nextInt(10, 100), PEA_BONUS_HP_LIMIT - player.pea_bonus_hp);
+                player.pea_bonus_hp += value;
+                bonusText = "HP gốc +" + value;
+            } else if (player.pea_bonus_ki < PEA_BONUS_KI_LIMIT) {
+                int value = Math.min(Util.nextInt(10, 100), PEA_BONUS_KI_LIMIT - player.pea_bonus_ki);
+                player.pea_bonus_ki += value;
+                bonusText = "KI gốc +" + value;
+            }
         }
 
-        player.pea_cycle++;
-        if (player.pea_cycle > 2) {
-            player.pea_cycle = 0;
+        if (bonusText != null) {
+            player.pea_cycle++;
+            if (player.pea_cycle > 2) {
+                player.pea_cycle = 0;
+            }
         }
 
         // mốc thưởng
@@ -3464,12 +3476,32 @@ public class UseItem {
             }
         }
 
-        // trừ item
-        InventoryService.gI().subQuantityItemsBag(player, pea, 1);
-        InventoryService.gI().sendItemBag(player);
-
-        // cập nhật điểm
+        // cập nhật lại chỉ số để pea_bonus_* ăn vào hpMax/mpMax/dame ngay lập tức
         Service.gI().point(player);
+        PlayerService.gI().sendInfoHpMpMoney(player);
+
+        // hồi phục sau khi recalculation để có hiệu lực theo max mới
+        player.nPoint.setHp(Util.maxIntValue(player.nPoint.hp + hpKiHoiPhuc));
+        player.nPoint.setMp(Util.maxIntValue(player.nPoint.mp + hpKiHoiPhuc));
+        PlayerService.gI().sendInfoHpMp(player);
+        Service.gI().sendInfoPlayerEatPea(player);
+        if (bonusText != null) {
+            Service.gI().sendThongBao(player, bonusText);
+        } else if (player.pea_today_count == PEA_BONUS_DAILY_LIMIT + 1) {
+            Service.gI().sendThongBao(player,
+                    "Hôm nay bạn đã đạt giới hạn cộng chỉ số từ Đậu thần, vẫn có thể ăn để hồi HP/KI");
+        }
+
+        PlayerDAO.updatePlayer(player);
+    }
+
+    private int getPeaLevel(Item pea) {
+        try {
+            String name = pea.template.name;
+            return Integer.parseInt(name.substring(name.lastIndexOf(' ') + 1));
+        } catch (Exception e) {
+            return 1;
+        }
     }
 
     private void upSkillPet(Player pl, Item item) {

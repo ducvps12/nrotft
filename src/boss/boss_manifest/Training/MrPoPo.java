@@ -24,6 +24,16 @@ public class MrPoPo extends TrainingBoss {
     public MrPoPo(Player player) throws Exception {
         super(PHOBAN, BossID.MRPOPO, BossesData.MRPOPO);
         this.playerAtt = player;
+        if (player.isPopoTowerChallenge) {
+            int rate = models.PopoTower.PopoTowerService.gI().getBossPowerRate(player);
+            this.nPoint.hpMax = Math.max(this.nPoint.hpMax, player.nPoint.hpMax * rate / 80);
+            this.nPoint.hpg = this.nPoint.hpMax;
+            this.nPoint.hp = this.nPoint.hpMax;
+            this.nPoint.mpg = Math.max(this.nPoint.mpg, player.nPoint.mpMax * rate / 100);
+            this.nPoint.mp = this.nPoint.mpg;
+            this.nPoint.dameg = Math.max(this.nPoint.dameg, player.nPoint.dame * rate / 120);
+            this.name = "Mr.PôPô Tầng " + player.popoTowerChallengeFloor;
+        }
     }
 
     @Override

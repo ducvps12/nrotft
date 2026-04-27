@@ -1270,6 +1270,13 @@ public class NDVSqlFetcher {
                     player.traning.setLastTop(Integer.parseInt(dataArray.get(8).toString()));
                     player.traning.setLastRewardTime(Long.parseLong(dataArray.get(9).toString()));
                 }
+                if (dataArray.size() > 14) {
+                    player.popoTowerFloor = Integer.parseInt(dataArray.get(10).toString());
+                    player.popoTowerTodayCount = Integer.parseInt(dataArray.get(11).toString());
+                    player.popoTowerLastDay = Long.parseLong(dataArray.get(12).toString());
+                    player.popoTowerBestFloor = Integer.parseInt(dataArray.get(13).toString());
+                    player.popoTowerBestTime = Long.parseLong(dataArray.get(14).toString());
+                }
             } catch (Exception e) {
                 player.levelLuyenTap = 0;
                 player.dangKyTapTuDong = false;

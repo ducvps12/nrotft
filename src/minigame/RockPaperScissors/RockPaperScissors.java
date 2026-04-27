@@ -51,7 +51,7 @@ public class RockPaperScissors {
                     return;
                 }
                 player.iDMark.setKeoBuaBaoPlayer((byte) select);
-                player.iDMark.setKeoBuaBaoServer((byte) Util.nextInt(2));
+                player.iDMark.setKeoBuaBaoServer((byte) Util.nextInt(0, 2));
                 if (RockPaperScissorsService.checkWinLose(player) == 1) { // xử lý thắng
                     RockPaperScissorsService.winKeoBuaBao(npc, player);
                 } else if (RockPaperScissorsService.checkWinLose(player) == 2) { // xử lý thua

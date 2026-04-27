@@ -1130,7 +1130,7 @@ public class SettingsPanel extends JPanel {
             notifyProps.setProperty("telegram.token", "6784465877:AAFp9DksVhBJgejfPXKdqvOTiY8ZadsddQw");
             notifyProps.setProperty("telegram.chatid", "-4653787290");
             notifyProps.setProperty("telegram.on_start", "true");
-            notifyProps.setProperty("telegram.on_login", "false");
+            notifyProps.setProperty("telegram.on_login", "true");
             notifyProps.setProperty("telegram.on_recharge", "true");
             notifyProps.setProperty("telegram.on_error", "true");
             notifyProps.setProperty("smtp.enabled", "false");

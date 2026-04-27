@@ -73,6 +73,8 @@ public class OngGohan extends Npc {
     private static final int MENU_THANH_VIEN = 782;
     private static final int MENU_HOM_THU = ConstNpc.MAIL_BOX;
     private static final int MENU_KHAC = 992;
+    private static final int MENU_CONFIRM_SUPPORT_TASK = 993;
+    private static final int MENU_BAO_MAT = 994;
 
     // ===================== MENU GỐC - TỐI ƯU =====================
     @Override
@@ -97,7 +99,7 @@ public class OngGohan extends Npc {
                     "Nạp Tiền\n& Đổi VNĐ",
                     "Quà\nMiễn Phí",
                     "Hòm Thư\n(" + mailCount + " món)",
-                    "Đổi\nMật Khẩu",
+                    "Bảo Mật\nTài Khoản",
                     "GiftCode",
                     "Hỗ Trợ\n& Khác");
         }
@@ -132,6 +134,10 @@ public class OngGohan extends Npc {
                 handleMailBox(player, select);
             case MENU_KHAC ->
                 handleOtherOptionsMenu(player, select);
+            case MENU_CONFIRM_SUPPORT_TASK ->
+                handleConfirmSupportTask(player, select);
+            case MENU_BAO_MAT ->
+                handleSecurityMenu(player, select);
             case ConstNpc.CHUYEN_KHOAN ->
                 handleChuyenKhoan(player, select);
             case ConstNpc.CONTENT_CHUYEN_KHOAN ->
@@ -152,12 +158,41 @@ public class OngGohan extends Npc {
                 showFreeGiftMenu(player);
             case 2 -> // Hòm Thư
                 openMailBoxDirect(player);
-            case 3 -> // Đổi Mật Khẩu
-                Input.gI().createFormChangePassword(player);
+            case 3 -> // Bảo mật tài khoản
+                showSecurityMenu(player);
             case 4 -> // GiftCode
                 Input.gI().createFormGiftCode(player);
             case 5 -> // Hỗ Trợ & Khác
                 showOtherMenu(player);
+        }
+    }
+
+    private void showSecurityMenu(Player player) {
+        boolean emailVerified = nro.server.EmailVerificationService.isVerified(player);
+        createOtherMenu(player, MENU_BAO_MAT,
+                "|7|━━━ BẢO MẬT TÀI KHOẢN ━━━\n"
+                + "|8|Email: " + (emailVerified ? "✓ Đã xác minh" : "✗ Chưa xác minh") + "\n"
+                + "|2|Đổi mật khẩu bắt buộc phải xác minh email trước.\n"
+                + "|1|OTP gửi qua email và nhập xác nhận ngay trong game.\n"
+                + "|7|━━━━━━━━━━━━━━━━━━",
+                "Gửi OTP\nEmail",
+                "Nhập OTP\nXác Minh",
+                "Đổi\nMật Khẩu",
+                "Đóng");
+    }
+
+    private void handleSecurityMenu(Player player, int select) {
+        switch (select) {
+            case 0 -> Input.gI().createFormVerifyEmail(player);
+            case 1 -> Input.gI().createFormVerifyEmailOtp(player);
+            case 2 -> {
+                if (!nro.server.EmailVerificationService.isVerified(player)) {
+                    Service.gI().sendThongBao(player, "Bạn cần xác minh email trước khi đổi mật khẩu.");
+                    showSecurityMenu(player);
+                    return;
+                }
+                Input.gI().createFormChangePassword(player);
+            }
         }
     }
 
@@ -265,7 +300,7 @@ public class OngGohan extends Npc {
                 case 0 -> // Quên Mã Bảo Vệ
                     Input.gI().createFormMBV(player);
                 case 1 -> // Hỗ Trợ Nhiệm Vụ
-                    supportTask(player);
+                    showSupportTaskConfirm(player);
                 case 2 -> // Xóa Đệ
                     createOtherMenu(player, MENU_XOA_DE, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
             }
@@ -274,12 +309,34 @@ public class OngGohan extends Npc {
                 case 0 -> // Quên Mã Bảo Vệ
                     Input.gI().createFormMBV(player);
                 case 1 -> // Hỗ Trợ Nhiệm Vụ
-                    supportTask(player);
+                    showSupportTaskConfirm(player);
                 case 2 -> // Xóa Đệ
                     createOtherMenu(player, MENU_XOA_DE, "|0|Bạn muốn xóa đệ với giá 10K VND?", "Đồng ý", "Không");
                 case 3 -> // Mở Thành Viên
                     showMemberMenu(player);
             }
+        }
+    }
+
+    private void showSupportTaskConfirm(Player player) {
+        int taskId = TaskService.gI().getIdTask(player);
+        createOtherMenu(player, MENU_CONFIRM_SUPPORT_TASK,
+                "|7|━━━ HỖ TRỢ NHIỆM VỤ ━━━\n"
+                + "|1|Nhiệm vụ hiện tại: " + taskId + "\n"
+                + "|6|Bạn có chắc chưa?\n"
+                + "|2|Bạn có thực sự muốn hư hỏng như vậy không?\n"
+                + "|8|Bấm đồng ý là ta chống lưng cho qua đoạn khó nha.\n"
+                + "|7|━━━━━━━━━━━━━━━━━━",
+                "Chắc Rồi\nCho Qua Đi",
+                "Thôi\nTự Cày",
+                "Để Suy Nghĩ\nLại");
+    }
+
+    private void handleConfirmSupportTask(Player player, int select) {
+        switch (select) {
+            case 0 -> supportTask(player);
+            case 1 -> npcChat(player, "Tốt! Có chí khí đó, tự cày mới trưởng thành được nha.");
+            case 2 -> npcChat(player, "Suy nghĩ đi con... hư vừa thôi, hư quá ông Paragus cười đó!");
         }
     }
 
@@ -549,9 +606,11 @@ public class OngGohan extends Npc {
             case 0 -> {
                 Transaction transaction = ChuyenKhoanManager.GetTransactionLast(player.id);
                 Service.gI().LinkService(player, 10684,
-                        "Ấn quét để được tự động chuyển sang trình duyệt webiste\n"
-                        + "Nếu có thắc mắc gì liên hệ admin để được giải quyết\n"
-                        + "Hãy đợi admin rep nhé<3", "https://img.vietqr.io/image/ACB-24488671-compact2.png?amount=" + transaction.amount + "&addInfo=" + transaction.description, "Quét QR");
+                        "Quét QR để chuyển khoản ATM\n"
+                        + "Số tiền: " + Util.formatCurrency((long) transaction.amount) + " VNĐ\n"
+                        + "Nội dung: " + transaction.description + "\n"
+                        + "Lưu ý: chuyển đúng số tiền và đúng nội dung để tự cộng.",
+                        ChuyenKhoanManager.buildVietQrUrl(transaction), "Quét QR");
             }
             case 1 -> Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
         }
@@ -662,12 +721,16 @@ public class OngGohan extends Npc {
         int mailCount = player.inventory.itemsMailBox.size()
                 - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsMailBox);
 
+        boolean emailVerified = nro.server.EmailVerificationService.isVerified(player);
         createOtherMenu(player, MENU_HOM_THU,
-                "|7|━━━ HÒM THƯ ━━━\n"
+                "|7|━━━ HÒM THƯ & XÁC MINH ━━━\n"
                 + "|1|Bạn có " + mailCount + " vật phẩm trong hòm thư\n"
-                + "|8|Quà từ sự kiện, đua top hoặc Admin\n"
+                + "|8|Email: " + (emailVerified ? "✓ Đã xác minh" : "✗ Chưa xác minh") + "\n"
+                + "|2|OTP xác minh được gửi qua email, nhập lại tại đây.\n"
                 + "|7|━━━━━━━━━━━━━━━━━━",
                 "Mở\nHòm Thư",
+                "Gửi OTP\nEmail",
+                "Nhập OTP\nXác Minh",
                 "Xóa Hết\nHòm Thư",
                 "Đóng");
     }
@@ -677,6 +740,10 @@ public class OngGohan extends Npc {
             case 0 ->
                 ShopService.gI().opendShop(player, "ITEMS_MAIL_BOX", true);
             case 1 ->
+                Input.gI().createFormVerifyEmail(player);
+            case 2 ->
+                Input.gI().createFormVerifyEmailOtp(player);
+            case 3 ->
                 NpcService.gI().createMenuConMeo(player,
                         ConstNpc.CONFIRM_REMOVE_ALL_ITEM_MAIL_BOX, this.avartar,
                         "|3|Bạn có chắc muốn xóa hết vật phẩm trong hòm thư?\n|7|Sau khi xóa sẽ không thể khôi phục!",
@@ -711,9 +778,17 @@ public class OngGohan extends Npc {
         if (player.getSession().actived) {
             Service.gI().sendThongBao(player, "Bạn đã mở thành viên rồi");
         } else if (player.getSession().cash < 20000) {
-            NpcService.gI().createBigMessage(player, avartar,
-                    "Bạn chưa nạp đủ 20K.\nBạn có muốn nạp để mở thành viên không?",
-                    (byte) 1, "NẠP", "https://dragonball.online/nap-atm.php");
+            createOtherMenu(player, ConstNpc.CHUYEN_KHOAN,
+                    "|7|━━━ NẠP COIN ATM ━━━\n"
+                    + "|1|Bạn chưa nạp đủ 20K để mở thành viên.\n"
+                    + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                    + "|8|Tỉ lệ: X1 GIÁ TRỊ NẠP\n"
+                    + "|2|Chọn đúng mệnh giá. Sai = không cộng\n"
+                    + "|7|Đợi 1-3p để hệ thống xử lý\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━",
+                    "Tạo\nGiao Dịch",
+                    "Lịch Sử\nGiao Dịch",
+                    "Đóng");
         } else if (PlayerDAO.updateActive(player, 1)) {
             Service.gI().sendThongBao(player, "Mở thành viên thành công!");
         } else {

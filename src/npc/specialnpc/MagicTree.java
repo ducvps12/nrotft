@@ -49,15 +49,21 @@ public class MagicTree {
                     { 26, 39 }, { 11, 36 }, { 33, 23 }, { 18, 25 }, { 4, 20 }, { 26, 12 }, { 12, 7 }, { 19, 0 },
                     { 19, 0 }, { 19, 0 }, { 19, 0 }, { 19, 0 }, { 19, 0 }, { 19, 0 } } };
 
-    // days - hours - mins - gold
+    // Cân bằng theo tỉ giá hiện tại: 1 thỏi vàng ~= 10k VND, 1 thỏi vàng bán ra ~= 500tr vàng.
+    // Mục tiêu: nâng từng cấp đậu thần phải có cảm giác tích lũy, cấp cao là thành tựu dài hạn.
+    // days - hours - mins - goldUnit (<= lv3: k vàng, > lv3: triệu vàng)
     private static final short[][] PEA_UPGRADE = {
-            { 0, 0, 10, 50 }, { 0, 1, 40, 250 }, { 0, 16, 40, 2000 }, { 6, 22, 0, 10 },
-            { 13, 21, 0, 30 }, { 27, 18, 0, 75 }, { 55, 13, 0, 150 }, { 69, 10, 0, 300 },
-            { 104, 4, 0, 600 }, { 0, 0, 0, 0 }
+            { 0, 0, 30, 250 }, { 0, 3, 0, 1000 }, { 1, 0, 0, 5000 }, { 3, 12, 0, 25 },
+            { 7, 0, 0, 60 }, { 14, 0, 0, 125 }, { 24, 0, 0, 250 }, { 35, 0, 0, 500 },
+            { 50, 0, 0, 1000 }, { 0, 0, 0, 0 }
     };
 
-    private static final int[] FAST_RESPAWN_GEM = { 4, 6, 8, 10, 12, 15, 18, 22, 26, 30 };
-    private static final int[] FAST_UPGRADE_GEM = { 10, 20, 35, 60, 100, 160, 240, 360, 500, 0 };
+    private static final int ITEM_XU_NRO = 1705;
+
+    private static final int[] FAST_RESPAWN_GEM = { 6, 9, 12, 16, 22, 30, 40, 55, 75, 100 };
+    private static final int[] FAST_UPGRADE_GEM = { 15, 35, 75, 140, 240, 380, 560, 800, 1100, 0 };
+    private static final int[] FERTILIZE_XU_NRO = { 3, 5, 8, 12, 18, 25, 35, 50, 70, 0 };
+    private static final int[] FERTILIZE_MINUTE_REDUCE = { 10, 20, 45, 90, 180, 360, 720, 1080, 1440, 0 };
 
     // icon magic tree [gender][level]
     private static final short[][] ID_MAGIC_TREE = {
@@ -151,7 +157,7 @@ public class MagicTree {
             msg.writer().writeByte(level);
             msg.writer().writeShort(this.currPeas);
             msg.writer().writeShort(getMaxPea());
-            msg.writer().writeUTF("Đang kết hạt\nCây lớn sinh nhiều hạt hơn");
+            msg.writer().writeUTF(this.isUpgrade ? "Đang nâng cấp" : "Đang kết hạt");
             msg.writer().writeInt(this.isUpgrade ? getSecondUpgrade() : getSecondPea()); // seconds
             msg.writer().writeByte(POS_PEAS[this.level - 1].length); // pos pea
             for (int i = 0; i < POS_PEAS[this.level - 1].length; i++) {
@@ -181,14 +187,19 @@ public class MagicTree {
                 }
                 if (this.currPeas < this.getMaxPea()) {
                     msg.writer().writeUTF("Kết hạt\nnhanh\n" + getFastRespawnGemRequire() + " ngọc");
+                    msg.writer().writeUTF("Hướng\ndẫn");
                     this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_NON_UPGRADE_LEFT_PEA);
                 } else {
+                    msg.writer().writeUTF("Hướng\ndẫn");
                     this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_NON_UPGRADE_FULL_PEA);
                 }
             } else {
                 msg.writer().writeUTF("Nâng cấp\nnhanh\n" + getFastUpgradeGemRequire() + "\nngọc");
-                msg.writer().writeUTF("Hủy\nnâng cấp\nhồi "
-                        + (PEA_UPGRADE[this.level - 1][3] / 2 + (this.level <= 3 ? " k" : " Tr")) + "\nvàng");
+                msg.writer().writeUTF("Bón Xu\n" + getFertilizeXuRequire() + " Xu\ngiảm "
+                        + getFertilizeMinuteReduce() + "'");
+                msg.writer().writeUTF("Hướng\ndẫn");
+                msg.writer().writeUTF("Hủy\nnâng\ncấp\n"
+                        + formatGold(getGoldUpgradeRequire() / 2));
                 this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_UPGRADE);
             }
             player.sendMessage(msg);
@@ -282,6 +293,58 @@ public class MagicTree {
         this.loadMagicTree();
     }
 
+    public void showMagicTreeGuide() {
+        NpcManager.getByIdAndMap(ConstNpc.DAU_THAN, this.player.zone.map.mapId).createOtherMenu(player,
+                ConstNpc.BASE_MENU,
+                "|7|— CÂY ĐẬU —\n"
+                        + "|1|Cấp: " + level + "/" + MAX_LEVEL + "   Đậu: " + currPeas + "/" + getMaxPea() + "\n\n"
+                        + "|1|Thu hoạch\n"
+                        + "Nhận đậu để hồi HP/KI.\n\n"
+                        + "|1|Nâng cấp\n"
+                        + "Tốn vàng + thời gian.\n"
+                        + "Cấp cao chứa nhiều đậu hơn.\n\n"
+                        + "|1|Tăng tốc\n"
+                        + "Ngọc: xong ngay. Xu NRO: giảm giờ.\n\n"
+                        + "|1|Hủy nâng: hoàn 50% vàng.",
+                "Đã hiểu");
+    }
+
+    public void showFertilizeXuGuide() {
+        showMagicTreeGuide();
+    }
+
+    public void fertilizeByXuNro() {
+        if (!this.isUpgrade) {
+            Service.gI().sendThongBao(player, "Chỉ có thể bón Xu khi cây đậu đang nâng cấp");
+            return;
+        }
+        int xuRequire = getFertilizeXuRequire();
+        int minuteReduce = getFertilizeMinuteReduce();
+        if (xuRequire <= 0 || minuteReduce <= 0) {
+            Service.gI().sendThongBao(player, "Cấp hiện tại không thể bón Xu NRO");
+            return;
+        }
+        Item xuNro = InventoryService.gI().findItemBag(player, ITEM_XU_NRO);
+        if (xuNro == null || xuNro.quantity < xuRequire) {
+            Service.gI().sendThongBao(player, "Bạn không đủ Xu NRO để bón, cần " + xuRequire + " Xu NRO");
+            return;
+        }
+        InventoryService.gI().subQuantityItemsBag(player, xuNro, xuRequire);
+        InventoryService.gI().sendItemBag(player);
+        this.lastTimeUpgrade -= minuteReduce * 60_000L;
+        if (Util.canDoWithTime(lastTimeUpgrade, getTimeUpgrade())) {
+            if (this.level < MAX_LEVEL) {
+                this.level++;
+            }
+            this.isUpgrade = false;
+            Service.gI().sendThongBao(player, "Bón Xu thành công, cây Đậu thần đã nâng xong!");
+        } else {
+            Service.gI().sendThongBao(player, "Bón " + xuRequire + " Xu NRO thành công, giảm "
+                    + minuteReduce + " phút nâng cấp");
+        }
+        this.loadMagicTree();
+    }
+
     private byte getMaxPea() {
         return (byte) ((this.level - 1) * 2 + 5);
     }
@@ -331,6 +394,14 @@ public class MagicTree {
 
     private int getFastUpgradeGemRequire() {
         return FAST_UPGRADE_GEM[Math.min(this.level - 1, FAST_UPGRADE_GEM.length - 1)];
+    }
+
+    private int getFertilizeXuRequire() {
+        return FERTILIZE_XU_NRO[Math.min(this.level - 1, FERTILIZE_XU_NRO.length - 1)];
+    }
+
+    private int getFertilizeMinuteReduce() {
+        return FERTILIZE_MINUTE_REDUCE[Math.min(this.level - 1, FERTILIZE_MINUTE_REDUCE.length - 1)];
     }
 
     private String formatGold(int gold) {

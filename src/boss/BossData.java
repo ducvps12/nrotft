@@ -87,4 +87,56 @@ public class BossData {
         this(name, gender, outfit, dame, hp, mapJoin, skillTemp, textS, textM, textE, secondsRest);
         this.typeAppear = typeAppear;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public byte getGender() {
+        return gender;
+    }
+
+    public short[] getOutfit() {
+        return outfit;
+    }
+
+    public long getDame() {
+        return dame;
+    }
+
+    public long[] getHp() {
+        return hp;
+    }
+
+    public int[] getMapJoin() {
+        return mapJoin;
+    }
+
+    public int[][] getSkillTemp() {
+        return skillTemp;
+    }
+
+    public String[] getTextS() {
+        return textS;
+    }
+
+    public String[] getTextM() {
+        return textM;
+    }
+
+    public String[] getTextE() {
+        return textE;
+    }
+
+    public int getSecondsRest() {
+        return secondsRest;
+    }
+
+    public AppearType getTypeAppear() {
+        return typeAppear;
+    }
+
+    public int[] getBossesAppearTogether() {
+        return bossesAppearTogether;
+    }
 }

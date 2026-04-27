@@ -1384,6 +1384,7 @@ public class PlayersPanel extends JPanel {
                     tabs.addTab("Đệ tử", pPet);
                     tabs.addTab("Nhiệm vụ", new JScrollPane(pTasks));
                     tabs.addTab("Danh hiệu (Badges)", pBadges);
+                    tabs.addTab("Truy vết", createPlayerAuditPanel(accountId, rs.getString("name"), originalData));
 
                     d.add(tabs, BorderLayout.CENTER);
 
@@ -1410,6 +1411,152 @@ public class PlayersPanel extends JPanel {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    private JPanel createPlayerAuditPanel(int accountId, String playerName, Map<String, String> originalData) {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JTextArea summary = new JTextArea();
+        summary.setEditable(false);
+        summary.setFont(new Font("Consolas", Font.PLAIN, 13));
+        summary.setBackground(new Color(250, 250, 250));
+        summary.setText(buildAuditSummary(accountId, playerName, originalData));
+        panel.add(new JScrollPane(summary), BorderLayout.NORTH);
+
+        JTabbedPane auditTabs = new JTabbedPane();
+        auditTabs.addTab("VND/Cash", createQueryTablePanel(
+                "SELECT created_at AS time, source, amount, balance_before, balance_after, detail "
+                + "FROM cash_audit_log WHERE account_id = ? ORDER BY created_at DESC LIMIT 200",
+                accountId,
+                new String[] {"time", "source", "amount", "balance_before", "balance_after", "detail"},
+                "Chưa có bảng cash_audit_log hoặc chưa phát sinh log VND."));
+        auditTabs.addTab("ATM/Thưởng", createQueryTablePanel(
+                "SELECT created_at AS time, trans_id, amount, status, description "
+                + "FROM recharge_log WHERE account_id = ? ORDER BY created_at DESC LIMIT 200",
+                accountId,
+                new String[] {"time", "trans_id", "amount", "status", "description"},
+                "Chưa có giao dịch ATM/phần thưởng trong recharge_log."));
+        auditTabs.addTab("Liên đới vàng", createGoldRelationPanel(accountId, playerName));
+
+        panel.add(auditTabs, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private String buildAuditSummary(int accountId, String playerName, Map<String, String> originalData) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("TÀI KHOẢN: ").append(playerName).append(" | account_id=").append(accountId).append('\n');
+        try {
+            JsonArray inv = new JsonParser().parse(originalData.get("data_inventory")).getAsJsonArray();
+            long gold = inv.size() > 0 ? inv.get(0).getAsLong() : 0;
+            long gem = inv.size() > 1 ? inv.get(1).getAsLong() : 0;
+            long ruby = inv.size() > 2 ? inv.get(2).getAsLong() : 0;
+            sb.append("Vàng hiện tại: ").append(gold).append(" | Ngọc xanh: ").append(gem).append(" | Hồng ngọc: ").append(ruby).append('\n');
+            if (gold >= 1_000_000_000L) {
+                sb.append("CẢNH BÁO: Vàng từ 1 tỷ trở lên, nên đối chiếu tab VND/Cash + Nạp bank + Liên đới vàng.\n");
+            }
+        } catch (Exception e) {
+            sb.append("Không đọc được data_inventory: ").append(e.getMessage()).append('\n');
+        }
+        sb.append("Gợi ý đọc log: BANK_ATM/BANK_AUTO là nạp ATM hoặc cộng thưởng; DOI_THOI_VANG là đổi VNĐ sang thỏi vàng; ADMIN_* là thao tác admin.\n");
+        sb.append("Server không dùng nạp thẻ. Muốn truy ra map/NPC phát sinh vàng chi tiết cần bật logger runtime cho các điểm cộng/trừ vàng và giao dịch.");
+        return sb.toString();
+    }
+
+    private JPanel createQueryTablePanel(String sql, Object param, String[] columns, String emptyMessage) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        DefaultTableModel auditModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        JTable auditTable = new JTable(auditModel);
+        auditTable.setRowHeight(28);
+        auditTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        auditTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        panel.add(new JScrollPane(auditTable), BorderLayout.CENTER);
+
+        JButton btnReload = createStyledButton("Tải lại truy vấn", COLOR_PRIMARY, Color.WHITE);
+        JLabel lblStatus = new JLabel(" ");
+        JPanel top = new JPanel(new BorderLayout());
+        top.add(btnReload, BorderLayout.WEST);
+        top.add(lblStatus, BorderLayout.CENTER);
+        panel.add(top, BorderLayout.NORTH);
+
+        Runnable load = () -> {
+            auditModel.setRowCount(0);
+            try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                if (param instanceof Integer) {
+                    ps.setInt(1, (Integer) param);
+                } else {
+                    ps.setString(1, String.valueOf(param));
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    int count = 0;
+                    while (rs.next()) {
+                        Vector<Object> row = new Vector<>();
+                        for (String col : columns) {
+                            row.add(rs.getObject(col));
+                        }
+                        auditModel.addRow(row);
+                        count++;
+                    }
+                    lblStatus.setText(count == 0 ? emptyMessage : "Tìm thấy " + count + " dòng.");
+                }
+            } catch (Exception ex) {
+                lblStatus.setText(emptyMessage + " (" + ex.getMessage() + ")");
+            }
+        };
+        btnReload.addActionListener(e -> new Thread(load).start());
+        new Thread(load).start();
+        return panel;
+    }
+
+    private JPanel createGoldRelationPanel(int accountId, String playerName) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        JTextArea txt = new JTextArea();
+        txt.setEditable(false);
+        txt.setFont(new Font("Consolas", Font.PLAIN, 13));
+        txt.setText("Đang phân tích dữ liệu vàng hiện có...\n");
+        panel.add(new JScrollPane(txt), BorderLayout.CENTER);
+
+        JButton btnReload = createStyledButton("Phân tích lại", COLOR_PRIMARY, Color.WHITE);
+        panel.add(btnReload, BorderLayout.NORTH);
+        Runnable load = () -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append("PHÂN TÍCH LIÊN ĐỚI VÀNG - ").append(playerName).append("\n\n");
+            try (Connection conn = getConnection()) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT p.name, JSON_UNQUOTE(JSON_EXTRACT(p.data_inventory, '$[0]')) AS gold, "
+                        + "a.cash, a.vnd, a.danap, a.thoi_vang, a.active, a.ban "
+                        + "FROM player p LEFT JOIN account a ON p.account_id = a.id WHERE a.id = ?")) {
+                    ps.setInt(1, accountId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            sb.append("Snapshot DB:\n");
+                            sb.append("- Gold: ").append(rs.getString("gold")).append('\n');
+                            sb.append("- Cash/VND/Danap: ").append(rs.getLong("cash")).append("/")
+                                    .append(rs.getLong("vnd")).append("/").append(rs.getLong("danap")).append('\n');
+                            sb.append("- Thỏi vàng giữ hộ: ").append(rs.getLong("thoi_vang")).append('\n');
+                            sb.append("- Active/Ban: ").append(rs.getInt("active")).append("/").append(rs.getInt("ban")).append("\n\n");
+                        }
+                    }
+                }
+                sb.append("Các nguồn hiện truy được:\n");
+                sb.append("1) cash_audit_log: biết VND/Cash đến từ ATM, thưởng, admin hay đổi vật phẩm.\n");
+                sb.append("2) recharge_log: biết lịch sử ATM/phần thưởng đã tạo giao dịch.\n");
+                sb.append("3) data_inventory: biết lượng vàng hiện tại.\n\n");
+                sb.append("Chưa có log map/NPC/trade vàng lịch sử nếu trước đây server chưa ghi.\n");
+                sb.append("Bước tiếp theo nên triển khai: tạo bảng gold_audit_log và hook vào các điểm: giao dịch người chơi, bán thỏi vàng, NPC thưởng, nhặt item/vàng, admin buff.\n");
+            } catch (Exception ex) {
+                sb.append("Lỗi phân tích: ").append(ex.getMessage()).append('\n');
+            }
+            SwingUtilities.invokeLater(() -> txt.setText(sb.toString()));
+        };
+        btnReload.addActionListener(e -> new Thread(load).start());
+        new Thread(load).start();
+        return panel;
     }
 
     private JPanel createBadgesPanel(String jsonBadges, DefaultTableModel model, JDialog parent) {

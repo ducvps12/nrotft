@@ -192,8 +192,9 @@ public class PlayerService {
                 } catch (Exception e) {
                 }
                 if (player.isFly && player.getMount() == -1) {
-                    long mp = player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1));
-                    hoiPhuc(player, 0, -mp);
+                    long mp = Math.max(1, player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
+                    player.nPoint.subMP(mp);
+                    sendInfoMp(player);
                 }
             }
             MapService.gI().sendPlayerMove(player);
