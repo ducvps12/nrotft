@@ -13,16 +13,16 @@ import utils.Util;
 /**
  * @author outcast c-cute hột me 😳
  */
-public class NPC_MrPôPô extends Player {
+public class NPC_MrPopo extends Player {
 
-    public void initNPC_MrPôPô() {
+    public void initNPC_MrPopo() {
         init();
     }
-    private static NPC_MrPôPô instance;
+    private static NPC_MrPopo instance;
 
-    public static NPC_MrPôPô getInstance() {
+    public static NPC_MrPopo getInstance() {
         if (instance == null) {
-            instance = new NPC_MrPôPô();
+            instance = new NPC_MrPopo();
         }
         return instance;
     }
@@ -106,7 +106,7 @@ public class NPC_MrPôPô extends Player {
         for (Map m : Manager.MAPS) {
             if (MapService.gI().isMapTapLuyen(m.mapId)) {
                 for (Zone z : m.zones) {
-                    NPC_MrPôPô pl = new NPC_MrPôPô();
+                    NPC_MrPopo pl = new NPC_MrPopo();
                     pl.name = "Mr.PôPô";
                     pl.gender = 0;
                     pl.id = id + 1;

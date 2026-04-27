@@ -71,7 +71,8 @@ public class Client implements Runnable {
             try {
                 String ip = "N/A";
                 int userId = 0;
-                if (player.getSession() instanceof MySession ms) {
+                if (player.getSession() instanceof MySession) {
+                    MySession ms = (MySession) player.getSession();
                     ip = ms.ipAddress != null ? ms.ipAddress : "N/A";
                     userId = ms.userId;
                 }

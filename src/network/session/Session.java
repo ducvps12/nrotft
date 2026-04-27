@@ -377,23 +377,35 @@ public class Session
     }
 
     public void initThreadSession() {
+        if (this.sender == null) {
+            this.sender = new Sender(this, this.socket);
+        } else {
+            this.sender.setSocket(this.socket);
+        }
+
+        if (this.collector == null) {
+            this.collector = new Collector(this, this.socket);
+        } else {
+            this.collector.setSocket(this.socket);
+        }
+
         this.tSender = Thread.ofVirtual()
                 .name("Thread-tsender")
                 .unstarted(() -> {
-                    if (sender == null) {
-                        sender = new Sender(this, socket);
-                    } else {
-                        sender.setSocket(socket);
+                    try {
+                        this.sender.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 });
 
         this.tCollector = Thread.ofVirtual()
                 .name("Thread-collector")
                 .unstarted(() -> {
-                    if (collector == null) {
-                        collector = new Collector(this, socket);
-                    } else {
-                        collector.setSocket(socket);
+                    try {
+                        this.collector.run();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 });
     }

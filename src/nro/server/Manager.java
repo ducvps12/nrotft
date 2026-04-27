@@ -7,7 +7,7 @@ package nro.server;
  *  sdt zalo: 0376263452
  * Chuyên chỉnh sữa mua bán source nro,...
  */
-import boss.boss_manifest.LuyenTap.NPC_MrPôPô;
+import boss.boss_manifest.LuyenTap.NPC_MrPopo;
 import models.Card.OptionCard;
 import models.Card.RadarService;
 import models.Card.RadarCard;
@@ -256,8 +256,8 @@ public final class Manager {
         }
 
         new NonInteractiveNPC().initNonInteractiveNPC();
-        NPC_MrPôPô popo = new NPC_MrPôPô();
-        popo.initNPC_MrPôPô();
+        NPC_MrPopo popo = new NPC_MrPopo();
+        popo.initNPC_MrPopo();
         Logger.log("Initialize map successfully!\n");
     }
 
