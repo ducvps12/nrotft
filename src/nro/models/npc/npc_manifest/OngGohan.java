@@ -45,17 +45,19 @@ public class OngGohan extends Npc {
     // Chi phí quy đổi
     private static final int COST_NAP_VANG = 1;
     private static final int COST_NAP_NGOC = 1;
+    private static final int FREE_GEM_AMOUNT = 20;
+    private static final int FREE_GEM_CAP = 100;
 
     // Bảng nạp vàng (VNĐ -> Thỏi vàng)
     private static final int[][] NAP_VANG = {
-        {10000, 30}, {20000, 65}, {50000, 180}, {100000, 360},
-        {200000, 750}, {500000, 1500}, {1000000, 3100}
+        {10000, 1}, {20000, 2}, {50000, 5}, {100000, 10},
+        {200000, 20}, {500000, 50}, {1000000, 100}
     };
 
     // Bảng nạp ngọc (VNĐ -> Hồng ngọc)
     private static final int[][] NAP_NGOC = {
-        {20000, 20000}, {50000, 50000}, {100000, 100000}, {500000, 550000},
-        {1000000, 1300000}, {2000000, 3500000}, {5000000, 10000000}
+        {20000, 2000}, {50000, 5000}, {100000, 10000}, {500000, 50000},
+        {1000000, 100000}, {2000000, 200000}, {5000000, 500000}
     };
 
     // ===================== INDEX MENU MỚI =====================
@@ -165,6 +167,7 @@ public class OngGohan extends Npc {
         String msg = "|7|━━━ QUÀ MIỄN PHÍ ━━━\n"
                 + "|1|Điểm danh hiện tại: " + diemDanh + " ngày\n"
                 + "|8|Ngọc xanh: " + Util.mumberToLouis(player.inventory.gem) + "\n"
+                + "|2|Nhận ngọc: +" + Util.mumberToLouis(FREE_GEM_AMOUNT) + " khi dưới " + Util.mumberToLouis(FREE_GEM_CAP) + " ngọc xanh\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
         createOtherMenu(player, MENU_QUA_MIEN_PHI, msg,
                 "Nhận\nNgọc Xanh",
@@ -319,9 +322,9 @@ public class OngGohan extends Npc {
         switch (select) {
             case 0 -> {
                 this.createOtherMenu(player, MENU_MOC_NAP,
-                        "|7|━━━ MỐC NẠP ━━━\n"
-                        + "|1|Nạp đạt mốc nhận quà!\n"
-                        + "|8|Reset vào thứ 2 hàng tuần\n"
+                        "|7|━━━ MỐC NẠP TÍCH LŨY ━━━\n"
+                        + "|1|Tổng đã nạp: " + Util.mumberToLouis(player.getSession().danap) + " VNĐ\n"
+                        + "|8|Mỗi mốc chỉ nhận 1 lần / nhân vật\n"
                         + "|7|━━━━━━━━━━━━━━━━━━",
                         "Xem Quà\nMốc Nạp",
                         "Nhận Quà\nMốc Nạp",
@@ -394,7 +397,7 @@ public class OngGohan extends Npc {
                 PreparedStatement ps = null;
                 ResultSet rs = null;
                 StringBuilder sb = new StringBuilder();
-                sb.append("Phần thưởng mốc nạp (reset vào thứ 2 hàng tuần):\n");
+                sb.append("Phần thưởng mốc nạp tích lũy (mỗi mốc chỉ nhận 1 lần):\n");
 
                 try (Connection con2 = DBConnecter.getConnectionServer()) {
                     ps = con2.prepareStatement("SELECT * FROM moc_nap");
@@ -615,13 +618,14 @@ public class OngGohan extends Npc {
 
     // ===================== QUÀ MIỄN PHÍ =====================
     private void giveFreeGem(Player player) {
-        if (player.inventory.gem >= 5000) {
-            Service.gI().sendThongBao(player, "Tiêu bớt ngọc đi rồi nhận tiếp");
+        if (player.inventory.gem >= FREE_GEM_CAP) {
+            Service.gI().sendThongBao(player, "Bạn đang có từ " + Util.mumberToLouis(FREE_GEM_CAP) + " ngọc xanh trở lên, hãy tiêu bớt rồi nhận tiếp");
             return;
         }
-        player.inventory.gem += 5000;
+        int canReceive = Math.min(FREE_GEM_AMOUNT, FREE_GEM_CAP - player.inventory.gem);
+        player.inventory.gem += canReceive;
         Service.gI().sendMoney(player);
-        Service.gI().sendThongBao(player, "Bạn nhận được 5.000 Ngọc xanh");
+        Service.gI().sendThongBao(player, "Bạn nhận được " + Util.mumberToLouis(canReceive) + " Ngọc xanh miễn phí");
     }
 
     private void giveFreePet(Player player) {

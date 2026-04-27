@@ -23,8 +23,17 @@ import network.Message;
 import nro.player.Player;
 import utils.TimeUtil;
 import utils.Util;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChuyenKhoanManager {
+
+    private static final String ACB_HISTORY_API = "https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1";
+    private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile("(?i)CHUYEN\\s*TIEN\\s*\\+?\\s*(\\d+)");
 
     public static void InsertTransaction(long playerId, long amount, String description) {
         String sql = """
@@ -400,7 +409,7 @@ public class ChuyenKhoanManager {
         List<Transaction> transactions = GetTransactionAuto();
 
         if (!transactions.isEmpty()) {
-            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1");
+            String history = GetTransactionOnline(ACB_HISTORY_API);
             JsonResponse response = parseApiResponse(history);
 
             if (response != null && response.getData() != null && !response.getData().isEmpty()) {
@@ -447,7 +456,7 @@ public class ChuyenKhoanManager {
 
         if (canCheck) {
             transaction = GetTransactionById(player.id, transactionId);
-            String history = GetTransactionOnline("https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1");
+            String history = GetTransactionOnline(ACB_HISTORY_API);
 
             JsonResponse response = parseApiResponse(history);
 
@@ -461,16 +470,14 @@ public class ChuyenKhoanManager {
                         // Tính toán bonus
                         int bonus = calculateBonus((int) coin);
 
-                        // Cập nhật số tiền nạp và bonus cho người chơi
-                        int totalAmount = (int) (coin * 10 + bonus); // Cộng số tiền nạp + bonus
+                        // ATM nạp vào số dư VNĐ trong game theo tỉ lệ 1:1 + bonus.
+                        int totalAmount = (int) coin + bonus;
 
                         // Cập nhật tài khoản người chơi
-                        PlayerDAO.addCash(player, totalAmount, "BANK_ATM", "TransactionID:" + transactionId + " Amount:" + transaction.amount + " Bonus:" + bonus); // Cộng số tiền vào tài khoản người chơi
-                        PlayerDAO.addDaNap(player, totalAmount); // Cộng tổng tiền nạp
-
-                        // Cập nhật các giá trị session cho người chơi
-                        player.getSession().cash += totalAmount; // Cộng vào vndBar
-                        player.getSession().danap += totalAmount; // Cộng vào tongnap
+                        PlayerDAO.addCash(player, totalAmount, "BANK_ATM", "TransactionID:" + transactionId + " Amount:" + transaction.amount + " Bonus:" + bonus);
+                        // addCash đã cập nhật cash/vnd/danap trong DB, chỉ sync lại session online.
+                        player.getSession().cash += totalAmount;
+                        player.getSession().danap += totalAmount;
 
                         // In ra thông tin giao dịch
                         System.out.println("ADD COIN: " + totalAmount + " + Bonus: " + bonus);
@@ -483,7 +490,7 @@ public class ChuyenKhoanManager {
                         } catch (Exception ignored) {}
 
                         // Thông báo cho người chơi về số tiền nhận được (bao gồm cả bonus)
-                        Service.gI().sendThongBao(player, "Bạn nhận được tiền là: " + (coin * 10) + " và thưởng: " + bonus);
+                        Service.gI().sendThongBao(player, "Bạn nhận được " + Util.formatCurrency(totalAmount) + " VNĐ vào số dư");
 
                         // Cập nhật các phần thưởng khác nếu có
                         UpdateGift(player.id, (long) transactionId);
@@ -502,38 +509,243 @@ public class ChuyenKhoanManager {
 
         if (!transactions.isEmpty()) {
             for (Transaction transaction : transactions) {
-                Player player = Client.gI().getPlayer(transaction.getPlayerId());
-                if (player != null) {
-                    // Tính toán bonus
-                    int bonus = calculateBonus((int) transaction.amount);
-
-                    // Cộng số tiền vào tài khoản chính (vnd, tongnap, tongnaptuan)
-                    int totalAmount = (int) (transaction.amount * 10 + bonus);
-
-                    // Cập nhật tài khoản người chơi
-                    PlayerDAO.addCash(player, totalAmount, "BANK_AUTO", "TransactionID:" + transaction.id + " Amount:" + transaction.amount + " Bonus:" + bonus);
-                    PlayerDAO.addDaNap(player, totalAmount);
-
-                    // Cập nhật các giá trị session cho người chơi
-                    player.getSession().cash += totalAmount;
-                    player.getSession().danap += totalAmount;
-
-                    // In ra số tiền thưởng đã thêm
-                    System.out.println("ADD COIN: " + transaction.amount * 10 + " + Thưởng: " + bonus);
-
-                    // Gửi thông báo Telegram về giao dịch nạp tiền tự động
-                    try {
-                        NotificationService.gI().notifyRecharge(
-                            player.name != null ? player.name : "ID:" + player.id,
-                            (long) transaction.amount, "ATM Bank (Auto)");
-                    } catch (Exception ignored) {}
-                    Service.gI().sendThongBao(player, "Bạn nhận được tiền là: " + (transaction.amount * 10) + " và thưởng: " + bonus);
-
-                    // Cập nhật giao dịch đã hoàn thành
-                    UpdateDoneRecieve(player.id, transaction.id);
-                }
+                creditTransactionToPlayer(transaction, "ATM Bank (Auto)", "BANK_AUTO");
             }
         }
+    }
+
+    public static String HandleWebsiteAtmCheckByAdmin(Player admin) {
+        if (admin == null || !admin.isAdmin()) {
+            return "Bạn không có quyền sử dụng chức năng này.";
+        }
+
+        String history = GetTransactionOnline(ACB_HISTORY_API);
+        JsonResponse response = parseApiResponse(history);
+        if (response == null || response.getData() == null || response.getData().isEmpty()) {
+            return "Không lấy được lịch sử ATM hoặc lịch sử đang rỗng.";
+        }
+
+        int checked = 0;
+        int matched = 0;
+        int credited = 0;
+        int skipped = 0;
+        long totalCreditedAmount = 0;
+        StringBuilder detail = new StringBuilder();
+        StringBuilder warning = new StringBuilder();
+        Set<String> processedInBatch = new HashSet<>();
+        Map<Long, Integer> billCountByPlayer = new HashMap<>();
+        Map<Long, Long> amountByPlayer = new HashMap<>();
+
+        for (TransactionHistory bankTx : response.getData()) {
+            checked++;
+            String description = bankTx.getDescription();
+            long playerId = extractWebsitePlayerId(description);
+            long amount = parseAmount(bankTx.getCreditAmount());
+            if (playerId <= 0 || amount <= 0) {
+                skipped++;
+                continue;
+            }
+
+            matched++;
+            billCountByPlayer.merge(playerId, 1, Integer::sum);
+            amountByPlayer.merge(playerId, amount, Long::sum);
+            String uniqueKey = playerId + "|" + amount + "|" + normalizeDescription(description);
+            if (!processedInBatch.add(uniqueKey)) {
+                skipped++;
+                continue;
+            }
+
+            Transaction tx = findOrCreateWebsiteTransaction(playerId, amount, description);
+            if (tx == null || tx.isReceive) {
+                skipped++;
+                continue;
+            }
+
+            UpdateDoneNap(tx.playerId, tx.id);
+            if (creditTransactionToPlayer(tx, "ATM Bank (Admin Panel)", "BANK_ATM_ADMIN")) {
+                credited++;
+                totalCreditedAmount += (long) tx.amount;
+                if (detail.length() < 900) {
+                    detail.append("\n+ ").append(getPlayerDisplayName(tx.playerId))
+                            .append(" | Bill: ").append(Util.formatCurrency((long) tx.amount)).append(" VNĐ")
+                            .append(" | Cộng: ").append(Util.formatCurrency((long) tx.amount + calculateBonus((int) tx.amount))).append(" VNĐ game");
+                }
+            } else {
+                skipped++;
+            }
+        }
+
+        for (Map.Entry<Long, Integer> entry : billCountByPlayer.entrySet()) {
+            if (entry.getValue() >= 2) {
+                long playerId = entry.getKey();
+                long total = amountByPlayer.getOrDefault(playerId, 0L);
+                warning.append("\n! ").append(getPlayerDisplayName(playerId))
+                        .append(" có ").append(entry.getValue()).append(" bill trong lịch sử API")
+                        .append(" | Tổng: ").append(Util.formatCurrency(total)).append(" VNĐ");
+            }
+        }
+
+        return "Đã check ATM.\n"
+                + "Lịch sử đọc: " + checked + "\n"
+                + "Lệnh CHUYEN TIEN khớp: " + matched + "\n"
+                + "Đã cộng tiền: " + credited + " bill\n"
+                + "Tổng bill đã cộng: " + Util.formatCurrency(totalCreditedAmount) + " VNĐ\n"
+                + "Bỏ qua/đã xử lý: " + skipped
+                + (warning.length() > 0 ? "\n\nCẢNH BÁO ID LẶP:" + warning : "")
+                + (detail.length() > 0 ? "\n\nCHI TIẾT:" + detail : "");
+    }
+
+    private static Transaction findOrCreateWebsiteTransaction(long playerId, long amount, String description) {
+        Transaction existed = findWebsiteTransaction(playerId, amount);
+        if (existed != null) {
+            return existed;
+        }
+        InsertTransaction(playerId, amount, normalizeDescription(description));
+        return findWebsiteTransaction(playerId, amount);
+    }
+
+    private static Transaction findWebsiteTransaction(long playerId, long amount) {
+        String sql = """
+        SELECT * FROM transaction_banking
+        WHERE player_id = ? AND amount = ?
+        AND created_date >= NOW() - INTERVAL 7 DAY
+        ORDER BY id DESC
+        LIMIT 1;
+    """;
+
+        try (Connection con = DBConnecter.getConnectionServer(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, playerId);
+            ps.setLong(2, amount);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Transaction transaction = new Transaction();
+                    transaction.id = rs.getLong("id");
+                    transaction.playerId = rs.getLong("player_id");
+                    transaction.amount = rs.getLong("amount");
+                    transaction.description = rs.getString("description");
+                    transaction.status = rs.getBoolean("status");
+                    transaction.isReceive = rs.getBoolean("is_recieve");
+                    Timestamp lastCheck = rs.getTimestamp("last_time_check");
+                    if (lastCheck != null) {
+                        transaction.lastTimeCheck = lastCheck.toLocalDateTime();
+                    }
+                    transaction.createdDate = rs.getTimestamp("created_date").toLocalDateTime();
+                    return transaction;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static boolean creditTransactionToPlayer(Transaction transaction, String notifySource, String auditSource) {
+        Player player = Client.gI().getPlayer(transaction.getPlayerId());
+        if (player != null) {
+            addMoneyToPlayer(player, transaction.amount, transaction.id, notifySource, auditSource);
+            UpdateDoneRecieve(player.id, transaction.id);
+            return true;
+        }
+        Integer accountId = getAccountIdByPlayerId(transaction.playerId);
+        if (accountId == null) {
+            return false;
+        }
+        int bonus = calculateBonus((int) transaction.amount);
+        int totalAmount = (int) transaction.amount + bonus;
+        if (PlayerDAO.addcash(accountId, totalAmount, auditSource,
+                "TransactionID:" + transaction.id + " PlayerID:" + transaction.playerId + " Amount:" + transaction.amount + " Bonus:" + bonus)) {
+            try {
+                NotificationService.gI().notifyRecharge("ID:" + transaction.playerId, (long) transaction.amount, notifySource + " Offline");
+            } catch (Exception ignored) {
+            }
+            UpdateDoneRecieve(transaction.playerId, transaction.id);
+            return true;
+        }
+        return false;
+    }
+
+    private static void addMoneyToPlayer(Player player, double amount, long transactionId, String notifySource, String auditSource) {
+        int bonus = calculateBonus((int) amount);
+        int totalAmount = (int) amount + bonus;
+
+        PlayerDAO.addCash(player, totalAmount, auditSource, "TransactionID:" + transactionId + " Amount:" + amount + " Bonus:" + bonus);
+
+        player.getSession().cash += totalAmount;
+        player.getSession().danap += totalAmount;
+
+        System.out.println("ADD COIN: " + totalAmount + " + Bonus: " + bonus);
+        try {
+            NotificationService.gI().notifyRecharge(player.name != null ? player.name : "ID:" + player.id, (long) amount, notifySource);
+        } catch (Exception ignored) {
+        }
+        Service.gI().sendThongBao(player, "Bạn nhận được " + Util.formatCurrency(totalAmount) + " VNĐ vào số dư");
+    }
+
+    private static Integer getAccountIdByPlayerId(long playerId) {
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement("SELECT account_id FROM player WHERE id = ? LIMIT 1")) {
+            ps.setLong(1, playerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("account_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String getPlayerDisplayName(long playerId) {
+        Player online = Client.gI().getPlayer(playerId);
+        if (online != null && online.name != null && !online.name.isBlank()) {
+            return online.name + " (ID " + playerId + ")";
+        }
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement("SELECT name FROM player WHERE id = ? LIMIT 1")) {
+            ps.setLong(1, playerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String name = rs.getString("name");
+                    if (name != null && !name.isBlank()) {
+                        return name + " (ID " + playerId + ")";
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "UNKNOWN (ID " + playerId + ")";
+    }
+
+    private static long extractWebsitePlayerId(String description) {
+        if (description == null) {
+            return -1;
+        }
+        Matcher matcher = WEBSITE_TRANSFER_PATTERN.matcher(description);
+        if (matcher.find()) {
+            return Long.parseLong(matcher.group(1));
+        }
+        return -1;
+    }
+
+    private static boolean isSameAmount(TransactionHistory transactionHistory, double amount) {
+        return parseAmount(transactionHistory.getCreditAmount()) == amount;
+    }
+
+    private static long parseAmount(String value) {
+        if (value == null) {
+            return 0;
+        }
+        try {
+            return Math.round(Double.parseDouble(value.replace(",", "").trim()));
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private static String normalizeDescription(String description) {
+        return description == null ? "" : description.trim();
     }
 
 // Hàm tính toán phần thưởng dựa trên số tiền nạp

@@ -237,28 +237,23 @@ public class RedRibbonHQ implements Runnable {
     public ItemMap NR(Zone zone) {
         int x = Util.nextInt(100, zone.map.mapWidth - 100);
         int y = zone.map.yPhysicInTop(x, 100);
-        int nr = Util.isTrue(1, 500) ? Util.nextInt(14, 18) : Util.nextInt(16, 20);
-        ItemMap it = new ItemMap(zone, nr, 1, x, y, -1);
-        return it;
+        // Doanh trại chỉ nên là nguồn ngọc 4-7 sao, hạn chế ngọc 1-3 để tránh gọi rồng quá nhanh.
+        int nr = Util.isTrue(1, 1000) ? Util.nextInt(14, 16) : Util.nextInt(17, 20);
+        return new ItemMap(zone, nr, 1, x, y, -1);
     }
 
     public void randomNR() {
+        int totalDropped = 0;
         for (Zone zone : zones) {
             Service.gI().dropItemMap(zone, NR(zone));
-            Service.gI().dropItemMap(zone, NR(zone));
-            Service.gI().dropItemMap(zone, NR(zone));
-            if (Util.isTrue(1, 2)) {
-                Service.gI().dropItemMap(zone, NR(zone));
+            totalDropped++;
+            if (totalDropped >= 5) {
+                break;
             }
-            if (Util.isTrue(1, 3)) {
-                Service.gI().dropItemMap(zone, NR(zone));
-            }
-            if (Util.isTrue(1, 4)) {
-                Service.gI().dropItemMap(zone, NR(zone));
-            }
-            if (Util.isTrue(1, 5)) {
-                Service.gI().dropItemMap(zone, NR(zone));
-            }
+        }
+        if (Util.isTrue(1, 10) && !zones.isEmpty()) {
+            Zone bonusZone = zones.get(Util.nextInt(0, zones.size() - 1));
+            Service.gI().dropItemMap(bonusZone, NR(bonusZone));
         }
     }
 

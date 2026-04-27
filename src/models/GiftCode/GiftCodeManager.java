@@ -23,13 +23,15 @@ public class GiftCodeManager {
     private static GiftCodeManager instance;
 
     public static GiftCodeManager gI() {
-        if (instance == null) instance = new GiftCodeManager();
+        if (instance == null)
+            instance = new GiftCodeManager();
         return instance;
     }
 
     /**
      * Load giftcode từ database
      */
+
     public void loadGiftCodeFromDB() {
         listGiftCode.clear();
         try (Connection con2 = DBConnecter.getConnectionServer()) {
@@ -45,11 +47,16 @@ public class GiftCodeManager {
                 gc.id = rs.getInt("id");
                 gc.code = rs.getString("code");
                 gc.countLeft = rs.getInt("count_left");
-                if (gc.countLeft == -1) gc.countLeft = 999999999; // số lượng vô hạn
+                if (gc.countLeft == -1)
+                    gc.countLeft = 999999999; // số lượng vô hạn
                 gc.datecreate = rs.getTimestamp("datecreate");
                 gc.dateexpired = rs.getTimestamp("expired");
                 gc.type = rs.getInt("type");
-                try { gc.active = rs.getBoolean("active"); } catch (Exception e) { gc.active = false; }
+                try {
+                    gc.active = rs.getBoolean("active");
+                } catch (Exception e) {
+                    gc.active = false;
+                }
 
                 // Parse JSON detail
                 String detailStr = rs.getString("detail");
@@ -88,7 +95,8 @@ public class GiftCodeManager {
 
     public GiftCode checkUseGiftCode(Player player, String code) {
         for (GiftCode giftCode : listGiftCode) {
-            if (!giftCode.code.equals(code)) continue;
+            if (!giftCode.code.equalsIgnoreCase(code))
+                continue;
 
             if (!giftCode.active) {
                 Service.gI().sendThongBao(player, "GiftCode chưa được kích hoạt. Liên hệ Admin!");
@@ -106,16 +114,16 @@ public class GiftCodeManager {
             // Kiểm tra 10 ô trống trong hành trang
             if (nro.services.InventoryService.gI().getCountEmptyBag(player) < 10) {
                 nro.services.Service.gI().sendThongBao(player, "Hành trang của bạn phải có ít nhất 10 ô trống");
-                return null; 
+                return null;
             }
-            
+
             if (giftCode.type == 1 && !player.getSession().actived) {
                 Service.gI().sendThongBao(player, "Bạn cần mở thành viên để sử dụng mã này.");
                 return null;
             }
 
             giftCode.countLeft--;
-            player.giftCode.add(code);
+            player.giftCode.add(giftCode.code);
             updateGiftCode(giftCode);
             return giftCode;
         }
@@ -125,10 +133,10 @@ public class GiftCodeManager {
     public void updateGiftCode(GiftCode giftcode) {
         try {
             DBConnecter.executeUpdate(
-                "UPDATE giftcode SET count_left = ? WHERE id = ?",
-                giftcode.countLeft, giftcode.id
-            );
-        } catch (Exception ignored) {}
+                    "UPDATE giftcode SET count_left = ? WHERE id = ?",
+                    giftcode.countLeft, giftcode.id);
+        } catch (Exception ignored) {
+        }
     }
 
     public void checkInfomationGiftCode(Player player) {
@@ -140,9 +148,9 @@ public class GiftCodeManager {
         List<String> lines = new ArrayList<>();
         for (GiftCode gc : listGiftCode) {
             lines.add("Code: " + gc.code +
-                      ", Số lượng còn lại: " + gc.countLeft +
-                      ", Ngày tạo: " + gc.datecreate +
-                      ", Ngày hết hạn: " + gc.dateexpired);
+                    ", Số lượng còn lại: " + gc.countLeft +
+                    ", Ngày tạo: " + gc.datecreate +
+                    ", Ngày hết hạn: " + gc.dateexpired);
         }
 
         String result = String.join("\n", lines);

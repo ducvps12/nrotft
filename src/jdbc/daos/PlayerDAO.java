@@ -45,8 +45,8 @@ public class PlayerDAO {
         try {
             JSONArray dataArray = new JSONArray();
 
-            dataArray.add(2000000000); // vàng
-            dataArray.add(100000); // ngọc xanh
+            dataArray.add(50000); // vàng khởi đầu
+            dataArray.add(50); // ngọc xanh khởi đầu, tránh lạm phát 100k ngọc
             dataArray.add(0); // hồng ngọc
             dataArray.add(0); // point
             dataArray.add(0); // event
@@ -1892,10 +1892,11 @@ public class PlayerDAO {
     public static void addCash(Player player, int ruby, String source, String detail) {
         PreparedStatement ps = null;
         try (Connection con = DBConnecter.gI().getConnectionForSaveData();) {
-            ps = con.prepareStatement("update account set cash = (cash + ?), vnd = (vnd + ?) where id = ?");
+            ps = con.prepareStatement("update account set cash = (cash + ?), vnd = (vnd + ?), danap = (danap + ?) where id = ?");
             ps.setInt(1, ruby);
             ps.setInt(2, ruby);
-            ps.setInt(3, player.getSession().userId);
+            ps.setInt(3, ruby);
+            ps.setInt(4, player.getSession().userId);
             ps.executeUpdate();
             nro.server.CashAuditLog.logAdd(player, ruby, source, detail);
             player.getSession().vnd += ruby;

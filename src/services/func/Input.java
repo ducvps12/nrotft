@@ -31,9 +31,11 @@ import nro.services.InventoryService;
 import nro.services.ItemService;
 import nro.services.NpcService;
 
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import jdbc.NDVResultSet;
 import jdbc.daos.NDVSqlFetcher;
 import jdbc.daos.PlayerDAO;
@@ -53,6 +55,14 @@ import utils.Util;
 public class Input {
 
     private static final Map<Integer, Object> PLAYER_ID_OBJECT = new HashMap<>();
+    private static final int DEFAULT_VND_PER_GOLD_BAR = 10_000;
+    private static final int DEFAULT_MIN_RECHARGE = 10_000;
+    private static final int DEFAULT_MAX_RECHARGE = 10_000_000;
+    private static final int DEFAULT_MIN_EXCHANGE = 10_000;
+    private static final int DEFAULT_MAX_EXCHANGE = 5_000_000;
+    private static final int DEFAULT_GEM_RATE = 100;
+    private static final int DEFAULT_RUBY_RATE = 10;
+    private static final long GOLD_PER_GOLD_BAR = 50_000_000L;
 
     public static final int CHANGE_PASSWORD = 500;
     public static final int GIFT_CODE = 501;
@@ -218,13 +228,23 @@ public class Input {
                 case CHUYEN_KHOAN: {
                     try {
                         long money = Long.parseLong(text[0]);
-                        String description = Util.generateRandomString();
-                        ChuyenKhoanManager.InsertTransaction(player.id, money, description);
-                        if (money < 1000 || money > 1_000_000) {
-                            Service.gI().sendThongBao(player, "Tối thiểu 1000 và tối đa 1000000");
+                        int minRecharge = getEconomyInt("recharge.min_amount", DEFAULT_MIN_RECHARGE);
+                        int maxRecharge = getEconomyInt("recharge.max_amount", DEFAULT_MAX_RECHARGE);
+                        if (money < minRecharge || money > maxRecharge) {
+                            Service.gI().sendThongBao(player, "Mệnh giá nạp từ " + Util.mumberToLouis(minRecharge) + " đến " + Util.mumberToLouis(maxRecharge) + " VNĐ");
                             break;
                         }
+
+                        String description = "CHUYEN TIEN " + player.id;
+                        ChuyenKhoanManager.InsertTransaction(player.id, money, description);
+
                         Npc npc = NpcManager.getByIdAndMap(ConstNpc.ONG_GOHAN, player.zone.map.mapId);
+                        if (npc == null) {
+                            npc = NpcManager.getByIdAndMap(ConstNpc.ONG_PARAGUS, player.zone.map.mapId);
+                        }
+                        if (npc == null) {
+                            npc = NpcManager.getByIdAndMap(ConstNpc.ONG_MOORI, player.zone.map.mapId);
+                        }
                         if (npc != null) {
                             npc.createOtherMenu(player, ConstNpc.CONTENT_CHUYEN_KHOAN,
                                     "Con đã tạo thành công giao dịch Với Mệnh Giá Là: " + Util.mumberToLouis(money)
@@ -237,6 +257,8 @@ public class Input {
                                             + "|7|HOẶC CÓ THỂ QUÉT QR BÊN DƯỚI\n"
                                             + "|1|LƯU Ý: ĐỢI 1-3 PHÚT TIỀN SẼ TỰ ĐỘNG CỘNG VÀO TÀI KHOẢN CỦA BẠN",
                                     "Quét Mã\nQR", "Từ chối");
+                        } else {
+                            Service.gI().sendThongBao(player, "Không tìm thấy NPC nhận giao dịch ở map hiện tại, vui lòng thử lại tại nhà.");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -375,17 +397,17 @@ public class Input {
                 }
 
                 case DOI_THOI_VANG: {
-                    handleDoiVatPham(player, text[0], 457, "Thỏi vàng", 200, true);
+                    handleDoiVatPham(player, text[0], 457, "Thỏi vàng", getEconomyInt("recharge.vnd_per_gold_bar", DEFAULT_VND_PER_GOLD_BAR), true);
                     break;
                 }
 
                 case DOI_NGOC_XANH: {
-                    handleDoiVatPham(player, text[0], 77, "Ngọc xanh", 1, false);
+                    handleDoiVatPham(player, text[0], 77, "Ngọc xanh", getEconomyInt("recharge.vnd_per_gem", DEFAULT_GEM_RATE), false);
                     break;
                 }
 
                 case DOI_NGOC_HONG: {
-                    handleDoiVatPham(player, text[0], 861, "Ngọc hồng", 1, false);
+                    handleDoiVatPham(player, text[0], 861, "Ngọc hồng", getEconomyInt("recharge.vnd_per_ruby", DEFAULT_RUBY_RATE), false);
                     break;
                 }
 
@@ -471,6 +493,16 @@ public class Input {
         }
     }
 
+    private int getEconomyInt(String key, int defaultValue) {
+        Properties props = new Properties();
+        try (FileReader fr = new FileReader("data/config/config.properties")) {
+            props.load(fr);
+            return Integer.parseInt(props.getProperty(key, String.valueOf(defaultValue)).trim());
+        } catch (Exception ignored) {
+            return defaultValue;
+        }
+    }
+
     // ==================== CÁC PHƯƠNG THỨC HỖ TRỢ ====================
     private void sendItemsToPlayer(Player target, String itemIds, String option, int quantity, Player sender) {
         String[] itemIdsArray = itemIds.split(",");
@@ -512,8 +544,10 @@ public class Input {
                 Service.gI().sendThongBao(player, "Bạn không được phép nhập số âm");
                 return;
             }
-            if (coin >= 20000 && coin <= 100000000) {
-                int sl = (itemId == 457) ? coin / rate : coin;
+            int minExchange = getEconomyInt("recharge.min_exchange", DEFAULT_MIN_EXCHANGE);
+            int maxExchange = getEconomyInt("recharge.max_exchange", DEFAULT_MAX_EXCHANGE);
+            if (coin >= minExchange && coin <= maxExchange) {
+                int sl = Math.max(1, coin / Math.max(1, rate));
                 PlayerDAO.subcash(player, coin, "DOI_VAT_PHAM", "ItemID:" + itemId + " SL:" + sl);
                 Item item = ItemService.gI().createNewItem((short) itemId, sl);
                 InventoryService.gI().addItemBag(player, item);
@@ -526,7 +560,7 @@ public class Input {
 
                 Service.gI().sendThongBao(player, "Bạn nhận được " + sl + " " + itemName);
             } else {
-                Service.gI().sendThongBao(player, "Chọn 1 con số từ 20000 đến 100000000");
+                Service.gI().sendThongBao(player, "Chọn số VND từ " + Util.mumberToLouis(minExchange) + " đến " + Util.mumberToLouis(maxExchange));
             }
         } catch (NumberFormatException e) {
             Service.gI().sendThongBao(player, "Số tiền không hợp lệ");
@@ -671,7 +705,7 @@ public class Input {
     private void handleBanThoiVang(Player player, String slText) {
         try {
             int sltv = Integer.parseInt(slText);
-            long cost = (long) sltv * 500000000;
+            long cost = (long) sltv * GOLD_PER_GOLD_BAR;
 
             if (sltv < 0) {
                 Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
@@ -684,7 +718,7 @@ public class Input {
                     Service.gI().sendThongBao(player, "Bạn chỉ có " + ThoiVang.quantity + " Thỏi vàng");
                 } else {
                     if (player.inventory.gold + cost > Inventory.LIMIT_GOLD) {
-                        int slban = (int) ((Inventory.LIMIT_GOLD - player.inventory.gold) / 500000000);
+                        int slban = (int) ((Inventory.LIMIT_GOLD - player.inventory.gold) / GOLD_PER_GOLD_BAR);
                         if (slban < 1) {
                             Service.gI().sendThongBao(player, "Vàng sau khi bán vượt quá giới hạn");
                         } else if (slban < 2) {
@@ -937,7 +971,7 @@ public class Input {
     }
 
     public void createFormDoiThoiVang(Player pl) {
-        createForm(pl, DOI_THOI_VANG, "Đổi VND --> Thỏi vàng < Mỗi 20K được 100 thỏi >",
+        createForm(pl, DOI_THOI_VANG, "Đổi VND --> Thỏi vàng < Mỗi 20K được 10 thỏi >",
                 new SubInput("Nhập số lượng VND muốn đổi ra thỏi vàng", NUMERIC));
     }
 
@@ -980,8 +1014,10 @@ public class Input {
     }
 
     public void createFormChuyenKhoan(Player pl) {
-        createForm(pl, CHUYEN_KHOAN, "Nhập số tiền muốn nạp\n",
-                new SubInput("Số tiền - Ví dụ 10000 = 10k VND muốn nạp, Mệnh giá cao BONUS càng cao", NUMERIC));
+        int minRecharge = getEconomyInt("recharge.min_amount", DEFAULT_MIN_RECHARGE);
+        int maxRecharge = getEconomyInt("recharge.max_amount", DEFAULT_MAX_RECHARGE);
+        createForm(pl, CHUYEN_KHOAN, "Nhập số tiền muốn nạp\nMệnh giá: " + Util.mumberToLouis(minRecharge) + " - " + Util.mumberToLouis(maxRecharge) + " VNĐ",
+                new SubInput("Số tiền muốn nạp", NUMERIC));
     }
 
     public void taixiu_Tai(Player pl) {

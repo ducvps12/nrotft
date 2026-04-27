@@ -92,8 +92,14 @@ public class GiftCodeService {
     }
 
     public void giftCode(Player player, String code) {
+        String normalizedCode = code == null ? "" : code.trim().toUpperCase();
+        if (normalizedCode.isEmpty()) {
+            Service.gI().sendThongBao(player, "Vui lòng nhập GiftCode.");
+            return;
+        }
+
         updateGiftCode();
-        GiftCode giftcode = GiftCodeManager.gI().checkUseGiftCode(player, code);
+        GiftCode giftcode = GiftCodeManager.gI().checkUseGiftCode(player, normalizedCode);
 
         if (giftcode == null) {
             Service.gI().sendThongBao(player, "GiftCode đã được sử dụng hoặc không tồn tại.");

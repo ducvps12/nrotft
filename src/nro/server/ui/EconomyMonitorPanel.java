@@ -9,12 +9,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.sql.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +41,11 @@ public class EconomyMonitorPanel extends JPanel {
     // === TABLES ===
     private DefaultTableModel topRichModel;
     private DefaultTableModel wealthBracketModel;
+
+    // === ECONOMY CONFIG ===
+    private JTextField txtMinRecharge, txtMaxRecharge, txtMinExchange, txtMaxExchange;
+    private JTextField txtGoldBarRate, txtGemRate, txtRubyRate;
+    private JLabel lblConfigStatus;
 
     // === DATA ===
     private long totalGold = 0, totalGoldBar = 0, totalRuby = 0, totalGem = 0;
@@ -70,6 +78,10 @@ public class EconomyMonitorPanel extends JPanel {
         // Row 1: Tổng quan tiền tệ
         gbc.gridy++;
         container.add(createCurrencyOverview(), gbc);
+
+        // Row 1.5: Cấu hình nạp/economy
+        gbc.gridy++;
+        container.add(createRechargeConfigPanel(), gbc);
 
         // Row 2: Chỉ số sức khỏe kinh tế
         gbc.gridy++;
@@ -122,7 +134,11 @@ public class EconomyMonitorPanel extends JPanel {
         JButton btnRefresh = ServerGuiUtils.createStyledButton("📡 Quét Kinh Tế", new Color(0, 120, 215), Color.WHITE);
         btnRefresh.addActionListener(e -> refreshData());
 
+        JButton btnDisableOpCodes = ServerGuiUtils.createStyledButton("🚫 Khóa Code Lạm Phát", new Color(220, 53, 69), Color.WHITE);
+        btnDisableOpCodes.addActionListener(e -> disableInflationGiftcodes());
+
         right.add(lblLastScan);
+        right.add(btnDisableOpCodes);
         right.add(btnRefresh);
 
         p.add(title, BorderLayout.WEST);
@@ -161,6 +177,54 @@ public class EconomyMonitorPanel extends JPanel {
         lbl.setOpaque(true);
         lbl.setBackground(Color.WHITE);
         return lbl;
+    }
+
+    private JPanel createRechargeConfigPanel() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setOpaque(false);
+        panel.setBorder(ServerGuiUtils.createSectionBorder("⚙ Cấu Hình Nạp Tiền & Van Chống Lạm Phát"));
+
+        JPanel fields = new JPanel(new GridLayout(2, 7, 8, 5));
+        fields.setOpaque(false);
+
+        txtMinRecharge = addConfigField(fields, "Nạp tối thiểu", "10000");
+        txtMaxRecharge = addConfigField(fields, "Nạp tối đa", "10000000");
+        txtMinExchange = addConfigField(fields, "Đổi tối thiểu", "10000");
+        txtMaxExchange = addConfigField(fields, "Đổi tối đa", "5000000");
+        txtGoldBarRate = addConfigField(fields, "VND/Thỏi vàng", "10000");
+        txtGemRate = addConfigField(fields, "VND/Ngọc xanh", "100");
+        txtRubyRate = addConfigField(fields, "VND/Ruby", "10");
+
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        actions.setOpaque(false);
+        lblConfigStatus = new JLabel("Chưa tải cấu hình");
+        lblConfigStatus.setForeground(Color.GRAY);
+        JButton btnReload = ServerGuiUtils.createStyledButton("↻ Tải config", new Color(108, 117, 125), Color.WHITE);
+        btnReload.addActionListener(e -> loadRechargeConfigToFields());
+        JButton btnSave = ServerGuiUtils.createStyledButton("💾 Lưu cấu hình nạp", new Color(40, 167, 69), Color.WHITE);
+        btnSave.addActionListener(e -> saveRechargeConfigFromFields());
+        actions.add(lblConfigStatus);
+        actions.add(btnReload);
+        actions.add(btnSave);
+
+        panel.add(fields, BorderLayout.CENTER);
+        panel.add(actions, BorderLayout.SOUTH);
+        loadRechargeConfigToFields();
+        return panel;
+    }
+
+    private JTextField addConfigField(JPanel parent, String label, String defaultValue) {
+        JPanel box = new JPanel(new BorderLayout(0, 3));
+        box.setOpaque(false);
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        JTextField field = new JTextField(defaultValue);
+        field.setHorizontalAlignment(SwingConstants.RIGHT);
+        field.setFont(new Font("Consolas", Font.PLAIN, 12));
+        box.add(lbl, BorderLayout.NORTH);
+        box.add(field, BorderLayout.CENTER);
+        parent.add(box);
+        return field;
     }
 
     // ====== ROW 2: CHỈ SỐ SỨC KHỎE KINH TẾ ======
@@ -624,6 +688,96 @@ public class EconomyMonitorPanel extends JPanel {
             });
         } catch (Exception e) {
             System.err.println("EconomyMonitor error: " + e.getMessage());
+        }
+    }
+
+    private void loadRechargeConfigToFields() {
+        Properties props = new Properties();
+        try (FileReader fr = new FileReader("data/config/config.properties")) {
+            props.load(fr);
+            txtMinRecharge.setText(props.getProperty("recharge.min_amount", "10000"));
+            txtMaxRecharge.setText(props.getProperty("recharge.max_amount", "10000000"));
+            txtMinExchange.setText(props.getProperty("recharge.min_exchange", "10000"));
+            txtMaxExchange.setText(props.getProperty("recharge.max_exchange", "5000000"));
+            txtGoldBarRate.setText(props.getProperty("recharge.vnd_per_gold_bar", "10000"));
+            txtGemRate.setText(props.getProperty("recharge.vnd_per_gem", "100"));
+            txtRubyRate.setText(props.getProperty("recharge.vnd_per_ruby", "10"));
+            if (lblConfigStatus != null) {
+                lblConfigStatus.setText("Đã tải config");
+                lblConfigStatus.setForeground(new Color(40, 167, 69));
+            }
+        } catch (Exception e) {
+            if (lblConfigStatus != null) {
+                lblConfigStatus.setText("Lỗi tải config: " + e.getMessage());
+                lblConfigStatus.setForeground(new Color(220, 53, 69));
+            }
+        }
+    }
+
+    private void saveRechargeConfigFromFields() {
+        try {
+            int minRecharge = parsePositive(txtMinRecharge, "Nạp tối thiểu");
+            int maxRecharge = parsePositive(txtMaxRecharge, "Nạp tối đa");
+            int minExchange = parsePositive(txtMinExchange, "Đổi tối thiểu");
+            int maxExchange = parsePositive(txtMaxExchange, "Đổi tối đa");
+            int goldRate = parsePositive(txtGoldBarRate, "VND/Thỏi vàng");
+            int gemRate = parsePositive(txtGemRate, "VND/Ngọc xanh");
+            int rubyRate = parsePositive(txtRubyRate, "VND/Ruby");
+            if (minRecharge > maxRecharge || minExchange > maxExchange) {
+                JOptionPane.showMessageDialog(this, "Min không được lớn hơn Max", "Config lỗi", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Properties props = new Properties();
+            try (FileReader fr = new FileReader("data/config/config.properties")) {
+                props.load(fr);
+            }
+            props.setProperty("recharge.min_amount", String.valueOf(minRecharge));
+            props.setProperty("recharge.max_amount", String.valueOf(maxRecharge));
+            props.setProperty("recharge.min_exchange", String.valueOf(minExchange));
+            props.setProperty("recharge.max_exchange", String.valueOf(maxExchange));
+            props.setProperty("recharge.vnd_per_gold_bar", String.valueOf(goldRate));
+            props.setProperty("recharge.vnd_per_gem", String.valueOf(gemRate));
+            props.setProperty("recharge.vnd_per_ruby", String.valueOf(rubyRate));
+            try (FileWriter fw = new FileWriter("data/config/config.properties")) {
+                props.store(fw, "configserver");
+            }
+            lblConfigStatus.setText("Đã lưu config - restart server để áp dụng chắc chắn");
+            lblConfigStatus.setForeground(new Color(40, 167, 69));
+        } catch (Exception e) {
+            lblConfigStatus.setText("Lỗi lưu: " + e.getMessage());
+            lblConfigStatus.setForeground(new Color(220, 53, 69));
+        }
+    }
+
+    private int parsePositive(JTextField field, String name) {
+        int value = Integer.parseInt(field.getText().trim());
+        if (value <= 0) {
+            throw new IllegalArgumentException(name + " phải lớn hơn 0");
+        }
+        return value;
+    }
+
+    private void disableInflationGiftcodes() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Khóa các giftcode đang phát quá nhiều thỏi vàng/ruby?\nCó thể mở lại thủ công trong Quản lý Giftcode.",
+                "Xác nhận khóa code lạm phát", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        String[] codes = {"MTDLIVE", "OPEN2026", "OPENBETA2026", "mtv", "free", "denbu", "dbv",
+            "codeloantinso1sz", "fancung", "coduyen123", "dnc", "item", "ngocrong"};
+        String placeholders = String.join(",", java.util.Collections.nCopies(codes.length, "?"));
+        try (Connection con = DBConnecter.getConnectionServer();
+             PreparedStatement ps = con.prepareStatement("UPDATE giftcode SET active = 0 WHERE code IN (" + placeholders + ")")) {
+            for (int i = 0; i < codes.length; i++) {
+                ps.setString(i + 1, codes[i]);
+            }
+            int rows = ps.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Đã khóa " + rows + " giftcode lạm phát.");
+            refreshData();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khóa giftcode: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 

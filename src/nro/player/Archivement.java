@@ -30,7 +30,7 @@ public class Archivement {
     public boolean isFinish;
     public boolean isRecieve;
     public static Archivement gI = null;
-    public final static int GIA = 13000;
+    public final static int GIA = 20000;
     public static int[] GIADOLACHIADOI = {GIA * 1, GIA * 2, GIA * 3, GIA * 5, GIA * 7, GIA * 10, GIA * 20, GIA * 40, GIA * 60, GIA * 80, GIA * 100, GIA * 130, GIA * 200, GIA * 300};
 
     public static Archivement gI() {
@@ -179,49 +179,57 @@ public class Archivement {
     }
 
     public void receiveGem(int index, Player pl) {
-        Archivement temp = pl.archivementList.get(index);
-        if (temp.isRecieve) {
-            Service.gI().sendThongBaoOK(pl, "Nhận rồi đừng nhận nữua");
+        if (pl == null || pl.getSession() == null) {
             return;
         }
-        if (temp != null) {
-            Message msg = null;
-            try {
-                msg = new Message(-76);
-                msg.writer().writeByte(1); // action
-                msg.writer().writeByte(index); // index
-                pl.sendMessage(msg);
-                msg.cleanup();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Logger.logException(this.getClass(), e);
-            } finally {
-                if (msg != null) {
-                    msg.cleanup();
-                    msg = null;
-                }
-            }
-
-            pl.archivementList.get(index).setRecieve(true);
-            try {
-                JSONArray dataArray = new JSONArray();
-
-                for (Archivement arr : pl.archivementList) {
-                    dataArray.add(arr.isRecieve ? "1" : "0");
-                }
-                String inventory = dataArray.toJSONString();
-                dataArray.clear();
-                DBConnecter.executeUpdate("update player set Achievement = ? where id = ?", inventory, pl.id);
-                nhanQua(pl, index + 1);
-                System.out.println("Player " + pl.name + " Nhận quà thành công");
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Service.gI().sendThongBao(pl, "Nhận thành công, vui lòng kiểm tra hòm thư ");
-        } else {
-            Service.gI().sendThongBao(pl, "Không có phần thưởng");
+        if (index < 0 || index >= pl.archivementList.size() || index >= GIADOLACHIADOI.length) {
+            Service.gI().sendThongBao(pl, "Mốc nạp không hợp lệ");
+            return;
         }
+        Archivement temp = pl.archivementList.get(index);
+        if (temp == null) {
+            Service.gI().sendThongBao(pl, "Không có phần thưởng");
+            return;
+        }
+        if (temp.isRecieve) {
+            Service.gI().sendThongBaoOK(pl, "Mốc này đã nhận rồi");
+            return;
+        }
+        if (!checktongnap(pl, index)) {
+            Service.gI().sendThongBao(pl, "Bạn chưa đạt mốc nạp " + GIADOLACHIADOI[index] + " VNĐ");
+            return;
+        }
+
+        Message msg = null;
+        try {
+            msg = new Message(-76);
+            msg.writer().writeByte(1); // action
+            msg.writer().writeByte(index); // index
+            pl.sendMessage(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.logException(this.getClass(), e);
+        } finally {
+            if (msg != null) {
+                msg.cleanup();
+            }
+        }
+
+        pl.archivementList.get(index).setRecieve(true);
+        try {
+            JSONArray dataArray = new JSONArray();
+            for (Archivement arr : pl.archivementList) {
+                dataArray.add(arr.isRecieve ? "1" : "0");
+            }
+            String inventory = dataArray.toJSONString();
+            dataArray.clear();
+            DBConnecter.executeUpdate("update player set Achievement = ? where id = ?", inventory, pl.id);
+            nhanQua(pl, index + 1);
+            System.out.println("Player " + pl.name + " nhận quà mốc nạp " + GIADOLACHIADOI[index]);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Service.gI().sendThongBao(pl, "Nhận thành công, vui lòng kiểm tra hòm thư");
     }
 
     private static final Map<Integer, JSONArray> MOC_NAP_CACHE = new HashMap<>();

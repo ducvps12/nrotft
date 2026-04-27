@@ -80,22 +80,22 @@ public class RechargeHttp {
                         ? json.get("transaction_id").getAsString()
                         : (json.has("referenceCode") ? json.get("referenceCode").getAsString()
                         : (json.has("id") ? json.get("id").getAsString() : "unknown"));
-                Matcher m = Pattern.compile("NAP[\\s_\\-]?(\\d+)", Pattern.CASE_INSENSITIVE).matcher(description);
+                Matcher m = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|NAP)\\s*\\+?\\s*(\\d+)").matcher(description);
 
-                int accountId = -1;
+                long playerId = -1;
                 if (m.find()) {
-                    accountId = Integer.parseInt(m.group(1));
-                    System.out.println("Tìm thấy accountId = " + accountId + " trong nội dung: " + description);
+                    playerId = Long.parseLong(m.group(1));
+                    System.out.println("Tìm thấy playerId = " + playerId + " trong nội dung: " + description);
                 } else {
-                    System.out.println("️ Không tìm thấy accountId trong nội dung: " + description);
+                    System.out.println("️ Không tìm thấy playerId trong nội dung: " + description);
                     saveLog(transId, amount, description, false);
-                    send(ex, 200, "Logged but no NAP id");
+                    send(ex, 200, "Logged but no player id");
                     return;
                 }
-                System.out.println("➡️ accountId=" + accountId + ", amount=" + amount + ", desc=" + description);
+                System.out.println("➡️ playerId=" + playerId + ", amount=" + amount + ", desc=" + description);
 
 
-                processTopup(accountId, amount, "sepay", transId, description);
+                processTopup(playerId, amount, "sepay", transId, description);
                 send(ex, 200, "OK");
 
             } catch (Exception e) {
@@ -104,36 +104,43 @@ public class RechargeHttp {
             }
         }
     }
-    private static void processTopup(int accountId, int amount, String provider, String transId, String desc) {
-        int soTienCong = (int)(amount * HE_SO_SU_KIEN); // số tiền nhận sau khi nhân hệ số
+    private static void processTopup(long playerId, int amount, String provider, String transId, String desc) {
+        int soTienCong = (int)(amount * HE_SO_SU_KIEN);
 
         try (Connection con = DBConnecter.getConnectionServer()) {
             PreparedStatement ps = con.prepareStatement(
-                "UPDATE account SET vnd = vnd + ?, tongnap = tongnap + ? WHERE id = ?"
+                "UPDATE account a JOIN player p ON p.account_id = a.id "
+                        + "SET a.cash = a.cash + ?, a.vnd = a.vnd + ?, a.danap = a.danap + ? "
+                        + "WHERE p.id = ?"
             );
-            ps.setInt(1, soTienCong); // cộng vnd theo hệ số
-            ps.setInt(2, amount);     // tongnap chỉ cộng số gốc
-            ps.setInt(3, accountId);
+            ps.setInt(1, soTienCong);
+            ps.setInt(2, soTienCong);
+            ps.setInt(3, amount);
+            ps.setLong(4, playerId);
             int updated = ps.executeUpdate();
             ps.close();
 
             if (updated > 0) {
-                System.out.println(" Nạp thành công: accId=" + accountId + ", +" + soTienCong + " (gốc " + amount + ")");
+                System.out.println(" Nạp thành công: playerId=" + playerId + ", +" + soTienCong + " (gốc " + amount + ")");
                 saveLog(transId, amount, desc, true);
             } else {
-                System.out.println("Không tìm thấy account id=" + accountId);
+                System.out.println("Không tìm thấy player id=" + playerId);
                 saveLog(transId, amount, desc, false);
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
 
         // Gửi thông báo cho player online
-        Player pl = Client.gI().getPlayerByUser(accountId);
-        if (pl != null) {
+        Player pl = Client.gI().getPlayer(playerId);
+        if (pl != null && pl.getSession() != null) {
             try {
                 nro.server.CashAuditLog.logAdd(pl, soTienCong, "RECHARGE_HTTP", "Sepay TransID:" + transId + " Amount:" + amount + " HeSo:" + HE_SO_SU_KIEN);
                 pl.getSession().cash += soTienCong;
+                pl.getSession().vnd += soTienCong;
+                pl.getSession().danap += amount;
                 pl.danap += amount;
             } catch (Exception ignored) {}
             Service.gI().sendThongBao(pl,

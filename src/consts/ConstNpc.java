@@ -183,6 +183,7 @@ public class ConstNpc {
         public static final byte TORI_BOT = 72;
         public static final byte FIDE = 74;
         public static final byte CADIC = 75;
+        public static final byte GOHAN_ULTRA = 75;
         public static final byte DAI_THIEN_SU = 77;
         public static final byte QUOC_VUONG_TRANH_NGOC = 78;
         public static final byte BROLY_SAMA = 79;
@@ -403,6 +404,12 @@ public class ConstNpc {
         public static final int MENU_OPTION_USE_ITEM1536 = 1536;
         public static final int RECEIVE_KOL_TASK = 251014;
         public static final int MENU_QUAN_LY_SERVER = 251015;
+        public static final int MENU_ADMIN_OPERATE = 251016;
+        public static final int MENU_ADMIN_PLAYER = 251017;
+        public static final int MENU_ADMIN_PAYMENT = 251018;
+        public static final int MENU_ADMIN_BOSS = 251019;
+        public static final int MENU_ADMIN_DRAGON = 251020;
+        public static final int MENU_ADMIN_EXTEND = 251021;
 
         public static final int MENU_OPTION_USE_ITEM1806 = 1806;
         public static final int MENU_OPTION_USE_ITEM1807 = 1807;

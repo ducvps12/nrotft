@@ -41,15 +41,16 @@ public class NroAccountService {
         try (Connection conn = getConnection()) {
             String updateSql;
             if ("all".equalsIgnoreCase(username)) {
-                updateSql = "UPDATE account SET vnd = vnd + ?, danap = danap + ?";
+                updateSql = "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ?";
             } else {
-                updateSql = "UPDATE account SET vnd = vnd + ?, danap = danap + ? WHERE username = ?";
+                updateSql = "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ? WHERE username = ?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
                 pstmt.setInt(1, amount);
                 pstmt.setInt(2, amount);
+                pstmt.setInt(3, amount);
                 if (!"all".equalsIgnoreCase(username)) {
-                    pstmt.setString(3, username);
+                    pstmt.setString(4, username);
                 }
                 int rowsAffected = pstmt.executeUpdate();
                 return rowsAffected > 0;

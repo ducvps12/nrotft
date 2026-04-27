@@ -23,7 +23,7 @@ public class GiftCode {
     }
 
     public boolean isUsedGiftCode(String code) {
-        return rewards.contains(code);
+        return rewards.stream().anyMatch(reward -> reward.equalsIgnoreCase(code));
     }
 
     public void dispose() {

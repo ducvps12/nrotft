@@ -45,10 +45,14 @@ import services.func.Input;
 import utils.Logger;
 import utils.Util;
 import models.SuperDivineWater.SuperDivineWaterService;
+import nro.server.ChuyenKhoanManager;
 import nro.services.SubMenuService;
+import models.GiftCode.GiftCodeManager;
 import models.ShenronEvent.ShenronEventService;
 import models.kygui.ConsignItem;
 import models.kygui.ConsignShopService;
+import nro.server.Command;
+import nro.server.ServerNotify;
 import services.func.SummonDragonNamek;
 import nro.models.npc.npc_manifest.*;
 
@@ -204,8 +208,8 @@ public class NpcFactory {
                     new ToriBot(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.FIDE ->
                     new Fide(mapId, status, cx, cy, tempId, avatar);
-                case ConstNpc.CADIC ->
-                    new Cadic(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.GOHAN_ULTRA ->
+                    new GohanUltra(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BROLY_SAMA ->
                     new Brolysama(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HOA_HONG ->
@@ -777,32 +781,98 @@ public class NpcFactory {
                     }
                     case ConstNpc.MENU_ADMIN -> {
                         switch (select) {
+                            case 0 ->
+                                Command.gI().showAdminOperateMenu(player);
+                            case 1 ->
+                                Command.gI().showAdminPlayerMenu(player);
+                            case 2 ->
+                                Command.gI().showAdminPaymentMenu(player);
+                            case 3 ->
+                                Command.gI().showAdminBossMenu(player);
+                            case 4 ->
+                                Command.gI().showAdminDragonMenu(player);
+                            case 5 ->
+                                Command.gI().showAdminExtendMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_OPERATE -> {
+                        switch (select) {
                             case 0 -> {
-                                for (int i = 14; i <= 20; i++) {
-                                    Item item = ItemService.gI().createNewItem((short) i);
-                                    InventoryService.gI().addItemBag(player, item);
-                                }
-                                InventoryService.gI().sendItemBag(player);
-                            }
-                            case 1 -> {
-                                PetService.gI().createNormalPet(player, player.gender);
-                            }
-                            case 2 -> {
                                 if (player.isAdmin()) {
                                     System.out.println(player.name + " Đang bảo trì game!");
                                     Maintenance.gI().start(30);
                                 }
                             }
+                            case 1 ->
+                                PetService.gI().createNormalPet(player, player.gender);
+                            case 2 ->
+                                Service.gI().releaseCooldownSkill(player);
                             case 3 ->
+                                Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_PLAYER -> {
+                        switch (select) {
+                            case 0 ->
                                 Input.gI().createFormFindPlayer(player);
-                            case 4 ->
-                                BossManager.gI().showListBoss(player);
-                            case 5 ->
-                                BossManager.gI().createBoss(BossID.SUPER_BROLY);
-                            case 6 ->
-                                Input.gI().createFormBuffVND(player);
-                            case 7 ->
+                            case 1 ->
                                 Input.gI().createFromMailBox(player);
+                            case 2 ->
+                                Input.gI().createFormGiveItem(player);
+                            case 3 ->
+                                Input.gI().createFormGetItem(player);
+                            case 4 ->
+                                Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_PAYMENT -> {
+                        switch (select) {
+                            case 0 -> {
+                                String result = ChuyenKhoanManager.HandleWebsiteAtmCheckByAdmin(player);
+                                Service.gI().sendThongBaoOK(player, result);
+                            }
+                            case 1 ->
+                                Input.gI().createFormBuffVND(player);
+                            case 2 ->
+                                Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_BOSS -> {
+                        switch (select) {
+                            case 0 ->
+                                BossManager.gI().showListBoss(player);
+                            case 1 ->
+                                BossManager.gI().createBoss(BossID.SUPER_BROLY);
+                            case 2 ->
+                                ServerNotify.gI().notify("BOSS Nro vừa xuất hiện tại nhà anh ấy");
+                            case 3 ->
+                                Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_DRAGON -> {
+                        switch (select) {
+                            case 0 ->
+                                Command.gI().giveDragonBalls(player, 1);
+                            case 1 ->
+                                Command.gI().giveDragonBalls(player, 2);
+                            case 2 ->
+                                NgocRongNamecService.gI().initNgocRongNamec((byte) 0);
+                            case 3 ->
+                                Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    case ConstNpc.MENU_ADMIN_EXTEND -> {
+                        switch (select) {
+                            case 0 ->
+                                GiftCodeManager.gI().checkInfomationGiftCode(player);
+                            case 1 ->
+                                Command.gI().showBotMenu(player);
+                            case 2 ->
+                                Service.gI().sendThongBao(player, player.location.x + " - " + player.location.y);
+                            case 3 ->
+                                Service.gI().sendThongBao(player, "Reload shop cần làm ở lần sau: hiện Manager.SHOPS load lúc start server.");
+                            case 4 ->
+                                Command.gI().showAdminMenu(player);
                         }
                     }
                     case 671 -> {

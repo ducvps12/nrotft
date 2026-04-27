@@ -588,12 +588,13 @@ public class TransactionPanel extends JPanel {
                 String username = matchedInfo.get(i)[0];
                 int soTienCong = (int) (amount * heSo);
 
-                // Cộng tiền
+                // Cộng tiền vào đúng 3 cột kinh tế đang dùng trong game/admin: cash, vnd, danap
                 try (PreparedStatement psUpdate = con.prepareStatement(
-                        "UPDATE account SET vnd = vnd + ?, tongnap = tongnap + ? WHERE id = ?")) {
+                        "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ? WHERE id = ?")) {
                     psUpdate.setInt(1, soTienCong);
-                    psUpdate.setInt(2, amount);
-                    psUpdate.setInt(3, accountId);
+                    psUpdate.setInt(2, soTienCong);
+                    psUpdate.setInt(3, amount);
+                    psUpdate.setInt(4, accountId);
                     int updated = psUpdate.executeUpdate();
 
                     if (updated > 0) {
@@ -612,6 +613,8 @@ public class TransactionPanel extends JPanel {
                             try {
                                 nro.server.CashAuditLog.logAdd(pl, soTienCong, "TX_PANEL_CRON", "TX#" + txId + " AutoMatch");
                                 pl.getSession().cash += soTienCong;
+                                pl.getSession().vnd += soTienCong;
+                                pl.getSession().danap += amount;
                                 pl.danap += amount;
                             } catch (Exception ignored) {}
                             Service.gI().sendThongBao(pl,
@@ -777,12 +780,13 @@ public class TransactionPanel extends JPanel {
                         }
                     }
 
-                    // Cộng tiền
+                    // Cộng tiền vào đúng 3 cột kinh tế đang dùng trong game/admin
                     try (PreparedStatement ps = con.prepareStatement(
-                            "UPDATE account SET vnd = vnd + ?, tongnap = tongnap + ? WHERE id = ?")) {
+                            "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ? WHERE id = ?")) {
                         ps.setInt(1, amount);
                         ps.setInt(2, amount);
-                        ps.setInt(3, accountId);
+                        ps.setInt(3, amount);
+                        ps.setInt(4, accountId);
                         ps.executeUpdate();
                     }
 
@@ -791,7 +795,13 @@ public class TransactionPanel extends JPanel {
                     // Notify player
                     Player pl = Client.gI().getPlayerByUser(accountId);
                     if (pl != null) {
-                        try { nro.server.CashAuditLog.logAdd(pl, amount, "TX_PANEL_MANUAL", "ManualApprove AccID:" + accountId); pl.getSession().cash += amount; pl.danap += amount; } catch (Exception ignored) {}
+                        try {
+                            nro.server.CashAuditLog.logAdd(pl, amount, "TX_PANEL_MANUAL", "ManualApprove AccID:" + accountId);
+                            pl.getSession().cash += amount;
+                            pl.getSession().vnd += amount;
+                            pl.getSession().danap += amount;
+                            pl.danap += amount;
+                        } catch (Exception ignored) {}
                         Service.gI().sendThongBao(pl, "Nạp thành công " + String.format("%,d", amount) + " VNĐ");
                         Service.gI().sendMoney(pl);
                     }

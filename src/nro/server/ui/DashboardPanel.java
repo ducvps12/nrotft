@@ -54,6 +54,7 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -121,6 +122,9 @@ public class DashboardPanel extends JPanel {
     
     // Optimize Logic
     private ScheduledFuture<?> activeAutoOptimizeFuture = null;
+    private ScheduledFuture<?> activeDailyBackupFuture = null;
+    private static final DateTimeFormatter DB_BACKUP_FILE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+    private static final String DB_BACKUP_DIR = "sql";
 
     // --- Boss Icon Logic ---
     private static final String ICON_FOLDER = "data/icon/";
@@ -148,6 +152,7 @@ public class DashboardPanel extends JPanel {
         chkAutoOptimize.setSelected(false); // Mặc định tắt, user tự bật
         
         addLog("Dashboard initialized. Monitoring Server specific resources.");
+        scheduleDailyDatabaseBackup();
     }
     
     // --- ICON & BOSS DATA LOADING ---
@@ -575,6 +580,9 @@ public class DashboardPanel extends JPanel {
         JButton btnReload = ServerGuiUtils.createStyledButton("Tải lại DB", new Color(23, 162, 184), Color.WHITE);
         btnReload.addActionListener(e -> showReloadOptions());
 
+        JButton btnBackupDb = ServerGuiUtils.createStyledButton("Backup DB", new Color(111, 66, 193), Color.WHITE);
+        btnBackupDb.addActionListener(e -> backupDatabaseAsync(false));
+
         JButton btnClean = ServerGuiUtils.createStyledButton("Dọn Session", new Color(108, 117, 125), Color.WHITE);
         btnClean.addActionListener(e -> {
              addLog("Đang thực hiện dọn dẹp session rác...");
@@ -604,6 +612,7 @@ public class DashboardPanel extends JPanel {
 
         p.add(btnMaint);
         p.add(btnReload);
+        p.add(btnBackupDb);
         p.add(btnClean);
         p.add(btnToggleAutoSave);
         return p;
@@ -2106,6 +2115,134 @@ public class DashboardPanel extends JPanel {
         if (activeMaintenanceJobFuture != null) activeMaintenanceJobFuture.cancel(true);
         if (activeCountdownDisplayFuture != null) activeCountdownDisplayFuture.cancel(true);
         lblCountdown.setText("Sẵn sàng");
+    }
+
+    private void scheduleDailyDatabaseBackup() {
+        if (activeDailyBackupFuture != null) {
+            activeDailyBackupFuture.cancel(false);
+        }
+        long initialDelay = secondsUntilNextBackup(3, 30);
+        activeDailyBackupFuture = scheduler.scheduleAtFixedRate(
+                () -> backupDatabase(false),
+                initialDelay,
+                TimeUnit.DAYS.toSeconds(1),
+                TimeUnit.SECONDS
+        );
+        addLog("DB Backup: Tự động sao lưu mỗi ngày lúc 03:30 vào thư mục " + DB_BACKUP_DIR);
+    }
+
+    private long secondsUntilNextBackup(int hour, int minute) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.LocalDateTime next = now.withHour(hour).withMinute(minute).withSecond(0).withNano(0);
+        if (!next.isAfter(now)) {
+            next = next.plusDays(1);
+        }
+        return Math.max(1, java.time.Duration.between(now, next).getSeconds());
+    }
+
+    private void backupDatabaseAsync(boolean scheduled) {
+        new Thread(() -> backupDatabase(scheduled), scheduled ? "DB-Backup-Scheduled" : "DB-Backup-Manual").start();
+    }
+
+    private void backupDatabase(boolean scheduled) {
+        Properties props = new Properties();
+        try (FileReader fr = new FileReader("data/config/config.properties")) {
+            props.load(fr);
+        } catch (Exception e) {
+            addLog("DB Backup: Không đọc được config.properties - " + e.getMessage());
+            return;
+        }
+
+        String host = props.getProperty("database.host", "127.0.0.1");
+        String port = props.getProperty("database.port", "3306");
+        String db = props.getProperty("database.name", "nrotft");
+        String user = props.getProperty("database.user", "root");
+        String pass = props.getProperty("database.pass", "");
+
+        File dir = new File(DB_BACKUP_DIR);
+        if (!dir.exists() && !dir.mkdirs()) {
+            addLog("DB Backup: Không tạo được thư mục " + dir.getAbsolutePath());
+            return;
+        }
+
+        String fileName = db + "_backup_" + java.time.LocalDateTime.now().format(DB_BACKUP_FILE_TIME) + ".sql";
+        File out = new File(dir, fileName);
+        File mysqldump = findMysqlDump();
+
+        try {
+            List<String> cmd = new ArrayList<>();
+            cmd.add(mysqldump != null ? mysqldump.getAbsolutePath() : "mysqldump");
+            cmd.add("--host=" + host);
+            cmd.add("--port=" + port);
+            cmd.add("--user=" + user);
+            if (!pass.isEmpty()) {
+                cmd.add("--password=" + pass);
+            }
+            cmd.add("--default-character-set=utf8mb4");
+            cmd.add("--single-transaction");
+            cmd.add("--routines");
+            cmd.add("--events");
+            cmd.add(db);
+
+            addLog("DB Backup: Đang sao lưu " + db + " -> " + out.getPath());
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.redirectOutput(out);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            boolean finished = process.waitFor(5, TimeUnit.MINUTES);
+            if (!finished) {
+                process.destroyForcibly();
+                addLog("DB Backup: Timeout, đã hủy tiến trình mysqldump.");
+                return;
+            }
+            if (process.exitValue() == 0 && out.exists() && out.length() > 0) {
+                addLog("DB Backup: Thành công " + out.getPath() + " (" + (out.length() / 1024) + " KB)");
+                cleanupOldBackups(dir, db, 14);
+            } else {
+                addLog("DB Backup: Thất bại, kiểm tra mysqldump/quyền DB. File: " + out.getPath());
+            }
+        } catch (Exception e) {
+            addLog("DB Backup: Lỗi - " + e.getMessage());
+        }
+    }
+
+    private File findMysqlDump() {
+        String[] paths = {
+            "C:/xampp/mysql/bin/mysqldump.exe",
+            "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe",
+            "C:/Program Files/MariaDB 10.6/bin/mysqldump.exe"
+        };
+        for (String path : paths) {
+            File f = new File(path);
+            if (f.exists()) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    private void cleanupOldBackups(File dir, String db, int keepDays) {
+        File[] files = dir.listFiles((d, name) -> name.startsWith(db + "_backup_") && name.endsWith(".sql"));
+        if (files == null) {
+            return;
+        }
+        long cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(keepDays);
+        for (File file : files) {
+            if (file.lastModified() < cutoff && file.delete()) {
+                addLog("DB Backup: Đã xóa backup cũ " + file.getName());
+            }
+        }
+    }
+
+    private void addLog(String message) {
+        if (txtLog == null) {
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+            txtLog.append("[" + time + "] " + message + "\n");
+            txtLog.setCaretPosition(txtLog.getDocument().getLength());
+        });
     }
 
     // ================= INNER CLASSES =================

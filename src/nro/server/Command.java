@@ -253,7 +253,7 @@ public class Command {
         shenron.sendWhishesShenron();
     }
 
-    private void showAdminMenu(Player player) {
+    public void showAdminMenu(Player player) {
         StringBuilder info = new StringBuilder()
                 .append("|0|--- QUẢN LÝ SERVER ---\n")
                 .append("Time Start : ").append(ServerManager.timeStart).append("\n")
@@ -267,15 +267,70 @@ public class Command {
                 ConstNpc.MENU_ADMIN,
                 -1,
                 info.toString(),
-                "Ngọc Rồng",
-                "Đệ Tử",
-                "Bảo Trì",
-                "Tìm Kiếm\nNgười Chơi",
+                "Vận Hành",
+                "Người Chơi",
+                "Thanh Toán",
                 "Boss",
-                "Call Broly",
-                "Buff VND",
-                "Buff\nHộp Thư",
+                "Ngọc Rồng",
+                "Mở Rộng",
                 "Đóng");
+    }
+
+    public void showAdminOperateMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_OPERATE, -1,
+                "|0|--- VẬN HÀNH SERVER ---\n"
+                        + "Bảo trì: hẹn 30 giây.\n"
+                        + "Đệ tử: tạo pet thường cho admin.\n"
+                        + "Hồi skill: xóa cooldown để test.",
+                "Bảo Trì\n30s", "Tạo\nĐệ Tử", "Hồi\nSkill", "Quay Lại", "Đóng");
+    }
+
+    public void showAdminPlayerMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_PLAYER, -1,
+                "|0|--- QUẢN LÝ NGƯỜI CHƠI ---\n"
+                        + "Tìm kiếm để xem chi tiết/chỉnh người chơi.\n"
+                        + "Buff hộp thư dùng để gửi vật phẩm an toàn hơn buff trực tiếp.",
+                "Tìm Kiếm\nNgười Chơi", "Buff\nHộp Thư", "Give\nItem", "Get\nItem", "Quay Lại", "Đóng");
+    }
+
+    public void showAdminPaymentMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_PAYMENT, -1,
+                "|0|--- THANH TOÁN / ATM ---\n"
+                        + "ATM quét bill CHUYEN TIEN + ID và cảnh báo ID lặp.\n"
+                        + "Buff VND chỉ dùng khi cần xử lý thủ công.",
+                "Check\nATM", "Buff\nVND", "Quay Lại", "Đóng");
+    }
+
+    public void showAdminBossMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_BOSS, -1,
+                "|0|--- QUẢN LÝ BOSS ---\n"
+                        + "Xem danh sách boss hoặc gọi nhanh Super Broly để test.",
+                "Danh Sách\nBoss", "Call\nBroly", "Thông Báo\nBoss Test", "Quay Lại", "Đóng");
+    }
+
+    public void showAdminDragonMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_DRAGON, -1,
+                "|0|--- NGỌC RỒNG ADMIN ---\n"
+                        + "Fix lỗi cũ: bấm Ngọc Rồng không còn add thẳng vào túi.\n"
+                        + "Chọn loại set cần cấp để tránh thao tác nhầm.",
+                "Set NR\n1-7 Sao", "Set NR\n2-7 Sao", "Rồng\nNamek", "Quay Lại", "Đóng");
+    }
+
+    public void showAdminExtendMenu(Player player) {
+        NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_EXTEND, -1,
+                "|0|--- CHỨC NĂNG MỞ RỘNG ---\n"
+                        + "Các chức năng ít dùng gom vào đây để panel chính gọn hơn.\n"
+                        + "Có thể mở rộng thêm: reload shop, reload config, thống kê lỗi.",
+                "GiftCode\nInfo", "Bot\nManager", "Tọa Độ", "Reload\nShop?", "Quay Lại", "Đóng");
+    }
+
+    public void giveDragonBalls(Player player, int startStar) {
+        for (int itemId = 14 + (startStar - 1); itemId <= 20; itemId++) {
+            Item item = ItemService.gI().createNewItem((short) itemId);
+            InventoryService.gI().addItemBag(player, item);
+        }
+        InventoryService.gI().sendItemBag(player);
+        Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng " + startStar + "-7 sao vào hành trang.");
     }
 
     private void repeatNotify(String message, int times) {
@@ -284,7 +339,7 @@ public class Command {
         }
     }
 
-    private void showBotMenu(Player player) {
+    public void showBotMenu(Player player) {
         StringBuilder info = new StringBuilder()
                 .append("|0|--- QUẢN LÝ BOT ---\n")
                 .append("Player Online : ").append(Client.gI().getPlayers().size()).append("\n")

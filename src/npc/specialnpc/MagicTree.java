@@ -51,10 +51,13 @@ public class MagicTree {
 
     // days - hours - mins - gold
     private static final short[][] PEA_UPGRADE = {
-            { 0, 0, 10, 5 }, { 0, 1, 40, 10 }, { 0, 16, 40, 100 }, { 6, 22, 0, 1 },
-            { 13, 21, 0, 10 }, { 27, 18, 0, 20 }, { 55, 13, 0, 50 }, { 69, 10, 0, 100 },
-            { 104, 4, 0, 300 }, { 0, 0, 0, 0 }
+            { 0, 0, 10, 50 }, { 0, 1, 40, 250 }, { 0, 16, 40, 2000 }, { 6, 22, 0, 10 },
+            { 13, 21, 0, 30 }, { 27, 18, 0, 75 }, { 55, 13, 0, 150 }, { 69, 10, 0, 300 },
+            { 104, 4, 0, 600 }, { 0, 0, 0, 0 }
     };
+
+    private static final int[] FAST_RESPAWN_GEM = { 4, 6, 8, 10, 12, 15, 18, 22, 26, 30 };
+    private static final int[] FAST_UPGRADE_GEM = { 10, 20, 35, 60, 100, 160, 240, 360, 500, 0 };
 
     // icon magic tree [gender][level]
     private static final short[][] ID_MAGIC_TREE = {
@@ -86,6 +89,7 @@ public class MagicTree {
     // lv 8 10 ngọc
     // lv 9 15 ngọc
     // lv 10 20 ngọc
+
     private boolean loadedMagicTreeToPlayer;
     private Player player;
 
@@ -176,13 +180,13 @@ public class MagicTree {
                     msg.writer().writeUTF(getTextMenuUpgrade());
                 }
                 if (this.currPeas < this.getMaxPea()) {
-                    msg.writer().writeUTF("Kết hạt\nnhanh\n4 ngọc");
+                    msg.writer().writeUTF("Kết hạt\nnhanh\n" + getFastRespawnGemRequire() + " ngọc");
                     this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_NON_UPGRADE_LEFT_PEA);
                 } else {
                     this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_NON_UPGRADE_FULL_PEA);
                 }
             } else {
-                msg.writer().writeUTF("Nâng cấp\nnhanh\n9\nngọc");
+                msg.writer().writeUTF("Nâng cấp\nnhanh\n" + getFastUpgradeGemRequire() + "\nngọc");
                 msg.writer().writeUTF("Hủy\nnâng cấp\nhồi "
                         + (PEA_UPGRADE[this.level - 1][3] / 2 + (this.level <= 3 ? " k" : " Tr")) + "\nvàng");
                 this.player.iDMark.setIndexMenu(ConstNpc.MAGIC_TREE_UPGRADE);
@@ -228,8 +232,7 @@ public class MagicTree {
     }
 
     public void upgradeMagicTree() {
-        short gold = PEA_UPGRADE[this.level - 1][3];
-        int goldRequire = gold * (this.level <= 3 ? 1000 : 1000000);
+        int goldRequire = getGoldUpgradeRequire();
         if (this.player.inventory.gold < goldRequire) {
             Service.gI().sendThongBao(player, "Bạn không đủ vàng để nâng cấp, còn thiếu "
                     + (goldRequire - this.player.inventory.gold) + " vàng nữa");
@@ -243,8 +246,7 @@ public class MagicTree {
     }
 
     public void unupgradeMagicTree() {
-        short gold = PEA_UPGRADE[this.level - 1][3];
-        int goldReturn = (gold * (this.level <= 3 ? 1000 : 1000000)) / 2;
+        int goldReturn = getGoldUpgradeRequire() / 2;
         this.player.inventory.gold += goldReturn;
         PlayerService.gI().sendInfoHpMpMoney(this.player);
         this.isUpgrade = false;
@@ -252,13 +254,27 @@ public class MagicTree {
     }
 
     public void fastRespawnPea() {
-        // giá kết hạt nhanh
+        int gemRequire = getFastRespawnGemRequire();
+        if (this.player.inventory.gem < gemRequire) {
+            Service.gI().sendThongBao(player, "Bạn không đủ ngọc để kết hạt nhanh, còn thiếu "
+                    + (gemRequire - this.player.inventory.gem) + " ngọc nữa");
+            return;
+        }
+        this.player.inventory.gem -= gemRequire;
+        Service.gI().sendMoney(player);
         this.currPeas = this.getMaxPea();
         this.loadMagicTree();
     }
 
     public void fastUpgradeMagicTree() {
-        // giá nâng cấp nhanh
+        int gemRequire = getFastUpgradeGemRequire();
+        if (this.player.inventory.gem < gemRequire) {
+            Service.gI().sendThongBao(player, "Bạn không đủ ngọc để nâng cấp nhanh, còn thiếu "
+                    + (gemRequire - this.player.inventory.gem) + " ngọc nữa");
+            return;
+        }
+        this.player.inventory.gem -= gemRequire;
+        Service.gI().sendMoney(player);
         if (this.level < MAX_LEVEL) {
             this.level++;
         }
@@ -300,8 +316,28 @@ public class MagicTree {
         if (m != 0) {
             text += m + "'";
         }
-        text += "\n" + gold + (this.level <= 3 ? " k" : " Tr") + "\nvàng";
+        text += "\n" + formatGold(getGoldUpgradeRequire()) + "\nvàng";
         return text;
+    }
+
+    private int getGoldUpgradeRequire() {
+        short gold = PEA_UPGRADE[this.level - 1][3];
+        return gold * (this.level <= 3 ? 1000 : 1000000);
+    }
+
+    private int getFastRespawnGemRequire() {
+        return FAST_RESPAWN_GEM[Math.min(this.level - 1, FAST_RESPAWN_GEM.length - 1)];
+    }
+
+    private int getFastUpgradeGemRequire() {
+        return FAST_UPGRADE_GEM[Math.min(this.level - 1, FAST_UPGRADE_GEM.length - 1)];
+    }
+
+    private String formatGold(int gold) {
+        if (gold >= 1000000) {
+            return (gold / 1000000) + " Tr";
+        }
+        return (gold / 1000) + " k";
     }
 
     private long getTimeUpgrade() {
