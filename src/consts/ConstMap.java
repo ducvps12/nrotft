@@ -176,14 +176,15 @@ public class ConstMap {
     public static final int LANG_PLANT_NGUYEN_THUY = 163;
 
     // ===== HỆ MAJIN =====
-    public static final int HOANG_MAC_MAJIN = 164;
-    public static final int VUNG_DAT_BUN = 165;
-    public static final int THUNG_LUNG_KEO = 166;
-    public static final int RUNG_MA_MAJIN = 167;
-    public static final int HAM_NGUC_MAJIN = 168;
-    public static final int THAP_BABIDI = 169;
-    public static final int CUNG_DIEN_MAJIN = 170;
-    public static final int NHA_MAJIN = 171;
-    public static final int TRAM_TAU_MAJIN = 172;
+    public static final int NHA_MAJIN = 198;
+    public static final int HOANG_MAC_MAJIN = 199;
+    public static final int VUNG_DAT_BUN = 200;
+    public static final int THUNG_LUNG_KEO = 201;
+    public static final int RUNG_MA_MAJIN = 202;
+    public static final int HAM_NGUC_MAJIN = 203;
+    public static final int VACH_NUI_MAJIN = 204;
+    public static final int KHU_LUYEN_TAP_MAJIN = 205;
+    public static final int TRAM_TAU_MAJIN = 206;
+    public static final int TRAM_TAU_HUY_DIET_MAJIN = 207;
 
 }

@@ -1488,47 +1488,42 @@ public class TaskService {
         if (id == ConstTask.MAP_NHA) {
             return (short) ChangeMapService.getHomeMapId(player);
         } else if (id == ConstTask.MAP_200) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 1
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 8
-                            : 15);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return 1;
+                case ConstPlayer.NAMEC: return 8;
+                case ConstPlayer.MAJIN: return ConstMap.VUNG_DAT_BUN;
+                default: return 15;
+            }
         } else if (id == ConstTask.MAP_VACH_NUI) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 39
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 40
-                            : 41);
-        } else if (id == ConstTask.MAP_200) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 2
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 9
-                            : 16);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return 39;
+                case ConstPlayer.NAMEC: return 40;
+                case ConstPlayer.MAJIN: return ConstMap.VACH_NUI_MAJIN;
+                default: return 41;
+            }
         } else if (id == ConstTask.MAP_TTVT) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 24
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 25
-                            : 26);
+            return ChangeMapService.getSpaceStationMapId(player);
         } else if (id == ConstTask.MAP_QUAI_BAY_600) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 3
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 11
-                            : 17);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return 3;
+                case ConstPlayer.NAMEC: return 11;
+                case ConstPlayer.MAJIN: return ConstMap.RUNG_MA_MAJIN;
+                default: return 17;
+            }
         } else if (id == ConstTask.MAP_LANG) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 0
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 7
-                            : 14);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return 0;
+                case ConstPlayer.NAMEC: return 7;
+                case ConstPlayer.MAJIN: return ConstMap.HOANG_MAC_MAJIN;
+                default: return 14;
+            }
         } else if (id == ConstTask.MAP_QUY_LAO) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? 5
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? 13
-                            : 20);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return 5;
+                case ConstPlayer.NAMEC: return 13;
+                case ConstPlayer.MAJIN: return ConstMap.HAM_NGUC_MAJIN;
+                default: return 20;
+            }
         }
         return id;
     }

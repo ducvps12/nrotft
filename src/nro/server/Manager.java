@@ -277,6 +277,16 @@ public final class Manager {
                 }
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.BANG_DANH_VONG));
             }
+            
+            // Spawn GohanUltra ở map đầu Majin (map 199) cho SKH
+            if (map.mapId == ConstMap.HOANG_MAC_MAJIN) {
+                short x = 420;
+                short y = (short) map.yPhysicInTop(x, 100);
+                if (y <= 0) {
+                    y = 336;
+                }
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
+            }
 
             // Dùng Virtual Thread để update map
             Thread.startVirtualThread(() -> map.run());

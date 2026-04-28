@@ -19,6 +19,8 @@ import nro.player.Inventory;
 import nro.player.Player;
 import skill.Skill;
 import nro.services.MapService;
+import consts.ConstMap;
+import consts.ConstPlayer;
 import utils.Logger;
 
 import java.sql.Connection;
@@ -54,7 +56,9 @@ public class PlayerDAO {
             String inventory = dataArray.toJSONString();
             dataArray.clear();
 
-            dataArray.add(39 + gender); // map
+            // Majin starts at Vách Núi Majin (204), others at 39+gender
+            int startMap = (gender == ConstPlayer.MAJIN) ? ConstMap.VACH_NUI_MAJIN : (39 + gender);
+            dataArray.add(startMap); // map
             dataArray.add(100); // x
             dataArray.add(384); // y
             String location = dataArray.toJSONString();
@@ -65,14 +69,14 @@ public class PlayerDAO {
             dataArray.add(10_000); // tiềm năng (tăng x5: 2k -> 10k)
             dataArray.add(1000); // thể lực
             dataArray.add(1000); // thể lực đầy
-            dataArray.add(gender == 0 ? 200 : 100); // hp gốc
-            dataArray.add(gender == 1 ? 200 : 100); // ki gốc
-            dataArray.add(gender == 2 ? 15 : 10); // sức đánh gốc
+            dataArray.add(gender == 0 ? 200 : (gender == ConstPlayer.MAJIN ? 150 : 100)); // hp gốc - Majin balanced
+            dataArray.add(gender == 1 ? 200 : (gender == ConstPlayer.MAJIN ? 150 : 100)); // ki gốc - Majin balanced
+            dataArray.add(gender == 2 ? 15 : (gender == ConstPlayer.MAJIN ? 12 : 10)); // sức đánh gốc - Majin balanced
             dataArray.add(0); // giáp gốc
             dataArray.add(0); // chí mạng gốc
             dataArray.add(0); // năng động
-            dataArray.add(gender == 0 ? 200 : 100); // hp hiện tại
-            dataArray.add(gender == 1 ? 200 : 100); // ki hiện tại
+            dataArray.add(gender == 0 ? 200 : (gender == ConstPlayer.MAJIN ? 150 : 100)); // hp hiện tại
+            dataArray.add(gender == 1 ? 200 : (gender == ConstPlayer.MAJIN ? 150 : 100)); // ki hiện tại
             String point = dataArray.toJSONString();
             dataArray.clear();
 
