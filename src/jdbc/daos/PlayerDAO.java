@@ -45,8 +45,8 @@ public class PlayerDAO {
         try {
             JSONArray dataArray = new JSONArray();
 
-            dataArray.add(50000); // vàng khởi đầu
-            dataArray.add(50); // ngọc xanh khởi đầu, tránh lạm phát 100k ngọc
+            dataArray.add(500_000); // vàng khởi đầu (tăng x5: 100k -> 500k)
+            dataArray.add(100); // ngọc xanh khởi đầu (tăng x5: 20 -> 100)
             dataArray.add(0); // hồng ngọc
             dataArray.add(0); // point
             dataArray.add(0); // event
@@ -61,8 +61,8 @@ public class PlayerDAO {
             dataArray.clear();
 
             dataArray.add(1); // giới hạn sức mạnh
-            dataArray.add(2000); // sức mạnh
-            dataArray.add(2000); // tiềm năng
+            dataArray.add(10_000); // sức mạnh (tăng x5: 2k -> 10k)
+            dataArray.add(10_000); // tiềm năng (tăng x5: 2k -> 10k)
             dataArray.add(1000); // thể lực
             dataArray.add(1000); // thể lực đầy
             dataArray.add(gender == 0 ? 200 : 100); // hp gốc

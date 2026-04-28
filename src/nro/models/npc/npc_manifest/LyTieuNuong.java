@@ -12,7 +12,6 @@ import minigame.DecisionMaker.DecisionMakerRuby;
 import minigame.LuckyNumber.LuckyNumber;
 import minigame.LuckyNumber.LuckyNumberService;
 import minigame.RockPaperScissors.RockPaperScissors;
-import minigame.TX.TaiXiuService;
 import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.TaskService;
@@ -29,7 +28,7 @@ public class LyTieuNuong extends Npc {
         if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
             createOtherMenu(player, ConstMiniGame.MENU_CHINH, "Bạn muốn tham gia mini game nào?",
                     "Kéo\nBúa\nBao", "Con số\nmay mắn\nvàng",
-                    "Con số\nmay mắn\nngọc xanh", "Chọn ai đây", "Tài Xỉu", "Đóng");
+                    "Con số\nmay mắn\nngọc xanh", "Chọn ai đây", "Đóng");
         }
     }
 
@@ -41,7 +40,7 @@ public class LyTieuNuong extends Npc {
                     switch (select) {
                         case 0 ->
                             createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
-                                    "1 Tr vàng", "5 Tr vàng", "10 Tr vàng");
+                                    "100k vàng", "500k vàng", "1 Tr vàng");
                         case 1 -> {
                             LuckyNumber.showMenu(this, player, false);
                             player.iDMark.setGemCSMM(false);
@@ -52,17 +51,10 @@ public class LyTieuNuong extends Npc {
                         }
                         case 3 ->
                             DecisionMaker.gI().showMenu(this, player);
-                        case 4 ->
-                            createOtherMenu(player, ConstMiniGame.MENU_TAI_XIU,
-                                    "Xin chào , Ta là Lý Tiểu Nương - Quản lí casino TX tại Đảo Kame",
-                                    "Thể lệ", "Tham gia", "Đóng");
                     }
                 }
 
-                case ConstMiniGame.MENU_TAI_XIU, ConstMiniGame.MINIGAME_TAIXIU_TUYCHON,
-                        ConstMiniGame.MINIGAME_TAIXIU_TAI, ConstMiniGame.MINIGAME_TAIXIU_XIU -> {
-                    TaiXiuService.gI().confirmMenu(this, player, select, player.iDMark.getIndexMenu());
-                }
+
 
                 case ConstMiniGame.MENU_KEO_BUA_BAO ->
                     RockPaperScissors.confirmMenu(this, player, select);
@@ -72,7 +64,7 @@ public class LyTieuNuong extends Npc {
                         RockPaperScissors.confirmPlay(this, player, select);
                     } else {
                         createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
-                                "1 Tr vàng", "5 Tr vàng", "10 Tr vàng");
+                                "100k vàng", "500k vàng", "1 Tr vàng");
                     }
                 }
 

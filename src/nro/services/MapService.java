@@ -588,9 +588,8 @@ public class MapService {
     }
 
     public boolean isMapUpSKH(int mapId) {
-        return mapId == 1 || mapId == 2 || mapId == 3
-                || mapId == 8 || mapId == 9 || mapId == 11
-                || mapId == 15 || mapId == 16 || mapId == 17;
+        // Chỉ spawn GohanUltra ở 3 map đại diện: map 1 (TD), map 8 (NM), map 15 (XD)
+        return mapId == 1 || mapId == 8 || mapId == 15;
     }
 
     public boolean isMapTeacherDay(int mapId) {

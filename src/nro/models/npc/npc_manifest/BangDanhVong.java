@@ -21,11 +21,11 @@ public class BangDanhVong extends Npc {
             return;
         }
         createOtherMenu(player, ConstNpc.BASE_MENU,
-                "|7|━━━ BẢNG TIN SỰ KIỆN & DANH VỌNG NROTFT ━━━\n"
-                        + "|1|" + getActiveEventLine() + "\n"
-                        + "|2|Bảng tin này đặt ở làng/khu luyện tập để người chơi xem nhanh sự kiện, boss, giftcode và hướng phát triển mà không phải đọc popup dài khi đăng nhập.\n"
-                        + "|1|Nên đọc Tin mới → Sự kiện → Boss trước khi bắt đầu farm.",
-                "Tin mới\nsự kiện", "Hướng dẫn\nsự kiện", "Boss &\nthời gian", "Top\nSức mạnh", "Top\nNạp", "Cẩm nang\ntân thủ", "Tỉ lệ\nquà rơi", "Đóng");
+                "|7|=== BANG TIN SU KIEN & DANH VONG ===\n\n"
+                        + "|5|Dua Top Nap\n"
+                        + "|2|Bang tin nay dat o lang de xem nhanh su kien, boss, giftcode.\n\n"
+                        + "|1|Nen doc: Tin moi > Su kien > Boss",
+                "Tin moi\nsu kien", "Huong dan\nsu kien", "Boss &\nthoi gian", "Top\nSuc manh", "Top\nNap", "Cam nang\ntan thu", "Ti le\nqua roi", "Dong");
     }
 
     @Override
@@ -48,33 +48,30 @@ public class BangDanhVong extends Npc {
 
     private void showEventNews(Player player) {
         createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|━━━ TIN MỚI & TRẠNG THÁI SỰ KIỆN ━━━\n"
-                        + "|1|Đang mở: " + getActiveEventLine() + "\n\n"
-                        + "|2|Thông báo nhanh:\n"
-                        + "- Giftcode chỉ dùng được khi Admin bật trạng thái Active trong panel.\n"
-                        + "- Reload Shop chỉ nạp lại dữ liệu shop từ DB, không reload code/NPC.\n"
-                        + "- Bảng boss bên phải dùng để xem boss đang/chuẩn bị xuất hiện và bấm [Đến].\n"
-                        + "- Super Broly không phải boss tự nhiên: phải đánh Broly thường tới ngưỡng biến thân rồi mới kéo ra.\n\n"
-                        + "|1|Sắp tới:\n"
-                        + "- Sự kiện Hè được lên lịch mở từ 15/05, không nên bật sớm để tránh lệch vật phẩm/sự kiện.\n"
-                        + "- Khi có thay đổi mới, Admin chỉ cần cập nhật bảng tin thay vì ép người chơi đọc popup dài lúc login.",
-                "Đã hiểu");
+                "|7|=== TIN MOI & SU KIEN ===\n\n"
+                        + "|5|Dang mo: |1|" + getActiveEventLine() + "\n\n"
+                        + "|2|Thong bao:\n"
+                        + "- Giftcode chi dung khi Admin bat Active\n"
+                        + "- Reload Shop chi nap lai DB\n"
+                        + "- Bang boss ben phai: xem va bam [Den]\n"
+                        + "- Super Broly: danh Broly thuong den nguong\n\n"
+                        + "|1|Sap toi: Su kien He 15/05",
+                "Da hieu");
     }
 
     private void showEventGuide(Player player) {
         createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|━━━ HƯỚNG DẪN SỰ KIỆN & HOẠT ĐỘNG ━━━\n"
-                        + "|1|1. Nhận thông tin:\n"
-                        + "- Mở bảng tin ở làng/khu luyện tập mỗi ngày để xem sự kiện đang chạy.\n"
-                        + "- Theo dõi boss ở khung phải để chọn mục tiêu phù hợp sức mạnh.\n\n"
-                        + "|1|2. Farm sự kiện:\n"
-                        + "- Ưu tiên làm nhiệm vụ chính, mở map, nâng đậu thần rồi mới farm lâu dài.\n"
-                        + "- Khi có vật phẩm sự kiện, đọc mô tả NPC đổi thưởng trước khi dùng để tránh phí nguyên liệu.\n\n"
-                        + "|1|3. Giftcode / quà:\n"
-                        + "- Code chưa Active sẽ báo chưa kích hoạt, không phải lỗi nhân vật.\n"
-                        + "- Nếu code vừa được bật, Admin cần Reload Giftcode để cache đọc lại DB.\n\n"
-                        + "|2|Gợi ý tối ưu: bảng tin này thay cho popup đăng nhập dài; popup chỉ nên để 3-5 dòng quan trọng nhất.",
-                "Đã hiểu");
+                "|7|=== HUONG DAN SU KIEN ===\n\n"
+                        + "|2|1. Nhan thong tin:\n"
+                        + "- Mo bang tin o lang moi ngay\n"
+                        + "- Theo doi boss o khung phai\n\n"
+                        + "|2|2. Farm su kien:\n"
+                        + "- Uu tien nhiem vu, mo map, nang dau than\n"
+                        + "- Doc mo ta NPC doi thuong truoc khi dung\n\n"
+                        + "|2|3. Giftcode:\n"
+                        + "- Code chua Active se bao chua kich hoat\n"
+                        + "- Admin can Reload Giftcode de cap nhat",
+                "Da hieu");
     }
 
     private String getActiveEventLine() {
@@ -98,20 +95,20 @@ public class BangDanhVong extends Npc {
 
     private void showGameOverview(Player player) {
         createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|━━━ TỔNG QUAN CƠ CHẾ GAME ━━━\n"
-                        + "|1|1. Lộ trình chính:\n"
-                        + "- Làm nhiệm vụ mở map, tăng sức mạnh và mở giới hạn.\n"
-                        + "- Qua khu luyện tập để tăng nền tảng sức mạnh ban đầu.\n"
-                        + "- Farm map SKH để kiếm Set Kích Hoạt, đồ sao và vật phẩm nâng tiến độ.\n\n"
-                        + "|1|2. Trang bị quan trọng:\n"
-                        + "- SKH là mốc đầu game: giúp mạnh nhanh và định hình lối chơi từng hành tinh.\n"
-                        + "- Đồ sao / phụ kiện / cải trang là phần nâng cao, nên giữ đồ ngon để giao dịch hoặc dùng lâu dài.\n\n"
-                        + "|1|3. Tài nguyên:\n"
-                        + "- Vàng dùng cho cược mini game, giao dịch và nhiều hoạt động cơ bản.\n"
-                        + "- Hồng ngọc/ngọc/ruby dùng cho shop, sự kiện hoặc tính năng đặc biệt tùy thời điểm.\n"
-                        + "- Nạp ATM cần đúng ID nhân vật để hệ thống đối soát nhanh.\n\n"
-                        + "|2|Gợi ý: tân thủ nên ưu tiên nhiệm vụ → đậu thần → SKH → boss vừa sức → bang hội.",
-                "Đã hiểu");
+                "|7|=== TONG QUAN CO CHE GAME ===\n\n"
+                        + "|2|1. Lo trinh chinh:\n"
+                        + "- Lam nhiem vu mo map\n"
+                        + "- Qua khu luyen tap tang nen tang\n"
+                        + "- Farm map SKH kiem Set Kich Hoat\n\n"
+                        + "|2|2. Trang bi quan trong:\n"
+                        + "- SKH: moc dau game\n"
+                        + "- Do sao: phan nang cao\n\n"
+                        + "|2|3. Tai nguyen:\n"
+                        + "- Vang: mini game, giao dich\n"
+                        + "- Ngoc: shop, su kien\n\n"
+                        + "|5|Lo trinh tan thu:\n"
+                        + "|1|Nhiem vu > Dau than > SKH > Boss",
+                "Da hieu");
     }
 
     private void showBossOverview(Player player) {

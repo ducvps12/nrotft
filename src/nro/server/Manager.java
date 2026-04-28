@@ -251,7 +251,26 @@ public final class Manager {
             MAPS.add(map);
             map.initMob(mapTemp.mobTemp, mapTemp.mobLevel, mapTemp.mobHp, mapTemp.mobX, mapTemp.mobY);
             map.initNpc(mapTemp.npcId, mapTemp.npcX, mapTemp.npcY);
-            addSkhGuideNpc(map);
+            
+            // Chỉ spawn GohanUltra ở map 5 (Rừng Bamboo - map trung tâm)
+            if (map.mapId == 5) {
+                short x = 420;
+                short y = (short) map.yPhysicInTop(x, 100);
+                if (y <= 0) {
+                    y = 336;
+                }
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
+            }
+            
+            // Spawn NPC Bảng Danh Vọng ở map nhà (21, 22, 23) - sân vườn
+            if (map.mapId >= 21 && map.mapId <= 23) {
+                short x = 300;
+                short y = (short) map.yPhysicInTop(x, 100);
+                if (y <= 0) {
+                    y = 336;
+                }
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.BANG_DANH_VONG));
+            }
 
             // Dùng Virtual Thread để update map
             Thread.startVirtualThread(() -> map.run());
@@ -261,18 +280,6 @@ public final class Manager {
         NPC_MrPopo popo = new NPC_MrPopo();
         popo.initNPC_MrPopo();
         Logger.log("Initialize map successfully!\n");
-    }
-
-    private void addSkhGuideNpc(map.Map map) {
-        if (map == null || map.npcs == null || !MapService.gI().isMapUpSKH(map.mapId)) {
-            return;
-        }
-        short x = 420;
-        short y = (short) map.yPhysicInTop(x, 100);
-        if (y <= 0) {
-            y = 336;
-        }
-        map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
     }
 
     private void loadDatabase() {

@@ -124,6 +124,15 @@ public class NPC_MrPopo extends Player {
             }
         }
     }
+    
+    // Thêm chức năng tương tác cho NPC
+    public void openMenu(nro.player.Player player) {
+        if (player == null || player.zone == null) {
+            return;
+        }
+        Service.gI().sendThongBao(player, 
+            "Hãy nói chuyện với Thượng Đế để tập luyện hoặc thách đấu với ta!");
+    }
 
     @Override
     public long injured(Player plAtt, long damage, boolean piercing, boolean isMobAttack) {

@@ -131,16 +131,22 @@ public class Session
 
     public ISession setSendCollect(IMessageSendCollect collect) {
         /* 114 */
-        this.sender.setSend(collect);
+        if (this.sender != null) {
+            this.sender.setSend(collect);
+        }
         /* 115 */
-        this.collector.setCollect(collect);
+        if (this.collector != null) {
+            this.collector.setCollect(collect);
+        }
         /* 116 */
         return this;
     }
 
     public ISession setMessageHandler(IMessageHandler handler) {
         /* 121 */
-        this.collector.setMessageHandler(handler);
+        if (this.collector != null) {
+            this.collector.setMessageHandler(handler);
+        }
         /* 122 */
         return this;
     }

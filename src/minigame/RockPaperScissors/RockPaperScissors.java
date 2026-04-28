@@ -24,14 +24,14 @@ public class RockPaperScissors {
 
     public static long timePlay = 15; // có 15 giây để chơi
 
-    public static int COST_0 = 1_000_000;
-    public static int COST_1 = 5_000_000;
-    public static int COST_2 = 10_000_000;
+    public static final long COST_0 = 500_000;  // 500k vàng (tăng từ 100k)
+    public static final long COST_1 = 2_000_000; // 2M vàng (tăng từ 500k)
+    public static final long COST_2 = 5_000_000; // 5M vàng (tăng từ 1M) (~100k VND)
 
     public static void confirmMenu(Npc npc, Player player, int select) { // xử lý chọn menu => chuyển qua một menu mới
-        int tiendatcuoc = (select == 0 ? COST_0 : select == 1 ? COST_1 : COST_2);
+        long tiendatcuoc = (select == 0 ? COST_0 : select == 1 ? COST_1 : COST_2);
         String money = Util.numberFormatLouis(tiendatcuoc);
-        player.iDMark.setMoneyKeoBuaBao(tiendatcuoc);
+        player.iDMark.setMoneyKeoBuaBao((int) tiendatcuoc);
         player.iDMark.setTimePlayKeoBuaBao(System.currentTimeMillis() + (timePlay * 1000));
         ItemTimeService.gI().sendTextTimeKeoBuaBao(player, (int) timePlay);
         npc.createOtherMenu(player, ConstMiniGame.MENU_PLAY_KEO_BUA_BAO,
@@ -63,9 +63,9 @@ public class RockPaperScissors {
             case 3:
                 npc.createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO,
                         "Hãy chọn mức cược.",
-                        "1 Tr vàng",
-                        "5 Tr vàng",
-                        "10 Tr vàng");
+                        "100k vàng",
+                        "500k vàng",
+                        "1 Tr vàng");
                 break;
             default:
                 break;
