@@ -604,13 +604,28 @@ public class OngGohan extends Npc {
     private void handleChuyenKhoanqr(Player player, int select) {
         switch (select) {
             case 0 -> {
-                Transaction transaction = ChuyenKhoanManager.GetTransactionLast(player.id);
-                Service.gI().LinkService(player, 10684,
-                        "Quét QR để chuyển khoản ATM\n"
-                        + "Số tiền: " + Util.formatCurrency((long) transaction.amount) + " VNĐ\n"
-                        + "Nội dung: " + transaction.description + "\n"
-                        + "Lưu ý: chuyển đúng số tiền và đúng nội dung để tự cộng.",
-                        ChuyenKhoanManager.buildVietQrUrl(transaction), "Quét QR");
+                Transaction transaction = null;
+                
+                // Lấy transaction ID từ session (được lưu khi tạo giao dịch)
+                if (player.getSession() != null && player.getSession().lastTransactionId > 0) {
+                    transaction = ChuyenKhoanManager.GetTransactionById(player.id, (int) player.getSession().lastTransactionId);
+                }
+                
+                // Fallback: nếu không có trong session, lấy transaction cuối cùng
+                if (transaction == null) {
+                    transaction = ChuyenKhoanManager.GetTransactionLast(player.id);
+                }
+                
+                if (transaction != null) {
+                    Service.gI().LinkService(player, 10684,
+                            "Quét QR để chuyển khoản ATM\n"
+                            + "Số tiền: " + Util.formatCurrency((long) transaction.amount) + " VNĐ\n"
+                            + "Nội dung: " + transaction.description + "\n"
+                            + "Lưu ý: chuyển đúng số tiền và đúng nội dung để tự cộng.",
+                            ChuyenKhoanManager.buildVietQrUrl(transaction), "Quét QR");
+                } else {
+                    Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
+                }
             }
             case 1 -> Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
         }

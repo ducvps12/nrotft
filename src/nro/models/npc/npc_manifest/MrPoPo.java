@@ -9,6 +9,7 @@ import nro.models.npc.Npc;
 import static nro.models.npc.NpcFactory.PLAYERID_OBJECT;
 import nro.player.Player;
 import nro.services.NpcService;
+import nro.services.Service;
 import services.func.Input;
 import services.func.TopService;
 import utils.TimeUtil;
@@ -21,7 +22,7 @@ public class MrPoPo extends Npc {
 
     @Override
     public void openBaseMenu(Player player) {
-        if (!canOpenNpc(player) || this.mapId != 0) {
+        if (!canOpenNpc(player)) {
             return;
         }
 
@@ -45,7 +46,7 @@ public class MrPoPo extends Npc {
 
     @Override
     public void confirmMenu(Player player, int select) {
-        if (!canOpenNpc(player) || this.mapId != 0) {
+        if (!canOpenNpc(player)) {
             return;
         }
 

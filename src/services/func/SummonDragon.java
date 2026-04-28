@@ -53,18 +53,17 @@ public class SummonDragon {
             + "Để gọi rồng 3 sao cần ngọc từ 3 sao đến 7sao\n"
             + "Điều ước rồng 3 sao: 200 ngọc xanh, hoặc 2 triệu sức mạnh, hoặc 20 triệu vàng\n"
             + "Điều ước rồng 2 sao: 2.000 ngọc xanh, hoặc 20 triệu sức mạnh, hoặc 200 triệu vàng\n"
-            + "Điều ước rồng 1 sao: 10.000 ngọc xanh, 2 tỷ vàng, cải trang VIP, nâng găng/chí mạng/đệ tử...\n"
+            + "Điều ước rồng 1 sao: 100K ngọc xanh + 100 thỏi vàng, cải trang VIP VĨNH VIỄN + thay chiêu đệ tử, 2 tỷ SM+TN...\n"
             + "Lưu ý: Ngọc trong điều ước là NGỌC XANH, không phải Hồng Ngọc nạp.\n"
             + "Ngọc rồng sẽ mất ngay khi gọi rồng dù bạn có ước hay không\n"
             + "Quá 5 phút nếu không ước rồng thần sẽ bay mất";
     public static final String SHENRON_SAY = "Ta sẽ ban cho người 1 điều ước, ngươi có 5 phút, hãy suy nghĩ thật kỹ trước khi quyết định";
 
-    public static final String[] SHENRON_1_STAR_WISHES_1 = new String[] { "Giàu có\n+2 Tỷ\nVàng",
+    public static final String[] SHENRON_1_STAR_WISHES_1 = new String[] { "Giàu có\n+100K Ngọc\n+100 Thỏi Vàng",
             "Găng tay\nđang mang\nlên 1 cấp", "Chí mạng\nGốc +2%",
             "Thay\nChiêu 2-3\nĐệ tử", "Điều ước\nkhác" };
-    public static final String[] SHENRON_1_STAR_WISHES_2 = new String[] { "Cải trang VIP\n+Chỉ số\n30 ngày",
-            "Giàu có\n+10K\nNgọc xanh", "+200 Tr\nSức mạnh\nvà tiềm\nnăng",
-            "Găng tay đệ\nđang mang\nlên 1 cấp",
+    public static final String[] SHENRON_1_STAR_WISHES_2 = new String[] { "Đẹp Trai\nCải trang VIP\nVĩnh viễn",
+            "+2 Tỷ\nSức mạnh\nvà Tiềm\nnăng", "Găng tay đệ\nđang mang\nlên 1 cấp",
             "Điều ước\nkhác" };
     public static final String[] SHENRON_1_STAR_WISHES_3 = new String[] { "3 Trứng\nrồng nhí", "Điều ước\nkhác" };
     public static final String[] SHENRON_2_STARS_WHISHES = new String[] { "Giàu có\n+2K\nNgọc xanh",
@@ -296,9 +295,19 @@ public class SummonDragon {
             case ConstNpc.SHENRON_1_1:
                 switch (this.select) {
 
-                    case 0: // 20 tr vàng
-                        this.playerSummonShenron.inventory.gold += 2000000000;
+                    case 0: // Giàu có: +100k ngọc xanh + 100 thỏi vàng
+                        this.playerSummonShenron.inventory.gem += 100000;
+                        // Thêm 100 thỏi vàng (item 457)
+                        for (int i = 0; i < 10; i++) {
+                            if (InventoryService.gI().getCountEmptyBag(playerSummonShenron) > 0) {
+                                Item thoiVang = ItemService.gI().createNewItem((short) 457, 10);
+                                InventoryService.gI().addItemBag(playerSummonShenron, thoiVang);
+                            }
+                        }
+                        InventoryService.gI().sendItemBag(playerSummonShenron);
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
+                        Service.gI().sendThongBao(playerSummonShenron,
+                                "Bạn nhận được 100.000 Ngọc xanh + 100 Thỏi vàng!");
                         BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
                         break;
                     case 1: // găng tay đang đeo lên 1 cấp (giới hạn +3)
@@ -326,7 +335,8 @@ public class SummonDragon {
                                 }
                                 InventoryService.gI().sendItemBody(playerSummonShenron);
                             } else {
-                                Service.gI().sendThongBao(playerSummonShenron, "Găng tay của ngươi đã đạt cấp +3, không thể nâng thêm bằng ước rồng");
+                                Service.gI().sendThongBao(playerSummonShenron,
+                                        "Găng tay của ngươi đã đạt cấp +3, không thể nâng thêm bằng ước rồng");
                                 reOpenShenronWishes(playerSummonShenron);
                                 return;
                             }
@@ -372,21 +382,33 @@ public class SummonDragon {
 
                 }
                 break;
+
             case ConstNpc.SHENRON_1_2:
                 switch (this.select) {
-                    case 0: // cải trang VIP + chỉ số 30 ngày
+                    case 0: // Đẹp trai: Cải trang VIP VĨNH VIỄN + stats mạnh + thay chiêu đệ tử
                         if (InventoryService.gI().getCountEmptyBag(playerSummonShenron) > 0) {
                             byte gender = this.playerSummonShenron.gender;
                             Item avtVip = ItemService.gI().createNewItem((short) (gender == ConstPlayer.TRAI_DAT ? 227
                                     : gender == ConstPlayer.NAMEC ? 228 : 229));
-                            avtVip.itemOptions.add(new ItemOption(50, 10));
-                            avtVip.itemOptions.add(new ItemOption(77, 15));
-                            avtVip.itemOptions.add(new ItemOption(103, 15));
-                            avtVip.itemOptions.add(new ItemOption(97, 10));
-                            avtVip.itemOptions.add(new ItemOption(93, 30));
-                            avtVip.itemOptions.add(new ItemOption(30, 0));
+                            // Stats VIP mạnh + VĨNH VIỄN (không có option 30 = không hết hạn)
+                            avtVip.itemOptions.add(new ItemOption(50, 23)); // Sức đánh +23%
+                            avtVip.itemOptions.add(new ItemOption(77, 20)); // HP +20%
+                            avtVip.itemOptions.add(new ItemOption(103, 20)); // KI +20%
+                            avtVip.itemOptions.add(new ItemOption(97, 15)); // Giáp +15%
+                            avtVip.itemOptions.add(new ItemOption(93, 10)); // Chí mạng +10%
                             InventoryService.gI().addItemBag(playerSummonShenron, avtVip);
                             InventoryService.gI().sendItemBag(playerSummonShenron);
+                            // Thay chiêu 2-3 đệ tử luôn
+                            if (playerSummonShenron.pet != null
+                                    && playerSummonShenron.pet.playerSkill.skills.get(1).skillId != -1) {
+                                playerSummonShenron.pet.openSkill2();
+                                if (playerSummonShenron.pet.playerSkill.skills.get(2).skillId != -1) {
+                                    playerSummonShenron.pet.openSkill3();
+                                }
+                            }
+                            Service.gI().sendThongBao(playerSummonShenron,
+                                    "Bạn nhận Cải trang VIP VĨNH VIỄN (SĐ+23%, HP+20%, KI+20%, Giáp+15%, CM+10%)\n"
+                                            + "+ Đã thay chiêu 2-3 đệ tử!");
                         } else {
                             Service.gI().sendThongBao(playerSummonShenron, "Hành trang đã đầy");
                             reOpenShenronWishes(playerSummonShenron);
@@ -394,23 +416,12 @@ public class SummonDragon {
                         }
                         BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
                         break;
-                    case 1: // +10.000 ngọc xanh, không phải hồng ngọc
-                        this.playerSummonShenron.inventory.gem += 10000;
-                        PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
-                        Service.gI().sendThongBao(playerSummonShenron, "Bạn nhận được 10.000 Ngọc xanh từ điều ước Rồng Thần");
+                    case 1: // +2 tỷ sức mạnh và tiềm năng
+                        Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 2000000000L, false);
+                        Service.gI().sendThongBao(playerSummonShenron, "Bạn nhận được +2 Tỷ Sức mạnh & Tiềm năng!");
                         BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
                         break;
-                    case 2: // +200 tr smtn
-                        if (this.playerSummonShenron.nPoint.power <= 20000000000L) {
-                            // Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 200000000, false);
-                            // } else {
-                            Service.gI().sendThongBao(playerSummonShenron, "Xin lỗi, chức năng tạm đóng");
-                            reOpenShenronWishes(playerSummonShenron);
-                            return;
-                        }
-                        BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
-                        break;
-                    case 3: // găng tay đệ lên 1 cấp (giới hạn +3)
+                    case 2: // găng tay đệ lên 1 cấp (giới hạn +3)
                         if (this.playerSummonShenron.pet != null) {
                             Item item = this.playerSummonShenron.pet.inventory.itemsBody.get(2);
                             if (item.isNotNullItem()) {
@@ -469,7 +480,8 @@ public class SummonDragon {
                     case 0: // +2.000 ngọc xanh
                         this.playerSummonShenron.inventory.gem += 2000;
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
-                        Service.gI().sendThongBao(playerSummonShenron, "Bạn nhận được 2.000 Ngọc xanh từ điều ước Rồng Thần");
+                        Service.gI().sendThongBao(playerSummonShenron,
+                                "Bạn nhận được 2.000 Ngọc xanh từ điều ước Rồng Thần");
                         break;
                     case 1: // +20 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 20000000, false);
@@ -489,7 +501,8 @@ public class SummonDragon {
                     case 0: // +200 ngọc xanh
                         this.playerSummonShenron.inventory.gem += 200;
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
-                        Service.gI().sendThongBao(playerSummonShenron, "Bạn nhận được 200 Ngọc xanh từ điều ước Rồng Thần");
+                        Service.gI().sendThongBao(playerSummonShenron,
+                                "Bạn nhận được 200 Ngọc xanh từ điều ước Rồng Thần");
                         break;
                     case 1: // +2 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 2000000, false);

@@ -41,19 +41,20 @@ public class ThuongDe extends Npc {
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Pôpô là đệ tử của ta, luyện tập với Pôpô con sẽ có thêm nhiều kinh nghiệm\nđánh bại được Pôpô ta sẽ dạy võ công cho con",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nMr.PôPô", "Thách đấu\nMr.PôPô", "Tháp\nPôPô", "Đến\nKaio", "Quay ngọc\nMay mắn");
+                                    "Tập luyện\nvới\nMr.PôPô", "Thách đấu\nMr.PôPô", "Tháp\nPôPô", "Đến\nKaio", "Quay ngọc\nMay mắn",
+                                    "Quà\nThần Điện");
                         case 3 ->
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Từ nay con sẽ là đệ tử của ta. Ta sẽ truyền cho con tất cả tuyệt kĩ",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
                                     "Tập luyện\nvới\nThượng Đế", "Thách đấu\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
-                                    "Quay ngọc\nMay mắn");
+                                    "Quay ngọc\nMay mắn", "Quà\nThần Điện");
                         default ->
                             this.createOtherMenu(player, ConstNpc.BASE_MENU,
                                     "Con đã mạnh hơn ta, ta sẽ chỉ đường cho con đến Kaio\nđể gặp thần Vũ Trụ Phương Bắc\nNgài là thần cai quản vũ trụ này, hãy theo ngài ấy học võ công.",
                                     player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
                                     "Tập luyện\nvới\nMr.PôPô", "Tập luyện\nvới\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
-                                    "Quay ngọc\nMay mắn");
+                                    "Quay ngọc\nMay mắn", "Quà\nThần Điện");
                     }
                 }
                 case 141 ->
@@ -128,6 +129,8 @@ public class ThuongDe extends Npc {
                                                                 player.inventory.itemsBoxCrackBall))
                                                 + " món)",
                                         "Xóa hết\ntrong rương", "Đóng");
+                            case 6 ->
+                                showGiftMainMenu(player);
                         }
                     } else if (player.iDMark.getIndexMenu() == 2001) {
                         switch (select) {
@@ -174,6 +177,23 @@ public class ThuongDe extends Npc {
                                                 + "sẽ không thể khôi phục!",
                                         "Đồng ý", "Hủy bỏ");
                         }
+                    } else if (player.iDMark.getIndexMenu() == 3100) {
+                        // QUÀ THẦN ĐIỆN - MENU CHÍNH
+                        switch (select) {
+                            case 0 -> showGiftCostumes(player);
+                            case 1 -> showGiftItems(player);
+                            case 2 -> showTempleGuide(player);
+                            case 3 -> { } // Đóng
+                        }
+                    } else if (player.iDMark.getIndexMenu() == 3101) {
+                        // Xem cải trang chi tiết
+                        if (select == 0) showGiftMainMenu(player);
+                    } else if (player.iDMark.getIndexMenu() == 3102) {
+                        // Xem vật phẩm chi tiết
+                        if (select == 0) showGiftMainMenu(player);
+                    } else if (player.iDMark.getIndexMenu() == 3103) {
+                        // Hướng dẫn chi tiết
+                        if (select == 0) showGiftMainMenu(player);
                     }
                 }
                 case 141 -> {
@@ -192,5 +212,79 @@ public class ThuongDe extends Npc {
                 }
             }
         }
+    }
+
+    // ==========================================
+    // QUÀ THẦN ĐIỆN - CẢI TRANG & PHẦN THƯỢNG
+    // ==========================================
+    private void showGiftMainMenu(Player player) {
+        this.createOtherMenu(player, 3100,
+                "|7|══ QUÀ THẦN ĐIỆN ══\n\n"
+                        + "|5|Chào " + player.name + "!\n"
+                        + "|1|Thần Điện là nơi linh thiêng, ban tặng\n"
+                        + "các phần thưởng đặc biệt cho chiến binh.\n\n"
+                        + "|5|🎯 Cách nhận quà:\n"
+                        + "|1|• Quay Ngọc May Mắn (thỏi vàng/ngọc)\n"
+                        + "• Tháp PôPô (clear tầng)\n"
+                        + "• Luyện tập với Thượng Đế\n"
+                        + "• Destron Gas (tại Mr.PoPo)",
+                "Cải Trang\nHấp Dẫn", "Vật Phẩm\nĐặc Biệt", "Hướng Dẫn\nChi Tiết", "Đóng");
+    }
+
+    private void showGiftCostumes(Player player) {
+        this.createOtherMenu(player, 3101,
+                "|7|══ CẢI TRANG HẤP DẪN ══\n\n"
+                        + "|5|🌟 Nguồn: Quay Ngọc May Mắn\n"
+                        + "|1|• CT Goku SSJ4 - SĐ+30%, HP+30%, KI+30%\n"
+                        + "• CT Cađíc SSJ Blue - SĐ+30%, HP+30%, KI+50%\n"
+                        + "• CT Gogeta - SĐ+25%, HP+25%, KI+25%\n"
+                        + "• CT Broly SSJ God - SĐ+30%, HP+30%\n\n"
+                        + "|5|💎 Nguồn: Shop Santa (Ngọc)\n"
+                        + "|1|• CT Chi Chi - SĐ+25%, HP+25%, KI+50%\n"
+                        + "• CT Bunma Rider - SĐ+25%, HP+25%, KI+50%\n"
+                        + "• CT Android 21 Evil - SĐ+10%, HP+10%, KI+10%\n\n"
+                        + "|5|🌟 Nguồn: Điều ước Rồng Thần 1 Sao\n"
+                        + "|1|• Cải trang VIP VĨNH VIỄN\n"
+                        + "   SĐ+23%, HP+20%, KI+20%, Giáp+15%, CM+10%\n"
+                        + "   + Thay chiêu 2-3 đệ tử",
+                "Quay lại");
+    }
+
+    private void showGiftItems(Player player) {
+        this.createOtherMenu(player, 3102,
+                "|7|══ VẬT PHẨM ĐẶC BIỆT ══\n\n"
+                        + "|5|💫 Từ Quay Ngọc May Mắn:\n"
+                        + "|1|• Thỏi vàng (bán được vàng)\n"
+                        + "• Capsule thời trang 5-7 ngày\n"
+                        + "• Sách tiến hóa Lv1-5\n"
+                        + "• Đá xanh lam nâng cấp\n\n"
+                        + "|5|✨ Từ Tháp PôPô:\n"
+                        + "|1|• Vàng + Ngọc theo tầng\n"
+                        + "• Trang bị mạnh (tầng cao)\n"
+                        + "• Đồ hiếm (tầng 50+)\n\n"
+                        + "|5|👑 Từ Rồng Thần 1 Sao:\n"
+                        + "|1|• 100K ngọc xanh + 100 thỏi vàng\n"
+                        + "• +2 Tỷ sức mạnh & tiềm năng\n"
+                        + "• Găng tay lên cấp / Chí mạng +2%",
+                "Quay lại");
+    }
+
+    private void showTempleGuide(Player player) {
+        this.createOtherMenu(player, 3103,
+                "|7|══ HƯỚNG DẪN THẦN ĐIỆN ══\n\n"
+                        + "|5|BƯỚC 1: Luyện tập\n"
+                        + "|1|• Đánh Mr.PoPo → thắng = học Thượng Đế\n"
+                        + "• Thắng Thượng Đế → mở Kaio\n"
+                        + "• Đăng ký tập tự động = offline lên SM\n\n"
+                        + "|5|BƯỚC 2: Tháp PôPô\n"
+                        + "|1|• Clear tầng = nhận quà giá trị\n"
+                        + "• Càng lên cao càng nhiều quà\n\n"
+                        + "|5|BƯỚC 3: Quay Ngọc May Mắn\n"
+                        + "|1|• Dùng thỏi vàng hoặc ngọc để quay\n"
+                        + "• Trúng cải trang, vật phẩm hiếm\n\n"
+                        + "|5|BƯỚC 4: Destron Gas (Mr.PoPo)\n"
+                        + "|1|• Cần bang hội để tham gia\n"
+                        + "• Đánh boss = điểm xếp hạng bang",
+                "Quay lại");
     }
 }

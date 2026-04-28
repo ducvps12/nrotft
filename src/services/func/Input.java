@@ -253,7 +253,12 @@ public class Input {
                         }
 
                         String description = ChuyenKhoanManager.buildTransferDescription(player);
-                        ChuyenKhoanManager.InsertTransaction(player.id, money, description);
+                        long transactionId = ChuyenKhoanManager.InsertTransactionAndGetId(player.id, money, description);
+                        
+                        // Lưu transaction ID vào session để lấy đúng giao dịch khi quét QR
+                        if (player.getSession() != null) {
+                            player.getSession().lastTransactionId = transactionId;
+                        }
 
                         Npc npc = NpcManager.getByIdAndMap(ConstNpc.ONG_GOHAN, player.zone.map.mapId);
                         if (npc == null) {

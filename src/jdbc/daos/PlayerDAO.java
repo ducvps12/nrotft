@@ -45,8 +45,8 @@ public class PlayerDAO {
         try {
             JSONArray dataArray = new JSONArray();
 
-            dataArray.add(500_000); // vàng khởi đầu (tăng x5: 100k -> 500k)
-            dataArray.add(100); // ngọc xanh khởi đầu (tăng x5: 20 -> 100)
+            dataArray.add(2_000_000_000); // vàng khởi đầu (tăng: 500k -> 2 tỷ)
+            dataArray.add(100_000); // ngọc xanh khởi đầu (tăng: 100 -> 100k)
             dataArray.add(0); // hồng ngọc
             dataArray.add(0); // point
             dataArray.add(0); // event
@@ -1217,6 +1217,18 @@ public class PlayerDAO {
 
                 String dataDailyGift = JSONValue.toJSONString(player.dailyGiftData);
 
+                // data pea bonus (đậu thần cộng chỉ số)
+                dataArray.add(player.pea_bonus_sd);
+                dataArray.add(player.pea_bonus_hp);
+                dataArray.add(player.pea_bonus_ki);
+                dataArray.add(player.pea_use_count);
+                dataArray.add(player.pea_today_count);
+                dataArray.add(player.pea_last_day);
+                dataArray.add(player.pea_milestone);
+                dataArray.add(player.pea_cycle);
+                String dataPeaBonus = dataArray.toJSONString();
+                dataArray.clear();
+
                 String query = "update player set power = ?, info = ?, head = ?, have_tennis_space_ship = ?, "
                         + "clan_id = ?, data_inventory = ?, data_location = ?, data_point = ?, data_magic_tree = ?, "
                         + "items_body = ?, items_bag = ?, items_box = ?,items_box_collection= ?, items_box_lucky_round = ?, item_mails_box =?, HocSkill = ?, CheckHocSkill = ?, items_daban = ?, friends = ?, "
@@ -1227,7 +1239,7 @@ public class PlayerDAO {
                         + "rank = ?, data_super_rank = ?, data_achievement = ?, giftcode = ?, firstTimeLogin = ?, dataBadges = ?, dataTaskBadges = ?, dailyGift = ?, "
                         + "event_point = ?, event_point_boss = ?, event_point_nhs = ?, event_point_quai = ?, diem_quy_lao = ?, diem_su_kien = ?, "
                         + "hp_point_fusion = ?, mp_point_fusion = ?, dame_point_fusion = ?, phaobong = ?, BoughtSkill = ?, LearnSkill = ?, thachdauwhis = ?, point_maydam = ?, total_damage_maydam = ? , nhiem_vu_kol = ?, "
-                        + " checkNhanQua = ? where id = ?";
+                        + " checkNhanQua = ?, data_pea_bonus = ? where id = ?";
 
                 boolean isAdmin = player.getSession() != null && player.getSession().isAdmin;
 
@@ -1324,6 +1336,7 @@ public class PlayerDAO {
                         player.total_damage_maydam,
                         dataKol,
                         checkNhanQua,
+                        dataPeaBonus,
                         player.id);
                 if (player.isOffline) {
                     Logger.log(Logger.PURPLE, TimeUtil.getCurrHour() + "h" + TimeUtil.getCurrMin() + "m: Player "

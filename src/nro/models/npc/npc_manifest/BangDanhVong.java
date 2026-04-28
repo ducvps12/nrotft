@@ -4,12 +4,29 @@ import consts.ConstNpc;
 import event.EventManager;
 import nro.models.npc.Npc;
 import nro.player.Player;
+import nro.services.NpcService;
 import services.func.TopService;
 
 /**
- * NPC bảng danh vọng đặt tại khu vực luyện tập để tân thủ dễ thấy các mục tiêu phấn đấu.
+ * NPC Hướng Dẫn Viên (Bảng Danh Vọng) - đặt tại Sân Vườn (map 131-133).
+ * Khi người chơi mới ra khỏi nhà sang sân vườn sẽ thấy NPC này ngay.
+ * Cung cấp tutorial chi tiết toàn bộ cơ chế game cho tân thủ.
  */
 public class BangDanhVong extends Npc {
+
+    // Menu index constants
+    private static final int MENU_TUTORIAL_MAIN = 88001;
+    private static final int MENU_QUEST_GUIDE = 88002;
+    private static final int MENU_EQUIP_GUIDE = 88003;
+    private static final int MENU_BEAN_GUIDE = 88004;
+    private static final int MENU_BOSS_GUIDE = 88005;
+    private static final int MENU_CLAN_GUIDE = 88006;
+    private static final int MENU_ECONOMY_GUIDE = 88007;
+    private static final int MENU_MAP_GUIDE = 88008;
+    private static final int MENU_PVP_GUIDE = 88009;
+    private static final int MENU_FLOW_GUIDE = 88010;
+    private static final int MENU_TOP_MAIN = 88011;
+    private static final int MENU_EVENT_INFO = 88012;
 
     public BangDanhVong(int mapId, int status, int cx, int cy, int tempId, int avatar) {
         super(mapId, status, cx, cy, tempId, avatar);
@@ -21,57 +38,312 @@ public class BangDanhVong extends Npc {
             return;
         }
         createOtherMenu(player, ConstNpc.BASE_MENU,
-                "|7|=== BANG TIN SU KIEN & DANH VONG ===\n\n"
-                        + "|5|Dua Top Nap\n"
-                        + "|2|Bang tin nay dat o lang de xem nhanh su kien, boss, giftcode.\n\n"
-                        + "|1|Nen doc: Tin moi > Su kien > Boss",
-                "Tin moi\nsu kien", "Huong dan\nsu kien", "Boss &\nthoi gian", "Top\nSuc manh", "Top\nNap", "Cam nang\ntan thu", "Ti le\nqua roi", "Dong");
+                "|7|━━ HƯỚNG DẪN VIÊN ━━\n\n"
+                        + "|5|Chào mừng " + player.name + " đến với thế giới Dragon Ball!\n\n"
+                        + "|2|Ta là người hướng dẫn, sẽ giúp con hiểu\n"
+                        + "toàn bộ cơ chế game từ A đến Z.\n\n"
+                        + "|1|Hãy chọn mục con muốn tìm hiểu:",
+                "Lộ Trình\nTân Thủ",
+                "Hướng Dẫn\nChi Tiết",
+                "Sự Kiện\n& Tin Mới",
+                "Xếp Hạng\n& Top",
+                "Đóng");
     }
 
     @Override
     public void confirmMenu(Player player, int select) {
-        if (!canOpenNpc(player) || !player.iDMark.isBaseMenu()) {
+        if (!canOpenNpc(player)) {
             return;
         }
-        switch (select) {
-            case 0 -> showEventNews(player);
-            case 1 -> showEventGuide(player);
-            case 2 -> showBossOverview(player);
-            case 3 -> TopService.gI().showListTopPower(player);
-            case 4 -> TopService.gI().showListTopVnd(player);
-            case 5 -> showGameOverview(player);
-            case 6 -> showRewardRate(player);
-            default -> {
-            }
+        switch (player.iDMark.getIndexMenu()) {
+            case ConstNpc.BASE_MENU -> handleBaseMenu(player, select);
+            case MENU_TUTORIAL_MAIN -> handleTutorialMain(player, select);
+            case MENU_FLOW_GUIDE -> handleFlowGuide(player, select);
+            case MENU_QUEST_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_EQUIP_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_BEAN_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_BOSS_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_CLAN_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_ECONOMY_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_MAP_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_PVP_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_TOP_MAIN -> handleTopMenu(player, select);
+            case MENU_EVENT_INFO -> handleBackToBase(player, select);
+            default -> {}
         }
     }
 
-    private void showEventNews(Player player) {
-        createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|=== TIN MOI & SU KIEN ===\n\n"
-                        + "|5|Dang mo: |1|" + getActiveEventLine() + "\n\n"
-                        + "|2|Thong bao:\n"
-                        + "- Giftcode chi dung khi Admin bat Active\n"
-                        + "- Reload Shop chi nap lai DB\n"
-                        + "- Bang boss ben phai: xem va bam [Den]\n"
-                        + "- Super Broly: danh Broly thuong den nguong\n\n"
-                        + "|1|Sap toi: Su kien He 15/05",
-                "Da hieu");
+    // ========== MENU GỐC ==========
+    private void handleBaseMenu(Player player, int select) {
+        switch (select) {
+            case 0 -> showFlowGuide(player);
+            case 1 -> showTutorialMain(player);
+            case 2 -> showEventInfo(player);
+            case 3 -> showTopMenu(player);
+        }
     }
 
-    private void showEventGuide(Player player) {
-        createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|=== HUONG DAN SU KIEN ===\n\n"
-                        + "|2|1. Nhan thong tin:\n"
-                        + "- Mo bang tin o lang moi ngay\n"
-                        + "- Theo doi boss o khung phai\n\n"
-                        + "|2|2. Farm su kien:\n"
-                        + "- Uu tien nhiem vu, mo map, nang dau than\n"
-                        + "- Doc mo ta NPC doi thuong truoc khi dung\n\n"
-                        + "|2|3. Giftcode:\n"
-                        + "- Code chua Active se bao chua kich hoat\n"
-                        + "- Admin can Reload Giftcode de cap nhat",
-                "Da hieu");
+    // ========== LỘ TRÌNH TÂN THỦ ==========
+    private void showFlowGuide(Player player) {
+        createOtherMenu(player, MENU_FLOW_GUIDE,
+                "|7|━━ LỘ TRÌNH TÂN THỦ ━━\n\n"
+                        + "|5|BƯỚC 1: Làm nhiệm vụ chính\n"
+                        + "|1|- Nói chuyện NPC ông nội (Gohan/Moori/Paragus)\n"
+                        + "- Làm theo hướng dẫn, mở dần các map\n"
+                        + "- Thu thập đùi gà, đánh mộc nhân...\n\n"
+                        + "|5|BƯỚC 2: Nâng sức mạnh\n"
+                        + "|1|- Thu hoạch đậu thần mỗi ngày\n"
+                        + "- Dùng tiềm năng tăng HP/KI/Sức đánh\n"
+                        + "- Mua trang bị từ Bunma/Dende/Appule\n\n"
+                        + "|5|BƯỚC 3: Trang bị SKH\n"
+                        + "|1|- Farm quái ở map SKH (map Fide)\n"
+                        + "- Kích hoạt set SKH = sức mạnh x10\n\n"
+                        + "|5|BƯỚC 4: Săn Boss & Endgame\n"
+                        + "|1|- Săn boss nhận đồ hiếm\n"
+                        + "- Tham gia bang hội, phó bản\n"
+                        + "- PVP, đại hội võ thuật",
+                "Xem thêm\nChi tiết", "Quay lại");
+    }
+
+    private void handleFlowGuide(Player player, int select) {
+        switch (select) {
+            case 0 -> showTutorialMain(player);
+            case 1 -> openBaseMenu(player);
+        }
+    }
+
+    // Quay lại menu tutorial từ sub-guide
+    private void handleBackToTutorial(Player player, int select) {
+        if (select == 0) {
+            showTutorialMain(player);
+        }
+    }
+
+    // Quay lại menu gốc
+    private void handleBackToBase(Player player, int select) {
+        if (select == 0) {
+            openBaseMenu(player);
+        }
+    }
+
+    // ========== HƯỚNG DẪN CHI TIẾT ==========
+    private void showTutorialMain(Player player) {
+        createOtherMenu(player, MENU_TUTORIAL_MAIN,
+                "|7|━━ HƯỚNG DẪN CHI TIẾT ━━\n\n"
+                        + "|2|Chọn chủ đề muốn tìm hiểu:",
+                "Nhiệm Vụ\n& Mở Map",
+                "Trang Bị\n& SKH",
+                "Đậu Thần\n& Hồi Phục",
+                "Boss &\nSăn Đồ",
+                "Bang Hội\n& Phó Bản",
+                "Kinh Tế\n& Nạp",
+                "Map Đặc\nBiệt",
+                "PVP &\nMini Game");
+    }
+
+    private void handleTutorialMain(Player player, int select) {
+        switch (select) {
+            case 0 -> showQuestGuide(player);
+            case 1 -> showEquipGuide(player);
+            case 2 -> showBeanGuide(player);
+            case 3 -> showBossGuide(player);
+            case 4 -> showClanGuide(player);
+            case 5 -> showEconomyGuide(player);
+            case 6 -> showMapGuide(player);
+            case 7 -> showPvpGuide(player);
+        }
+    }
+
+    // ========== 1. NHIỆM VỤ ==========
+    private void showQuestGuide(Player player) {
+        createOtherMenu(player, MENU_QUEST_GUIDE,
+                "|7|━━ NHIỆM VỤ & MỞ MAP ━━\n\n"
+                        + "|5|Nhiệm vụ chính:\n"
+                        + "|1|- Bắt đầu tại Làng → về Nhà → ra Sân Vườn (đây)\n"
+                        + "- Nói chuyện NPC ông nội để nhận nhiệm vụ\n"
+                        + "- Hoàn thành từng bước: đánh quái, nhặt đồ, nói NPC\n"
+                        + "- Mỗi chuỗi NV mở thêm map mới\n\n"
+                        + "|5|Map mở theo tiến trình:\n"
+                        + "|1|- NV 1-3: Làng → Đồi → Thung lũng\n"
+                        + "- NV 4-6: Trạm tàu vũ trụ\n"
+                        + "- NV 7-12: Rừng, đảo, khu vực mạnh hơn\n"
+                        + "- NV 13+: Map Fide, map boss, liên hành tinh\n"
+                        + "- NV 23+: Map Tương Lai (Android)\n"
+                        + "- NV 29+: Map Cold (hành tinh băng)\n\n"
+                        + "|5|Mẹo:\n"
+                        + "|1|- Xem mũi tên chỉ đường trên màn hình\n"
+                        + "- Dùng capsule bay nhanh đến map đã mở\n"
+                        + "- Hỗ trợ NV khó: nói chuyện NPC ông nội",
+                "Quay lại");
+    }
+
+    // ========== 2. TRANG BỊ ==========
+    private void showEquipGuide(Player player) {
+        createOtherMenu(player, MENU_EQUIP_GUIDE,
+                "|7|━━ TRANG BỊ & SKH ━━\n\n"
+                        + "|5|Các loại trang bị:\n"
+                        + "|1|- Đồ thường: mua từ shop Bunma/Dende/Appule\n"
+                        + "- Đồ Kích Hoạt (SKH): farm từ quái map Fide\n"
+                        + "- Đồ Sao: nâng cấp từ đồ SKH\n"
+                        + "- Đồ Thiên Sứ: cao cấp nhất\n\n"
+                        + "|5|Cách farm SKH:\n"
+                        + "|1|- Đến map Fide (NV 20+): trại lính, vực chết...\n"
+                        + "- Đánh quái rơi mảnh trang bị\n"
+                        + "- Tỉ lệ drop ~1/5000 quái (có Cỏ bốn lá ~1/3500)\n"
+                        + "- Thu đủ 4 món (áo, quần, găng, giày) = Kích Hoạt\n\n"
+                        + "|5|Kích Hoạt Set:\n"
+                        + "|1|- Đủ 4 món cùng loại → bonus sức mạnh cực lớn\n"
+                        + "- Nâng cấp SKH VIP cần: Lọ Sơn + Thiên Sứ + 2 SKH\n"
+                        + "- Nói chuyện Bà Hạt Mít để ép đồ, nâng cấp",
+                "Quay lại");
+    }
+
+    // ========== 3. ĐẬU THẦN ==========
+    private void showBeanGuide(Player player) {
+        createOtherMenu(player, MENU_BEAN_GUIDE,
+                "|7|━━ ĐẬU THẦN & HỒI PHỤC ━━\n\n"
+                        + "|5|Đậu thần là gì?\n"
+                        + "|1|- Cây đậu thần ở NHÀ (bên cạnh ông nội)\n"
+                        + "- Thu hoạch đậu → hồi HP/KI khi chiến đấu\n"
+                        + "- Nhấn nút trái tim (góc phải dưới) để dùng\n\n"
+                        + "|5|Nâng cấp đậu thần:\n"
+                        + "|1|- Nói chuyện cây Đậu Thần → Nâng cấp\n"
+                        + "- Cấp càng cao → càng nhiều đậu mỗi lần thu\n"
+                        + "- Chi phí nâng: vàng + ngọc (tăng dần)\n\n"
+                        + "|5|Các loại hồi phục khác:\n"
+                        + "|1|- Đùi gà: nhặt từ quái\n"
+                        + "- Bánh: mua từ shop Santa\n"
+                        + "- Bùa hỗ trợ: mua từ Bà Hạt Mít\n"
+                        + "- Siêu Thần Thủy: hồi full HP (map đặc biệt)",
+                "Quay lại");
+    }
+
+    // ========== 4. BOSS ==========
+    private void showBossGuide(Player player) {
+        createOtherMenu(player, MENU_BOSS_GUIDE,
+                "|7|━━ BOSS & SĂN ĐỒ ━━\n\n"
+                        + "|5|Boss thường:\n"
+                        + "|1|- Kuku, Mập Đầu Đinh, Rambo: boss đầu game\n"
+                        + "- Số 1-4, Tiểu Đội Trưởng: boss Fide\n"
+                        + "- Black Goku, Golden Frieza: boss mạnh\n"
+                        + "- Broly → Super Broly: đánh đến ngưỡng biến thân\n\n"
+                        + "|5|Boss đặc biệt:\n"
+                        + "|1|- Xên Bọ Hung: 3 dạng biến thân\n"
+                        + "- MaBu: map phong ấn sức mạnh\n"
+                        + "- Android: map Tương Lai\n"
+                        + "- Cold: hành tinh băng (-50% chỉ số)\n\n"
+                        + "|5|Cách săn:\n"
+                        + "|1|- Xem khung thông báo boss bên PHẢI màn hình\n"
+                        + "- Bấm [Đến] để bay tới map boss\n"
+                        + "- Boss hồi sinh theo chu kỳ vài phút\n"
+                        + "- Đi nhóm/bang để săn boss mạnh hiệu quả hơn",
+                "Quay lại");
+    }
+
+    // ========== 5. BANG HỘI ==========
+    private void showClanGuide(Player player) {
+        createOtherMenu(player, MENU_CLAN_GUIDE,
+                "|7|━━ BANG HỘI & PHÓ BẢN ━━\n\n"
+                        + "|5|Tạo/gia nhập bang:\n"
+                        + "|1|- Đến NPC Bò Mộng để tạo bang hoặc gia nhập\n"
+                        + "- Bang cần tối thiểu vài thành viên\n"
+                        + "- Bang chủ quản lý, phong phó chủ\n\n"
+                        + "|5|Phó bản bang hội:\n"
+                        + "|1|- Trại Độc Nhãn: 2+ người, boss giữ ngọc rồng\n"
+                        + "- Bản Đồ Kho Báu: khám phá hang động\n"
+                        + "- Khí Gas Hủy Diệt: 4 địa điểm đặc biệt\n"
+                        + "- Con Đường Rắn Độc: thử thách khó\n"
+                        + "- Mỗi phó bản có 30 phút, hết giờ bị đưa về nhà\n\n"
+                        + "|5|Hoạt động bang:\n"
+                        + "|1|- Nhiệm vụ bang: cày quái cùng thành viên\n"
+                        + "- Gọi Rồng Thần Namếc: cần 7 ngọc rồng Namếc\n"
+                        + "- Tranh Ngọc Rồng Sao Đen: PvP bang 20h-21h\n"
+                        + "- Boss Bang Hội: đánh boss riêng cho bang",
+                "Quay lại");
+    }
+
+    // ========== 6. KINH TẾ ==========
+    private void showEconomyGuide(Player player) {
+        createOtherMenu(player, MENU_ECONOMY_GUIDE,
+                "|7|━━ KINH TẾ & NẠP ━━\n\n"
+                        + "|5|Các loại tiền tệ:\n"
+                        + "|1|- Vàng: đánh quái, bán đồ, mini game\n"
+                        + "- Ngọc xanh: nhận free, sự kiện\n"
+                        + "- Hồng Ngọc: nạp VNĐ đổi\n"
+                        + "- Thỏi vàng: nạp VNĐ đổi, rất quý\n\n"
+                        + "|5|Cách nạp:\n"
+                        + "|1|- Vào NHÀ → nói NPC ông nội → Nạp Tiền\n"
+                        + "- Chuyển khoản ATM/QR → tự cộng VNĐ\n"
+                        + "- Đổi VNĐ → Thỏi vàng hoặc Hồng Ngọc\n"
+                        + "- Bonus nạp: mệnh giá càng cao, bonus càng lớn\n\n"
+                        + "|5|Shop:\n"
+                        + "|1|- Bunma/Dende/Appule: trang bị cơ bản\n"
+                        + "- Santa: trang phục, capsule\n"
+                        + "- Uron: sách kỹ năng\n"
+                        + "- Bà Hạt Mít: bùa, ép đồ, nâng cấp\n"
+                        + "- Cửa hàng Ký Gửi: mua bán giữa người chơi",
+                "Quay lại");
+    }
+
+    // ========== 7. MAP ĐẶC BIỆT ==========
+    private void showMapGuide(Player player) {
+        createOtherMenu(player, MENU_MAP_GUIDE,
+                "|7|━━ MAP ĐẶC BIỆT ━━\n\n"
+                        + "|5|Khu vực tập luyện:\n"
+                        + "|1|- Thần Mèo → Mr.PoPo → Thượng Đế...\n"
+                        + "- Tập offline: sức mạnh tăng khi logout\n\n"
+                        + "|5|Map Tương Lai (NV 23+):\n"
+                        + "|1|- Gặp Calick/Bunma Tương Lai\n"
+                        + "- Đánh Android sát thủ\n\n"
+                        + "|5|Hành tinh Cold (NV 29+):\n"
+                        + "|1|- HP và sức đánh giảm 50%!\n"
+                        + "- Boss Cold cực mạnh\n\n"
+                        + "|5|Map MaBu:\n"
+                        + "|1|- Phong ấn sức mạnh, tích điểm TL\n"
+                        + "- Hạ đối thủ/boss để xuống tầng\n\n"
+                        + "|5|Ngũ Hành Sơn (map 122-124):\n"
+                        + "|1|- Cần dịch chuyển tức thời (Yardrat)\n"
+                        + "- Khu vực endgame",
+                "Quay lại");
+    }
+
+    // ========== 8. PVP ==========
+    private void showPvpGuide(Player player) {
+        createOtherMenu(player, MENU_PVP_GUIDE,
+                "|7|━━ PVP & MINI GAME ━━\n\n"
+                        + "|5|PVP - Đấu tay đôi:\n"
+                        + "|1|- Chạm vào người chơi khác → Thách đấu\n"
+                        + "- Cả 2 bên phải đồng ý mới bắt đầu\n\n"
+                        + "|5|Đại Hội Võ Thuật:\n"
+                        + "|1|- Nhiều giải: Nhi đồng → Siêu cấp → Ngoại hạng\n"
+                        + "- Lịch thi đấu theo giờ mỗi ngày\n"
+                        + "- Giải thưởng: ngọc, đá nâng cấp\n\n"
+                        + "|5|Đại Hội Võ Thuật Liên Vũ Trụ:\n"
+                        + "|1|- NPC Bill tổ chức theo lịch tuần\n"
+                        + "- Top 1: Rađa cấp 13 + Capsule Vàng\n\n"
+                        + "|5|Tranh Ngọc Rồng Sao Đen:\n"
+                        + "|1|- 20h-21h mỗi ngày, PvP bang hội\n"
+                        + "- Giữ ngọc 5 phút liên tục = thắng\n"
+                        + "- Phần thưởng buff cả bang 1 ngày\n\n"
+                        + "|5|Oẳn Tù Tì:\n"
+                        + "|1|- Chạm người chơi → chơi OTT cược 5tr vàng",
+                "Quay lại");
+    }
+
+    // ========== SỰ KIỆN ==========
+    private void showEventInfo(Player player) {
+        createOtherMenu(player, MENU_EVENT_INFO,
+                "|7|━━ SỰ KIỆN & TIN MỚI ━━\n\n"
+                        + "|5|Sự kiện đang mở:\n"
+                        + "|1|" + getActiveEventLine() + "\n\n"
+                        + "|5|Thông báo:\n"
+                        + "|1|- Xem boss: khung thông báo bên PHẢI\n"
+                        + "- Bấm [Đến] để bay tới map boss\n"
+                        + "- GiftCode: vào Nhà → nói NPC ông nội\n"
+                        + "- Nạp tiền: vào Nhà → NPC ông nội → Nạp Tiền\n\n"
+                        + "|2|Mẹo: quay lại đây bất cứ lúc nào\n"
+                        + "để xem hướng dẫn!",
+                "Quay lại");
     }
 
     private String getActiveEventLine() {
@@ -87,69 +359,26 @@ public class BangDanhVong extends Npc {
         if (EventManager.TEACHERS_DAY) sb.append("20/11, ");
         if (EventManager.PHO_ANH_HAI) sb.append("Phở Anh Hai, ");
         if (sb.length() == 0) {
-            return "Chưa có sự kiện mùa đang mở; hoạt động mặc định vẫn hoạt động.";
+            return "Chưa có sự kiện mùa nào đang mở.";
         }
         sb.setLength(sb.length() - 2);
         return sb.toString();
     }
 
-    private void showGameOverview(Player player) {
-        createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|=== TONG QUAN CO CHE GAME ===\n\n"
-                        + "|2|1. Lo trinh chinh:\n"
-                        + "- Lam nhiem vu mo map\n"
-                        + "- Qua khu luyen tap tang nen tang\n"
-                        + "- Farm map SKH kiem Set Kich Hoat\n\n"
-                        + "|2|2. Trang bi quan trong:\n"
-                        + "- SKH: moc dau game\n"
-                        + "- Do sao: phan nang cao\n\n"
-                        + "|2|3. Tai nguyen:\n"
-                        + "- Vang: mini game, giao dich\n"
-                        + "- Ngoc: shop, su kien\n\n"
-                        + "|5|Lo trinh tan thu:\n"
-                        + "|1|Nhiem vu > Dau than > SKH > Boss",
-                "Da hieu");
+    // ========== XẾP HẠNG ==========
+    private void showTopMenu(Player player) {
+        createOtherMenu(player, MENU_TOP_MAIN,
+                "|7|━━ XẾP HẠNG ━━\n\n"
+                        + "|2|Xem bảng xếp hạng người chơi:",
+                "Top\nSức Mạnh",
+                "Top\nNạp",
+                "Đóng");
     }
 
-    private void showBossOverview(Player player) {
-        createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|━━━ BOSS & THỜI GIAN XUẤT HIỆN ━━━\n"
-                        + "|1|Boss thường đang có nhiều nhánh chính:\n"
-                        + "- Kuku / Mập đầu đinh / Rambo: mỗi loại 5 con.\n"
-                        + "- Black Goku: nhiều bản thể săn ở các thành phố.\n"
-                        + "- Golden Frieza: 5 con, độ khó cao hơn boss thường.\n"
-                        + "- Broly thường: số lượng lớn, bị đánh sẽ tăng chỉ số dần. Khi đạt ngưỡng biến thân/rời map mới sinh Super Broly.\n"
-                        + "- Cumber, Baby, Chiller, Cooler, Android, Cell, Bojack, Fide...\n"
-                        + "- Mini boss: Sói Hẹc Quyn, Ô Đỏ, Xinbato... mỗi loại 5 con.\n\n"
-                        + "|1|Lưu ý Super Broly:\n"
-                        + "- Không nên hiện như boss tự spawn ngay từ đầu.\n"
-                        + "- Luồng đúng: đánh Broly thường → Broly tăng HP/dame → đạt ngưỡng biến thân → Super Broly xuất hiện tại vị trí đó.\n\n"
-                        + "|1|Thời gian:\n"
-                        + "- Khung thông báo bên phải hiển thị boss, map và thời gian còn lại.\n"
-                        + "- Nhiều boss hồi theo chu kỳ vài phút sau khi chết.\n"
-                        + "- Boss sự kiện/bang hội/map đặc biệt có thể chỉ mở theo khung giờ riêng.\n\n"
-                        + "|2|Mẹo săn: đọc thông báo boss → bấm [Đến] → chọn boss vừa sức, tránh tranh boss quá mạnh khi còn yếu.",
-                "Đã hiểu");
-    }
-
-    private void showRewardRate(Player player) {
-        createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                "|7|━━━ TỈ LỆ QUÀ & FARM ĐỒ ━━━\n"
-                        + "|1|Map SKH:\n"
-                        + "- Đồ kích hoạt: khoảng 1/5000 quái khi không dùng Cỏ bốn lá.\n"
-                        + "- Có Cỏ bốn lá: khoảng 1/3500 quái.\n"
-                        + "- Một số nhánh hiếm riêng có thể khó hơn, ví dụ Xayda khoảng 1/7000.\n\n"
-                        + "|1|Đồ sao / vật phẩm phụ:\n"
-                        + "- Có tỉ lệ rơi riêng, thấp hơn vật phẩm thường.\n"
-                        + "- Chỉ số sao và option phụ phụ thuộc may mắn khi rơi/mở.\n\n"
-                        + "|1|Boss:\n"
-                        + "- Boss không phải lúc nào cũng rơi đồ hiếm.\n"
-                        + "- Quà thường gồm vàng, vật phẩm sự kiện, mảnh, capsule hoặc đồ theo từng loại boss.\n"
-                        + "- Boss càng khó/quý thì cạnh tranh càng cao, nên đi theo nhóm hoặc săn khung giờ vắng.\n\n"
-                        + "|1|Rada / Ngọc rồng / vật phẩm đặc biệt:\n"
-                        + "- Đây là nhóm vật phẩm giá trị, tỉ lệ và chỉ số có thể được admin cân bằng theo mùa.\n"
-                        + "- Nếu thấy nguồn cung quá nhiều hoặc quá ít, hãy báo admin để chỉnh kinh tế.\n\n"
-                        + "|2|Lưu ý: tỉ lệ là trung bình dài hạn, có thể 1000 quái đã ra hoặc 10000 quái chưa ra do may rủi.",
-                "Đã hiểu");
+    private void handleTopMenu(Player player, int select) {
+        switch (select) {
+            case 0 -> TopService.showListTopPower(player);
+            case 1 -> TopService.showListTopVnd(player);
+        }
     }
 }

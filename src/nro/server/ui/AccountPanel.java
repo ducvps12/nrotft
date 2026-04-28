@@ -12,7 +12,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.imageio.ImageIO;
@@ -49,6 +51,8 @@ public class AccountPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField txtSearch;
+    private JPanel bulkActionBar;
+    private JLabel lblSelected;
 
     public AccountPanel() {
         setLayout(new BorderLayout(15, 15));
@@ -93,26 +97,73 @@ public class AccountPanel extends JPanel {
 
         topPanel.add(lblTitle, BorderLayout.NORTH);
         topPanel.add(searchPanel, BorderLayout.CENTER);
-        add(topPanel, BorderLayout.NORTH);
+
+        // --- Bulk Action Bar ---
+        bulkActionBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+        bulkActionBar.setBackground(new Color(255, 248, 230));
+        bulkActionBar.setBorder(new MatteBorder(1, 0, 1, 0, new Color(255, 200, 100)));
+        bulkActionBar.setVisible(false);
+
+        lblSelected = new JLabel("Đã chọn: 0");
+        lblSelected.setFont(FONT_BOLD);
+        lblSelected.setForeground(COL_PRIMARY);
+
+        JButton btnBanAll = createButton("\uD83D\uDEAB Ban tất cả", new Color(220, 53, 69));
+        JButton btnUnbanAll = createButton("\u2705 Mở khóa tất cả", new Color(40, 167, 69));
+        JButton btnDeleteAll = createButton("\uD83D\uDDD1 Xóa tất cả", new Color(108, 117, 125));
+        JButton btnDeselectAll = createButton("Bỏ chọn", new Color(150, 150, 150));
+
+        btnBanAll.addActionListener(e -> bulkBan(true));
+        btnUnbanAll.addActionListener(e -> bulkBan(false));
+        btnDeleteAll.addActionListener(e -> bulkDelete());
+        btnDeselectAll.addActionListener(e -> deselectAll());
+
+        bulkActionBar.add(lblSelected);
+        bulkActionBar.add(Box.createHorizontalStrut(10));
+        bulkActionBar.add(btnBanAll);
+        bulkActionBar.add(btnUnbanAll);
+        bulkActionBar.add(btnDeleteAll);
+        bulkActionBar.add(Box.createHorizontalStrut(20));
+        bulkActionBar.add(btnDeselectAll);
+
+        JPanel northContainer = new JPanel(new BorderLayout());
+        northContainer.setBackground(COL_BG);
+        northContainer.add(topPanel, BorderLayout.NORTH);
+        northContainer.add(bulkActionBar, BorderLayout.SOUTH);
+        add(northContainer, BorderLayout.NORTH);
 
         // --- Table ---
-        String[] columns = {"Head", "ID", "Tài khoản", "Tên NV", "Mật khẩu", "Trạng thái", "VIP", "VND", "Đã Nạp", "Ngày tạo"};
+        // Col 0 = checkbox, col 1 = head, col 2 = ID, ...
+        String[] columns = {"✓", "Head", "ID", "Tài khoản", "Tên NV", "Mật khẩu", "Trạng thái", "VIP", "VND", "Đã Nạp", "Ngày tạo"};
         
         model = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
-            @Override public Class<?> getColumnClass(int col) { return col == 0 ? ImageIcon.class : Object.class; }
+            @Override public boolean isCellEditable(int row, int col) { return col == 0; }
+            @Override public Class<?> getColumnClass(int col) {
+                if (col == 0) return Boolean.class;
+                if (col == 1) return ImageIcon.class;
+                return Object.class;
+            }
         };
 
         table = new JTable(model);
         setupTableStyle();
 
+        // Double-click to edit (skip checkbox column)
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                    int id = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 1).toString());
-                    openEditDialog(id);
+                    int col = table.columnAtPoint(e.getPoint());
+                    if (col != 0) { // not checkbox
+                        int id = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 2).toString());
+                        openEditDialog(id);
+                    }
                 }
             }
+        });
+
+        // Listen for checkbox changes to update bulk bar
+        model.addTableModelListener(e -> {
+            if (e.getColumn() == 0) updateBulkBar();
         });
 
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -123,7 +174,7 @@ public class AccountPanel extends JPanel {
         table.setRowHeight(55);
         table.setShowVerticalLines(false);
         table.setIntercellSpacing(new Dimension(0, 1));
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -131,6 +182,14 @@ public class AccountPanel extends JPanel {
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(0, 40));
         ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+
+        // Click header col 0 = Select All
+        header.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int col = table.columnAtPoint(e.getPoint());
+                if (col == 0) toggleSelectAll();
+            }
+        });
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
@@ -142,14 +201,15 @@ public class AccountPanel extends JPanel {
                 setHorizontalAlignment(JLabel.CENTER);
                 setForeground(Color.BLACK);
 
-                if (column == 3) { setFont(FONT_BOLD); setForeground(new Color(0, 102, 204)); }
-                else if (column == 5) {
+                // Column indices shifted +1 due to checkbox column
+                if (column == 4) { setFont(FONT_BOLD); setForeground(new Color(0, 102, 204)); }
+                else if (column == 6) {
                     setFont(FONT_BOLD);
-                    String s = value.toString();
+                    String s = value != null ? value.toString() : "";
                     if (s.contains("BAN")) setForeground(Color.RED);
                     else if (s.contains("Active")) setForeground(new Color(0, 150, 0));
                     else setForeground(Color.GRAY);
-                } else if (column == 7 || column == 8) {
+                } else if (column == 8 || column == 9) {
                     setFont(FONT_NUM); setForeground(new Color(153, 0, 153));
                 } else {
                     setFont(FONT_DATA);
@@ -162,11 +222,120 @@ public class AccountPanel extends JPanel {
         
         // Widths
         TableColumnModel cm = table.getColumnModel();
-        cm.getColumn(0).setPreferredWidth(60); 
-        cm.getColumn(1).setPreferredWidth(50);
-        cm.getColumn(2).setPreferredWidth(120);
-        cm.getColumn(3).setPreferredWidth(120);
-        cm.getColumn(4).setPreferredWidth(80);
+        cm.getColumn(0).setPreferredWidth(35);  // checkbox
+        cm.getColumn(0).setMaxWidth(40);
+        cm.getColumn(1).setPreferredWidth(60);  // head
+        cm.getColumn(2).setPreferredWidth(50);  // ID
+        cm.getColumn(3).setPreferredWidth(120); // username
+        cm.getColumn(4).setPreferredWidth(120); // charname
+        cm.getColumn(5).setPreferredWidth(80);  // password
+    }
+
+    // ========================================================================
+    // 3. EDIT DIALOG (FIXED LAYOUT)
+    // ========================================================================
+    // ================================================================
+    // BULK ACTIONS
+    // ================================================================
+    private List<Integer> getCheckedIds() {
+        List<Integer> ids = new ArrayList<>();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Boolean checked = (Boolean) model.getValueAt(i, 0);
+            if (checked != null && checked) {
+                ids.add(Integer.parseInt(model.getValueAt(i, 2).toString()));
+            }
+        }
+        return ids;
+    }
+
+    private void updateBulkBar() {
+        List<Integer> ids = getCheckedIds();
+        bulkActionBar.setVisible(!ids.isEmpty());
+        lblSelected.setText("Đã chọn: " + ids.size());
+    }
+
+    private void toggleSelectAll() {
+        boolean hasUnchecked = false;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Boolean v = (Boolean) model.getValueAt(i, 0);
+            if (v == null || !v) { hasUnchecked = true; break; }
+        }
+        for (int i = 0; i < model.getRowCount(); i++) {
+            model.setValueAt(hasUnchecked, i, 0);
+        }
+        updateBulkBar();
+    }
+
+    private void deselectAll() {
+        for (int i = 0; i < model.getRowCount(); i++) model.setValueAt(false, i, 0);
+        updateBulkBar();
+    }
+
+    private void bulkBan(boolean ban) {
+        List<Integer> ids = getCheckedIds();
+        if (ids.isEmpty()) return;
+        String action = ban ? "BAN" : "MỞ KHÓA";
+        int confirm = JOptionPane.showConfirmDialog(this,
+                action + " " + ids.size() + " tài khoản?\nIDs: " + ids,
+                "Xác nhận " + action, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        new Thread(() -> {
+            try (Connection conn = DBConnecter.getConnectionServer()) {
+                StringBuilder sql = new StringBuilder("UPDATE account SET ban = " + (ban ? 1 : 0) + " WHERE id IN (");
+                for (int i = 0; i < ids.size(); i++) {
+                    if (i > 0) sql.append(",");
+                    sql.append(ids.get(i));
+                }
+                sql.append(")");
+                conn.createStatement().executeUpdate(sql.toString());
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this, "Đã " + action + " " + ids.size() + " tài khoản!");
+                    loadData();
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()));
+            }
+        }).start();
+    }
+
+    private void bulkDelete() {
+        List<Integer> ids = getCheckedIds();
+        if (ids.isEmpty()) return;
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "⚠ XÓA VĨNH VIỄN " + ids.size() + " tài khoản?\nIDs: " + ids + "\n\nHành động này KHÔNG THỂ hoàn tác!",
+                "Xác nhận XÓA", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+        // Double confirm
+        int doubleConfirm = JOptionPane.showConfirmDialog(this,
+                "BẠN CHẮC CHẮN MUỐN XÓA " + ids.size() + " TÀI KHOẢN?\nNhập YES để xác nhận.",
+                "Xác nhận lần 2", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+        if (doubleConfirm != JOptionPane.YES_OPTION) return;
+
+        new Thread(() -> {
+            try (Connection conn = DBConnecter.getConnectionServer()) {
+                // Delete player first (foreign key)
+                StringBuilder sqlPlayer = new StringBuilder("DELETE FROM player WHERE account_id IN (");
+                StringBuilder sqlAccount = new StringBuilder("DELETE FROM account WHERE id IN (");
+                for (int i = 0; i < ids.size(); i++) {
+                    if (i > 0) { sqlPlayer.append(","); sqlAccount.append(","); }
+                    sqlPlayer.append(ids.get(i));
+                    sqlAccount.append(ids.get(i));
+                }
+                sqlPlayer.append(")");
+                sqlAccount.append(")");
+                conn.createStatement().executeUpdate(sqlPlayer.toString());
+                conn.createStatement().executeUpdate(sqlAccount.toString());
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this, "Đã xóa " + ids.size() + " tài khoản!");
+                    loadData();
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()));
+            }
+        }).start();
     }
 
     // ========================================================================
@@ -579,6 +748,7 @@ public class AccountPanel extends JPanel {
             try (Connection conn = DBConnecter.getConnectionServer(); Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(sql)) {
                 while (rs.next()) {
                     Vector<Object> row = new Vector<>();
+                    row.add(Boolean.FALSE); // checkbox
                     String u = rs.getString("username");
                     row.add(getAvatar(rs.getInt("head"), u, 28));
                     row.add(rs.getInt("id"));

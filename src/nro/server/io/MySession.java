@@ -91,6 +91,7 @@ public class MySession extends Session {
     private byte vipLevel;
     public int luotquay;
     public int diemdanh;
+    public long lastTransactionId; // Lưu ID giao dịch vừa tạo để quét QR đúng
 
     public boolean finishUpdate;
     public long lastTimeDataImageRequest;

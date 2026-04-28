@@ -1469,6 +1469,27 @@ public class NDVSqlFetcher {
                 player.monsterKillCountAutoTrain = 0;
             }
 
+            // Data pea bonus (đậu thần cộng chỉ số)
+            try {
+                String peaJson = rs.getString("data_pea_bonus");
+                if (peaJson != null && !peaJson.isEmpty()) {
+                    dataArray = (JSONArray) JSONValue.parse(peaJson);
+                    if (dataArray != null && dataArray.size() >= 8) {
+                        player.pea_bonus_sd = Integer.parseInt(String.valueOf(dataArray.get(0)));
+                        player.pea_bonus_hp = Integer.parseInt(String.valueOf(dataArray.get(1)));
+                        player.pea_bonus_ki = Integer.parseInt(String.valueOf(dataArray.get(2)));
+                        player.pea_use_count = Integer.parseInt(String.valueOf(dataArray.get(3)));
+                        player.pea_today_count = Integer.parseInt(String.valueOf(dataArray.get(4)));
+                        player.pea_last_day = Long.parseLong(String.valueOf(dataArray.get(5)));
+                        player.pea_milestone = Integer.parseInt(String.valueOf(dataArray.get(6)));
+                        player.pea_cycle = Integer.parseInt(String.valueOf(dataArray.get(7)));
+                        dataArray.clear();
+                    }
+                }
+            } catch (Exception e) {
+                // Column chưa tồn tại hoặc data rỗng - giữ giá trị mặc định 0
+            }
+
             PlayerService.gI().dailyLogin(player);
             if (player.getSession() != null && player.getSession().actived && player.getSession().cash < 0) {
                 player.getSession().actived = false;
@@ -1476,6 +1497,7 @@ public class NDVSqlFetcher {
             }
             player.nPoint.hp = plHp;
             player.nPoint.mp = plMp;
+
             player.iDMark.setLoadedAllDataPlayer(true);
         } catch (Exception e) {
             if (player != null) {

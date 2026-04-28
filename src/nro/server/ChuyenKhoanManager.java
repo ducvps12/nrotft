@@ -36,6 +36,8 @@ public class ChuyenKhoanManager {
 
     private static final String ACB_HISTORY_API = "https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1";
     private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|NAP|ID)?\\s*[:#-]?\\s*(\\d{1,12})");
+    // Pattern để match username (chữ) sau "chuyen tien" - ví dụ: "chuyen tien admin", "chuyen tien nhimoon"
+    private static final Pattern USERNAME_TRANSFER_PATTERN = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|chuyen\\s*tien)\\s+([a-zA-Z][a-zA-Z0-9_]{2,30})");
 
     public static String buildTransferDescription(Player player) {
         String username = getAccountUsername(player != null && player.getSession() != null ? player.getSession().userId : -1);
@@ -74,22 +76,34 @@ public class ChuyenKhoanManager {
     }
 
     public static void InsertTransaction(long playerId, long amount, String description) {
+        InsertTransactionAndGetId(playerId, amount, description);
+    }
+
+    public static long InsertTransactionAndGetId(long playerId, long amount, String description) {
         String sql = """
         INSERT INTO transaction_banking (player_id, amount, description, status, is_recieve, last_time_check, created_date)
         VALUES (?, ?, ?, 0, 0, NULL, NOW());
     """;
 
-        try (Connection con = DBConnecter.getConnectionServer(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnecter.getConnectionServer(); 
+             PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, playerId);
             ps.setLong(2, amount);
             ps.setString(3, description);
 
             ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return -1;
     }
 
     public static void ShowTransaction(Player player) {
@@ -567,12 +581,13 @@ public class ChuyenKhoanManager {
         int matched = 0;
         int credited = 0;
         int skipped = 0;
+        int alreadyDone = 0;
         long totalCreditedAmount = 0;
         StringBuilder detail = new StringBuilder();
         StringBuilder warning = new StringBuilder();
         Set<String> processedInBatch = new HashSet<>();
-        Map<Long, Integer> billCountByPlayer = new HashMap<>();
-        Map<Long, Long> amountByPlayer = new HashMap<>();
+        Map<Long, Integer> newBillCountByPlayer = new HashMap<>();
+        Map<Long, Long> newAmountByPlayer = new HashMap<>();
 
         for (TransactionHistory bankTx : response.getData()) {
             checked++;
@@ -585,19 +600,29 @@ public class ChuyenKhoanManager {
             }
 
             matched++;
-            billCountByPlayer.merge(playerId, 1, Integer::sum);
-            amountByPlayer.merge(playerId, amount, Long::sum);
+
+            // Dedup trong cùng 1 lần check (cùng player + amount + nội dung bank)
             String uniqueKey = playerId + "|" + amount + "|" + normalizeDescription(description);
             if (!processedInBatch.add(uniqueKey)) {
                 skipped++;
                 continue;
             }
 
+            // Tìm hoặc tạo giao dịch - CÓ KIỂM TRA TRÙNG LẶP
             Transaction tx = findOrCreateWebsiteTransaction(playerId, amount, description);
-            if (tx == null || tx.isReceive) {
-                skipped++;
+            if (tx == null) {
+                // Transaction đã được xử lý trước đó → skip, không tạo mới
+                alreadyDone++;
                 continue;
             }
+            if (tx.isReceive) {
+                alreadyDone++;
+                continue;
+            }
+
+            // Đếm bill MỚI (chưa xử lý) cho mỗi player
+            newBillCountByPlayer.merge(playerId, 1, Integer::sum);
+            newAmountByPlayer.merge(playerId, amount, Long::sum);
 
             UpdateDoneNap(tx.playerId, tx.id);
             if (creditTransactionToPlayer(tx, "ATM Bank (Admin Panel)", "BANK_ATM_ADMIN")) {
@@ -613,34 +638,76 @@ public class ChuyenKhoanManager {
             }
         }
 
-        for (Map.Entry<Long, Integer> entry : billCountByPlayer.entrySet()) {
+        // Chỉ cảnh báo các player có >= 2 bill MỚI (chưa xử lý)
+        for (Map.Entry<Long, Integer> entry : newBillCountByPlayer.entrySet()) {
             if (entry.getValue() >= 2) {
                 long playerId = entry.getKey();
-                long total = amountByPlayer.getOrDefault(playerId, 0L);
+                long total = newAmountByPlayer.getOrDefault(playerId, 0L);
                 warning.append("\n! ").append(getPlayerDisplayName(playerId))
-                        .append(" có ").append(entry.getValue()).append(" bill trong lịch sử API")
+                        .append(" có ").append(entry.getValue()).append(" bill MỚI")
                         .append(" | Tổng: ").append(Util.formatCurrency(total)).append(" VNĐ");
             }
         }
 
         return "Đã check ATM.\n"
                 + "Lịch sử đọc: " + checked + "\n"
-                + "Giao dịch nhận diện được ID: " + matched + "\n"
+                + "Nhận diện được player: " + matched + "\n"
                 + "Đã cộng tiền: " + credited + " bill\n"
-                + "Tổng bill đã cộng: " + Util.formatCurrency(totalCreditedAmount) + " VNĐ\n"
-                + "Bỏ qua/đã xử lý: " + skipped
-                + (warning.length() > 0 ? "\n\nCẢNH BÁO ID LẶP:" + warning : "")
+                + "Tổng đã cộng: " + Util.formatCurrency(totalCreditedAmount) + " VNĐ\n"
+                + "Đã xử lý trước: " + alreadyDone + "\n"
+                + "Bỏ qua: " + skipped
+                + (warning.length() > 0 ? "\n\nCẢNH BÁO BILL MỚI LẶP:" + warning : "")
                 + (detail.length() > 0 ? "\n\nCHI TIẾT ĐÃ CỘNG:" + detail : "")
-                + (detail.length() == 0 ? "\n\nGợi ý: nếu bill khớp nhưng không cộng, kiểm tra người chơi có tồn tại theo ID trong nội dung QR không." : "");
+                + (credited == 0 && alreadyDone > 0 ? "\n\nTất cả giao dịch đã được xử lý trước đó." : "")
+                + (credited == 0 && alreadyDone == 0 && matched > 0 ? "\n\nGợi ý: bill khớp nhưng không cộng được. Kiểm tra player có tồn tại trong DB không." : "");
     }
 
+    /**
+     * Tìm hoặc tạo transaction cho giao dịch từ website/bank API.
+     * QUAN TRỌNG: Kiểm tra giao dịch ĐÃ XỬ LÝ trước khi tạo mới để tránh cộng tiền trùng.
+     */
     private static Transaction findOrCreateWebsiteTransaction(long playerId, long amount, String description) {
+        // 1. Kiểm tra xem giao dịch này đã được xử lý chưa (is_recieve = 1)
+        //    Nếu đã xử lý → trả null, KHÔNG tạo mới (tránh cộng tiền 2 lần)
+        if (isTransactionAlreadyProcessed(playerId, amount)) {
+            return null;
+        }
+
+        // 2. Tìm giao dịch đang chờ (is_recieve = 0)
         Transaction existed = findWebsiteTransaction(playerId, amount);
         if (existed != null) {
             return existed;
         }
+
+        // 3. Tạo giao dịch mới
         InsertTransaction(playerId, amount, normalizeDescription(description));
         return findWebsiteTransaction(playerId, amount);
+    }
+
+    /**
+     * Kiểm tra giao dịch đã được cộng tiền chưa (is_recieve = 1).
+     * Dùng để tránh tạo transaction trùng lặp khi admin check thủ công nhiều lần.
+     */
+    private static boolean isTransactionAlreadyProcessed(long playerId, long amount) {
+        String sql = """
+        SELECT id FROM transaction_banking
+        WHERE player_id = ? AND amount = ?
+        AND is_recieve = 1
+        AND created_date >= NOW() - INTERVAL 24 HOUR
+        ORDER BY id DESC
+        LIMIT 1;
+    """;
+
+        try (Connection con = DBConnecter.getConnectionServer(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, playerId);
+            ps.setLong(2, amount);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // true = đã xử lý rồi
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private static Transaction findWebsiteTransaction(long playerId, long amount) {
@@ -762,6 +829,8 @@ public class ChuyenKhoanManager {
         if (description == null) {
             return -1;
         }
+        
+        // 1. Thử match player ID bằng số trước (cách cũ)
         Matcher matcher = WEBSITE_TRANSFER_PATTERN.matcher(description);
         long lastValidId = -1;
         while (matcher.find()) {
@@ -770,7 +839,71 @@ public class ChuyenKhoanManager {
                 lastValidId = candidateId;
             }
         }
-        return lastValidId;
+        if (lastValidId > 0) {
+            return lastValidId;
+        }
+        
+        // 2. Fallback: thử match username (chữ) từ nội dung "chuyen tien <username>"
+        Matcher usernameMatcher = USERNAME_TRANSFER_PATTERN.matcher(description);
+        while (usernameMatcher.find()) {
+            String candidateUsername = usernameMatcher.group(1).trim();
+            long playerIdFromUsername = getPlayerIdByAccountUsername(candidateUsername);
+            if (playerIdFromUsername > 0) {
+                return playerIdFromUsername;
+            }
+            // Thử tìm bằng player name nếu không tìm thấy bằng account username
+            playerIdFromUsername = getPlayerIdByPlayerName(candidateUsername);
+            if (playerIdFromUsername > 0) {
+                return playerIdFromUsername;
+            }
+        }
+        
+        return -1;
+    }
+
+    /**
+     * Tìm player ID từ account username.
+     * Luồng: account.username → account.id → player.account_id → player.id
+     */
+    private static long getPlayerIdByAccountUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return -1;
+        }
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(
+                    "SELECT p.id FROM player p JOIN account a ON p.account_id = a.id WHERE LOWER(a.username) = LOWER(?) ORDER BY p.id ASC LIMIT 1")) {
+            ps.setString(1, username.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    /**
+     * Tìm player ID từ player name (tên nhân vật).
+     */
+    private static long getPlayerIdByPlayerName(String playerName) {
+        if (playerName == null || playerName.isBlank()) {
+            return -1;
+        }
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(
+                    "SELECT id FROM player WHERE LOWER(name) = LOWER(?) LIMIT 1")) {
+            ps.setString(1, playerName.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     private static boolean isSameAmount(TransactionHistory transactionHistory, double amount) {

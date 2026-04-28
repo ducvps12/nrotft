@@ -336,6 +336,13 @@ public class BossEditorPanel extends JPanel {
         leftPanel.add(scrollList, BorderLayout.CENTER);
         leftPanel.setPreferredSize(new Dimension(280, 0));
 
+        // --- NÚT TẠO BOSS MỚI ---
+        JButton btnCreateNew = createStyledButton("➕ TẠO BOSS MỚI", new Color(255, 140, 0), Color.WHITE);
+        btnCreateNew.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCreateNew.setPreferredSize(new Dimension(280, 40));
+        btnCreateNew.addActionListener(e -> showCreateBossDialog());
+        leftPanel.add(btnCreateNew, BorderLayout.SOUTH);
+
         // --- FORM PANEL ---
         // Sử dụng BoxLayout trục Y để xếp các panel con
         JPanel formPanel = new JPanel();
@@ -1597,5 +1604,213 @@ public class BossEditorPanel extends JPanel {
         } catch (Exception ignored) {
         }
         return String.valueOf(id);
+    }
+
+    // ================================================================
+    // TẠO BOSS MỚI
+    // ================================================================
+    private void showCreateBossDialog() {
+        JDialog d = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Tạo Boss Mới", true);
+        d.setSize(650, 620);
+        d.setLocationRelativeTo(this);
+        d.setLayout(new BorderLayout());
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(new EmptyBorder(15, 20, 10, 20));
+        form.setBackground(Color.WHITE);
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(5, 5, 5, 5);
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.weightx = 1;
+
+        JTextField txtVarName = createStyledTextField(Color.BLACK);
+        txtVarName.setToolTipText("Tên biến Java (VD: MY_BOSS). Viết HOA, dùng _ thay dấu cách.");
+        JTextField txtDispName = createStyledTextField(new Color(0, 0, 180));
+        txtDispName.setToolTipText("Tên hiển thị (VD: Boss Rồng Lửa)");
+
+        String[] genders = {"0 - Trái Đất", "1 - Xay-Da", "2 - Namek"};
+        JComboBox<String> cbGender = new JComboBox<>(genders);
+        cbGender.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        JTextField txtHead = createStyledTextField(Color.BLACK); txtHead.setText("-1");
+        JTextField txtBody = createStyledTextField(Color.BLACK); txtBody.setText("-1");
+        JTextField txtLeg = createStyledTextField(Color.BLACK); txtLeg.setText("-1");
+
+        JTextField txtHp = createStyledTextField(new Color(220, 0, 0)); txtHp.setText("1000000");
+        txtHp.setFont(new Font("Consolas", Font.BOLD, 14));
+        JTextField txtDame = createStyledTextField(new Color(0, 0, 200)); txtDame.setText("10000");
+        txtDame.setFont(new Font("Consolas", Font.BOLD, 14));
+
+        JTextField txtMaps = createStyledTextField(Color.BLACK); txtMaps.setText("5");
+        txtMaps.setToolTipText("Map ID (phân cách bằng dấu phẩy)");
+
+        JComboBox<RespawnOption> cbRespawn = new JComboBox<>(respawnOptions);
+        cbRespawn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cbRespawn.setSelectedIndex(9); // 10 phút mặc định
+
+        JTextField txtChat = createStyledTextField(Color.BLACK);
+        txtChat.setText("Hahaha|Ta sẽ tiêu diệt ngươi");
+        txtChat.setToolTipText("Chat khi đánh (phân cách bằng |)");
+
+        int row = 0;
+        addFormRow(form, g, row++, "Tên biến (KEY):", txtVarName);
+        addFormRow(form, g, row++, "Tên hiển thị:", txtDispName);
+        addFormRow(form, g, row++, "Chủng tộc:", cbGender);
+        addFormRow(form, g, row++, "Head Part ID:", txtHead);
+        addFormRow(form, g, row++, "Body Part ID:", txtBody);
+        addFormRow(form, g, row++, "Leg Part ID:", txtLeg);
+        addFormRow(form, g, row++, "HP (Máu):", txtHp);
+        addFormRow(form, g, row++, "Sức Đánh:", txtDame);
+        addFormRow(form, g, row++, "Map IDs:", txtMaps);
+        addFormRow(form, g, row++, "Hồi Sinh:", cbRespawn);
+        addFormRow(form, g, row++, "Chat đánh:", txtChat);
+
+        // Ghi chú
+        JTextArea note = new JTextArea(
+            "Lưu ý:\n" +
+            "• Tên biến (KEY) phải VIẾT HOA, chỉ dùng A-Z, 0-9, _\n" +
+            "• Ví dụ: DRAGON_KING, SUPER_BOSS_1\n" +
+            "• Boss sẽ được thêm vào BossesData.java + BossID.java\n" +
+            "• Sau khi tạo, chỉnh sửa thêm skill/map ở form bên phải\n" +
+            "• Cần REBUILD + RESTART server để áp dụng"
+        );
+        note.setEditable(false);
+        note.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        note.setBackground(new Color(255, 255, 230));
+        note.setBorder(new CompoundBorder(new LineBorder(new Color(255, 200, 100)), new EmptyBorder(5, 5, 5, 5)));
+        g.gridx = 0; g.gridy = row; g.gridwidth = 2;
+        form.add(note, g);
+
+        JScrollPane scrollForm = new JScrollPane(form);
+        scrollForm.setBorder(null);
+        d.add(scrollForm, BorderLayout.CENTER);
+
+        // Buttons
+        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pBtn.setBackground(new Color(245, 245, 245));
+        JButton btnCreate = createStyledButton("TẠO BOSS", new Color(255, 140, 0), Color.WHITE);
+        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCreate.setPreferredSize(new Dimension(150, 40));
+        JButton btnCancel = new JButton("Hủy");
+        btnCancel.addActionListener(e -> d.dispose());
+
+        btnCreate.addActionListener(e -> {
+            String varName = txtVarName.getText().trim().toUpperCase().replaceAll("[^A-Z0-9_]", "_");
+            String dispName = txtDispName.getText().trim();
+
+            if (varName.isEmpty() || dispName.isEmpty()) {
+                JOptionPane.showMessageDialog(d, "Vui lòng nhập đầy đủ tên biến và tên hiển thị!");
+                return;
+            }
+
+            // Kiểm tra trùng
+            for (int i = 0; i < originalBossKeys.size(); i++) {
+                if (originalBossKeys.get(i).equals(varName)) {
+                    JOptionPane.showMessageDialog(d, "Tên biến '" + varName + "' đã tồn tại! Chọn tên khác.");
+                    return;
+                }
+            }
+
+            try {
+                int genderIdx = cbGender.getSelectedIndex();
+                String genderConst = switch (genderIdx) {
+                    case 0 -> "ConstPlayer.TRAI_DAT";
+                    case 1 -> "ConstPlayer.XAYDA";
+                    case 2 -> "ConstPlayer.NAMEK";
+                    default -> "ConstPlayer.TRAI_DAT";
+                };
+
+                int head = Integer.parseInt(txtHead.getText().trim());
+                int body = Integer.parseInt(txtBody.getText().trim());
+                int leg = Integer.parseInt(txtLeg.getText().trim());
+                long hp = parseLong(txtHp.getText());
+                long dame = parseLong(txtDame.getText());
+
+                String[] mapParts = txtMaps.getText().trim().split(",");
+                StringBuilder mapStr = new StringBuilder();
+                for (int i = 0; i < mapParts.length; i++) {
+                    if (i > 0) mapStr.append(", ");
+                    mapStr.append(mapParts[i].trim());
+                }
+
+                RespawnOption resp = (RespawnOption) cbRespawn.getSelectedItem();
+
+                // Build chat strings
+                String[] chats = txtChat.getText().split("\\|");
+                StringBuilder chatStr = new StringBuilder();
+                for (String c : chats) {
+                    if (!c.trim().isEmpty()) {
+                        chatStr.append("\"|-1|").append(c.trim()).append("\",\n                                        ");
+                    }
+                }
+                if (chatStr.length() > 0) chatStr.setLength(chatStr.length() - 41); // trim trailing
+
+                // 1. Find min BossID
+                int newBossId = -500;
+                try {
+                    for (Field f : BossID.class.getFields()) {
+                        int val = f.getInt(null);
+                        if (val < newBossId) newBossId = val;
+                    }
+                    newBossId -= 1;
+                } catch (Exception ex) { newBossId = -999; }
+
+                // 2. Append to BossID.java
+                File bossIdFile = new File("src/boss/BossID.java");
+                String bossIdContent = Files.readString(bossIdFile.toPath());
+                int lastBrace = bossIdContent.lastIndexOf('}');
+                String bossIdEntry = "\n    public static final int " + varName + " = " + newBossId + ";\n";
+                bossIdContent = bossIdContent.substring(0, lastBrace) + bossIdEntry + bossIdContent.substring(lastBrace);
+                Files.writeString(bossIdFile.toPath(), bossIdContent, StandardOpenOption.TRUNCATE_EXISTING);
+
+                // 3. Append to BossesData.java
+                String respawnStr = resp.isType ? "AppearType." + resp.appearType.name() : resp.codeConstant;
+
+                String bossCode = "\n\n        public static final BossData " + varName + " = new BossData(\n"
+                    + "                        \"" + dispName + "\", // name\n"
+                    + "                        " + genderConst + ", // gender\n"
+                    + "                        new short[] { " + head + ", " + body + ", " + leg + ", -1, -1, -1 }, // outfit\n"
+                    + "                        " + dame + ", // dame\n"
+                    + "                        new long[] { " + hp + " }, // hp\n"
+                    + "                        new int[] { " + mapStr + " }, // map join\n"
+                    + "                        new int[][] {\n"
+                    + "                                        { Skill.GALICK, 7, 1000 },\n"
+                    + "                                        { Skill.KAMEJOKO, 7, 1000 } }, // skill\n"
+                    + "                        new String[] {}, // text chat 1\n"
+                    + "                        new String[] { " + chatStr + " }, // text chat 2\n"
+                    + "                        new String[] {}, // text chat 3\n"
+                    + "                        " + respawnStr + " // respawn\n"
+                    + "        );";
+
+                File sourceFile = new File(SOURCE_FILE_PATH);
+                String sourceContent = Files.readString(sourceFile.toPath());
+                // Tìm closing brace cuối cùng (} cuối class)
+                int insertPos = sourceContent.lastIndexOf('}');
+                // Lùi thêm 1 dòng nữa
+                int prevBrace = sourceContent.lastIndexOf('}', insertPos - 1);
+                sourceContent = sourceContent.substring(0, prevBrace + 1) + bossCode + sourceContent.substring(prevBrace + 1);
+                Files.writeString(sourceFile.toPath(), sourceContent, StandardOpenOption.TRUNCATE_EXISTING);
+
+                JOptionPane.showMessageDialog(d,
+                    "Đã tạo Boss \"" + dispName + "\" (BossID: " + newBossId + ")\n"
+                    + "File: BossID.java + BossesData.java\n\n"
+                    + "⚠ Cần REBUILD & RESTART server!");
+
+                d.dispose();
+
+                // Reload (sẽ nhìn thấy boss mới sau khi rebuild)
+                lblStatus.setText("Đã tạo Boss mới: " + varName + ". Cần Rebuild!");
+                lblStatus.setForeground(new Color(255, 140, 0));
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(d, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        pBtn.add(btnCancel);
+        pBtn.add(btnCreate);
+        d.add(pBtn, BorderLayout.SOUTH);
+        d.setVisible(true);
     }
 }

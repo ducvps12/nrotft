@@ -252,8 +252,9 @@ public final class Manager {
             map.initMob(mapTemp.mobTemp, mapTemp.mobLevel, mapTemp.mobHp, mapTemp.mobX, mapTemp.mobY);
             map.initNpc(mapTemp.npcId, mapTemp.npcX, mapTemp.npcY);
             
-            // Chỉ spawn GohanUltra ở map 5 (Rừng Bamboo - map trung tâm)
-            if (map.mapId == 5) {
+            // Spawn GohanUltra ở 3 map đầu có SKH: map 1 (Trái Đất), map 8 (Namếc), map 15 (Xayda)
+            // Mỗi map chỉ 1 NPC duy nhất - không spam spawn
+            if (map.mapId == 1 || map.mapId == 8 || map.mapId == 15) {
                 short x = 420;
                 short y = (short) map.yPhysicInTop(x, 100);
                 if (y <= 0) {
@@ -262,8 +263,8 @@ public final class Manager {
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
             }
             
-            // Spawn NPC Bảng Danh Vọng ở map nhà (21, 22, 23) - sân vườn
-            if (map.mapId >= 21 && map.mapId <= 23) {
+            // Spawn NPC Bảng Danh Vọng ở Sân Vườn (map 131-133) để tân thủ thấy ngay khi ra khỏi nhà
+            if (map.mapId >= 131 && map.mapId <= 133) {
                 short x = 300;
                 short y = (short) map.yPhysicInTop(x, 100);
                 if (y <= 0) {

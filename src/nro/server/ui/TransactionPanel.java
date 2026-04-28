@@ -688,10 +688,12 @@ public class TransactionPanel extends JPanel {
                     String desc = rs.getString("description");
                     String sender = rs.getString("sender_name");
                     String matchedUser = rs.getString("matched_username");
+                    int matchedAccountId = rs.getInt("matched_account_id");
                     String status = rs.getString("status");
                     String time = rs.getString("created_at");
 
-                    String displayUser = (matchedUser != null && !matchedUser.isEmpty()) ? matchedUser : "";
+                    // Resolve displayUser: nếu matched_username rỗng/"0" → tra cứu từ account ID hoặc parse description
+                    String displayUser = resolveDisplayUser(con, matchedUser, matchedAccountId, desc);
                     String statusDisplay = formatStatus(status);
                     String shortDesc = desc != null && desc.length() > 50 ? desc.substring(0, 47) + "..." : desc;
 
@@ -875,6 +877,42 @@ public class TransactionPanel extends JPanel {
             }
         }
         return null;
+    }
+
+    /**
+     * Resolve display username cho bảng giao dịch.
+     * Fallback: matched_username → tra cứu account ID → parse từ description
+     */
+    private String resolveDisplayUser(Connection con, String matchedUser, int matchedAccountId, String desc) {
+        // Nếu matched_username hợp lệ (không null, không rỗng, không phải "0")
+        if (matchedUser != null && !matchedUser.isEmpty() && !matchedUser.equals("0")) {
+            return matchedUser;
+        }
+
+        // Fallback 1: tra cứu username từ matched_account_id
+        if (matchedAccountId > 0) {
+            try (PreparedStatement ps = con.prepareStatement("SELECT username FROM account WHERE id = ? LIMIT 1")) {
+                ps.setInt(1, matchedAccountId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String username = rs.getString("username");
+                        if (username != null && !username.isEmpty()) {
+                            return username;
+                        }
+                    }
+                }
+            } catch (SQLException ignored) {}
+        }
+
+        // Fallback 2: parse username từ nội dung chuyển khoản
+        if (desc != null) {
+            Matcher m = Pattern.compile("(?i)chuyen\\s*tien\\s+([a-zA-Z0-9_.$@-]{3,32})").matcher(desc);
+            if (m.find()) {
+                return m.group(1).trim();
+            }
+        }
+
+        return "";
     }
 
     // ===================================================================

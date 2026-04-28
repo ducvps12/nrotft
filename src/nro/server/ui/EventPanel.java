@@ -210,9 +210,7 @@ public class EventPanel extends JPanel {
         btnDetail.setFocusPainted(false);
         btnDetail.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnDetail.setBackground(new Color(240, 248, 255));
-        btnDetail.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, EVENT_DESCS[index], "Chi tiết sự kiện - " + EVENT_NAMES[index], JOptionPane.INFORMATION_MESSAGE);
-        });
+        btnDetail.addActionListener(e -> showEventDetailDialog(index));
 
         card.add(leftPanel, BorderLayout.WEST);
         card.add(infoPanel, BorderLayout.CENTER);
@@ -313,5 +311,183 @@ public class EventPanel extends JPanel {
         String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         txtHistory.append("[" + time + "] " + msg + "\n");
         txtHistory.setCaretPosition(txtHistory.getDocument().getLength());
+    }
+
+    // ================================================================
+    // CHI TIẾT SỰ KIỆN (DIALOG)
+    // ================================================================
+    private void showEventDetailDialog(int index) {
+        JDialog d = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Chi tiết: " + EVENT_NAMES[index], true);
+        d.setSize(700, 520);
+        d.setLocationRelativeTo(this);
+        d.setLayout(new BorderLayout());
+
+        JPanel content = new JPanel(new BorderLayout(10, 10));
+        content.setBorder(new EmptyBorder(15, 15, 15, 15));
+        content.setBackground(Color.WHITE);
+
+        // Header
+        JLabel lblHeader = new JLabel(EVENT_ICONS[index] + "  " + EVENT_NAMES[index]);
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblHeader.setForeground(EVENT_COLORS[index]);
+        lblHeader.setBorder(new EmptyBorder(0, 0, 10, 0));
+        content.add(lblHeader, BorderLayout.NORTH);
+
+        // Body - tùy theo event
+        JPanel body;
+        switch (index) {
+            case 5 -> body = buildHungVuongDetail();
+            case 0 -> body = buildGenericDetail("Halloween", new String[][]{
+                    {"Ma trơi", "500,000 HP", "Galick Lv7", "Map ngẫu nhiên", "10 phút"},
+                    {"Dơi Nhí", "500,000 HP", "Galick Lv7", "Map ngẫu nhiên", "10 phút"},
+                    {"Bí ma", "500,000 HP", "Galick Lv7", "Map ngẫu nhiên", "10 phút"},
+                    {"Xương khô", "500,000 HP", "Galick Lv3+7", "Map ngẫu nhiên", "10 phút"},
+                    {"Đracula", "1B HP", "Tái Tạo NL", "Map 112", "1 giây"},
+                }, "Săn kẹo ma quỷ, đổi trang phục Halloween.\nBoss xuất hiện trên nhiều map ngẫu nhiên.\nĐánh boss để nhận vật phẩm sự kiện.");
+            case 2 -> body = buildGenericDetail("Giáng Sinh", new String[][]{
+                    {"Ông già Noel", "500 HP", "Tái Tạo NL Lv7", "Map ngẫu nhiên", "1 phút"},
+                }, "Tuyết rơi, quà Giáng Sinh.\nĐánh boss Ông già Noel để nhận quà.\nSự kiện trang trí bản đồ chủ đề Noel.");
+            case 3 -> body = buildGenericDetail("Tết Nguyên Đán", new String[][]{
+                    {"Lân con", "5M HP", "Tái Tạo NL Lv7", "Map ngẫu nhiên", "1 phút"},
+                }, "Lì xì may mắn, pháo hoa.\nĐánh boss Lân con nhận vật phẩm Tết.\nNhiệm vụ đặc biệt ngày Tết.");
+            default -> body = buildSimpleDetail(index);
+        }
+
+        JScrollPane scroll = new JScrollPane(body);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        content.add(scroll, BorderLayout.CENTER);
+
+        // Close button
+        JButton btnClose = new JButton("Đóng");
+        btnClose.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnClose.addActionListener(e -> d.dispose());
+        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pBtn.setOpaque(false);
+        pBtn.add(btnClose);
+        content.add(pBtn, BorderLayout.SOUTH);
+
+        d.add(content);
+        d.setVisible(true);
+    }
+
+    /** Chi tiết Giỗ Tổ Hùng Vương - đầy đủ nhất */
+    private JPanel buildHungVuongDetail() {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(Color.WHITE);
+
+        // 1. Mô tả
+        JTextArea desc = new JTextArea(
+            "🏛 Sự kiện Giỗ Tổ Hùng Vương\n" +
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+            "Kỷ niệm ngày Quốc Tổ, triệu hồi Boss Thủy Tinh & Sơn Tinh.\n" +
+            "NPC Hùng Vương (ID: 52) xuất hiện - mang lễ vật đổi quà đặc biệt.\n" +
+            "Boss Rồng Thần 1-7 sao cũng xuất hiện trong sự kiện."
+        );
+        desc.setEditable(false);
+        desc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        desc.setBackground(new Color(255, 250, 240));
+        desc.setBorder(new CompoundBorder(
+            new TitledBorder(BorderFactory.createLineBorder(new Color(139, 90, 43)),
+                " Mô Tả Sự Kiện ", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12), new Color(139, 90, 43)),
+            new EmptyBorder(8, 8, 8, 8)));
+        desc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+        p.add(desc);
+        p.add(Box.createVerticalStrut(10));
+
+        // 2. Bảng Boss
+        String[] bossCols = {"Tên Boss", "HP", "Sức Đánh", "Hồi Sinh", "Ghi Chú"};
+        Object[][] bossData = {
+            {"🌊 Thủy Tinh", "50,000,000", "Tự điều chỉnh", "15 phút", "Boss chính, kéo Sơn Tinh"},
+            {"⛰ Sơn Tinh", "50,000,000", "Tự điều chỉnh", "Đi cùng", "Xuất hiện cùng Thủy Tinh"},
+            {"🐉 Rồng 1 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 2 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 3 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 4 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 5 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 6 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+            {"🐉 Rồng 7 sao", "Theo cấu hình", "-", "5 phút", "Rồng Thần event"},
+        };
+        JTable tblBoss = createStyledTable(bossCols, bossData);
+        JScrollPane scrollBoss = new JScrollPane(tblBoss);
+        scrollBoss.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(0, 102, 204)),
+            " Danh Sách Boss ", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12), new Color(0, 102, 204)));
+        scrollBoss.setPreferredSize(new Dimension(0, 200));
+        scrollBoss.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        p.add(scrollBoss);
+        p.add(Box.createVerticalStrut(10));
+
+        // 3. Phần thưởng
+        String[] rewardCols = {"Boss", "Drop Item", "Options chính"};
+        Object[][] rewardData = {
+            {"Thủy Tinh", "Item #422 (Trang bị)", "HP+20~30%, KI+20~30%, SD+20~30%, Chí Mạng+10~15%"},
+            {"Sơn Tinh", "Item #421 (Trang bị)", "HP+20~30%, KI+20~30%, SD+20~30%, CM+12~15%, NeDon+12~15%"},
+        };
+        JTable tblReward = createStyledTable(rewardCols, rewardData);
+        JScrollPane scrollReward = new JScrollPane(tblReward);
+        scrollReward.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(40, 167, 69)),
+            " Phần Thưởng Drop ", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12), new Color(40, 167, 69)));
+        scrollReward.setPreferredSize(new Dimension(0, 80));
+        scrollReward.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        p.add(scrollReward);
+
+        return p;
+    }
+
+    /** Cho event có boss list dạng bảng */
+    private JPanel buildGenericDetail(String title, String[][] bossRows, String description) {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(Color.WHITE);
+
+        JTextArea desc = new JTextArea(description);
+        desc.setEditable(false);
+        desc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        desc.setBackground(new Color(248, 250, 255));
+        desc.setBorder(new EmptyBorder(10, 10, 10, 10));
+        desc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        p.add(desc);
+        p.add(Box.createVerticalStrut(10));
+
+        if (bossRows.length > 0) {
+            String[] cols = {"Tên Boss", "HP", "Skill", "Map", "Hồi Sinh"};
+            JTable tbl = createStyledTable(cols, bossRows);
+            JScrollPane scroll = new JScrollPane(tbl);
+            scroll.setBorder(new TitledBorder("Boss Sự Kiện"));
+            scroll.setPreferredSize(new Dimension(0, Math.min(bossRows.length * 30 + 50, 200)));
+            scroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+            p.add(scroll);
+        }
+        return p;
+    }
+
+    /** Cho event chưa có data chi tiết */
+    private JPanel buildSimpleDetail(int index) {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(Color.WHITE);
+        JTextArea ta = new JTextArea(EVENT_DESCS[index] + "\n\n(Chưa có dữ liệu chi tiết cho sự kiện này)");
+        ta.setEditable(false);
+        ta.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        ta.setBorder(new EmptyBorder(15, 15, 15, 15));
+        p.add(ta);
+        return p;
+    }
+
+    private JTable createStyledTable(String[] cols, Object[][] data) {
+        JTable t = new JTable(data, cols) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        t.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        t.setRowHeight(28);
+        t.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        t.getTableHeader().setBackground(new Color(0, 102, 204));
+        t.getTableHeader().setForeground(Color.WHITE);
+        t.setShowVerticalLines(false);
+        return t;
     }
 }

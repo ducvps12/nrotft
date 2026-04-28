@@ -90,6 +90,7 @@ public class ServerManagerUI extends JFrame {
                 new NavItem("Quản Lý Tài Khoản", "/icon/Account.png", "Account"),
                 new NavItem("Danh Sách Người Chơi", "/icon/user2.png", "Players"),
                 new NavItem("Cửa Hàng (Shop)", "/icon/shop.png", "ShopEditor"),
+                new NavItem("Quản Lý NPC", "/icon/shop.png", "NpcManager"),
                 new NavItem("Quản Lý Giftcode", "/icon/gift.png", "Giftcode"),
                 new NavItem("Nạp Thẻ & Thưởng", "/icon/topup.png", "TopupReward"),
                 new NavItem("Sự Kiện (Events)", "/icon/calendar.png", "Events"),
@@ -197,6 +198,7 @@ public class ServerManagerUI extends JFrame {
         contentPanel.add(new AccountPanel(), "Account");
         contentPanel.add(new PlayersPanel(), "Players");
         contentPanel.add(new ShopEditorPanel(), "ShopEditor");
+        contentPanel.add(new NpcManagerPanel(), "NpcManager");
         contentPanel.add(new GiftcodePanel(), "Giftcode");
         contentPanel.add(new TopupRewardPanel(), "TopupReward");
         contentPanel.add(new EventPanel(), "Events");

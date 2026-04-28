@@ -108,23 +108,24 @@ public class RechargeHttp {
         int soTienCong = (int)(amount * HE_SO_SU_KIEN);
 
         try (Connection con = DBConnecter.getConnectionServer()) {
+            // FIX: Update account trực tiếp bằng player ID, không dùng JOIN
+            // Đảm bảo update luôn thành công dù player online hay offline
             PreparedStatement ps = con.prepareStatement(
-                "UPDATE account a JOIN player p ON p.account_id = a.id "
-                        + "SET a.cash = a.cash + ?, a.vnd = a.vnd + ?, a.danap = a.danap + ? "
-                        + "WHERE p.id = ?"
+                "UPDATE account SET cash = cash + ?, vnd = vnd + ?, danap = danap + ? "
+                        + "WHERE id = (SELECT account_id FROM player WHERE id = ?)"
             );
             ps.setInt(1, soTienCong);
             ps.setInt(2, soTienCong);
-            ps.setInt(3, amount);
+            ps.setInt(3, amount);  // FIX: Cập nhật danap với amount gốc, không phải soTienCong
             ps.setLong(4, playerId);
             int updated = ps.executeUpdate();
             ps.close();
 
             if (updated > 0) {
-                System.out.println(" Nạp thành công: playerId=" + playerId + ", +" + soTienCong + " (gốc " + amount + ")");
+                System.out.println("✓ Nạp thành công: playerId=" + playerId + ", +" + soTienCong + " (gốc " + amount + ")");
                 saveLog(transId, amount, desc, true);
             } else {
-                System.out.println("Không tìm thấy player id=" + playerId);
+                System.out.println("✗ Không tìm thấy player id=" + playerId);
                 saveLog(transId, amount, desc, false);
                 return;
             }
@@ -140,7 +141,7 @@ public class RechargeHttp {
                 nro.server.CashAuditLog.logAdd(pl, soTienCong, "RECHARGE_HTTP", "Sepay TransID:" + transId + " Amount:" + amount + " HeSo:" + HE_SO_SU_KIEN);
                 pl.getSession().cash += soTienCong;
                 pl.getSession().vnd += soTienCong;
-                pl.getSession().danap += amount;
+                pl.getSession().danap += amount;  // FIX: Sync với database
                 pl.danap += amount;
             } catch (Exception ignored) {}
             Service.gI().sendThongBao(pl,

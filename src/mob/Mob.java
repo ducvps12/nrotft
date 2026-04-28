@@ -764,13 +764,13 @@ public class Mob {
                 }
             }
         }
-        if (Util.isTrue(15, 300)) {
+        if (Util.isTrue(3, 300)) {
             list.add(new ItemMap(zone, 18, 1, x, yEnd, player.id));
         }
-        if (Util.isTrue(15, 300)) {
+        if (Util.isTrue(2, 400)) {
             list.add(new ItemMap(zone, 19, 1, x, yEnd, player.id));
         }
-        if (Util.isTrue(15, 300)) {
+        if (Util.isTrue(1, 500)) {
             list.add(new ItemMap(zone, 20, 1, x, yEnd, player.id));
         }
         if (Util.isTrue(1, 400)) {
@@ -782,8 +782,8 @@ public class Mob {
         // Set kich hoat
         if (player.itemTime.isCoBonLa) {
             if (MapService.gI().isMapUpSKH(mapid)) {
-                // Cỏ bốn lá: tăng nhẹ cơ hội, nhưng vẫn giữ SKH là vật phẩm hiếm.
-                if (Util.isTrue(1, 3500)) {
+                // Cỏ bốn lá: buff thêm tỉ lệ drop SKH (đã tăng rate cho mọi người tận hưởng)
+                if (Util.isTrue(1, 700)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -802,8 +802,8 @@ public class Mob {
             }
         } else {
             if (MapService.gI().isMapUpSKH(mapid)) {
-                // Trước đây là 15%, quá cao và làm tràn SKH ở map đầu.
-                if (Util.isTrue(1, 5000)) {
+                // Tăng rate SKH cho mọi người thoải mái farm, kích cầu nâng cấp đồ
+                if (Util.isTrue(1, 1000)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -822,7 +822,7 @@ public class Mob {
         }
 
         if (player.gender == 2
-                && ((Util.isTrue(1, 7000)) || (Manager.TEST && Util.isTrue(5, 10)))
+                && ((Util.isTrue(1, 1500)) || (Manager.TEST && Util.isTrue(5, 10)))
                 && MapService.gI().isMapUpSKH(mapid)) {
 
             short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
@@ -1114,13 +1114,13 @@ public class Mob {
         }
 
         if (MapService.gI().isMapUpSKH(mapid)) {
-            int baseTileDrop = 1;
+            int baseTileDrop = 3;
             int tileDrop = baseTileDrop;
             if (player.itemTime.isCoBonLa) {
-                tileDrop = (int) (baseTileDrop * 1.15);
+                tileDrop = (int) (baseTileDrop * 1.5);
             }
 
-            if (Util.isTrue(tileDrop, 9999)) {
+            if (Util.isTrue(tileDrop, 3000)) {
                 int soLuong = 1;
                 list.add(new ItemMap(zone, 1634, soLuong, x, yEnd, player.id));
             }
@@ -1138,20 +1138,20 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 1;
+            int baseTileDrop = 3;
             int tileDrop = baseTileDrop;
             if (player.itemTime.isCoBonLa) {
-                tileDrop = (int) (baseTileDrop * 1.15);
+                tileDrop = (int) (baseTileDrop * 1.5);
             }
 
-            if (Util.isTrue(tileDrop, 19999)) {
+            if (Util.isTrue(tileDrop, 5000)) {
                 int soLuong = 1;
                 list.add(new ItemMap(zone, 1634, soLuong, x, yEnd, player.id));
             }
         }
 
         if (MapService.gI().isMapRiengTu(mapid)) {
-            int baseTileDrop = 2;
+            int baseTileDrop = 8;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -1169,15 +1169,15 @@ public class Mob {
                 totalOption236Param = 100;
             }
 
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
+            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 25.0; // max 25%
             tileDrop *= (1 + percentFromOption236 / 100.0);
 
             if (player.itemTime.isCoBonLa) {
-                tileDrop *= 1.5;
+                tileDrop *= 2.0;
             }
 
-            // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            // Check rơi đồ kích hoạt (đã tăng rate cho mọi người thoải mái farm)
+            if (Util.isTrue((int) tileDrop, 3000)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -1200,7 +1200,7 @@ public class Mob {
             }
         }
         if (MapService.gI().isMapUpSKH(mapid)) {
-            int baseTileDrop = 2;
+            int baseTileDrop = 8;
             double tileDrop = baseTileDrop;
 
             int totalOption236Param = 0;
@@ -1218,15 +1218,15 @@ public class Mob {
                 totalOption236Param = 100;
             }
 
-            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 20.0; // max 20%
+            double percentFromOption236 = Math.pow(totalOption236Param / 100.0, 1.5) * 25.0; // max 25%
             tileDrop *= (1 + percentFromOption236 / 100.0);
 
             if (player.itemTime.isCoBonLa) {
-                tileDrop *= 1.5;
+                tileDrop *= 2.0;
             }
 
-            // Check rơi đồ kích hoạt
-            if (Util.isTrue((int) tileDrop, 9999)) {
+            // Check rơi đồ kích hoạt (đã tăng rate cho mọi người thoải mái farm)
+            if (Util.isTrue((int) tileDrop, 3000)) {
                 short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -1250,15 +1250,15 @@ public class Mob {
         }
 
         // ========================Đồ Sao Khác Vải Thô========================
-        if (((Util.isTrue(1, 8000))) && MapService.gI().isMapUpSKH(mapid)) {
-            int baseDropRate = 1;
+        if (((Util.isTrue(1, 2000))) && MapService.gI().isMapUpSKH(mapid)) {
+            int baseDropRate = 3;
             if (player.itemTime.isCoBonLa) {
-                baseDropRate = 1;
-                int coBonLaBonus = 15;
+                baseDropRate = 3;
+                int coBonLaBonus = 30;
                 baseDropRate = (int) (baseDropRate * (1 + coBonLaBonus / 100.0));
             }
 
-            if (Util.isTrue(baseDropRate, 19999)) {
+            if (Util.isTrue(baseDropRate, 5000)) {
                 short itTemp = (short) ItemService.gI().randTempItemDoSao(player.gender);
                 ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                 List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -1292,7 +1292,7 @@ public class Mob {
 
         // END
         // ========================Đồ Sao 3 Map Đầu========================
-        if (((Util.isTrue(50, 50000))) && MapService.gI().isMapUpSKH(mapid)) {
+        if (((Util.isTrue(50, 15000))) && MapService.gI().isMapUpSKH(mapid)) {
             int baseRate = 50;
             if (player.itemTime.isCoBonLa) {
                 baseRate = (int) (baseRate * (1 + 0.15));
