@@ -48,6 +48,13 @@ public class PlayersPanel extends JPanel {
     private TableRowSorter<DefaultTableModel> sorter;
     private JButton btnQuickSave;
 
+    // Pagination
+    private int currentPage = 1;
+    private int pageSize = 30;
+    private int totalRows = 0;
+    private JLabel lblPageInfo;
+    private JComboBox<String> cbFilter;
+
     // Cache dữ liệu
     private final Map<Integer, String> itemTemplateMap = new HashMap<>();
     private final Map<Integer, Integer> itemIconMap = new HashMap<>();
@@ -384,77 +391,96 @@ public class PlayersPanel extends JPanel {
     }
 
     private void initTopControls() {
-        JPanel top = new JPanel(new BorderLayout(10, 0));
-        top.setOpaque(false);
-        top.setBorder(new EmptyBorder(0, 0, 10, 0));
-        JPanel searchP = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel topWrapper = new JPanel();
+        topWrapper.setLayout(new BoxLayout(topWrapper, BoxLayout.Y_AXIS));
+        topWrapper.setOpaque(false);
+        topWrapper.setBorder(new EmptyBorder(0, 0, 5, 0));
+
+        // Row 1: Search + Actions
+        JPanel row1 = new JPanel(new BorderLayout(10, 0));
+        row1.setOpaque(false);
+        JPanel searchP = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         searchP.setOpaque(false);
 
-        txtSearch = new JTextField(25);
-        txtSearch.putClientProperty("JTextField.placeholderText", "Nhập tên nhân vật để tìm...");
-        txtSearch.setPreferredSize(new Dimension(250, 35));
+        txtSearch = new JTextField(18);
+        txtSearch.putClientProperty("JTextField.placeholderText", "Tên nhân vật...");
+        txtSearch.setPreferredSize(new Dimension(180, 32));
         txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtSearch.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER)
-                    loadPlayersFromDB(txtSearch.getText().trim());
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); }
             }
         });
         addUndoRedo(txtSearch);
 
+        // Filter dropdown
+        cbFilter = new JComboBox<>(new String[]{"Tất cả", "Đã kích hoạt", "Chưa kích hoạt", "Bị Ban"});
+        cbFilter.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbFilter.setPreferredSize(new Dimension(140, 32));
+        cbFilter.addActionListener(e -> { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
+
         JButton btnSearch = createStyledButton("Tìm kiếm", COLOR_PRIMARY, Color.WHITE);
-        btnSearch.addActionListener(e -> loadPlayersFromDB(txtSearch.getText().trim()));
+        btnSearch.addActionListener(e -> { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
 
         btnQuickSave = createStyledButton("Lưu thay đổi (Ctrl+S)", Color.GRAY, Color.WHITE);
         btnQuickSave.setEnabled(false);
         btnQuickSave.addActionListener(e -> saveModifiedRows());
 
         JButton btnReload = createStyledButton("Tải lại DB", new Color(100, 100, 100), Color.WHITE);
-        btnReload.addActionListener(e -> {
-            loadPartsHead();
-        });
-
-        JButton btnGuide = createStyledButton("Hướng dẫn", COLOR_INFO, Color.WHITE);
-        btnGuide.addActionListener(e -> showGuide());
+        btnReload.addActionListener(e -> loadPartsHead());
 
         searchP.add(txtSearch);
+        searchP.add(new JLabel("Lọc:"));
+        searchP.add(cbFilter);
         searchP.add(btnSearch);
         searchP.add(btnQuickSave);
         searchP.add(btnReload);
-        searchP.add(btnGuide);
 
-        // === Action Buttons ===
         JPanel actionP = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         actionP.setOpaque(false);
 
-        JButton btnKick = createStyledButton("⚡ Kick Online", new Color(255, 140, 0), Color.WHITE);
-        btnKick.setToolTipText("Kick người chơi đang online khỏi server");
+        JButton btnKick = createStyledButton("Kick Online", new Color(255, 140, 0), Color.WHITE);
         btnKick.addActionListener(e -> kickSelectedPlayer());
-
-        JButton btnBan = createStyledButton("🚫 Ban/Unban", new Color(220, 53, 69), Color.WHITE);
-        btnBan.setToolTipText("Ban hoặc Unban tài khoản người chơi");
+        JButton btnBan = createStyledButton("Ban/Unban", new Color(220, 53, 69), Color.WHITE);
         btnBan.addActionListener(e -> toggleBanSelectedPlayer());
-
-        JButton btnBuff = createStyledButton("🎁 Buff Item", new Color(40, 167, 69), Color.WHITE);
-        btnBuff.setToolTipText("Buff item vào hành trang người chơi");
+        JButton btnBuff = createStyledButton("Buff Item", new Color(40, 167, 69), Color.WHITE);
         btnBuff.addActionListener(e -> {
             int r = table.getSelectedRow();
             if (r != -1) {
                 int modelRow = table.convertRowIndexToModel(r);
-                openBuffItemDialog(Integer.parseInt(model.getValueAt(modelRow, 0).toString()),
-                        model.getValueAt(modelRow, 2).toString());
-            } else {
-                JOptionPane.showMessageDialog(this, "Chọn 1 người chơi trước!", "Chưa chọn", JOptionPane.WARNING_MESSAGE);
-            }
+                openBuffItemDialog(Integer.parseInt(model.getValueAt(modelRow, 1).toString()),
+                        model.getValueAt(modelRow, 3).toString());
+            } else JOptionPane.showMessageDialog(this, "Chọn 1 người chơi trước!");
         });
+        JButton btnBatchBan = createStyledButton("Ban chọn", new Color(180, 40, 55), Color.WHITE);
+        btnBatchBan.addActionListener(e -> batchToggleBan());
 
-        actionP.add(btnKick);
-        actionP.add(btnBan);
-        actionP.add(btnBuff);
+        actionP.add(btnKick); actionP.add(btnBan); actionP.add(btnBuff); actionP.add(btnBatchBan);
+        row1.add(searchP, BorderLayout.WEST);
+        row1.add(actionP, BorderLayout.EAST);
 
-        top.add(searchP, BorderLayout.WEST);
-        top.add(actionP, BorderLayout.EAST);
-        add(top, BorderLayout.NORTH);
+        // Row 2: Pagination
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        row2.setOpaque(false);
+        JButton btnFirst = new JButton("|<"); btnFirst.addActionListener(e -> { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
+        JButton btnPrev = new JButton("<"); btnPrev.addActionListener(e -> { if (currentPage > 1) { currentPage--; loadPlayersFromDB(txtSearch.getText().trim()); } });
+        JButton btnNext = new JButton(">"); btnNext.addActionListener(e -> { int maxPage = Math.max(1, (totalRows + pageSize - 1) / pageSize); if (currentPage < maxPage) { currentPage++; loadPlayersFromDB(txtSearch.getText().trim()); } });
+        JButton btnLast = new JButton(">|"); btnLast.addActionListener(e -> { currentPage = Math.max(1, (totalRows + pageSize - 1) / pageSize); loadPlayersFromDB(txtSearch.getText().trim()); });
+        lblPageInfo = new JLabel("Trang 1");
+        lblPageInfo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JComboBox<String> cbPageSize = new JComboBox<>(new String[]{"30", "50", "100", "200"});
+        cbPageSize.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbPageSize.addActionListener(e -> { pageSize = Integer.parseInt((String) cbPageSize.getSelectedItem()); currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
+        JCheckBox cbSelectAll = new JCheckBox("Chọn tất cả");
+        cbSelectAll.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbSelectAll.addActionListener(e -> { for (int i = 0; i < model.getRowCount(); i++) model.setValueAt(cbSelectAll.isSelected(), i, 0); });
+
+        row2.add(cbSelectAll); row2.add(Box.createHorizontalStrut(10));
+        row2.add(btnFirst); row2.add(btnPrev); row2.add(lblPageInfo); row2.add(btnNext); row2.add(btnLast);
+        row2.add(Box.createHorizontalStrut(10)); row2.add(new JLabel("Hiển thị:")); row2.add(cbPageSize);
+
+        topWrapper.add(row1); topWrapper.add(row2);
+        add(topWrapper, BorderLayout.NORTH);
     }
 
     private void showGuide() {
@@ -477,19 +503,19 @@ public class PlayersPanel extends JPanel {
     }
 
     private void initTable() {
-        String[] cols = { "ID", "Head", "Tên nhân vật", "Sức Mạnh", "Clan", "Vàng", "Ngọc", "Thỏi Vàng", "VNĐ",
+        String[] cols = { "", "ID", "Head", "Tên nhân vật", "Sức Mạnh", "Clan", "Vàng", "Ngọc", "Thỏi Vàng", "VNĐ",
                 "Tổng Nạp", "Trạng thái", "Tình trạng" };
         model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 5 || column == 6 || column == 8 || column == 9;
+                return column == 0 || column == 6 || column == 7 || column == 9 || column == 10;
             }
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 1)
-                    return ImageIcon.class;
-                if (columnIndex == 0 || columnIndex == 7 || columnIndex == 8 || columnIndex == 9)
+                if (columnIndex == 0) return Boolean.class;
+                if (columnIndex == 2) return ImageIcon.class;
+                if (columnIndex == 1 || columnIndex == 8 || columnIndex == 9 || columnIndex == 10)
                     return Long.class;
                 return super.getColumnClass(columnIndex);
             }
@@ -499,9 +525,9 @@ public class PlayersPanel extends JPanel {
             if (e.getType() == TableModelEvent.UPDATE) {
                 int row = e.getFirstRow();
                 int col = e.getColumn();
-                if (row >= 0 && col >= 0) {
+                if (row >= 0 && col > 0) {
                     try {
-                        int playerId = Integer.parseInt(model.getValueAt(row, 0).toString());
+                        int playerId = Integer.parseInt(model.getValueAt(row, 1).toString());
                         modifiedPlayerIds.add(playerId);
                         btnQuickSave.setEnabled(true);
                         btnQuickSave.setBackground(new Color(255, 69, 0));
@@ -523,11 +549,14 @@ public class PlayersPanel extends JPanel {
         table.getTableHeader().setBackground(COLOR_BG_HEADER);
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
+        table.getColumnModel().getColumn(0).setPreferredWidth(30);
+        table.getColumnModel().getColumn(0).setMaxWidth(35);
+
         sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(50);
         table.getColumnModel().getColumn(2).setPreferredWidth(150);
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -539,15 +568,15 @@ public class PlayersPanel extends JPanel {
                 if (!isSelected)
                     setBackground(row % 2 == 0 ? Color.WHITE : COLOR_ALT_ROW);
 
-                if (column == 5 || column == 6 || column == 8 || column == 9) {
+                if (column == 6 || column == 7 || column == 9 || column == 10) {
                     setFont(new Font("Segoe UI", Font.BOLD, 13));
                     setForeground(COLOR_EDITABLE);
                     if (isSelected)
                         setForeground(Color.BLUE);
-                } else if (column == 10) {
+                } else if (column == 11) {
                     setFont(new Font("Segoe UI", Font.BOLD, 12));
                     setForeground("Đã kích hoạt".equals(value) ? new Color(0, 128, 0) : Color.RED);
-                } else if (column == 11) {
+                } else if (column == 12) {
                     setFont(new Font("Segoe UI", Font.BOLD, 12));
                     if ("Bị chặn (Block)".equals(value))
                         setForeground(Color.RED);
@@ -569,11 +598,11 @@ public class PlayersPanel extends JPanel {
                     int viewCol = table.getSelectedColumn();
                     if (viewRow != -1) {
                         int modelCol = table.convertColumnIndexToModel(viewCol);
-                        if (modelCol == 5 || modelCol == 6 || modelCol == 8 || modelCol == 9) {
+                        if (modelCol == 0 || modelCol == 6 || modelCol == 7 || modelCol == 9 || modelCol == 10) {
                             return;
                         }
                         int modelRow = table.convertRowIndexToModel(viewRow);
-                        openPlayerEditorDB(Integer.parseInt(model.getValueAt(modelRow, 0).toString()));
+                        openPlayerEditorDB(Integer.parseInt(model.getValueAt(modelRow, 1).toString()));
                     }
                 }
             }
@@ -600,13 +629,13 @@ public class PlayersPanel extends JPanel {
 
         menu.addSeparator();
 
-        JMenuItem mBuffItem = new JMenuItem("🎁 Buff Item (Thêm vào hành trang)");
+        JMenuItem mBuffItem = new JMenuItem("Buff Item");
         mBuffItem.setFont(new Font("Segoe UI", Font.BOLD, 12));
         mBuffItem.addActionListener(e -> {
             int r = table.getSelectedRow();
             if (r != -1)
-                openBuffItemDialog(Integer.parseInt(model.getValueAt(table.convertRowIndexToModel(r), 0).toString()),
-                        model.getValueAt(table.convertRowIndexToModel(r), 2).toString());
+                openBuffItemDialog(Integer.parseInt(model.getValueAt(table.convertRowIndexToModel(r), 1).toString()),
+                        model.getValueAt(table.convertRowIndexToModel(r), 3).toString());
         });
         menu.add(mBuffItem);
 
@@ -631,6 +660,30 @@ public class PlayersPanel extends JPanel {
         });
     }
 
+    private void batchToggleBan() {
+        List<Integer> ids = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object chk = model.getValueAt(i, 0);
+            if (Boolean.TRUE.equals(chk)) {
+                ids.add(Integer.parseInt(model.getValueAt(i, 1).toString()));
+                names.add(model.getValueAt(i, 3).toString());
+            }
+        }
+        if (ids.isEmpty()) { JOptionPane.showMessageDialog(this, "Chưa chọn người chơi nào!"); return; }
+        int confirm = JOptionPane.showConfirmDialog(this, "Ban " + ids.size() + " người chơi?\n" + String.join(", ", names), "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) return;
+        new Thread(() -> {
+            try (Connection conn = getConnection()) {
+                try (PreparedStatement ps = conn.prepareStatement("UPDATE account SET ban = 1 WHERE id = (SELECT account_id FROM player WHERE id = ?)")) {
+                    for (int pid : ids) { ps.setInt(1, pid); ps.addBatch(); }
+                    ps.executeBatch();
+                }
+                SwingUtilities.invokeLater(() -> { JOptionPane.showMessageDialog(this, "Đã ban " + ids.size() + " người chơi!"); loadPlayersFromDB(txtSearch.getText().trim()); });
+            } catch (Exception ex) { ex.printStackTrace(); }
+        }).start();
+    }
+
     // === ACTION METHODS ===
 
     private void kickSelectedPlayer() {
@@ -640,7 +693,7 @@ public class PlayersPanel extends JPanel {
             return;
         }
         int modelRow = table.convertRowIndexToModel(r);
-        String playerName = model.getValueAt(modelRow, 2).toString();
+        String playerName = model.getValueAt(modelRow, 3).toString();
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Kick \"" + playerName + "\" khỏi server?", "Xác nhận Kick",
                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -669,9 +722,9 @@ public class PlayersPanel extends JPanel {
             return;
         }
         int modelRow = table.convertRowIndexToModel(r);
-        int playerId = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
-        String playerName = model.getValueAt(modelRow, 2).toString();
-        String currentStatus = model.getValueAt(modelRow, 11).toString();
+        int playerId = Integer.parseInt(model.getValueAt(modelRow, 1).toString());
+        String playerName = model.getValueAt(modelRow, 3).toString();
+        String currentStatus = model.getValueAt(modelRow, 12).toString();
         boolean isBanned = currentStatus.contains("Block") || currentStatus.contains("chặn");
 
         String action = isBanned ? "Unban" : "Ban";
@@ -702,7 +755,7 @@ public class PlayersPanel extends JPanel {
             }
 
             // Update table display
-            model.setValueAt(isBanned ? "Bình thường" : "Bị chặn (Block)", modelRow, 11);
+            model.setValueAt(isBanned ? "Bình thường" : "Bị chặn (Block)", modelRow, 12);
 
             // If banning, also kick online
             if (!isBanned) {
@@ -1040,6 +1093,27 @@ public class PlayersPanel extends JPanel {
 
     private void loadPlayersFromDB(String keyword) {
         new Thread(() -> {
+            // Count total
+            String filterIdx = cbFilter != null ? (String) cbFilter.getSelectedItem() : "Tất cả";
+            String countSql = "SELECT COUNT(*) FROM player p LEFT JOIN account a ON p.account_id = a.id WHERE 1=1";
+            String dataSql = "SELECT p.id, p.head, p.name, p.power, p.clan_id, p.data_inventory, p.items_bag, p.items_box, a.cash, a.danap, a.active, a.ban FROM player p LEFT JOIN account a ON p.account_id = a.id WHERE 1=1";
+            String where = "";
+            if (!keyword.isEmpty()) where += " AND p.name LIKE '%" + keyword + "%'";
+            if ("Đã kích hoạt".equals(filterIdx)) where += " AND a.active = 1";
+            else if ("Chưa kích hoạt".equals(filterIdx)) where += " AND (a.active = 0 OR a.active IS NULL)";
+            else if ("Bị Ban".equals(filterIdx)) where += " AND a.ban = 1";
+            countSql += where;
+            dataSql += where + " ORDER BY p.id DESC LIMIT " + pageSize + " OFFSET " + ((currentPage - 1) * pageSize);
+
+            try (Connection conn = getConnection()) {
+                try (Statement st = conn.createStatement(); ResultSet crs = st.executeQuery(countSql)) {
+                    if (crs.next()) totalRows = crs.getInt(1);
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+
+            int maxPage = Math.max(1, (totalRows + pageSize - 1) / pageSize);
+            if (currentPage > maxPage) currentPage = maxPage;
+
             SwingUtilities.invokeLater(() -> {
                 model.setRowCount(0);
                 inventoryCache.clear();
@@ -1047,18 +1121,16 @@ public class PlayersPanel extends JPanel {
                 btnQuickSave.setEnabled(false);
                 btnQuickSave.setText("Lưu thay đổi (Ctrl+S)");
                 btnQuickSave.setBackground(Color.GRAY);
+                lblPageInfo.setText("Trang " + currentPage + " / " + maxPage + " (" + totalRows + " người chơi)");
             });
 
-            String sql = "SELECT p.id, p.head, p.name, p.power, p.clan_id, p.data_inventory, p.items_bag, p.items_box, a.cash, a.danap, a.active, a.ban FROM player p LEFT JOIN account a ON p.account_id = a.id ";
-            if (!keyword.isEmpty())
-                sql += "WHERE p.name LIKE '%" + keyword + "%' ";
-            sql += "ORDER BY p.id ASC LIMIT 50";
             try (Connection conn = getConnection();
                     Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery(sql)) {
+                    ResultSet rs = stmt.executeQuery(dataSql)) {
                 while (rs.next()) {
                     int pid = rs.getInt("id");
                     Vector<Object> row = new Vector<>();
+                    row.add(false); // checkbox
                     row.add((long) pid);
                     row.add(drawHeadIcon(rs.getInt("head")));
                     row.add(rs.getString("name"));
@@ -1110,16 +1182,16 @@ public class PlayersPanel extends JPanel {
                         PreparedStatement psAccount = conn.prepareStatement(updateAccountSql)) {
 
                     for (int i = 0; i < model.getRowCount(); i++) {
-                        int pid = Integer.parseInt(model.getValueAt(i, 0).toString());
+                        int pid = Integer.parseInt(model.getValueAt(i, 1).toString());
                         if (modifiedPlayerIds.contains(pid)) {
                             long newGold = Long
-                                    .parseLong(model.getValueAt(i, 5).toString().replace(",", "").replace(".", ""));
-                            long newGem = Long
                                     .parseLong(model.getValueAt(i, 6).toString().replace(",", "").replace(".", ""));
+                            long newGem = Long
+                                    .parseLong(model.getValueAt(i, 7).toString().replace(",", "").replace(".", ""));
                             long newCash = Long
-                                    .parseLong(model.getValueAt(i, 8).toString().replace(",", "").replace(".", ""));
-                            long newDaNap = Long
                                     .parseLong(model.getValueAt(i, 9).toString().replace(",", "").replace(".", ""));
+                            long newDaNap = Long
+                                    .parseLong(model.getValueAt(i, 10).toString().replace(",", "").replace(".", ""));
 
                             String rawInv = inventoryCache.get(pid);
                             JsonArray invArr;
@@ -1305,7 +1377,7 @@ public class PlayersPanel extends JPanel {
                                 pPetInfo.setLayout(new GridLayout(0, 2, 10, 10));
 
                                 JComboBox<String> cbPetType = new JComboBox<>(
-                                        new String[] { "0 - Mabu", "1 - Fide", "2 - Cadic", "3 - Pic", "4 - Quy lão" });
+                                        new String[] { "0 - Đệ tử (thường)", "1 - Mabư", "2 - Black Goku", "3 - Cell/Pic", "4 - Berus", "5 - Tuyệt Thế" });
                                 cbPetType.setEditable(true);
                                 cbPetType.setSelectedItem(infoArr.get(0).getAsString());
                                 inputs.put("pet_type", cbPetType);
@@ -1416,30 +1488,287 @@ public class PlayersPanel extends JPanel {
     private JPanel createPlayerAuditPanel(int accountId, String playerName, Map<String, String> originalData) {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panel.setBackground(Color.WHITE);
 
-        JTextArea summary = new JTextArea();
-        summary.setEditable(false);
-        summary.setFont(new Font("Consolas", Font.PLAIN, 13));
-        summary.setBackground(new Color(250, 250, 250));
-        summary.setText(buildAuditSummary(accountId, playerName, originalData));
-        panel.add(new JScrollPane(summary), BorderLayout.NORTH);
+        // === TOP: Summary Cards ===
+        JPanel cards = new JPanel(new GridLayout(1, 5, 8, 0));
+        cards.setOpaque(false);
+        cards.setBorder(new EmptyBorder(0, 0, 8, 0));
 
+        long gold = 0, gem = 0, ruby = 0, cash = 0, danap = 0;
+        try {
+            JsonArray inv = new JsonParser().parse(originalData.get("data_inventory")).getAsJsonArray();
+            gold = inv.size() > 0 ? inv.get(0).getAsLong() : 0;
+            gem = inv.size() > 1 ? inv.get(1).getAsLong() : 0;
+            ruby = inv.size() > 2 ? inv.get(2).getAsLong() : 0;
+        } catch (Exception ignored) {}
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT cash, danap FROM account WHERE id = ?")) {
+            ps.setInt(1, accountId);
+            ResultSet crs = ps.executeQuery();
+            if (crs.next()) { cash = crs.getLong("cash"); danap = crs.getLong("danap"); }
+        } catch (Exception ignored) {}
+
+        cards.add(buildCard("Vang", String.format("%,d", gold), new Color(255, 193, 7)));
+        cards.add(buildCard("Ngoc Xanh", String.format("%,d", gem), new Color(40, 167, 69)));
+        cards.add(buildCard("Hong Ngoc", String.format("%,d", ruby), new Color(220, 53, 69)));
+        cards.add(buildCard("So du VND", String.format("%,d", cash), new Color(0, 120, 215)));
+        cards.add(buildCard("Tong Nap", String.format("%,d", danap), new Color(102, 51, 204)));
+        panel.add(cards, BorderLayout.NORTH);
+
+        // === CENTER: Audit Tabs ===
         JTabbedPane auditTabs = new JTabbedPane();
+        auditTabs.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
         auditTabs.addTab("VND/Cash", createQueryTablePanel(
                 "SELECT created_at AS time, source, amount, balance_before, balance_after, detail "
                 + "FROM cash_audit_log WHERE account_id = ? ORDER BY created_at DESC LIMIT 200",
                 accountId,
                 new String[] {"time", "source", "amount", "balance_before", "balance_after", "detail"},
-                "Chưa có bảng cash_audit_log hoặc chưa phát sinh log VND."));
-        auditTabs.addTab("ATM/Thưởng", createQueryTablePanel(
-                "SELECT created_at AS time, trans_id, amount, status, description "
-                + "FROM recharge_log WHERE account_id = ? ORDER BY created_at DESC LIMIT 200",
+                "Chua co log VND."));
+        auditTabs.addTab("Nap Tien (Recharge)", createQueryTablePanel(
+                "SELECT r.id, r.trans_id, r.amount, r.description, r.status, r.created_at "
+                + "FROM recharge_log r WHERE r.description LIKE CONCAT('%', (SELECT CAST(p.id AS CHAR) FROM player p WHERE p.account_id = ? LIMIT 1), '%') ORDER BY r.id DESC LIMIT 100",
                 accountId,
-                new String[] {"time", "trans_id", "amount", "status", "description"},
-                "Chưa có giao dịch ATM/phần thưởng trong recharge_log."));
-        auditTabs.addTab("Liên đới vàng", createGoldRelationPanel(accountId, playerName));
-
+                new String[] {"id", "trans_id", "amount", "description", "status", "created_at"},
+                "Chua co giao dich nap tien."));
+        auditTabs.addTab("Phan Tich Vang", createGoldRelationPanel(accountId, playerName));
+        auditTabs.addTab("Giao dich P2P", createTradeHistoryPanel(playerName));
+        auditTabs.addTab("Tai Khoan", createAccountInfoPanel(accountId));
         panel.add(auditTabs, BorderLayout.CENTER);
+        return panel;
+    }
+
+    /**
+     * Panel lịch sử giao dịch P2P của một player
+     */
+    private JPanel createTradeHistoryPanel(String playerName) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panel.setBackground(Color.WHITE);
+
+        // Toolbar
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        toolbar.setOpaque(false);
+        JLabel lblInfo = new JLabel("📦 Lịch sử giao dịch giữa người chơi (Trade P2P)");
+        lblInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblInfo.setForeground(new Color(0, 120, 215));
+        toolbar.add(lblInfo);
+
+        JButton btnReload = createStyledButton("🔄 Tải lại", COLOR_PRIMARY, Color.WHITE);
+        toolbar.add(btnReload);
+
+        JButton btnAllTrades = createStyledButton("🌐 Tất cả GD Server", new Color(102, 51, 176), Color.WHITE);
+        toolbar.add(btnAllTrades);
+
+        panel.add(toolbar, BorderLayout.NORTH);
+
+        // Table
+        DefaultTableModel tradeModel = new DefaultTableModel(
+                new String[] { "ID", "Thời gian", "Người 1", "Người 2",
+                        "Đồ P1 gửi", "Đồ P2 gửi",
+                        "Vàng P1 trước", "Vàng P1 sau", "Vàng P2 trước", "Vàng P2 sau" },
+                0) {
+            @Override
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        JTable tradeTable = new JTable(tradeModel);
+        tradeTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        tradeTable.setRowHeight(28);
+        tradeTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        tradeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // Set column widths
+        int[] widths = {40, 140, 120, 120, 250, 250, 100, 100, 100, 100};
+        for (int i = 0; i < widths.length && i < tradeTable.getColumnCount(); i++) {
+            tradeTable.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+        }
+
+        JScrollPane scrollTrade = new JScrollPane(tradeTable);
+        panel.add(scrollTrade, BorderLayout.CENTER);
+
+        // Detail panel bottom
+        JTextArea txtDetail = new JTextArea(6, 80);
+        txtDetail.setEditable(false);
+        txtDetail.setFont(new Font("Consolas", Font.PLAIN, 12));
+        txtDetail.setBackground(new Color(250, 250, 250));
+        txtDetail.setLineWrap(true);
+        txtDetail.setWrapStyleWord(true);
+        JScrollPane scrollDetail = new JScrollPane(txtDetail);
+        scrollDetail.setBorder(BorderFactory.createTitledBorder("Chi tiết giao dịch (click vào dòng để xem)"));
+        panel.add(scrollDetail, BorderLayout.SOUTH);
+
+        // Click row to show detail
+        tradeTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = tradeTable.getSelectedRow();
+                if (row < 0) return;
+                int id = Integer.parseInt(tradeModel.getValueAt(row, 0).toString());
+                new Thread(() -> {
+                    try (Connection conn = getConnection();
+                         PreparedStatement ps = conn.prepareStatement(
+                             "SELECT * FROM history_transaction WHERE id = ?")) {
+                        ps.setInt(1, id);
+                        ResultSet rs = ps.executeQuery();
+                        if (rs.next()) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("═══ GIAO DỊCH #").append(id).append(" ═══\n");
+                            sb.append("Thời gian: ").append(rs.getTimestamp("time_tran")).append("\n");
+                            sb.append("Người 1: ").append(rs.getString("player_1")).append("\n");
+                            sb.append("Người 2: ").append(rs.getString("player_2")).append("\n\n");
+                            sb.append("── P1 gửi ──\n").append(rs.getString("item_player_1")).append("\n\n");
+                            sb.append("── P2 gửi ──\n").append(rs.getString("item_player_2")).append("\n\n");
+                            sb.append("── Vàng ──\n");
+                            sb.append("P1: ").append(rs.getLong("gold_1_before")).append(" → ").append(rs.getLong("gold_1_after")).append("\n");
+                            sb.append("P2: ").append(rs.getLong("gold_2_before")).append(" → ").append(rs.getLong("gold_2_after")).append("\n\n");
+                            sb.append("── Bag P1 trước ──\n").append(rs.getString("bag_1_before_tran")).append("\n\n");
+                            sb.append("── Bag P1 sau ──\n").append(rs.getString("bag_1_after_tran")).append("\n");
+                            SwingUtilities.invokeLater(() -> txtDetail.setText(sb.toString()));
+                        }
+                    } catch (Exception ex) {
+                        SwingUtilities.invokeLater(() -> txtDetail.setText("Lỗi: " + ex.getMessage()));
+                    }
+                }).start();
+            }
+        });
+
+        // Load data for this player
+        Runnable loadPlayerTrades = () -> {
+            tradeModel.setRowCount(0);
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT id, time_tran, player_1, player_2, item_player_1, item_player_2, "
+                     + "gold_1_before, gold_1_after, gold_2_before, gold_2_after "
+                     + "FROM history_transaction WHERE player_1 LIKE ? OR player_2 LIKE ? "
+                     + "ORDER BY id DESC LIMIT 200")) {
+                String pattern = "%" + playerName + "%";
+                ps.setString(1, pattern);
+                ps.setString(2, pattern);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    String items1 = rs.getString("item_player_1");
+                    String items2 = rs.getString("item_player_2");
+                    // Truncate for display
+                    if (items1 != null && items1.length() > 80) items1 = items1.substring(0, 80) + "...";
+                    if (items2 != null && items2.length() > 80) items2 = items2.substring(0, 80) + "...";
+                    tradeModel.addRow(new Object[] {
+                        rs.getInt("id"),
+                        rs.getTimestamp("time_tran"),
+                        rs.getString("player_1"),
+                        rs.getString("player_2"),
+                        items1,
+                        items2,
+                        String.format("%,d", rs.getLong("gold_1_before")),
+                        String.format("%,d", rs.getLong("gold_1_after")),
+                        String.format("%,d", rs.getLong("gold_2_before")),
+                        String.format("%,d", rs.getLong("gold_2_after"))
+                    });
+                }
+                if (tradeModel.getRowCount() == 0) {
+                    SwingUtilities.invokeLater(() -> txtDetail.setText("Không tìm thấy giao dịch nào của " + playerName));
+                }
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() -> txtDetail.setText("Lỗi truy vấn: " + ex.getMessage()));
+            }
+        };
+        btnReload.addActionListener(e -> new Thread(loadPlayerTrades).start());
+        new Thread(loadPlayerTrades).start();
+
+        // All server trades button
+        btnAllTrades.addActionListener(e -> {
+            new Thread(() -> {
+                tradeModel.setRowCount(0);
+                try (Connection conn = getConnection();
+                     Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery(
+                         "SELECT id, time_tran, player_1, player_2, item_player_1, item_player_2, "
+                         + "gold_1_before, gold_1_after, gold_2_before, gold_2_after "
+                         + "FROM history_transaction ORDER BY id DESC LIMIT 500")) {
+                    while (rs.next()) {
+                        String items1 = rs.getString("item_player_1");
+                        String items2 = rs.getString("item_player_2");
+                        if (items1 != null && items1.length() > 80) items1 = items1.substring(0, 80) + "...";
+                        if (items2 != null && items2.length() > 80) items2 = items2.substring(0, 80) + "...";
+                        tradeModel.addRow(new Object[] {
+                            rs.getInt("id"),
+                            rs.getTimestamp("time_tran"),
+                            rs.getString("player_1"),
+                            rs.getString("player_2"),
+                            items1,
+                            items2,
+                            String.format("%,d", rs.getLong("gold_1_before")),
+                            String.format("%,d", rs.getLong("gold_1_after")),
+                            String.format("%,d", rs.getLong("gold_2_before")),
+                            String.format("%,d", rs.getLong("gold_2_after"))
+                        });
+                    }
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() -> txtDetail.setText("Lỗi: " + ex.getMessage()));
+                }
+            }).start();
+        });
+
+        return panel;
+    }
+
+    private JPanel buildCard(String title, String value, Color color) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(color);
+        card.setBorder(new EmptyBorder(8, 12, 8, 12));
+        JLabel lblT = new JLabel(title);
+        lblT.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblT.setForeground(new Color(255, 255, 255, 200));
+        lblT.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel lblV = new JLabel(value);
+        lblV.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblV.setForeground(Color.WHITE);
+        lblV.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(lblT); card.add(Box.createVerticalStrut(2)); card.add(lblV);
+        return card;
+    }
+
+    private JPanel createAccountInfoPanel(int accountId) {
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JTextArea txt = new JTextArea();
+        txt.setEditable(false);
+        txt.setFont(new Font("Consolas", Font.PLAIN, 13));
+        txt.setBackground(new Color(250, 250, 250));
+        panel.add(new JScrollPane(txt), BorderLayout.CENTER);
+        JButton btnReload = createStyledButton("Tai lai", COLOR_PRIMARY, Color.WHITE);
+        panel.add(btnReload, BorderLayout.NORTH);
+        Runnable load = () -> {
+            StringBuilder sb = new StringBuilder();
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT a.*, p.name AS char_name, p.power, p.clan_id FROM account a "
+                     + "LEFT JOIN player p ON p.account_id = a.id WHERE a.id = ?")) {
+                ps.setInt(1, accountId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    sb.append("=== THONG TIN TAI KHOAN ===\n\n");
+                    sb.append("Account ID: ").append(accountId).append("\n");
+                    sb.append("Username: ").append(rs.getString("username")).append("\n");
+                    sb.append("Nhan vat: ").append(rs.getString("char_name")).append("\n");
+                    sb.append("Suc manh: ").append(String.format("%,d", rs.getLong("power"))).append("\n");
+                    sb.append("Clan: ").append(getClanName(rs.getInt("clan_id"))).append("\n\n");
+                    sb.append("=== TAI CHINH ===\n");
+                    sb.append("Cash (VND): ").append(String.format("%,d", rs.getLong("cash"))).append("\n");
+                    sb.append("Tong nap: ").append(String.format("%,d", rs.getLong("danap"))).append("\n");
+                    try { sb.append("Thoi vang: ").append(String.format("%,d", rs.getLong("thoi_vang"))).append("\n"); } catch (Exception ignored) {}
+                    sb.append("\n=== TRANG THAI ===\n");
+                    sb.append("Active: ").append(rs.getInt("active") == 1 ? "Da kich hoat" : "Chua kich hoat").append("\n");
+                    sb.append("Ban: ").append(rs.getInt("ban") == 1 ? "BI BAN" : "Binh thuong").append("\n");
+                    try { sb.append("Last login: ").append(rs.getTimestamp("last_login")).append("\n"); } catch (Exception ignored) {}
+                    try { sb.append("IP cuoi: ").append(rs.getString("last_ip")).append("\n"); } catch (Exception ignored) {}
+                }
+            } catch (Exception ex) { sb.append("Loi: ").append(ex.getMessage()); }
+            SwingUtilities.invokeLater(() -> txt.setText(sb.toString()));
+        };
+        btnReload.addActionListener(e -> new Thread(load).start());
+        new Thread(load).start();
         return panel;
     }
 

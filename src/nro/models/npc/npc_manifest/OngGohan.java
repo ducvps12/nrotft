@@ -611,23 +611,32 @@ public class OngGohan extends Npc {
                     transaction = ChuyenKhoanManager.GetTransactionById(player.id, (int) player.getSession().lastTransactionId);
                 }
                 
-                // Fallback: nếu không có trong session, lấy transaction cuối cùng
+                // Không fallback lấy giao dịch cũ - chỉ dùng giao dịch vừa tạo
                 if (transaction == null) {
-                    transaction = ChuyenKhoanManager.GetTransactionLast(player.id);
+                    Service.gI().sendThongBao(player, "Vui lòng Tạo Giao Dịch trước khi quét QR!");
+                    return;
                 }
                 
-                if (transaction != null) {
-                    Service.gI().LinkService(player, 10684,
-                            "Quét QR để chuyển khoản ATM\n"
-                            + "Số tiền: " + Util.formatCurrency((long) transaction.amount) + " VNĐ\n"
-                            + "Nội dung: " + transaction.description + "\n"
-                            + "Lưu ý: chuyển đúng số tiền và đúng nội dung để tự cộng.",
-                            ChuyenKhoanManager.buildVietQrUrl(transaction), "Quét QR");
-                } else {
-                    Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
+                // Kiểm tra giao dịch đã thanh toán chưa
+                if (transaction.status || transaction.isReceive) {
+                    Service.gI().sendThongBao(player, "Giao dịch này đã được thanh toán! Hãy tạo giao dịch mới.");
+                    return;
                 }
+                
+                // Tạo nội dung QR đúng từ transaction vừa tạo
+                String description = transaction.description;
+                if (description == null || description.isBlank()) {
+                    description = ChuyenKhoanManager.buildTransferDescription(player);
+                }
+                
+                Service.gI().LinkService(player, 10684,
+                        "Quét QR để chuyển khoản ATM\n"
+                        + "Số tiền: " + Util.formatCurrency((long) transaction.amount) + " VNĐ\n"
+                        + "Nội dung: " + description + "\n"
+                        + "Lưu ý: chuyển đúng số tiền và đúng nội dung để tự cộng.",
+                        ChuyenKhoanManager.buildVietQrUrl(transaction), "Quét QR");
             }
-            case 1 -> Service.gI().sendThongBao(player, "Chưa có giao dịch nào!");
+            case 1 -> { } // Đóng
         }
     }
 

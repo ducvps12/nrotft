@@ -394,8 +394,8 @@ public class SummonDragon {
                             avtVip.itemOptions.add(new ItemOption(50, 23)); // Sức đánh +23%
                             avtVip.itemOptions.add(new ItemOption(77, 20)); // HP +20%
                             avtVip.itemOptions.add(new ItemOption(103, 20)); // KI +20%
-                            avtVip.itemOptions.add(new ItemOption(97, 15)); // Giáp +15%
-                            avtVip.itemOptions.add(new ItemOption(93, 10)); // Chí mạng +10%
+                            avtVip.itemOptions.add(new ItemOption(97, 15)); // Phản 15% sát thương
+                            avtVip.itemOptions.add(new ItemOption(14, 10)); // Chí mạng +10%
                             InventoryService.gI().addItemBag(playerSummonShenron, avtVip);
                             InventoryService.gI().sendItemBag(playerSummonShenron);
                             // Thay chiêu 2-3 đệ tử luôn
@@ -407,7 +407,7 @@ public class SummonDragon {
                                 }
                             }
                             Service.gI().sendThongBao(playerSummonShenron,
-                                    "Bạn nhận Cải trang VIP VĨNH VIỄN (SĐ+23%, HP+20%, KI+20%, Giáp+15%, CM+10%)\n"
+                                    "Bạn nhận Cải trang VIP VĨNH VIỄN (SĐ+23%, HP+20%, KI+20%, Phản ST 15%, CM+10%)\n"
                                             + "+ Đã thay chiêu 2-3 đệ tử!");
                         } else {
                             Service.gI().sendThongBao(playerSummonShenron, "Hành trang đã đầy");

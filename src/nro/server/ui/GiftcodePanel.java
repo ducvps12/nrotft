@@ -18,6 +18,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import nro.services.Service;
+import models.GiftCode.GiftCodeService;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -192,14 +194,16 @@ public class GiftcodePanel extends JPanel {
         JButton btnDelete = createStyledButton("Xóa Code", new Color(220, 53, 69), Color.WHITE);
         JButton btnActive = createStyledButton("✅ Active", new Color(255, 152, 0), Color.WHITE);
         JButton btnDeactive = createStyledButton("❌ Deactive", new Color(108, 117, 125), Color.WHITE);
+        JButton btnLoanTin = createStyledButton("📢 Loan Tin", new Color(156, 39, 176), Color.WHITE);
 
         btnAdd.addActionListener(e -> openGiftcodeEditor(null)); 
         btnReload.addActionListener(e -> loadDataFromDB());
         btnDelete.addActionListener(e -> deleteSelectedGiftcode());
         btnActive.addActionListener(e -> toggleActiveStatus(true));
         btnDeactive.addActionListener(e -> toggleActiveStatus(false));
+        btnLoanTin.addActionListener(e -> openLoanTinDialog());
 
-        top.add(btnAdd); top.add(btnReload); top.add(btnDelete); top.add(btnActive); top.add(btnDeactive);
+        top.add(btnAdd); top.add(btnReload); top.add(btnDelete); top.add(btnActive); top.add(btnDeactive); top.add(btnLoanTin);
         add(top, BorderLayout.NORTH);
 
         // Table
@@ -924,4 +928,322 @@ public class GiftcodePanel extends JPanel {
             }
         }).start();
     }
+
+    // ========================================================================
+    // LOAN TIN - BROADCAST GIVEAWAY SYSTEM
+    // ========================================================================
+
+    /**
+     * Cấu hình gói quà loan tin mặc định - Admin có thể chỉnh sửa trước khi phát
+     */
+    private static class LoanTinReward {
+        int itemId;
+        String name;
+        int quantity;
+        String description;
+
+        LoanTinReward(int itemId, String name, int quantity, String description) {
+            this.itemId = itemId;
+            this.name = name;
+            this.quantity = quantity;
+            this.description = description;
+        }
+    }
+
+    private void openLoanTinDialog() {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "📢 Loan Tin Server", true);
+        dialog.setSize(850, 700);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setLocationRelativeTo(this);
+        ((JPanel) dialog.getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
+        dialog.getContentPane().setBackground(new Color(245, 245, 250));
+
+        // === HEADER ===
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(new Color(156, 39, 176));
+        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        JLabel lblHeader = new JLabel("📢 HỆ THỐNG LOAN TIN SERVER");
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblHeader.setForeground(Color.WHITE);
+        headerPanel.add(lblHeader);
+
+        // === CONFIG PANEL ===
+        JPanel configPanel = new JPanel(new GridBagLayout());
+        configPanel.setBorder(createSectionBorder("Cấu hình Loan Tin"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // Mã code
+        String defaultCode = "LOANTIN" + (System.currentTimeMillis() / 1000);
+        JTextField txtCode = new JTextField(defaultCode, 20);
+        txtCode.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        txtCode.setForeground(new Color(156, 39, 176));
+
+        // Số lượt nhập
+        JTextField txtCount = new JTextField("100", 10);
+
+        // Nội dung loan tin
+        JTextArea txtBroadcast = new JTextArea(3, 30);
+        txtBroadcast.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtBroadcast.setText("🔥 LOAN TIN SERVER 🔥\nNhập code để nhận quà siêu hấp dẫn!");
+        txtBroadcast.setLineWrap(true);
+        txtBroadcast.setWrapStyleWord(true);
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        configPanel.add(new JLabel("Mã Code:"), gbc);
+        gbc.gridx = 1; gbc.gridwidth = 2;
+        configPanel.add(txtCode, gbc);
+        gbc.gridwidth = 1;
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        configPanel.add(new JLabel("Số lượt nhập:"), gbc);
+        gbc.gridx = 1;
+        configPanel.add(txtCount, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        configPanel.add(new JLabel("Nội dung thông báo:"), gbc);
+        gbc.gridx = 1; gbc.gridwidth = 2;
+        configPanel.add(new JScrollPane(txtBroadcast), gbc);
+        gbc.gridwidth = 1;
+
+        // === REWARDS TABLE ===
+        JPanel rewardPanel = new JPanel(new BorderLayout(5, 5));
+        rewardPanel.setBorder(createSectionBorder("🎁 Danh sách Phần Thưởng Loan Tin"));
+
+        String[] rCols = {"✓", "ID", "Icon", "Tên Item", "Số lượng", "Mô tả"};
+        DefaultTableModel rModel = new DefaultTableModel(rCols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return c == 0 || c == 4; }
+            @Override public Class<?> getColumnClass(int c) {
+                if (c == 0) return Boolean.class;
+                if (c == 2) return ImageIcon.class;
+                return Object.class;
+            }
+        };
+
+        // Danh sách quà hấp dẫn gợi ý
+        LoanTinReward[] defaultRewards = {
+            new LoanTinReward(457,  "Thỏi vàng",            2000,  "💰 Vàng cho người chơi"),
+            new LoanTinReward(1150, "Cuồng Nộ Siêu Cấp",    15,    "⚔️ +120% sức đánh 10 phút"),
+            new LoanTinReward(1151, "Bổ Huyết Siêu Cấp",    15,    "❤️ +120% HP 10 phút"),
+            new LoanTinReward(1152, "Bổ Khí Siêu Cấp",      15,    "💙 +120% KI 10 phút"),
+            new LoanTinReward(1153, "Giáp Xên Siêu Cấp",    15,    "🛡️ Giảm 60% sát thương 10 phút"),
+            new LoanTinReward(1635, "Cỏ bốn lá",            10,    "🍀 +100% drop hiếm, +50% vàng 30 phút"),
+            new LoanTinReward(1628, "Bùa x2 tn,sm đệ tử",   10,    "📈 x2 SM & TN đệ tử 30 phút"),
+            new LoanTinReward(1731, "Bình nước thánh x2",    5,     "🧪 x2 tiềm năng sức mạnh"),
+            new LoanTinReward(987,  "Đá bảo vệ",            50,    "💎 Bảo vệ trang bị khỏi rớt cấp"),
+            new LoanTinReward(1855, "Mảnh vỡ bông tai cấp 3", 200, "💍 Ghép bông tai cấp 3"),
+            new LoanTinReward(1440, "Rương sao pha lê",      5,     "✨ Mở ra cải trang ngẫu nhiên"),
+            new LoanTinReward(1536, "Hộp quà Set kích hoạt", 1,     "🎁 Set kích hoạt tự chọn"),
+            new LoanTinReward(764,  "Khẩu trang",            5,     "😷 Cải trang +30 phút"),
+            new LoanTinReward(1264, "Radar dò Boss",         3,     "📡 Xem vị trí Boss trên map"),
+        };
+
+        for (LoanTinReward r : defaultRewards) {
+            rModel.addRow(new Object[]{
+                true,
+                r.itemId,
+                getItemIcon(r.itemId),
+                r.name,
+                r.quantity,
+                r.description
+            });
+        }
+
+        JTable rTable = new JTable(rModel);
+        rTable.setRowHeight(35);
+        rTable.setFont(FONT_PLAIN);
+        rTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+        rTable.getColumnModel().getColumn(0).setMaxWidth(40);
+        rTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+        rTable.getColumnModel().getColumn(2).setPreferredWidth(45);
+        rTable.getColumnModel().getColumn(3).setPreferredWidth(180);
+        rTable.getColumnModel().getColumn(4).setPreferredWidth(70);
+        rTable.getColumnModel().getColumn(5).setPreferredWidth(250);
+
+        // Highlight selected rows
+        rTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                boolean checked = (Boolean) table.getModel().getValueAt(row, 0);
+                if (!isSelected) {
+                    setBackground(checked ? new Color(232, 245, 233) : new Color(255, 240, 240));
+                }
+                return this;
+            }
+        });
+
+        // Tool buttons
+        JPanel rTool = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton btnSelectAll = createStyledButton("✓ Chọn tất cả", new Color(76, 175, 80), Color.WHITE);
+        JButton btnDeselectAll = createStyledButton("✗ Bỏ chọn tất cả", new Color(244, 67, 54), Color.WHITE);
+        JButton btnAddCustom = createStyledButton("+ Thêm Item", new Color(33, 150, 243), Color.WHITE);
+
+        btnSelectAll.addActionListener(e -> {
+            for (int i = 0; i < rModel.getRowCount(); i++) rModel.setValueAt(true, i, 0);
+        });
+        btnDeselectAll.addActionListener(e -> {
+            for (int i = 0; i < rModel.getRowCount(); i++) rModel.setValueAt(false, i, 0);
+        });
+        btnAddCustom.addActionListener(e -> {
+            showItemSearchDialog(dialog, (id, name) -> {
+                String qty = JOptionPane.showInputDialog(dialog, "Số lượng cho " + name + ":", "10");
+                if (qty != null && !qty.isEmpty()) {
+                    rModel.addRow(new Object[]{true, id, getItemIcon(id), name, Integer.parseInt(qty), "Tùy chỉnh"});
+                }
+            });
+        });
+
+        rTool.add(btnSelectAll);
+        rTool.add(btnDeselectAll);
+        rTool.add(btnAddCustom);
+
+        rewardPanel.add(rTool, BorderLayout.NORTH);
+        rewardPanel.add(new JScrollPane(rTable), BorderLayout.CENTER);
+
+        // === BOTTOM BUTTONS ===
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottomPanel.setBackground(new Color(245, 245, 250));
+
+        JButton btnPublish = createStyledButton("📢 PHÁT LOAN TIN", new Color(156, 39, 176), Color.WHITE);
+        btnPublish.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btnPublish.setPreferredSize(new Dimension(250, 50));
+
+        JButton btnCancel = createStyledButton("Hủy", new Color(158, 158, 158), Color.WHITE);
+        btnCancel.setPreferredSize(new Dimension(100, 50));
+        btnCancel.addActionListener(e -> dialog.dispose());
+
+        btnPublish.addActionListener(e -> {
+            String code = txtCode.getText().trim();
+            String countStr = txtCount.getText().trim();
+            String broadcastMsg = txtBroadcast.getText().trim();
+
+            if (code.isEmpty() || countStr.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Vui lòng nhập đầy đủ Mã Code và Số lượt!");
+                return;
+            }
+
+            // Build JSON detail from checked items
+            JsonArray detailArr = new JsonArray();
+            StringBuilder rewardSummary = new StringBuilder();
+            int checkedCount = 0;
+            for (int i = 0; i < rModel.getRowCount(); i++) {
+                boolean checked = (Boolean) rModel.getValueAt(i, 0);
+                if (checked) {
+                    checkedCount++;
+                    int itemId = (int) rModel.getValueAt(i, 1);
+                    int qty = Integer.parseInt(rModel.getValueAt(i, 4).toString());
+                    String itemName = rModel.getValueAt(i, 3).toString();
+
+                    JsonObject itemObj = new JsonObject();
+                    itemObj.addProperty("temp_id", itemId);
+                    itemObj.addProperty("quantity", qty);
+                    itemObj.add("options", new JsonArray());
+                    detailArr.add(itemObj);
+
+                    rewardSummary.append("  🔸 ").append(qty).append("x ").append(itemName).append("\n");
+                }
+            }
+
+            if (checkedCount == 0) {
+                JOptionPane.showMessageDialog(dialog, "Vui lòng chọn ít nhất 1 phần thưởng!");
+                return;
+            }
+
+            // Confirm
+            String confirmMsg = "📢 XÁC NHẬN PHÁT LOAN TIN\n\n" +
+                    "Mã Code: " + code + "\n" +
+                    "Số lượt: " + countStr + "\n" +
+                    "Số phần thưởng: " + checkedCount + " loại\n\n" +
+                    "Phần thưởng:\n" + rewardSummary + "\n" +
+                    "Thông báo sẽ được gửi đến TẤT CẢ người chơi online!";
+
+            if (JOptionPane.showConfirmDialog(dialog, confirmMsg, "Xác nhận Loan Tin",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            // Save to DB and broadcast
+            publishLoanTin(code, countStr, detailArr.toString(), broadcastMsg, rewardSummary.toString(), dialog);
+        });
+
+        bottomPanel.add(btnCancel);
+        bottomPanel.add(btnPublish);
+
+        // === LAYOUT ===
+        JPanel topContainer = new JPanel(new BorderLayout(5, 5));
+        topContainer.add(headerPanel, BorderLayout.NORTH);
+        topContainer.add(configPanel, BorderLayout.CENTER);
+
+        dialog.add(topContainer, BorderLayout.NORTH);
+        dialog.add(rewardPanel, BorderLayout.CENTER);
+        dialog.add(bottomPanel, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Lưu giftcode loan tin vào DB, active ngay, và broadcast cho tất cả player
+     */
+    private void publishLoanTin(String code, String count, String detailJson, String broadcastMsg, String rewardSummary, JDialog dialog) {
+        new Thread(() -> {
+            try (Connection conn = getConnection()) {
+                // 1. Tạo giftcode với hạn 7 ngày, active = true, type = 1 (thành viên kích hoạt)
+                String expired = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        .format(new java.util.Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000));
+
+                // type=2: Loan Tin - chỉ user được admin duyệt mới nhập được
+                String query = "INSERT INTO giftcode (code, count_left, detail, datecreate, expired, type, active) VALUES (?, ?, ?, NOW(), ?, 2, 1)";
+                try (PreparedStatement ps = conn.prepareStatement(query)) {
+                    ps.setString(1, code.toUpperCase());
+                    ps.setInt(2, Integer.parseInt(count));
+                    ps.setString(3, detailJson);
+                    ps.setString(4, expired);
+                    ps.executeUpdate();
+                }
+
+                // 2. Reload giftcode vào bộ nhớ server
+                try {
+                    GiftCodeService.gI().updateGiftCode();
+                } catch (Exception ex) {
+                    System.err.println("Reload giftcode error: " + ex.getMessage());
+                }
+
+                // 3. Broadcast thông báo cho tất cả player online
+                try {
+                    String fullMsg = broadcastMsg + "\n" +
+                            "━━━━━━━━━━━━━━━━━━━\n" +
+                            "📦 Phần thưởng:\n" + rewardSummary +
+                            "━━━━━━━━━━━━━━━━━━━\n" +
+                            "🎫 Mã Code: " + code.toUpperCase() + "\n" +
+                            "⏰ Hạn sử dụng: 7 ngày | Số lượt: " + count + "\n" +
+                            "⚠️ Loan tin server rồi liên hệ Admin để được duyệt nhập code!";
+
+                    Service.gI().sendThongBaoAllPlayer(fullMsg);
+                    System.out.println("[LOAN TIN] Broadcast code: " + code.toUpperCase() + " to all players");
+                } catch (Exception ex) {
+                    System.err.println("Broadcast error: " + ex.getMessage());
+                }
+
+                // 4. UI feedback
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(dialog,
+                            "✅ Loan Tin thành công!\n\n" +
+                                    "Mã Code: " + code.toUpperCase() + "\n" +
+                                    "Số lượt: " + count + "\n" +
+                                    "Hạn: 7 ngày\n\n" +
+                                    "Thông báo đã gửi đến tất cả người chơi online!",
+                            "Loan Tin Thành Công", JOptionPane.INFORMATION_MESSAGE);
+                    dialog.dispose();
+                    loadDataFromDB();
+                });
+
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(dialog, "Lỗi: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
+            }
+        }).start();
+    }
+
 }

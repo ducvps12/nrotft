@@ -61,6 +61,7 @@ public class AccountPanel extends JPanel {
 
         initUI();
         loadHeadPartCache(); // Cache icons first
+        ensureLoanTinColumn(); // Tự động thêm cột loantin nếu chưa có
     }
 
     // ========================================================================
@@ -349,13 +350,20 @@ public class AccountPanel extends JPanel {
         d.setBackground(COL_BG);
 
         // --- PREPARE FIELDS ---
-        JTextField txtUser = createField(false);
+        JTextField txtUser = createField(true); // Cho phép sửa username
         JTextField txtPass = createField(true);
         JTextField txtEmail = createField(true);
+        
+        // Lưu giá trị gốc cho password/email (dùng để toggle)
+        final String[] realPass = {""};
+        final String[] realEmail = {""};
+        final boolean[] passVisible = {false};
+        final boolean[] emailVisible = {false};
         
         JCheckBox chkActive = new JCheckBox("Kích hoạt");
         JCheckBox chkBan = new JCheckBox("Khóa (Ban)"); chkBan.setForeground(Color.RED);
         JCheckBox chkAdmin = new JCheckBox("Admin");
+        JCheckBox chkLoanTin = new JCheckBox("📢 Loan Tin"); chkLoanTin.setForeground(new Color(156, 39, 176));
         
         JTextField txtRole = createField(true);
         JTextField txtVip = createField(true);
@@ -365,6 +373,10 @@ public class AccountPanel extends JPanel {
         JTextField txtDanap = createField(true); txtDanap.setFont(FONT_NUM); txtDanap.setForeground(Color.BLUE);
         JTextField txtGold = createField(true); txtGold.setFont(FONT_NUM);
         JTextField txtPoint = createField(true); txtPoint.setFont(FONT_NUM);
+
+        // Lưu VND cũ để so sánh khi save
+        final long[] oldCash = {0};
+        final long[] oldDanap = {0};
 
         Map<String, JTextField> eventMap = new HashMap<>();
         String[] eventCols = {
@@ -378,8 +390,20 @@ public class AccountPanel extends JPanel {
         final int[] headInfo = {-1}; // wrapper for head id
 
         // --- LOAD DATA ---
-        loadAccountData(accountId, txtUser, txtPass, txtEmail, chkActive, chkBan, chkAdmin, 
+        loadAccountData(accountId, txtUser, txtPass, txtEmail, chkActive, chkBan, chkAdmin, chkLoanTin,
                         txtRole, txtVip, txtServer, txtVnd, txtDanap, txtGold, txtPoint, eventMap, headInfo);
+
+        // Sau khi load, lưu giá trị gốc và mask
+        SwingUtilities.invokeLater(() -> {
+            realPass[0] = txtPass.getText();
+            realEmail[0] = txtEmail.getText();
+            oldCash[0] = safeLong(txtVnd);
+            oldDanap[0] = safeLong(txtDanap);
+            txtPass.setText("●●●●●●●●");
+            txtPass.setEditable(false);
+            txtEmail.setText(maskEmail(realEmail[0]));
+            txtEmail.setEditable(false);
+        });
 
         // --- BUILD UI ---
         JPanel pMain = new JPanel(new GridBagLayout());
@@ -406,12 +430,12 @@ public class AccountPanel extends JPanel {
         // Reset gridheight
         gp.gridheight = 1; gp.weightx = 1.0;
 
-        // Row 1: User, Pass, Email
+        // Row 1: User, Pass (with eye toggle), Email (with eye toggle)
         JPanel pRow1 = new JPanel(new GridLayout(1, 3, 15, 0));
         pRow1.setOpaque(false);
         pRow1.add(createInputGroup("Tài khoản:", txtUser));
-        pRow1.add(createInputGroup("Mật khẩu:", txtPass));
-        pRow1.add(createInputGroup("Email:", txtEmail));
+        pRow1.add(createInputGroupWithEye("Mật khẩu:", txtPass, passVisible, realPass));
+        pRow1.add(createInputGroupWithEye("Email:", txtEmail, emailVisible, realEmail));
         
         gp.gridx = 1; gp.gridy = 0; 
         pProfile.add(pRow1, gp);
@@ -429,8 +453,8 @@ public class AccountPanel extends JPanel {
         // Row 3: Checkboxes
         JPanel pRow3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pRow3.setOpaque(false);
-        styleCheck(chkActive); styleCheck(chkBan); styleCheck(chkAdmin);
-        pRow3.add(chkActive); pRow3.add(chkBan); pRow3.add(chkAdmin);
+        styleCheck(chkActive); styleCheck(chkBan); styleCheck(chkAdmin); styleCheck(chkLoanTin);
+        pRow3.add(chkActive); pRow3.add(chkBan); pRow3.add(chkAdmin); pRow3.add(chkLoanTin);
         
         gp.gridx = 1; gp.gridy = 2;
         pProfile.add(pRow3, gp);
@@ -485,8 +509,12 @@ public class AccountPanel extends JPanel {
         btnCancel.addActionListener(e->d.dispose());
 
         btnSave.addActionListener(e -> {
-            saveAccount(d, accountId, txtUser, txtPass, txtEmail, chkActive, chkBan, chkAdmin, 
-                        txtRole, txtVip, txtServer, txtVnd, txtDanap, txtGold, txtPoint, eventMap);
+            // Khôi phục giá trị thật trước khi save nếu đang bị mask
+            if (!passVisible[0]) txtPass.setText(realPass[0]);
+            if (!emailVisible[0]) txtEmail.setText(realEmail[0]);
+            saveAccount(d, accountId, txtUser, txtPass, txtEmail, chkActive, chkBan, chkAdmin, chkLoanTin,
+                        txtRole, txtVip, txtServer, txtVnd, txtDanap, txtGold, txtPoint, eventMap,
+                        oldCash[0], oldDanap[0]);
         });
 
         pBtn.add(btnCancel);
@@ -501,7 +529,7 @@ public class AccountPanel extends JPanel {
     // 4. DATA LOGIC (LOAD & SAVE)
     // ========================================================================
     private void loadAccountData(int id, JTextField user, JTextField pass, JTextField email, 
-                                 JCheckBox act, JCheckBox ban, JCheckBox adm,
+                                 JCheckBox act, JCheckBox ban, JCheckBox adm, JCheckBox loanTin,
                                  JTextField role, JTextField vip, JTextField server,
                                  JTextField vnd, JTextField danap, JTextField gold, JTextField point,
                                  Map<String, JTextField> events, int[] headRef) {
@@ -518,6 +546,7 @@ public class AccountPanel extends JPanel {
                 act.setSelected(rs.getInt("active") == 1);
                 ban.setSelected(rs.getInt("ban") == 1);
                 adm.setSelected(rs.getInt("is_admin") == 1);
+                try { loanTin.setSelected(rs.getInt("loantin") == 1); } catch (Exception ex) { loanTin.setSelected(false); }
                 role.setText(rs.getString("role"));
                 vip.setText(rs.getString("vip"));
                 server.setText(rs.getString("server_login"));
@@ -536,15 +565,15 @@ public class AccountPanel extends JPanel {
     }
 
     private void saveAccount(JDialog d, int id, JTextField user, JTextField pass, JTextField email, 
-                             JCheckBox act, JCheckBox ban, JCheckBox adm,
+                             JCheckBox act, JCheckBox ban, JCheckBox adm, JCheckBox loanTin,
                              JTextField role, JTextField vip, JTextField server,
                              JTextField vnd, JTextField danap, JTextField gold, JTextField point,
-                             Map<String, JTextField> events) {
+                             Map<String, JTextField> events, long oldCash, long oldDanap) {
         if (JOptionPane.showConfirmDialog(d, "Lưu dữ liệu?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
         
         new Thread(() -> {
             // cash=vnd, danap=tongnap
-            StringBuilder sql = new StringBuilder("UPDATE account SET username=?, password=?, email=?, active=?, ban=?, is_admin=?, role=?, vip=?, server_login=?, ");
+            StringBuilder sql = new StringBuilder("UPDATE account SET username=?, password=?, email=?, active=?, ban=?, is_admin=?, loantin=?, role=?, vip=?, server_login=?, ");
             sql.append("cash=?, danap=?, vang=?, tichdiem=?, "); 
             for (String k : events.keySet()) sql.append(k).append("=?, ");
             sql.append("update_time=NOW() WHERE id=?");
@@ -558,12 +587,15 @@ public class AccountPanel extends JPanel {
                 ps.setInt(i++, act.isSelected() ? 1 : 0);
                 ps.setInt(i++, ban.isSelected() ? 1 : 0);
                 ps.setInt(i++, adm.isSelected() ? 1 : 0);
+                ps.setInt(i++, loanTin.isSelected() ? 1 : 0);
                 ps.setInt(i++, safeInt(role));
                 ps.setInt(i++, safeInt(vip));
                 ps.setInt(i++, safeInt(server));
                 
-                ps.setLong(i++, safeLong(vnd)); // cash
-                ps.setLong(i++, safeLong(danap)); // danap
+                long newCash = safeLong(vnd);
+                long newDanap = safeLong(danap);
+                ps.setLong(i++, newCash); // cash
+                ps.setLong(i++, newDanap); // danap
                 ps.setLong(i++, safeLong(gold));
                 ps.setLong(i++, safeLong(point));
                 
@@ -571,6 +603,38 @@ public class AccountPanel extends JPanel {
                 ps.setInt(i++, id);
 
                 ps.executeUpdate();
+
+                // Ghi audit log nếu VND thay đổi
+                if (newCash != oldCash) {
+                    long diff = newCash - oldCash;
+                    try (PreparedStatement psLog = conn.prepareStatement(
+                            "INSERT INTO cash_audit_log (account_id, player_name, amount, balance_before, balance_after, source, detail) VALUES (?,?,?,?,?,?,?)")) {
+                        psLog.setInt(1, id);
+                        psLog.setString(2, user.getText());
+                        psLog.setLong(3, diff);
+                        psLog.setLong(4, oldCash);
+                        psLog.setLong(5, newCash);
+                        psLog.setString(6, "ADMIN_PANEL");
+                        psLog.setString(7, "Admin sửa VND qua Panel: " + oldCash + " → " + newCash);
+                        psLog.executeUpdate();
+                    }
+                }
+                // Ghi audit log nếu danap thay đổi
+                if (newDanap != oldDanap) {
+                    long diff = newDanap - oldDanap;
+                    try (PreparedStatement psLog = conn.prepareStatement(
+                            "INSERT INTO cash_audit_log (account_id, player_name, amount, balance_before, balance_after, source, detail) VALUES (?,?,?,?,?,?,?)")) {
+                        psLog.setInt(1, id);
+                        psLog.setString(2, user.getText());
+                        psLog.setLong(3, diff);
+                        psLog.setLong(4, oldDanap);
+                        psLog.setLong(5, newDanap);
+                        psLog.setString(6, "ADMIN_PANEL_DANAP");
+                        psLog.setString(7, "Admin sửa Tổng Nạp qua Panel: " + oldDanap + " → " + newDanap);
+                        psLog.executeUpdate();
+                    }
+                }
+
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(d, "Lưu thành công!");
                     d.dispose();
@@ -606,6 +670,63 @@ public class AccountPanel extends JPanel {
         p.add(lbl, BorderLayout.NORTH);
         p.add(txt, BorderLayout.CENTER);
         return p;
+    }
+
+    /** Tạo input group có nút mắt toggle ẩn/hiện nội dung */
+    private JPanel createInputGroupWithEye(String label, JTextField txt, boolean[] visible, String[] realValue) {
+        JPanel p = new JPanel(new BorderLayout(0, 3));
+        p.setOpaque(false);
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lbl.setForeground(COL_TEXT_GRAY);
+        p.add(lbl, BorderLayout.NORTH);
+
+        JPanel fieldPanel = new JPanel(new BorderLayout(3, 0));
+        fieldPanel.setOpaque(false);
+        fieldPanel.add(txt, BorderLayout.CENTER);
+
+        JButton btnEye = new JButton("👁");
+        btnEye.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        btnEye.setPreferredSize(new Dimension(36, 28));
+        btnEye.setFocusPainted(false);
+        btnEye.setMargin(new Insets(0, 2, 0, 2));
+        btnEye.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEye.setToolTipText("Ẩn/Hiện nội dung");
+        btnEye.setBackground(new Color(240, 240, 240));
+        btnEye.setBorder(BorderFactory.createLineBorder(COL_BORDER));
+
+        btnEye.addActionListener(e -> {
+            visible[0] = !visible[0];
+            if (visible[0]) {
+                // Nếu user đã sửa trong lúc hiện, lấy giá trị từ field
+                // Nếu chưa, hiện giá trị gốc
+                txt.setText(realValue[0]);
+                txt.setEditable(true);
+                btnEye.setText("🔒");
+            } else {
+                // Lưu giá trị thật khi ẩn
+                realValue[0] = txt.getText();
+                if (label.contains("Email")) {
+                    txt.setText(maskEmail(realValue[0]));
+                } else {
+                    txt.setText("●●●●●●●●");
+                }
+                txt.setEditable(false);
+                btnEye.setText("👁");
+            }
+        });
+
+        fieldPanel.add(btnEye, BorderLayout.EAST);
+        p.add(fieldPanel, BorderLayout.CENTER);
+        return p;
+    }
+
+    /** Mask email: m***@gmail.com */
+    private String maskEmail(String email) {
+        if (email == null || email.isEmpty()) return "";
+        int at = email.indexOf('@');
+        if (at <= 1) return "●●●@●●●";
+        return email.charAt(0) + "●●●" + email.substring(at);
     }
 
     private JPanel createBorderedGroup(String title, JTextField txt) {
@@ -789,5 +910,20 @@ public class AccountPanel extends JPanel {
             g2.dispose();
             return new ImageIcon(img);
         }
+    }
+
+    /**
+     * Tự động thêm cột 'loantin' vào bảng account nếu chưa có
+     */
+    private void ensureLoanTinColumn() {
+        new Thread(() -> {
+            try (Connection conn = DBConnecter.getConnectionServer(); Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("ALTER TABLE account ADD COLUMN IF NOT EXISTS loantin TINYINT(1) DEFAULT 0");
+            } catch (Exception e) {
+                try (Connection conn = DBConnecter.getConnectionServer(); Statement stmt = conn.createStatement()) {
+                    try { stmt.executeUpdate("ALTER TABLE account ADD COLUMN loantin TINYINT(1) DEFAULT 0"); } catch (Exception ignored) {}
+                } catch (Exception ignored) {}
+            }
+        }).start();
     }
 }

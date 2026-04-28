@@ -10,6 +10,7 @@ import nro.services.InventoryService;
 import nro.services.Service;
 import services.func.ChangeMapService;
 import utils.TimeUtil;
+import utils.Util;
 import shop.ShopService;
 
 public class Santa extends Npc {
@@ -17,6 +18,9 @@ public class Santa extends Npc {
     private static final int MENU_GUILD = 1001;
     private static final int MENU_UP_CLAN = 1002;
     private static final int MENU_DOI_VND = 1003;
+
+    /** Giới hạn đổi Xu → VND tối đa 3 lần/ngày */
+    private static final int MAX_DOI_VND_PER_DAY = 3;
 
     public Santa(int mapId, int status, int cx, int cy, int tempId, int avatar) {
         super(mapId, status, cx, cy, tempId, avatar);
@@ -75,9 +79,9 @@ public class Santa extends Npc {
 
         if (player.iDMark.getIndexMenu() == MENU_DOI_VND) {
             switch (select) {
-                case 0 -> doiVnd(player, 100, 100_000);
-                case 1 -> doiVnd(player, 500, 500_000);
-                case 2 -> doiVnd(player, 1000, 1_000_000);
+                case 0 -> doiVnd(player, 100, 10_000);     // 100 xu = 10k VND (giảm ÷10)
+                case 1 -> doiVnd(player, 500, 50_000);     // 500 xu = 50k VND
+                case 2 -> doiVnd(player, 1000, 100_000);   // 1000 xu = 100k VND
             }
             return;
         }
@@ -102,13 +106,20 @@ public class Santa extends Npc {
     }
 
     private void openMenuDoiVnd(Player player) {
+        // Reset đếm nếu qua ngày mới
+        resetDoiVndDaily(player);
+        int remaining = MAX_DOI_VND_PER_DAY - player.doiVndTodayCount;
+
         createOtherMenu(
                 player,
                 MENU_DOI_VND,
-                "Bạn muốn đổi bao nhiêu?\nHiện có: " + player.getSession().cash + " VNĐ",
-                "100 xu\n100k",
-                "500 xu\n500k",
-                "1000 xu\n1000k");
+                "Đổi Xu NRO → VNĐ\n"
+                        + "Hiện có: " + player.getSession().cash + " VNĐ\n"
+                        + "Lượt đổi hôm nay: " + player.doiVndTodayCount + "/" + MAX_DOI_VND_PER_DAY
+                        + " (còn " + remaining + " lượt)",
+                "100 xu\n10k VNĐ",
+                "500 xu\n50k VNĐ",
+                "1000 xu\n100k VNĐ");
     }
 
     private void upgradeClanLevel(Player player) {
@@ -150,11 +161,27 @@ public class Santa extends Npc {
         ChangeMapService.gI().changeMapBySpaceShip(player, 175, -1, -1);
     }
 
+    /** Reset bộ đếm đổi VND nếu qua ngày mới */
+    private void resetDoiVndDaily(Player player) {
+        if (player.doiVndLastDay <= 0 || Util.isAfterMidnight(player.doiVndLastDay)) {
+            player.doiVndTodayCount = 0;
+            player.doiVndLastDay = System.currentTimeMillis();
+        }
+    }
+
     private void doiVnd(Player player, int xuCan, int vndNhan) {
+        // Kiểm tra giới hạn đổi/ngày
+        resetDoiVndDaily(player);
+        if (player.doiVndTodayCount >= MAX_DOI_VND_PER_DAY) {
+            Service.gI().sendThongBao(player,
+                    "Bạn đã hết lượt đổi VNĐ hôm nay (" + MAX_DOI_VND_PER_DAY + "/" + MAX_DOI_VND_PER_DAY + ")\nHãy quay lại ngày mai!");
+            return;
+        }
+
         var itemXu = InventoryService.gI().findItemBag(player, 1705);
 
         if (itemXu == null || itemXu.quantity < xuCan) {
-            Service.gI().sendThongBao(player, "Không đủ xu");
+            Service.gI().sendThongBao(player, "Không đủ xu (cần " + xuCan + " Xu NRO)");
             return;
         }
 
@@ -164,13 +191,16 @@ public class Santa extends Npc {
             InventoryService.gI().removeItemBag(player, itemXu);
         }
 
-        // cộng cash DB
-        if (!PlayerDAO.addcash(player.getSession().userId, vndNhan, "DOI_XU_VND", "Xu:" + xuCan + " VND:" + vndNhan)) {
+        // cộng cash DB (KHÔNG cộng danap - đổi xu không phải nạp tiền thật!)
+        if (!PlayerDAO.addCashNoDanap(player.getSession().userId, vndNhan, "DOI_XU_VND", "Xu:" + xuCan + " VND:" + vndNhan)) {
             Service.gI().sendThongBao(player, "Lỗi cộng VNĐ");
             return;
         }
 
-        // 👉 QUAN TRỌNG: cộng vào player đang online
+        // Tăng bộ đếm
+        player.doiVndTodayCount++;
+
+        // cộng vào player đang online
         player.getSession().cash += vndNhan;
         player.getSession().vnd += vndNhan;
 
@@ -180,7 +210,9 @@ public class Santa extends Npc {
         // gửi lại tiền
         Service.gI().sendMoney(player);
 
+        int remaining = MAX_DOI_VND_PER_DAY - player.doiVndTodayCount;
         Service.gI().sendThongBao(player,
-                "Đổi thành công " + xuCan + " xu → " + vndNhan + " VNĐ");
+                "Đổi thành công " + xuCan + " xu → " + Util.numberToMoney(vndNhan) + " VNĐ\n"
+                + "Còn " + remaining + " lượt đổi hôm nay");
     }
 }

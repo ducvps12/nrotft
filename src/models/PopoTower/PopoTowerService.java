@@ -87,7 +87,7 @@ public class PopoTowerService {
             player.popoTowerBestFloor = floor;
             player.popoTowerBestTime = clearTime;
         }
-        int xu = 10 + floor * 5;
+        int xu = 2 + floor * 2;
         long gold = floor * 2_000_000L;
         Item xuNro = ItemService.gI().createNewItem((short) 1705, xu);
         InventoryService.gI().addItemBag(player, xuNro);
@@ -126,10 +126,10 @@ public class PopoTowerService {
 
     private void rewardMilestone(Player player, int floor) {
         int bonusXu = switch (floor) {
-            case 5 -> 50;
-            case 10 -> 120;
-            case 15 -> 250;
-            case 20 -> 500;
+            case 5 -> 10;
+            case 10 -> 25;
+            case 15 -> 50;
+            case 20 -> 100;
             default -> 0;
         };
         if (bonusXu > 0) {

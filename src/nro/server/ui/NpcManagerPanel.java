@@ -14,10 +14,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 
-/**
- * Panel quản lý NPC - cho phép xem, sửa, thêm NPC template.
- */
 public class NpcManagerPanel extends JPanel {
 
     private static final String ICON_FOLDER = "data/icon/";
@@ -30,42 +28,58 @@ public class NpcManagerPanel extends JPanel {
     private final Map<Integer, Integer> partIconMap = new HashMap<>();
     private final Map<Integer, ImageIcon> iconCache = new HashMap<>();
 
+    // Cache: partId -> {iconId, type}
+    private final List<int[]> allParts = new ArrayList<>(); // [id, iconId, type]
+
     public NpcManagerPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
         setBorder(new EmptyBorder(15, 15, 15, 15));
         loadPartIcons();
-        initUI();
     }
 
     private void loadPartIcons() {
         new Thread(() -> {
             try (Connection conn = DBConnecter.getConnectionServer();
                  Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery("SELECT id, data FROM part WHERE type = 0")) {
+                 ResultSet rs = stmt.executeQuery("SELECT id, type, data FROM part")) {
                 while (rs.next()) {
                     try {
+                        int id = rs.getInt("id");
+                        int type = rs.getInt("type");
                         JsonArray arr = new JsonParser().parse(rs.getString("data")).getAsJsonArray();
-                        if (arr.size() > 0) partIconMap.put(rs.getInt("id"), arr.get(0).getAsJsonArray().get(0).getAsInt());
+                        if (arr.size() > 0) {
+                            int iconId = arr.get(0).getAsJsonArray().get(0).getAsInt();
+                            if (type == 0) partIconMap.put(id, iconId);
+                            allParts.add(new int[]{id, iconId, type});
+                        }
                     } catch (Exception ignored) {}
                 }
             } catch (Exception ignored) {}
-            SwingUtilities.invokeLater(this::loadData);
+            SwingUtilities.invokeLater(() -> { initUI(); loadData(); });
         }).start();
     }
 
-    private ImageIcon getHeadIcon(int headPartId, int size) {
-        if (headPartId <= 0) return null;
-        if (iconCache.containsKey(headPartId)) return iconCache.get(headPartId);
-        Integer iconId = partIconMap.get(headPartId);
+    private ImageIcon getPartIcon(int partId, int size) {
+        if (partId <= 0) return null;
+        String cacheKey = partId + "_" + size;
+        int hash = cacheKey.hashCode();
+        if (iconCache.containsKey(hash)) return iconCache.get(hash);
+
+        Integer iconId = null;
+        for (int[] p : allParts) {
+            if (p[0] == partId) { iconId = p[1]; break; }
+        }
+        if (iconId == null) iconId = partIconMap.get(partId);
         if (iconId == null) return null;
+
         try {
             for (String z : new String[]{"x4", "x3", "x2", "x1"}) {
                 File f = new File(ICON_FOLDER + z + "/" + iconId + ".png");
                 if (f.exists()) {
                     Image img = ImageIO.read(f).getScaledInstance(size, size, Image.SCALE_SMOOTH);
                     ImageIcon icon = new ImageIcon(img);
-                    iconCache.put(headPartId, icon);
+                    iconCache.put(hash, icon);
                     return icon;
                 }
             }
@@ -74,7 +88,6 @@ public class NpcManagerPanel extends JPanel {
     }
 
     private void initUI() {
-        // Header
         JLabel lblTitle = new JLabel("QUẢN LÝ NPC TEMPLATE");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitle.setForeground(new Color(60, 60, 60));
@@ -87,9 +100,9 @@ public class NpcManagerPanel extends JPanel {
         txtSearch.setPreferredSize(new Dimension(250, 35));
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm NPC theo tên hoặc ID...");
 
-        JButton btnSearch = ServerGuiUtils.createStyledButton("Tìm", new Color(0, 120, 215), Color.WHITE);
-        JButton btnReload = ServerGuiUtils.createStyledButton("Tải lại", new Color(40, 167, 69), Color.WHITE);
-        JButton btnAdd = ServerGuiUtils.createStyledButton("+ Thêm NPC", new Color(255, 140, 0), Color.WHITE);
+        JButton btnSearch = ServerGuiUtils.createStyledButton("Tìm Kiếm", new Color(0, 120, 215), Color.WHITE);
+        JButton btnReload = ServerGuiUtils.createStyledButton("Tải Lại", new Color(40, 167, 69), Color.WHITE);
+        JButton btnAdd = ServerGuiUtils.createStyledButton("+ Thêm NPC Mới", new Color(255, 140, 0), Color.WHITE);
 
         btnSearch.addActionListener(e -> searchData());
         btnReload.addActionListener(e -> { txtSearch.setText(""); loadData(); });
@@ -167,9 +180,7 @@ public class NpcManagerPanel extends JPanel {
                      "SELECT n.*, GROUP_CONCAT(s.tag_name SEPARATOR ', ') as shops " +
                      "FROM npc_template n LEFT JOIN shop s ON s.npc_id = n.id " +
                      "GROUP BY n.id ORDER BY n.id")) {
-                while (rs.next()) {
-                    addRow(rs);
-                }
+                while (rs.next()) addRow(rs);
             } catch (Exception e) { e.printStackTrace(); }
         }).start();
     }
@@ -186,9 +197,7 @@ public class NpcManagerPanel extends JPanel {
                      "WHERE n.id = ? OR n.NAME LIKE ? GROUP BY n.id ORDER BY n.id")) {
                 try { ps.setInt(1, Integer.parseInt(txt)); } catch (Exception e) { ps.setInt(1, -1); }
                 ps.setString(2, "%" + txt + "%");
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) addRow(rs);
-                }
+                try (ResultSet rs = ps.executeQuery()) { while (rs.next()) addRow(rs); }
             } catch (Exception e) { e.printStackTrace(); }
         }).start();
     }
@@ -201,22 +210,20 @@ public class NpcManagerPanel extends JPanel {
         int leg = rs.getInt("leg");
         int avatar = rs.getInt("avatar");
         String shops = rs.getString("shops");
-
-        ImageIcon icon = getHeadIcon(head, 32);
+        ImageIcon icon = getPartIcon(head, 32);
         SwingUtilities.invokeLater(() -> model.addRow(new Object[]{
-            icon, id, name, head, body, leg, avatar,
-            shops != null ? shops : "-"
+            icon, id, name, head, body, leg, avatar, shops != null ? shops : "-"
         }));
     }
 
     // ==============================================
-    // EDIT / ADD DIALOG
+    // EDIT / ADD DIALOG - với visual picker
     // ==============================================
     private void openEditDialog(int npcId) {
         boolean isNew = (npcId < 0);
         JDialog d = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
                 isNew ? "Thêm NPC mới" : "Sửa NPC #" + npcId, true);
-        d.setSize(500, 350);
+        d.setSize(600, 520);
         d.setLocationRelativeTo(this);
         d.setLayout(new BorderLayout());
 
@@ -226,7 +233,6 @@ public class NpcManagerPanel extends JPanel {
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(6, 5, 6, 5);
         g.fill = GridBagConstraints.HORIZONTAL;
-        g.weightx = 1;
 
         JTextField txtId = new JTextField(); txtId.setEditable(false);
         JTextField txtName = new JTextField();
@@ -234,6 +240,27 @@ public class NpcManagerPanel extends JPanel {
         JTextField txtBody = new JTextField();
         JTextField txtLeg = new JTextField();
         JTextField txtAvatar = new JTextField();
+
+        // Preview label
+        JLabel lblPreview = new JLabel();
+        lblPreview.setHorizontalAlignment(SwingConstants.CENTER);
+        lblPreview.setPreferredSize(new Dimension(64, 64));
+        lblPreview.setBorder(BorderFactory.createLineBorder(new Color(200,200,200), 1));
+        lblPreview.setToolTipText("Preview avatar");
+
+        // Update preview khi head thay đổi
+        Runnable updatePreview = () -> {
+            try {
+                int hid = Integer.parseInt(txtHead.getText().trim());
+                ImageIcon ic = getPartIcon(hid, 56);
+                lblPreview.setIcon(ic);
+                lblPreview.setText(ic == null ? "?" : "");
+            } catch (Exception ex) { lblPreview.setIcon(null); lblPreview.setText("?"); }
+        };
+        txtHead.addActionListener(e -> updatePreview.run());
+        txtHead.addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) { updatePreview.run(); }
+        });
 
         // Load data if editing
         if (!isNew) {
@@ -251,18 +278,30 @@ public class NpcManagerPanel extends JPanel {
                     }
                 }
             } catch (Exception ex) { ex.printStackTrace(); }
+            updatePreview.run();
         }
 
         int row = 0;
+        // Preview ở trên cùng
+        g.gridx = 0; g.gridy = row; g.weightx = 0; g.gridwidth = 1;
+        form.add(new JLabel("Preview:"), g);
+        g.gridx = 1; g.weightx = 1;
+        JPanel previewRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        previewRow.setOpaque(false);
+        previewRow.add(lblPreview);
+        form.add(previewRow, g);
+        row++;
+
+        g.gridwidth = 1;
         addFormRow(form, g, row++, "ID:", txtId);
         addFormRow(form, g, row++, "Tên NPC:", txtName);
-        addFormRow(form, g, row++, "Head Part ID:", txtHead);
-        addFormRow(form, g, row++, "Body Part ID:", txtBody);
-        addFormRow(form, g, row++, "Leg Part ID:", txtLeg);
-        addFormRow(form, g, row++, "Avatar ID:", txtAvatar);
+        addFormRowWithPicker(form, g, row++, "Head Part:", txtHead, 0, d, updatePreview);
+        addFormRowWithPicker(form, g, row++, "Body Part:", txtBody, 1, d, null);
+        addFormRowWithPicker(form, g, row++, "Leg Part:", txtLeg, 2, d, null);
+        addFormRowWithPicker(form, g, row++, "Avatar ID:", txtAvatar, -1, d, null);
 
         // Buttons
-        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
         pBtn.setBackground(new Color(245, 245, 245));
         pBtn.setBorder(new MatteBorder(1, 0, 0, 0, new Color(220, 220, 220)));
 
@@ -278,11 +317,9 @@ public class NpcManagerPanel extends JPanel {
             String name = txtName.getText().trim();
             if (name.isEmpty()) { JOptionPane.showMessageDialog(d, "Tên NPC không được trống!"); return; }
             int head = safeInt(txtHead), body = safeInt(txtBody), leg = safeInt(txtLeg), avt = safeInt(txtAvatar);
-
             new Thread(() -> {
                 try (Connection conn = DBConnecter.getConnectionServer()) {
                     if (isNew) {
-                        // Tìm ID lớn nhất + 1
                         int newId = 0;
                         try (Statement st = conn.createStatement();
                              ResultSet rs = st.executeQuery("SELECT MAX(id) FROM npc_template")) {
@@ -304,8 +341,7 @@ public class NpcManagerPanel extends JPanel {
                     }
                     SwingUtilities.invokeLater(() -> {
                         JOptionPane.showMessageDialog(d, "Lưu thành công!");
-                        d.dispose();
-                        loadData();
+                        d.dispose(); loadData();
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -330,13 +366,158 @@ public class NpcManagerPanel extends JPanel {
             }
         });
 
-        pBtn.add(btnDelete);
-        pBtn.add(btnCancel);
-        pBtn.add(btnSave);
-
+        pBtn.add(btnDelete); pBtn.add(btnCancel); pBtn.add(btnSave);
         d.add(form, BorderLayout.CENTER);
         d.add(pBtn, BorderLayout.SOUTH);
         d.setVisible(true);
+    }
+
+    /**
+     * Thêm row có nút "Chọn" mở visual picker
+     */
+    private void addFormRowWithPicker(JPanel p, GridBagConstraints g, int row,
+                                       String label, JTextField field, int partType,
+                                       JDialog parent, Runnable onSelect) {
+        g.gridx = 0; g.gridy = row; g.weightx = 0;
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(FONT_BOLD);
+        p.add(lbl, g);
+
+        g.gridx = 1; g.weightx = 1;
+        JPanel rowPanel = new JPanel(new BorderLayout(5, 0));
+        rowPanel.setOpaque(false);
+        field.setFont(FONT);
+        rowPanel.add(field, BorderLayout.CENTER);
+
+        if (partType >= 0) { // -1 = avatar (no picker)
+            JButton btnPick = new JButton("Chọn...");
+            btnPick.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            btnPick.setPreferredSize(new Dimension(70, 28));
+            btnPick.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btnPick.addActionListener(e -> openPartPicker(parent, field, partType, onSelect));
+            rowPanel.add(btnPick, BorderLayout.EAST);
+        }
+        p.add(rowPanel, g);
+    }
+
+    /**
+     * Mở dialog chọn Part với hình ảnh grid
+     */
+    private void openPartPicker(JDialog parent, JTextField targetField, int partType, Runnable onSelect) {
+        String title;
+        switch (partType) {
+            case 0 -> title = "Chọn Head Part";
+            case 1 -> title = "Chọn Body Part";
+            case 2 -> title = "Chọn Leg Part";
+            default -> title = "Chọn Part";
+        }
+
+        JDialog picker = new JDialog(parent, title, true);
+        picker.setSize(700, 500);
+        picker.setLocationRelativeTo(parent);
+        picker.setLayout(new BorderLayout());
+
+        // Filter bar
+        JPanel filterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+        filterBar.setBackground(new Color(245, 245, 245));
+        JTextField txtFilter = new JTextField(15);
+        txtFilter.putClientProperty("JTextField.placeholderText", "Lọc theo ID...");
+        JLabel lblCount = new JLabel();
+        lblCount.setFont(FONT);
+        filterBar.add(new JLabel("Lọc:"));
+        filterBar.add(txtFilter);
+        filterBar.add(lblCount);
+        picker.add(filterBar, BorderLayout.NORTH);
+
+        // Grid panel
+        JPanel grid = new JPanel(new GridLayout(0, 6, 6, 6));
+        grid.setBackground(Color.WHITE);
+        grid.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JScrollPane scroll = new JScrollPane(grid);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        picker.add(scroll, BorderLayout.CENTER);
+
+        // Lọc parts theo type
+        List<int[]> filtered = new ArrayList<>();
+        for (int[] pt : allParts) {
+            if (pt[2] == partType) filtered.add(pt);
+        }
+        filtered.sort(Comparator.comparingInt(a -> a[0]));
+
+        Runnable populateGrid = () -> {
+            grid.removeAll();
+            String filterText = txtFilter.getText().trim();
+            int count = 0;
+            for (int[] pt : filtered) {
+                if (!filterText.isEmpty()) {
+                    try {
+                        if (!String.valueOf(pt[0]).contains(filterText)) continue;
+                    } catch (Exception ignored) { continue; }
+                }
+                count++;
+                int partId = pt[0];
+                int iconId = pt[1];
+
+                JPanel cell = new JPanel(new BorderLayout(2, 2));
+                cell.setBackground(Color.WHITE);
+                cell.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(220,220,220), 1),
+                    new EmptyBorder(4, 4, 4, 4)));
+                cell.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                cell.setPreferredSize(new Dimension(90, 80));
+
+                // Icon
+                JLabel lblIcon = new JLabel();
+                lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
+                ImageIcon ic = getPartIcon(partId, 40);
+                if (ic != null) lblIcon.setIcon(ic);
+                else lblIcon.setText("?");
+                cell.add(lblIcon, BorderLayout.CENTER);
+
+                // ID label
+                JLabel lblId = new JLabel("ID: " + partId, SwingConstants.CENTER);
+                lblId.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+                lblId.setForeground(new Color(100, 100, 100));
+                cell.add(lblId, BorderLayout.SOUTH);
+
+                // Click to select
+                cell.addMouseListener(new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        targetField.setText(String.valueOf(partId));
+                        if (onSelect != null) onSelect.run();
+                        picker.dispose();
+                    }
+                    public void mouseEntered(MouseEvent e) {
+                        cell.setBackground(new Color(230, 242, 255));
+                        cell.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(new Color(0, 120, 215), 2),
+                            new EmptyBorder(3, 3, 3, 3)));
+                    }
+                    public void mouseExited(MouseEvent e) {
+                        cell.setBackground(Color.WHITE);
+                        cell.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(new Color(220,220,220), 1),
+                            new EmptyBorder(4, 4, 4, 4)));
+                    }
+                });
+
+                grid.add(cell);
+            }
+            lblCount.setText("Hiện " + count + " / " + filtered.size() + " parts");
+            grid.revalidate();
+            grid.repaint();
+        };
+
+        populateGrid.run();
+
+        txtFilter.addActionListener(e -> populateGrid.run());
+        txtFilter.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { populateGrid.run(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { populateGrid.run(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { populateGrid.run(); }
+        });
+
+        picker.setVisible(true);
     }
 
     private void addFormRow(JPanel p, GridBagConstraints g, int row, String label, JComponent field) {

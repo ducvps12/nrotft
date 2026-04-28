@@ -54,13 +54,11 @@ public class HistoryTransactionDAO {
         for (Item item : doGD1) {
             if (item.isNotNullItem()) {
                 itemPlayer1 += item.template.name + " (x" + item.quantityGD + "),";
-                System.out.println(item.template.name + " (x" + item.quantityGD + "),");
             }
         }
         for (Item item : doGD2) {
             if (item.isNotNullItem()) {
                 itemPlayer2 += item.template.name + " (x" + item.quantityGD + "),";
-                System.out.println(item.template.name + " (x" + item.quantityGD + "),");
             }
         }
         String beforeTran1 = "";
@@ -87,22 +85,41 @@ public class HistoryTransactionDAO {
                 afterTran2 += item.template.name + " (x" + item.quantity + "),";
             }
         }
+
+        // Console log chi tiết giao dịch
+        System.out.println("═══════════════════════════════════════════════════════");
+        System.out.println("📦 GIAO DỊCH: " + player1 + " ⇄ " + player2);
+        System.out.println("  ├─ " + pl1.name + " gửi: " + itemPlayer1);
+        System.out.println("  ├─ " + pl2.name + " gửi: " + itemPlayer2);
+        System.out.println("  ├─ Vàng " + pl1.name + ": " + gold1Before + " → " + gold1After
+                + " (Δ " + (gold1After - gold1Before) + ")");
+        System.out.println("  └─ Vàng " + pl2.name + ": " + gold2Before + " → " + gold2After
+                + " (Δ " + (gold2After - gold2Before) + ")");
+        System.out.println("═══════════════════════════════════════════════════════");
+
         try {
             DBConnecter.executeUpdate(
-                    "INSERT INTO history_transaction (player_1, player_2, item_player_1, item_player_2, bag_1_before_tran, bag_2_before_tran, bag_1_after_tran, bag_2_after_tran, time_tran) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO history_transaction (player_1, player_2, item_player_1, item_player_2, "
+                    + "bag_1_before_tran, bag_2_before_tran, bag_1_after_tran, bag_2_after_tran, "
+                    + "gold_1_before, gold_2_before, gold_1_after, gold_2_after, time_tran) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     player1, player2, itemPlayer1, itemPlayer2, beforeTran1, beforeTran2, afterTran1, afterTran2,
+                    gold1Before, gold2Before, gold1After, gold2After,
                     new Timestamp(System.currentTimeMillis()));
         } catch (Exception ex) {
+            System.out.println("❌ Lỗi ghi log giao dịch: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
+    /**
+     * Xoá lịch sử giao dịch cũ hơn 30 ngày (trước là 3 ngày - quá ngắn)
+     */
     public static void deleteHistory() {
         PreparedStatement ps = null;
         try (Connection con = DBConnecter.getConnectionServer();) {
-            ps = con.prepareStatement("delete from history_transaction where time_tran < '"
-                    + TimeUtil.getTimeBeforeCurrent(3 * 24 * 60 * 60 * 1000, "yyyy-MM-dd") + "'");
+            ps = con.prepareStatement("DELETE FROM history_transaction WHERE time_tran < DATE_SUB(NOW(), INTERVAL 30 DAY)");
             ps.executeUpdate();
-            ps.close();
         } catch (Exception e) {
         } finally {
             try {

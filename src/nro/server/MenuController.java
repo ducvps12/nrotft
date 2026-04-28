@@ -40,6 +40,24 @@ public class MenuController {
         } else {
             npc = player.zone.map.getNpc(player, idnpc);
         }
+        // DEBUG: log NPC click
+        System.out.println("[DEBUG NPC CLICK] player=" + player.name
+                + " idnpc=" + idnpc
+                + " mapId=" + player.zone.map.mapId
+                + " playerXY=(" + player.location.x + "," + player.location.y + ")"
+                + " npcFound=" + (npc != null)
+                + " npcClass=" + (npc != null ? npc.getClass().getSimpleName() : "null")
+                + " npcMapNpcsSize=" + player.zone.map.npcs.size());
+        if (npc == null && player.zone.map.npcs != null) {
+            for (Npc n : player.zone.map.npcs) {
+                if (n != null && n.tempId == idnpc) {
+                    System.out.println("[DEBUG NPC CLICK] Found NPC tempId=" + n.tempId
+                            + " npcXY=(" + n.cx + "," + n.cy + ")"
+                            + " npcMapId=" + n.mapId
+                            + " dist=" + utils.Util.getDistance(player.location.x, player.location.y, n.cx, n.cy));
+                }
+            }
+        }
         if (npc != null) {
             npc.openBaseMenu(player);
         } else {

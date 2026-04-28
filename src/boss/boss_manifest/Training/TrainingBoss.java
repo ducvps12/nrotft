@@ -229,32 +229,32 @@ public abstract class TrainingBoss extends Boss {
         String milestone;
         switch ((int) this.id) {
             case BossID.MRPOPO -> {
-                xuReward = 50;
+                xuReward = 10;
                 goldReward = 10_000_000L;
                 milestone = "Bạn đã vượt qua Mr.PôPô và mở khóa luyện tập với Thượng Đế!";
             }
             case BossID.THUONG_DE -> {
-                xuReward = 80;
+                xuReward = 15;
                 goldReward = 20_000_000L;
                 milestone = "Bạn đã vượt qua Thượng Đế, cảnh giới luyện tập mới đã mở ra!";
             }
             case BossID.THAN_VU_TRU -> {
-                xuReward = 120;
+                xuReward = 25;
                 goldReward = 35_000_000L;
                 milestone = "Bạn đã vượt qua Thần Vũ Trụ, sức mạnh tu luyện tăng mạnh!";
             }
             case BossID.TO_SU_KAIO -> {
-                xuReward = 180;
+                xuReward = 35;
                 goldReward = 50_000_000L;
                 milestone = "Bạn đã vượt qua Tổ Sư Kaio, bước vào hàng cao thủ luyện tập!";
             }
             case BossID.WHIS -> {
-                xuReward = 250;
+                xuReward = 50;
                 goldReward = 100_000_000L;
                 milestone = "Bạn đã vượt qua Whis, đạt đỉnh cao huấn luyện hiện tại!";
             }
             default -> {
-                xuReward = 25;
+                xuReward = 5;
                 goldReward = 5_000_000L;
                 milestone = "Bạn đã vượt qua thử thách luyện tập!";
             }

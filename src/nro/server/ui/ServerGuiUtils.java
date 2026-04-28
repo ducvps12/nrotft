@@ -38,9 +38,13 @@ public class ServerGuiUtils {
         b.setFocusPainted(false);
         b.setFont(new Font("Segoe UI", Font.BOLD, 12));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Dùng padding đủ rộng, không hardcode width nhỏ
+        b.setMargin(new Insets(6, 16, 6, 16));
+        // Minimum size đủ rộng cho text
+        int textWidth = b.getFontMetrics(b.getFont()).stringWidth(text);
         b.setPreferredSize(new Dimension(
-            b.getFontMetrics(b.getFont()).stringWidth(text) + 30,
-            32
+            Math.max(80, textWidth + 40),
+            34
         ));
         return b;
     }

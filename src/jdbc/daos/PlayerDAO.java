@@ -1444,6 +1444,26 @@ public class PlayerDAO {
         }
     }
 
+    /**
+     * Cộng cash/vnd KHÔNG tăng danap (dùng cho đổi xu, phần thưởng in-game).
+     * danap chỉ tăng khi nạp tiền thật!
+     */
+    public static boolean addCashNoDanap(int id, int num, String source, String detail) {
+        String updateQuery = "UPDATE account SET cash = cash + ?, vnd = vnd + ? WHERE id = ?";
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(updateQuery)) {
+            ps.setInt(1, num);
+            ps.setInt(2, num);
+            ps.setInt(3, id);
+            ps.executeUpdate();
+            nro.server.CashAuditLog.logAdd(id, null, num, source, detail);
+            return true;
+        } catch (SQLException e) {
+            Logger.error(" Lỗi addCashNoDanap");
+            return false;
+        }
+    }
+
     public static boolean subGoldBar(Player player, int num) {
         String updateQuery = "UPDATE account SET thoi_vang = thoi_vang - ? WHERE id = ?";
         try (Connection con = DBConnecter.getConnectionServer();

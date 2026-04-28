@@ -386,9 +386,21 @@ public class Input {
                 }
 
                 case BUFFVND: {
+                    // BẢO MẬT: Chỉ Admin mới được buff VND
+                    if (!player.isAdmin()) {
+                        Service.gI().sendThongBao(player, "Bạn không có quyền sử dụng chức năng này!");
+                        System.err.println("[SECURITY] Player " + player.name + " (ID:" + player.id + ") tried to use BUFFVND without admin permission!");
+                        break;
+                    }
                     try {
                         String playerName = text[0].trim();
                         int addcash = Integer.parseInt(text[1].trim());
+
+                        // Giới hạn số tiền buff tối đa 100 triệu
+                        if (addcash <= 0 || addcash > 100_000_000) {
+                            Service.gI().sendThongBao(player, "Số tiền buff phải từ 1 đến 100,000,000 VNĐ");
+                            break;
+                        }
 
                         NDVResultSet rs = DBConnecter.executeQuery("SELECT account_id, id FROM player WHERE name = ?",
                                 playerName);
@@ -397,6 +409,7 @@ public class Input {
                             int playerId = rs.getInt("id");
 
                             if (PlayerDAO.addcash(accountId, addcash, "ADMIN_BUFF", "By:" + player.name + " To:" + playerName)) {
+                                System.out.println("[ADMIN_BUFF] " + player.name + " buffed " + addcash + " VND to " + playerName + " (AccID:" + accountId + ")");
                                 Service.gI().sendThongBao(player,
                                         "Bạn đã buff cho " + playerName + " " + addcash + " VNĐ");
 

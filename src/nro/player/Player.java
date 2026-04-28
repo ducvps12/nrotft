@@ -314,6 +314,9 @@ public class Player implements Runnable {
     public boolean isPopoTowerChallenge;
     public int popoTowerChallengeFloor;
     public long popoTowerStartTime;
+    /** Bộ đếm đổi Xu → VND trong ngày (tối đa 3 lần/ngày) */
+    public int doiVndTodayCount;
+    public long doiVndLastDay;
     public int tnsmLuyenTap;
     public boolean dangKyTapTuDong;
     public long lastTimeOffline;

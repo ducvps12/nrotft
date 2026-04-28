@@ -84,6 +84,7 @@ public class NDVSqlFetcher {
                 session.isAdmin = rs.getBoolean("is_admin");
                 session.lastTimeLogout = rs.getTimestamp("last_time_logout").getTime();
                 session.actived = rs.getBoolean("active");
+                try { session.loantin = rs.getBoolean("loantin"); } catch (Exception e) { session.loantin = false; }
                 session.goldBar = rs.getInt("account.thoi_vang");
                 session.luotquay = rs.getInt("account.luotquay");
                 session.gold = rs.getLong("account.vang");

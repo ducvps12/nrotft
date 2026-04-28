@@ -58,6 +58,7 @@ public class MySession extends Session {
     public long lastTimeReadMessage;
 
     public boolean actived;
+    public boolean loantin; // Admin đã duyệt loan tin cho user này
 
     public boolean check;
 

@@ -46,6 +46,7 @@ public class DaiThienSu extends Npc {
     private static final int MENU_HD_PVP = 3007;
     private static final int MENU_HD_ECONOMY = 3008;
     private static final int MENU_HD_FLOW = 3009;
+    private static final int MENU_HD_KILIS = 3010;
 
     private static final int[] MOC_5 = { 500, 800, 1500, 3000, 5000 };
 
@@ -96,6 +97,7 @@ public class DaiThienSu extends Npc {
             case MENU_HD_CLAN -> { if (select == 0) showHuongDan(player); }
             case MENU_HD_PVP -> { if (select == 0) showHuongDan(player); }
             case MENU_HD_ECONOMY -> { if (select == 0) showHuongDan(player); }
+            case MENU_HD_KILIS -> { if (select == 0) showHuongDan(player); }
         }
     }
 
@@ -103,24 +105,27 @@ public class DaiThienSu extends Npc {
     // THÔNG BÁO & SỰ KIỆN
     // ==========================================
     private void showThongBao(Player player) {
+        String events = getActiveEventLine();
+        String tnsm = getTNSMStatus();
+        String drop = getDropRateStatus();
+
         createOtherMenu(player, MENU_THONG_BAO,
-                "|7|━━ THÔNG BÁO VŨ TRỤ ━━\n\n"
-                        + "|5|📢 Sự kiện đang diễn ra:\n"
-                        + "|1|" + getActiveEventLine() + "\n\n"
-                        + "|5|⚡ Trạng thái Server:\n"
-                        + "|1|• TNSM: " + getTNSMStatus() + "\n"
-                        + "• Drop Rate: " + getDropRateStatus() + "\n"
-                        + "• EXP Quái: Bình thường\n\n"
-                        + "|5|📋 Cập nhật mới nhất:\n"
-                        + "|1|• Rebalance Shop Uron (giá mới)\n"
-                        + "• Boss Giỗ Tổ Hùng Vương\n"
-                        + "• Hệ thống Đậu Thần nâng cấp\n"
-                        + "• NPC Hướng Dẫn Viên tại làng\n\n"
-                        + "|5|💰 Tân thủ:\n"
-                        + "|1|• Tặng 2 tỉ vàng + 100k ngọc\n"
-                        + "• Farm SKH tại map Fide\n"
-                        + "• Nâng đậu thần sớm = mạnh nhanh",
-                "Quay lại");
+                "====== THONG BAO ======\n\n"
+                        + ">> Su kien: " + events + "\n\n"
+                        + "------------------------------\n"
+                        + "* TNSM: " + tnsm + "\n"
+                        + "* Drop: " + drop + "\n"
+                        + "------------------------------\n\n"
+                        + ">> Cap nhat moi:\n"
+                        + "  - Shop Uron gia moi\n"
+                        + "  - Dau Than nang cap\n"
+                        + "  - NPC Huong Dan tai lang\n"
+                        + "  - Can bang kinh te Xu NRO\n\n"
+                        + ">> Tan thu:\n"
+                        + "  - Tang 2 ti vang + 100k ngoc\n"
+                        + "  - Farm SKH tai map Fide\n"
+                        + "  - Thap PoPo nhan Xu NRO",
+                "Quay lai");
     }
 
     private void handleThongBao(Player player, int select) {
@@ -129,17 +134,17 @@ public class DaiThienSu extends Npc {
 
     private String getActiveEventLine() {
         StringBuilder sb = new StringBuilder();
-        if (EventManager.HUNG_VUONG) sb.append("🏯 Giỗ Tổ Hùng Vương, ");
-        if (EventManager.TRUNG_THU) sb.append("🥮 Trung Thu, ");
-        if (EventManager.HALLOWEEN) sb.append("🎃 Halloween, ");
-        if (EventManager.CHRISTMAS) sb.append("🎄 Giáng Sinh, ");
-        if (EventManager.LUNNAR_NEW_YEAR) sb.append("🧧 Tết Nguyên Đán, ");
-        if (EventManager.INTERNATIONAL_WOMANS_DAY) sb.append("💐 8/3, ");
-        if (EventManager.TOP_UP) sb.append("🏆 Đua Top Nạp, ");
-        if (EventManager.EVENT_POKEMON) sb.append("⚡ Pokemon, ");
-        if (EventManager.TEACHERS_DAY) sb.append("📚 20/11, ");
-        if (EventManager.PHO_ANH_HAI) sb.append("🍜 Phở Anh Hai, ");
-        if (sb.length() == 0) return "Hiện chưa có sự kiện đặc biệt.";
+        if (EventManager.HUNG_VUONG) sb.append("Gio To Hung Vuong, ");
+        if (EventManager.TRUNG_THU) sb.append("Trung Thu, ");
+        if (EventManager.HALLOWEEN) sb.append("Halloween, ");
+        if (EventManager.CHRISTMAS) sb.append("Giang Sinh, ");
+        if (EventManager.LUNNAR_NEW_YEAR) sb.append("Tet Nguyen Dan, ");
+        if (EventManager.INTERNATIONAL_WOMANS_DAY) sb.append("Ngay 8/3, ");
+        if (EventManager.TOP_UP) sb.append("Dua Top Nap, ");
+        if (EventManager.EVENT_POKEMON) sb.append("Pokemon, ");
+        if (EventManager.TEACHERS_DAY) sb.append("Ngay 20/11, ");
+        if (EventManager.PHO_ANH_HAI) sb.append("Pho Anh Hai, ");
+        if (sb.length() == 0) return "Khong co su kien dac biet.";
         sb.setLength(sb.length() - 2);
         return sb.toString();
     }
@@ -147,16 +152,16 @@ public class DaiThienSu extends Npc {
     private String getTNSMStatus() {
         // Kiểm tra các event có buff TNSM
         if (EventManager.HUNG_VUONG || EventManager.CHRISTMAS || EventManager.LUNNAR_NEW_YEAR) {
-            return "|7|x2 (Sự kiện đặc biệt!)";
+            return "x2 (Su kien dac biet!)";
         }
-        return "x1 (Bình thường)";
+        return "x1 (Binh thuong)";
     }
 
     private String getDropRateStatus() {
         if (EventManager.HUNG_VUONG || EventManager.CHRISTMAS) {
-            return "|7|x1.5 (Sự kiện tăng drop!)";
+            return "x1.5 (Su kien tang drop!)";
         }
-        return "x1 (Bình thường)";
+        return "x1 (Binh thuong)";
     }
 
     // ==========================================
@@ -164,17 +169,17 @@ public class DaiThienSu extends Npc {
     // ==========================================
     private void showHuongDan(Player player) {
         createOtherMenu(player, MENU_HUONG_DAN,
-                "|7|━━ HƯỚNG DẪN GAME ━━\n\n"
-                        + "|2|Chào " + player.name + "!\n"
-                        + "Chọn mục muốn tìm hiểu:",
-                "Lộ Trình\nTân Thủ",
-                "Trang Bị\n& SKH",
-                "Đậu Thần\n& Hồi Phục",
-                "Boss &\nSăn Đồ",
-                "Bang Hội\n& Phó Bản",
-                "PVP &\nMini Game",
-                "Kinh Tế\n& Nạp",
-                "Quay lại");
+                "=== HUONG DAN GAME ===\n\n"
+                        + "Chao " + player.name + "!\n"
+                        + "Chon muc muon tim hieu:",
+                "Lo Trinh\nTan Thu",
+                "Trang Bi\n& SKH",
+                "Dau Than\n& Hoi Phuc",
+                "Boss &\nSan Do",
+                "De Tu\n& Kilis",
+                "Bang Hoi\n& Pho Ban",
+                "PVP &\nKinh Te",
+                "Quay lai");
     }
 
     private void handleHuongDan(Player player, int select) {
@@ -183,134 +188,137 @@ public class DaiThienSu extends Npc {
             case 1 -> showEquipGuide(player);
             case 2 -> showBeanGuide(player);
             case 3 -> showBossGuide(player);
-            case 4 -> showClanGuide(player);
-            case 5 -> showPvpGuide(player);
-            case 6 -> showEconomyGuide(player);
+            case 4 -> showKilisGuide(player);
+            case 5 -> showClanGuide(player);
+            case 6 -> showPvpEconomyGuide(player);
             case 7 -> openBaseMenu(player);
         }
     }
 
     private void showFlowGuide(Player player) {
         createOtherMenu(player, MENU_HD_FLOW,
-                "|7|━━ LỘ TRÌNH TÂN THỦ ━━\n\n"
-                        + "|5|BƯỚC 1: Làm nhiệm vụ chính\n"
-                        + "|1|- Nói NPC ông nội → nhận NV\n"
-                        + "- Hoàn thành NV = mở map mới\n\n"
-                        + "|5|BƯỚC 2: Nâng sức mạnh\n"
-                        + "|1|- Thu hoạch đậu thần mỗi ngày\n"
-                        + "- Dùng tiềm năng tăng HP/KI/SĐ\n"
-                        + "- Mua sách skill từ Uron\n\n"
-                        + "|5|BƯỚC 3: Trang bị SKH\n"
-                        + "|1|- Farm quái map Fide (NV 20+)\n"
-                        + "- Kích hoạt set SKH = sức mạnh x10\n\n"
-                        + "|5|BƯỚC 4: Săn Boss & Endgame\n"
-                        + "|1|- Săn boss nhận đồ hiếm\n"
-                        + "- Bang hội, phó bản, PVP",
-                "Quay lại");
+                "=== LO TRINH TAN THU ===\n\n"
+                        + "B1: Nhiem vu chinh\n"
+                        + "  NPC ong noi -> nhan NV\n"
+                        + "  Hoan thanh NV = mo map moi\n\n"
+                        + "B2: Nang suc manh\n"
+                        + "  Thu hoach dau than moi ngay\n"
+                        + "  Dung tiem nang tang HP/KI/SD\n\n"
+                        + "B3: Trang bi SKH\n"
+                        + "  Farm quai map Fide (NV 20+)\n"
+                        + "  Kich hoat set SKH = SM x10\n\n"
+                        + "B4: Boss & Endgame\n"
+                        + "  San boss nhan do hiem\n"
+                        + "  Bang hoi, pho ban, PVP",
+                "Quay lai");
     }
 
     private void showEquipGuide(Player player) {
         createOtherMenu(player, MENU_HD_TRANG_BI,
-                "|7|━━ TRANG BỊ & SKH ━━\n\n"
-                        + "|5|Các loại trang bị:\n"
-                        + "|1|- Đồ thường: shop Bunma/Dende/Appule\n"
-                        + "- Đồ SKH: farm từ quái map Fide\n"
-                        + "- Đồ Sao: nâng cấp từ SKH\n"
-                        + "- Đồ Thiên Sứ: cao cấp nhất\n\n"
-                        + "|5|Cách farm SKH:\n"
-                        + "|1|- Map Fide: trại lính, vực chết...\n"
-                        + "- Tỉ lệ ~1/5000 (có Cỏ 4 lá ~1/3500)\n"
-                        + "- Đủ 4 món cùng loại = Kích Hoạt\n\n"
-                        + "|5|Nâng cấp:\n"
-                        + "|1|- Bà Hạt Mít: ép đồ, nâng cấp\n"
-                        + "- Lọ Sơn + Thiên Sứ + 2 SKH = VIP",
-                "Quay lại");
+                "=== TRANG BI & SKH ===\n\n"
+                        + "Loai trang bi:\n"
+                        + "  Do thuong: shop NPC\n"
+                        + "  Do SKH: farm quai map Fide\n"
+                        + "  Do Sao: nang cap tu SKH\n\n"
+                        + "Cach farm SKH:\n"
+                        + "  Map Fide: trai linh, vuc chet\n"
+                        + "  Ti le 1/5000 (Co 4 la 1/3500)\n"
+                        + "  Du 4 mon = Kich Hoat\n\n"
+                        + "Nang cap:\n"
+                        + "  Ba Hat Mit: ep do, nang cap\n"
+                        + "  Lo Son + Thien Su + 2 SKH = VIP",
+                "Quay lai");
     }
 
     private void showBeanGuide(Player player) {
         createOtherMenu(player, MENU_HD_BEAN,
-                "|7|━━ ĐẬU THẦN & HỒI PHỤC ━━\n\n"
-                        + "|5|Đậu thần:\n"
-                        + "|1|- Cây đậu ở NHÀ (cạnh ông nội)\n"
-                        + "- Thu hoạch → hồi HP/KI chiến đấu\n"
-                        + "- Nâng cấp cây = nhiều đậu hơn\n\n"
-                        + "|5|Nâng cấp đậu thần:\n"
-                        + "|1|- Nói cây Đậu Thần → Nâng cấp\n"
-                        + "- Cấp cao = HP/KI/SĐ bonus lớn\n"
-                        + "- Chi phí: vàng + ngọc (tăng dần)\n\n"
-                        + "|5|Hồi phục khác:\n"
-                        + "|1|- Đùi gà: nhặt từ quái\n"
-                        + "- Bùa hỗ trợ: mua Bà Hạt Mít",
-                "Quay lại");
+                "=== DAU THAN & HOI PHUC ===\n\n"
+                        + "Dau than:\n"
+                        + "  Cay dau o NHA (canh ong noi)\n"
+                        + "  Thu hoach -> hoi HP/KI\n"
+                        + "  Nang cap cay = nhieu dau hon\n\n"
+                        + "Nang cap dau than:\n"
+                        + "  Noi cay Dau Than -> Nang cap\n"
+                        + "  Cap cao = HP/KI/SD bonus lon\n"
+                        + "  Chi phi: vang + ngoc (tang dan)\n\n"
+                        + "Hoi phuc khac:\n"
+                        + "  Dui ga: nhat tu quai\n"
+                        + "  Bua ho tro: mua Ba Hat Mit",
+                "Quay lai");
     }
 
     private void showBossGuide(Player player) {
         createOtherMenu(player, MENU_HD_BOSS,
-                "|7|━━ BOSS & SĂN ĐỒ ━━\n\n"
-                        + "|5|Boss thường:\n"
-                        + "|1|- Kuku, Mập Đầu Đinh, Rambo\n"
-                        + "- Số 1-4, Tiểu Đội Trưởng (Fide)\n"
-                        + "- Black Goku, Golden Frieza\n\n"
-                        + "|5|Boss sự kiện:\n"
-                        + "|1|- Thủy Tinh, Sơn Tinh (Hùng Vương)\n"
-                        + "- Xên Bọ Hung, MaBu, Android\n\n"
-                        + "|5|Cách săn:\n"
-                        + "|1|- Xem khung PHẢI → bấm [Đến]\n"
-                        + "- Boss hồi sinh vài phút\n"
-                        + "- Đi nhóm/bang hiệu quả hơn",
-                "Quay lại");
+                "=== BOSS & SAN DO ===\n\n"
+                        + "Boss thuong:\n"
+                        + "  So 1-4, Black Goku, Frieza\n"
+                        + "  Tieu Doi Truong (Fide)\n\n"
+                        + "Boss su kien:\n"
+                        + "  Thuy Tinh, Son Tinh\n"
+                        + "  Xen Bo Hung, MaBu\n\n"
+                        + "Boss Rong Nhi:\n"
+                        + "  Drop Binh hut nang luong\n"
+                        + "  Dung de doi de tu Kilis\n\n"
+                        + "Cach san:\n"
+                        + "  Xem khung PHAI -> bam [Den]\n"
+                        + "  Di nhom/bang hieu qua hon",
+                "Quay lai");
+    }
+
+    private void showKilisGuide(Player player) {
+        createOtherMenu(player, MENU_HD_KILIS,
+                "=== DE TU & KILIS ===\n\n"
+                        + "Kiem Binh hut nang luong:\n"
+                        + "  Boss Rong Nhi 1-7 sao (1-3 cai)\n"
+                        + "  Boss Hirudegarn (1 cai)\n"
+                        + "  NV Quy Lao Kame (10-20 cai)\n\n"
+                        + "Farm chi so Kilis:\n"
+                        + "  Danh quai tai MAP CADIC\n"
+                        + "  Ti le: 1/333 (co buff: 10/333)\n"
+                        + "  Buff tai NPC Osin (map 187)\n"
+                        + "  100 hong ngoc = 10 phut buff\n\n"
+                        + "Tien hoa de tu:\n"
+                        + "  3000 Kilis + de Mabu 40 ti SM\n"
+                        + "  = De 3K (Black Goku/Cell/Berus)\n"
+                        + "  6000 Kilis + de 3K 100 ti SM\n"
+                        + "  = Tuyet The De Tu",
+                "Quay lai");
     }
 
     private void showClanGuide(Player player) {
         createOtherMenu(player, MENU_HD_CLAN,
-                "|7|━━ BANG HỘI & PHÓ BẢN ━━\n\n"
-                        + "|5|Tạo/gia nhập bang:\n"
-                        + "|1|- NPC Bò Mộng: tạo hoặc gia nhập\n\n"
-                        + "|5|Phó bản:\n"
-                        + "|1|- Trại Độc Nhãn: 2+ người\n"
-                        + "- Bản Đồ Kho Báu: khám phá\n"
-                        + "- Con Đường Rắn Độc: thử thách\n"
-                        + "- Mỗi bản 30 phút\n\n"
-                        + "|5|Hoạt động bang:\n"
-                        + "|1|- NV bang: cày quái cùng nhau\n"
-                        + "- Gọi Rồng Thần Namếc\n"
-                        + "- Tranh Ngọc Sao Đen: 20h-21h",
-                "Quay lại");
+                "=== BANG HOI & PHO BAN ===\n\n"
+                        + "Tao/gia nhap bang:\n"
+                        + "  NPC Bo Mong: tao hoac gia nhap\n\n"
+                        + "Pho ban:\n"
+                        + "  Trai Doc Nhan: 2+ nguoi\n"
+                        + "  Ban Do Kho Bau: kham pha\n"
+                        + "  Con Duong Ran Doc: thu thach\n\n"
+                        + "Hoat dong bang:\n"
+                        + "  NV bang: cay quai cung nhau\n"
+                        + "  Goi Rong Than Namec\n"
+                        + "  Tranh Ngoc Sao Den: 20h-21h",
+                "Quay lai");
     }
 
-    private void showPvpGuide(Player player) {
+    private void showPvpEconomyGuide(Player player) {
         createOtherMenu(player, MENU_HD_PVP,
-                "|7|━━ PVP & MINI GAME ━━\n\n"
-                        + "|5|PVP:\n"
-                        + "|1|- Chạm người chơi → Thách đấu\n"
-                        + "- Cả 2 đồng ý mới bắt đầu\n\n"
-                        + "|5|Đại Hội Võ Thuật:\n"
-                        + "|1|- Nhi đồng → Siêu cấp → Ngoại hạng\n"
-                        + "- Giải: ngọc, đá nâng cấp\n\n"
-                        + "|5|Tranh Ngọc Sao Đen:\n"
-                        + "|1|- 20h-21h, PvP bang hội\n"
-                        + "- Giữ ngọc 5 phút = thắng\n\n"
-                        + "|5|Oẳn Tù Tì:\n"
-                        + "|1|- Chạm người → cược 5tr vàng",
-                "Quay lại");
-    }
-
-    private void showEconomyGuide(Player player) {
-        createOtherMenu(player, MENU_HD_ECONOMY,
-                "|7|━━ KINH TẾ & NẠP ━━\n\n"
-                        + "|5|Tiền tệ:\n"
-                        + "|1|- Vàng: đánh quái, bán đồ\n"
-                        + "- Ngọc xanh: free, sự kiện\n"
-                        + "- Hồng Ngọc: nạp VNĐ đổi\n\n"
-                        + "|5|Cách nạp:\n"
-                        + "|1|- NHÀ → NPC ông nội → Nạp Tiền\n"
-                        + "- QR/ATM → tự cộng VNĐ\n"
-                        + "- Đổi → Thỏi vàng hoặc Hồng Ngọc\n\n"
-                        + "|5|Shop:\n"
-                        + "|1|- Bunma/Dende/Appule: trang bị\n"
-                        + "- Uron: sách kỹ năng\n"
-                        + "- Santa: trang phục, capsule",
-                "Quay lại");
+                "=== PVP & KINH TE ===\n\n"
+                        + "PVP:\n"
+                        + "  Cham nguoi choi -> Thach dau\n"
+                        + "  Dai Hoi Vo Thuat: giai ngoc\n"
+                        + "  Tranh Ngoc Sao Den: 20h-21h\n\n"
+                        + "Tien te:\n"
+                        + "  Vang: danh quai, ban do\n"
+                        + "  Ngoc xanh: free, su kien\n"
+                        + "  Hong Ngoc: nap VND doi\n\n"
+                        + "Cach nap:\n"
+                        + "  NHA -> NPC ong noi -> Nap Tien\n"
+                        + "  QR/ATM -> tu cong VND\n\n"
+                        + "Shop:\n"
+                        + "  Uron: sach ky nang\n"
+                        + "  Santa: trang phuc, capsule",
+                "Quay lai");
     }
 
     // ==========================================

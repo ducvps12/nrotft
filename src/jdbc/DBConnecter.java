@@ -32,7 +32,7 @@ public class DBConnecter {
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource ds;
     private static DBConnecter i;
-    private static final Connection[] connections = new Connection[10];
+    private static final Connection[] connections = new Connection[16];
 
     public static DBConnecter gI() {
         if (i == null) {
@@ -402,6 +402,8 @@ public class DBConnecter {
 
         config.setMaxLifetime(MAX_LIFE_TIME); // ví dụ: 30 phút
         config.setIdleTimeout(60000); // idleTimeout < maxLifetime
+        config.setConnectionTimeout(10000); // 10 giây timeout khi lấy connection
+        config.setLeakDetectionThreshold(30000); // Cảnh báo nếu connection không trả về sau 30 giây
 
         // Các cấu hình thêm
         config.addDataSourceProperty("cachePrepStmts", "true");

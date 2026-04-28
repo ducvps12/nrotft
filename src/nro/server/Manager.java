@@ -263,6 +263,11 @@ public final class Manager {
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
             }
             
+            // Spawn Mr.PoPo ở Thần Điện (map 45) - đứng bên trái, xa Thượng Đế
+            if (map.mapId == ConstMap.THAN_DIEN) {
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, 200, 408, ConstNpc.MR_POPO));
+            }
+            
             // Spawn NPC Bảng Danh Vọng ở Sân Vườn (map 131-133) để tân thủ thấy ngay khi ra khỏi nhà
             if (map.mapId >= 131 && map.mapId <= 133) {
                 short x = 300;

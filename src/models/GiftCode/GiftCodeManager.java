@@ -122,6 +122,12 @@ public class GiftCodeManager {
                 return null;
             }
 
+            // type=2: Loan Tin code - cần admin duyệt cho từng user
+            if (giftCode.type == 2 && !player.getSession().loantin) {
+                Service.gI().sendThongBao(player, "Bạn chưa được duyệt Loan Tin!\nVui lòng loan tin server và liên hệ Admin để được kích hoạt.");
+                return null;
+            }
+
             giftCode.countLeft--;
             player.giftCode.add(giftCode.code);
             updateGiftCode(giftCode);

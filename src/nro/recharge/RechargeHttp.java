@@ -124,6 +124,30 @@ public class RechargeHttp {
             if (updated > 0) {
                 System.out.println("✓ Nạp thành công: playerId=" + playerId + ", +" + soTienCong + " (gốc " + amount + ")");
                 saveLog(transId, amount, desc, true);
+
+                // Ghi audit log ngay sau khi DB thành công (kể cả player offline)
+                try {
+                    int accountId = -1;
+                    var psAcc = con.prepareStatement("SELECT account_id FROM player WHERE id = ?");
+                    psAcc.setLong(1, playerId);
+                    var rsAcc = psAcc.executeQuery();
+                    if (rsAcc.next()) accountId = rsAcc.getInt("account_id");
+                    rsAcc.close(); psAcc.close();
+
+                    if (accountId > 0) {
+                        var psLog = con.prepareStatement(
+                            "INSERT INTO cash_audit_log (account_id, player_name, amount, balance_before, balance_after, source, detail) VALUES (?,?,?,?,?,?,?)");
+                        psLog.setInt(1, accountId);
+                        psLog.setString(2, "player_" + playerId);
+                        psLog.setLong(3, soTienCong);
+                        psLog.setLong(4, -1); // không biết balance trước
+                        psLog.setLong(5, -1); // không biết balance sau
+                        psLog.setString(6, "RECHARGE_HTTP");
+                        psLog.setString(7, "Sepay TransID:" + transId + " Amount:" + amount + " HeSo:" + HE_SO_SU_KIEN);
+                        psLog.executeUpdate();
+                        psLog.close();
+                    }
+                } catch (Exception logEx) { logEx.printStackTrace(); }
             } else {
                 System.out.println("✗ Không tìm thấy player id=" + playerId);
                 saveLog(transId, amount, desc, false);
@@ -138,10 +162,9 @@ public class RechargeHttp {
         Player pl = Client.gI().getPlayer(playerId);
         if (pl != null && pl.getSession() != null) {
             try {
-                nro.server.CashAuditLog.logAdd(pl, soTienCong, "RECHARGE_HTTP", "Sepay TransID:" + transId + " Amount:" + amount + " HeSo:" + HE_SO_SU_KIEN);
                 pl.getSession().cash += soTienCong;
                 pl.getSession().vnd += soTienCong;
-                pl.getSession().danap += amount;  // FIX: Sync với database
+                pl.getSession().danap += amount;
                 pl.danap += amount;
             } catch (Exception ignored) {}
             Service.gI().sendThongBao(pl,
@@ -153,7 +176,7 @@ public class RechargeHttp {
     private static void saveLog(String transId, int amount, String desc, boolean success) {
         try (Connection con = DBConnecter.getConnectionServer()) {
             PreparedStatement ps = con.prepareStatement(
-                "INSERT INTO recharge_log(trans_id, amount, description, success, time) VALUES (?,?,?,?,NOW())"
+                "INSERT INTO recharge_log(trans_id, amount, description, status, created_at) VALUES (?,?,?,?,NOW())"
             );
             ps.setString(1, transId);
             ps.setInt(2, amount);

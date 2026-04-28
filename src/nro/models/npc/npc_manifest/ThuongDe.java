@@ -21,6 +21,19 @@ import shop.ShopService;
 
 public class ThuongDe extends Npc {
 
+    // Menu IDs
+    private static final int MENU_DANG_KY_TAP = 2001;
+    private static final int MENU_LUYEN_TAP = 2002;
+    private static final int MENU_THACH_DAU = 2003;
+    private static final int MENU_GIFT_MAIN = 3100;
+    private static final int MENU_GIFT_COSTUMES = 3101;
+    private static final int MENU_GIFT_ITEMS = 3102;
+    private static final int MENU_GUIDE = 3103;
+    private static final int MENU_GUIDE_LUYEN = 3110;
+    private static final int MENU_GUIDE_THAP = 3111;
+    private static final int MENU_GUIDE_QUAY = 3112;
+    private static final int MENU_GUIDE_DESTRON = 3113;
+
     public ThuongDe(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
     }
@@ -36,26 +49,7 @@ public class ThuongDe extends Npc {
                         this.createOtherMenu(player, ConstNpc.BASE_MENU, "Hãy xuống gặp thần mèo Karin", "OK");
                         return;
                     }
-                    switch (player.levelLuyenTap) {
-                        case 2 ->
-                            this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                                    "Pôpô là đệ tử của ta, luyện tập với Pôpô con sẽ có thêm nhiều kinh nghiệm\nđánh bại được Pôpô ta sẽ dạy võ công cho con",
-                                    player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nMr.PôPô", "Thách đấu\nMr.PôPô", "Tháp\nPôPô", "Đến\nKaio", "Quay ngọc\nMay mắn",
-                                    "Quà\nThần Điện");
-                        case 3 ->
-                            this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                                    "Từ nay con sẽ là đệ tử của ta. Ta sẽ truyền cho con tất cả tuyệt kĩ",
-                                    player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nThượng Đế", "Thách đấu\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
-                                    "Quay ngọc\nMay mắn", "Quà\nThần Điện");
-                        default ->
-                            this.createOtherMenu(player, ConstNpc.BASE_MENU,
-                                    "Con đã mạnh hơn ta, ta sẽ chỉ đường cho con đến Kaio\nđể gặp thần Vũ Trụ Phương Bắc\nNgài là thần cai quản vũ trụ này, hãy theo ngài ấy học võ công.",
-                                    player.dangKyTapTuDong ? "Hủy đăng\nký tập\ntự động" : "Đăng ký\ntập\ntự động",
-                                    "Tập luyện\nvới\nMr.PôPô", "Tập luyện\nvới\nThượng Đế", "Tháp\nPôPô", "Đến\nKaio",
-                                    "Quay ngọc\nMay mắn", "Quà\nThần Điện");
-                    }
+                    showMainMenu(player);
                 }
                 case 141 ->
                     this.createOtherMenu(player, 0,
@@ -64,138 +58,34 @@ public class ThuongDe extends Npc {
         }
     }
 
+    // ==========================================
+    // MENU CHÍNH - Thượng Đế
+    // ==========================================
+    private void showMainMenu(Player player) {
+        String greeting;
+        switch (player.levelLuyenTap) {
+            case 2 -> greeting = "PôPô là đệ tử của ta.\n"
+                    + "Luyện tập với PôPô con sẽ có\nthêm nhiều kinh nghiệm.\n"
+                    + "Đánh bại PôPô ta sẽ dạy\nvõ công cho con.";
+            case 3 -> greeting = "Từ nay con sẽ là đệ tử\ncủa ta.\n"
+                    + "Ta sẽ truyền cho con\ntất cả tuyệt kĩ.";
+            default -> greeting = "Con đã mạnh hơn ta.\n"
+                    + "Ta sẽ chỉ đường cho con\nđến Kaio.\n"
+                    + "Hãy theo Thần Vũ Trụ\nhọc võ công.";
+        }
+
+        this.createOtherMenu(player, ConstNpc.BASE_MENU, greeting,
+                player.dangKyTapTuDong ? "Hủy\ntập t.động" : "Đăng ký\ntập t.động",
+                "Luyện tập", "Thách đấu",
+                "Tháp PôPô", "Đến Kaio",
+                "Vòng quay\nMay Mắn", "Quà\nThần Điện");
+    }
+
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
             switch (mapId) {
-                case 45 -> {
-                    if (player.iDMark.isBaseMenu()) {
-                        switch (select) {
-                            case 0 -> {
-                                if (player.clan != null && player.clan.ConDuongRanDoc != null && player.joinCDRD
-                                        && player.clan.ConDuongRanDoc.allMobsDead && !player.talkToThuongDe) {
-                                    player.talkToThuongDe = true;
-                                    return;
-                                }
-                                if (player.dangKyTapTuDong) {
-                                    player.dangKyTapTuDong = false;
-                                    NpcService.gI().createTutorial(player, tempId, avartar,
-                                            "Con đã hủy thành công đăng ký tập tự động\ntừ giờ con muốn tập Offline hãy tự đến đây trước");
-                                    return;
-                                }
-                                this.createOtherMenu(player, 2001,
-                                        "Đăng ký để mỗi khi Offline quá 30 phút, con sẽ được tự động luyện tập với tốc độ 1280 sức mạnh mỗi phút",
-                                        "Hướng\ndẫn\nthêm", "Đồng ý\n1 ngọc\nmỗi lần", "Không\nđồng ý");
-                            }
-                            case 1 -> {
-                                switch (player.levelLuyenTap) {
-                                    case 3 ->
-                                        this.createOtherMenu(player, 2002,
-                                                "Con có chắc muốn tập luyện ?\nTập luyện với ta sẽ tăng 160 sức mạnh mỗi phút",
-                                                "Đồng ý\nluyện tập", "Không\nđồng ý");
-                                    default ->
-                                        this.createOtherMenu(player, 2002,
-                                                "Con có chắc muốn tập luyện ?\nTập luyện với Mr.PôPô sẽ tăng 80 sức mạnh mỗi phút",
-                                                "Đồng ý\nluyện tập", "Không\nđồng ý");
-                                }
-                            }
-                            case 2 -> {
-                                switch (player.levelLuyenTap) {
-                                    case 2 ->
-                                        this.createOtherMenu(player, 2003,
-                                                "Con có chắc muốn thách đấu ?\nNếu thắng Mr.PôPô sẽ được tập với ta, tăng 160 sức mạnh mỗi phút",
-                                                "Đồng ý\ngiao đấu", "Không\nđồng ý");
-                                    case 3 ->
-                                        this.createOtherMenu(player, 2003,
-                                                "Con có chắc muốn thách đấu ?\nNếu thắng được ta, con sẽ được học võ với người mạnh hơn ta để tăng đến 320 sức mạnh mỗi phút",
-                                                "Đồng ý\ngiao đấu", "Không\nđồng ý");
-                                    default ->
-                                        this.createOtherMenu(player, 2003,
-                                                "Con có chắc muốn tập luyện ?\nTập luyện với ta sẽ tăng 160 sức mạnh mỗi phút",
-                                                "Đồng ý\nluyện tập", "Không\nđồng ý");
-                                }
-                            }
-                            case 3 ->
-                                PopoTowerService.gI().openMenu(player, this);
-                            case 4 ->
-                                ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
-                            case 5 ->
-                                this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
-                                        "Con muốn làm gì nào?", "Quay bằng\nthỏi vàng",
-                                        "Vòng quay\nđặc biệt",
-                                        "Rương phụ\n("
-                                                + (player.inventory.itemsBoxCrackBall.size()
-                                                        - InventoryService.gI().getCountEmptyListItem(
-                                                                player.inventory.itemsBoxCrackBall))
-                                                + " món)",
-                                        "Xóa hết\ntrong rương", "Đóng");
-                            case 6 ->
-                                showGiftMainMenu(player);
-                        }
-                    } else if (player.iDMark.getIndexMenu() == 2001) {
-                        switch (select) {
-                            case 0 ->
-                                NpcService.gI().createTutorial(player, tempId, avartar, ConstNpc.TAP_TU_DONG);
-                            case 1 -> {
-                                player.mapIdDangTapTuDong = mapId;
-                                player.dangKyTapTuDong = true;
-                                NpcService.gI().createTutorial(player, tempId, avartar,
-                                        "Từ giờ, quá 30 phút Offline con sẽ được tự động luyện tập");
-                            }
-                        }
-
-                    } else if (player.iDMark.getIndexMenu() == 2002) {
-                        switch (player.levelLuyenTap) {
-                            case 3 ->
-                                TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
-                            default ->
-                                TrainingService.gI().callBoss(player, BossID.MRPOPO, false);
-                        }
-                    } else if (player.iDMark.getIndexMenu() == 2003) {
-                        switch (player.levelLuyenTap) {
-                            case 2 ->
-                                TrainingService.gI().callBoss(player, BossID.MRPOPO, true);
-                            case 3 ->
-                                TrainingService.gI().callBoss(player, BossID.THUONG_DE, true);
-                            default ->
-                                TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
-                        }
-                    } else if (player.iDMark.getIndexMenu() == ConstNpc.MENU_POPO_TOWER) {
-                        PopoTowerService.gI().handleMenu(player, this, select);
-                    } else if (player.iDMark.getIndexMenu() == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
-                        switch (select) {
-                            case 0 ->
-                                LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_TICKET);
-                            case 1 ->
-                                LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GEM);
-                            case 2 ->
-                                ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
-                            case 3 ->
-                                NpcService.gI().createMenuConMeo(player,
-                                        ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,
-                                        "Con có chắc muốn xóa hết vật phẩm trong rương phụ? Sau khi xóa "
-                                                + "sẽ không thể khôi phục!",
-                                        "Đồng ý", "Hủy bỏ");
-                        }
-                    } else if (player.iDMark.getIndexMenu() == 3100) {
-                        // QUÀ THẦN ĐIỆN - MENU CHÍNH
-                        switch (select) {
-                            case 0 -> showGiftCostumes(player);
-                            case 1 -> showGiftItems(player);
-                            case 2 -> showTempleGuide(player);
-                            case 3 -> { } // Đóng
-                        }
-                    } else if (player.iDMark.getIndexMenu() == 3101) {
-                        // Xem cải trang chi tiết
-                        if (select == 0) showGiftMainMenu(player);
-                    } else if (player.iDMark.getIndexMenu() == 3102) {
-                        // Xem vật phẩm chi tiết
-                        if (select == 0) showGiftMainMenu(player);
-                    } else if (player.iDMark.getIndexMenu() == 3103) {
-                        // Hướng dẫn chi tiết
-                        if (select == 0) showGiftMainMenu(player);
-                    }
-                }
+                case 45 -> handleMap45(player, select);
                 case 141 -> {
                     switch (select) {
                         case 0 -> {
@@ -214,77 +104,305 @@ public class ThuongDe extends Npc {
         }
     }
 
+    private void handleMap45(Player player, int select) {
+        if (player.iDMark.isBaseMenu()) {
+            handleBaseMenu(player, select);
+        } else {
+            handleSubMenus(player, select);
+        }
+    }
+
     // ==========================================
-    // QUÀ THẦN ĐIỆN - CẢI TRANG & PHẦN THƯỢNG
+    // XỬ LÝ BASE MENU
+    // ==========================================
+    private void handleBaseMenu(Player player, int select) {
+        switch (select) {
+            case 0 -> { // Đăng ký/Hủy tập tự động
+                if (player.clan != null && player.clan.ConDuongRanDoc != null && player.joinCDRD
+                        && player.clan.ConDuongRanDoc.allMobsDead && !player.talkToThuongDe) {
+                    player.talkToThuongDe = true;
+                    return;
+                }
+                if (player.dangKyTapTuDong) {
+                    player.dangKyTapTuDong = false;
+                    NpcService.gI().createTutorial(player, tempId, avartar,
+                            "Con đã hủy đăng ký\ntập tự động thành công.");
+                    return;
+                }
+                this.createOtherMenu(player, MENU_DANG_KY_TAP,
+                        "Khi Offline quá 30 phút,\ncon sẽ tự động luyện tập.\n\n"
+                                + "Tốc độ: 1280 SM/phút\n"
+                                + "Phí: 1 ngọc mỗi lần",
+                        "Hướng dẫn", "Đồng ý", "Từ chối");
+            }
+            case 1 -> { // Luyện tập
+                String info;
+                switch (player.levelLuyenTap) {
+                    case 3 -> info = "Tập luyện với Thượng Đế\ntăng 160 SM mỗi phút.";
+                    default -> info = "Tập luyện với Mr.PôPô\ntăng 80 SM mỗi phút.";
+                }
+                this.createOtherMenu(player, MENU_LUYEN_TAP, info, "Đồng ý", "Từ chối");
+            }
+            case 2 -> { // Thách đấu
+                String info;
+                switch (player.levelLuyenTap) {
+                    case 2 -> info = "Thắng Mr.PôPô sẽ được\ntập với ta (+160 SM/phút).";
+                    case 3 -> info = "Thắng ta sẽ được học\nvới người mạnh hơn\n(+320 SM/phút).";
+                    default -> info = "Tập luyện với Thượng Đế\ntăng 160 SM mỗi phút.";
+                }
+                this.createOtherMenu(player, MENU_THACH_DAU, info, "Đồng ý", "Từ chối");
+            }
+            case 3 -> // Tháp PôPô
+                PopoTowerService.gI().openMenu(player, this);
+            case 4 -> // Đến Kaio
+                ChangeMapService.gI().changeMapBySpaceShip(player, 48, -1, 354);
+            case 5 -> // Vòng quay May Mắn
+                showLuckyRoundMenu(player);
+            case 6 -> // Quà Thần Điện
+                showGiftMainMenu(player);
+        }
+    }
+
+    // ==========================================
+    // XỬ LÝ SUB MENUS
+    // ==========================================
+    private void handleSubMenus(Player player, int select) {
+        int menu = player.iDMark.getIndexMenu();
+
+        // Đăng ký tập tự động
+        if (menu == MENU_DANG_KY_TAP) {
+            switch (select) {
+                case 0 -> NpcService.gI().createTutorial(player, tempId, avartar, ConstNpc.TAP_TU_DONG);
+                case 1 -> {
+                    player.mapIdDangTapTuDong = mapId;
+                    player.dangKyTapTuDong = true;
+                    NpcService.gI().createTutorial(player, tempId, avartar,
+                            "Đăng ký thành công!\nOffline 30 phút sẽ tự\nđộng luyện tập.");
+                }
+            }
+        }
+        // Luyện tập
+        else if (menu == MENU_LUYEN_TAP) {
+            if (select == 0) {
+                switch (player.levelLuyenTap) {
+                    case 3 -> TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
+                    default -> TrainingService.gI().callBoss(player, BossID.MRPOPO, false);
+                }
+            }
+        }
+        // Thách đấu
+        else if (menu == MENU_THACH_DAU) {
+            if (select == 0) {
+                switch (player.levelLuyenTap) {
+                    case 2 -> TrainingService.gI().callBoss(player, BossID.MRPOPO, true);
+                    case 3 -> TrainingService.gI().callBoss(player, BossID.THUONG_DE, true);
+                    default -> TrainingService.gI().callBoss(player, BossID.THUONG_DE, false);
+                }
+            }
+        }
+        // Tháp PôPô
+        else if (menu == ConstNpc.MENU_POPO_TOWER) {
+            PopoTowerService.gI().handleMenu(player, this, select);
+        }
+        // Vòng quay May Mắn - menu chọn loại
+        else if (menu == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
+            switch (select) {
+                case 0 -> // Quay bằng Vàng (gold)
+                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GOLD);
+                case 1 -> // Quay bằng Ngọc (gem)
+                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GEM);
+                case 2 -> // Quay bằng Thỏi Vàng (ticket)
+                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_TICKET);
+                case 3 -> // Rương phụ
+                    ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
+                case 4 -> // Xóa rương
+                    NpcService.gI().createMenuConMeo(player,
+                            ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,
+                            "Xóa hết vật phẩm trong\nrương phụ?\n\nKhông thể khôi phục!",
+                            "Đồng ý", "Hủy bỏ");
+            }
+        }
+        // Quà Thần Điện - menu chính
+        else if (menu == MENU_GIFT_MAIN) {
+            switch (select) {
+                case 0 -> showGiftCostumes(player);
+                case 1 -> showGiftItems(player);
+                case 2 -> showGuideMenu(player);
+            }
+        }
+        // Quà - cải trang
+        else if (menu == MENU_GIFT_COSTUMES) {
+            if (select == 0) showGiftMainMenu(player);
+        }
+        // Quà - vật phẩm
+        else if (menu == MENU_GIFT_ITEMS) {
+            if (select == 0) showGiftMainMenu(player);
+        }
+        // Hướng dẫn - menu chính
+        else if (menu == MENU_GUIDE) {
+            switch (select) {
+                case 0 -> showGuideLuyen(player);
+                case 1 -> showGuideThap(player);
+                case 2 -> showGuideQuay(player);
+                case 3 -> showGuideDestron(player);
+                case 4 -> showGiftMainMenu(player);
+            }
+        }
+        // Hướng dẫn chi tiết - quay lại
+        else if (menu == MENU_GUIDE_LUYEN || menu == MENU_GUIDE_THAP
+                || menu == MENU_GUIDE_QUAY || menu == MENU_GUIDE_DESTRON) {
+            if (select == 0) showGuideMenu(player);
+        }
+    }
+
+    // ==========================================
+    // VÒNG QUAY MAY MẮN
+    // ==========================================
+    private void showLuckyRoundMenu(Player player) {
+        int itemCount = player.inventory.itemsBoxCrackBall.size()
+                - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall);
+        this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
+                "Chon loai vong quay:\n\n"
+                        + "Quay Vang: 25tr vang/luot\n"
+                        + "Quay Ngoc: 4 ngoc/luot\n"
+                        + "Quay Thoi Vang: 1 thoi/luot\n\n"
+                        + "Ruong phu: " + itemCount + "/100 mon",
+                "Quay bang\nVang", "Quay bang\nNgoc",
+                "Quay bang\nThoi Vang",
+                "Ruong phu\n(" + itemCount + " mon)",
+                "Xoa het\ntrong ruong", "Dong");
+    }
+
+    // ==========================================
+    // QUÀ THẦN ĐIỆN
     // ==========================================
     private void showGiftMainMenu(Player player) {
-        this.createOtherMenu(player, 3100,
-                "|7|══ QUÀ THẦN ĐIỆN ══\n\n"
-                        + "|5|Chào " + player.name + "!\n"
-                        + "|1|Thần Điện là nơi linh thiêng, ban tặng\n"
-                        + "các phần thưởng đặc biệt cho chiến binh.\n\n"
-                        + "|5|🎯 Cách nhận quà:\n"
-                        + "|1|• Quay Ngọc May Mắn (thỏi vàng/ngọc)\n"
-                        + "• Tháp PôPô (clear tầng)\n"
-                        + "• Luyện tập với Thượng Đế\n"
-                        + "• Destron Gas (tại Mr.PoPo)",
-                "Cải Trang\nHấp Dẫn", "Vật Phẩm\nĐặc Biệt", "Hướng Dẫn\nChi Tiết", "Đóng");
+        this.createOtherMenu(player, MENU_GIFT_MAIN,
+                "Chao " + player.name + "!\n\n"
+                        + "Than Dien ban tang phan\n"
+                        + "thuong dac biet cho chien binh.\n\n"
+                        + "Cach nhan qua:\n"
+                        + "- Vong quay May Man\n"
+                        + "- Thap PoPo (clear tang)\n"
+                        + "- Luyen tap voi Thuong De\n"
+                        + "- Destron Gas (tai Mr.PoPo)",
+                "Cai Trang", "Vat Pham", "Huong Dan", "Dong");
     }
 
     private void showGiftCostumes(Player player) {
-        this.createOtherMenu(player, 3101,
-                "|7|══ CẢI TRANG HẤP DẪN ══\n\n"
-                        + "|5|🌟 Nguồn: Quay Ngọc May Mắn\n"
-                        + "|1|• CT Goku SSJ4 - SĐ+30%, HP+30%, KI+30%\n"
-                        + "• CT Cađíc SSJ Blue - SĐ+30%, HP+30%, KI+50%\n"
-                        + "• CT Gogeta - SĐ+25%, HP+25%, KI+25%\n"
-                        + "• CT Broly SSJ God - SĐ+30%, HP+30%\n\n"
-                        + "|5|💎 Nguồn: Shop Santa (Ngọc)\n"
-                        + "|1|• CT Chi Chi - SĐ+25%, HP+25%, KI+50%\n"
-                        + "• CT Bunma Rider - SĐ+25%, HP+25%, KI+50%\n"
-                        + "• CT Android 21 Evil - SĐ+10%, HP+10%, KI+10%\n\n"
-                        + "|5|🌟 Nguồn: Điều ước Rồng Thần 1 Sao\n"
-                        + "|1|• Cải trang VIP VĨNH VIỄN\n"
-                        + "   SĐ+23%, HP+20%, KI+20%, Giáp+15%, CM+10%\n"
-                        + "   + Thay chiêu 2-3 đệ tử",
-                "Quay lại");
+        this.createOtherMenu(player, MENU_GIFT_COSTUMES,
+                "CAI TRANG HAP DAN\n\n"
+                        + "Tu Vong Quay May Man:\n"
+                        + "- CT Goku SSJ4\n"
+                        + "  SD+30% HP+30% KI+30%\n"
+                        + "- CT Cadic SSJ Blue\n"
+                        + "  SD+30% HP+30% KI+50%\n"
+                        + "- CT Gogeta\n"
+                        + "  SD+25% HP+25% KI+25%\n"
+                        + "- CT Broly SSJ God\n"
+                        + "  SD+30% HP+30%\n\n"
+                        + "Tu Shop Santa (Ngoc):\n"
+                        + "- CT Chi Chi\n"
+                        + "  SD+25% HP+25% KI+50%\n"
+                        + "- CT Bunma Rider\n"
+                        + "  SD+25% HP+25% KI+50%",
+                "Quay lai");
     }
 
     private void showGiftItems(Player player) {
-        this.createOtherMenu(player, 3102,
-                "|7|══ VẬT PHẨM ĐẶC BIỆT ══\n\n"
-                        + "|5|💫 Từ Quay Ngọc May Mắn:\n"
-                        + "|1|• Thỏi vàng (bán được vàng)\n"
-                        + "• Capsule thời trang 5-7 ngày\n"
-                        + "• Sách tiến hóa Lv1-5\n"
-                        + "• Đá xanh lam nâng cấp\n\n"
-                        + "|5|✨ Từ Tháp PôPô:\n"
-                        + "|1|• Vàng + Ngọc theo tầng\n"
-                        + "• Trang bị mạnh (tầng cao)\n"
-                        + "• Đồ hiếm (tầng 50+)\n\n"
-                        + "|5|👑 Từ Rồng Thần 1 Sao:\n"
-                        + "|1|• 100K ngọc xanh + 100 thỏi vàng\n"
-                        + "• +2 Tỷ sức mạnh & tiềm năng\n"
-                        + "• Găng tay lên cấp / Chí mạng +2%",
-                "Quay lại");
+        this.createOtherMenu(player, MENU_GIFT_ITEMS,
+                "VAT PHAM DAC BIET\n\n"
+                        + "Tu Vong Quay May Man:\n"
+                        + "- Thoi vang (ban duoc vang)\n"
+                        + "- Capsule thoi trang 5-7 ngay\n"
+                        + "- Sach tien hoa Lv1-5\n"
+                        + "- Da xanh lam nang cap\n\n"
+                        + "Tu Thap PoPo:\n"
+                        + "- Vang + Ngoc theo tang\n"
+                        + "- Trang bi manh (tang cao)\n"
+                        + "- Do hiem (tang 50+)\n\n"
+                        + "Tu Rong Than 1 Sao:\n"
+                        + "- 100K ngoc + 100 thoi vang\n"
+                        + "- +2 Ty SM va tiem nang\n"
+                        + "- Gang tay len cap, CM+2%",
+                "Quay lai");
     }
 
-    private void showTempleGuide(Player player) {
-        this.createOtherMenu(player, 3103,
-                "|7|══ HƯỚNG DẪN THẦN ĐIỆN ══\n\n"
-                        + "|5|BƯỚC 1: Luyện tập\n"
-                        + "|1|• Đánh Mr.PoPo → thắng = học Thượng Đế\n"
-                        + "• Thắng Thượng Đế → mở Kaio\n"
-                        + "• Đăng ký tập tự động = offline lên SM\n\n"
-                        + "|5|BƯỚC 2: Tháp PôPô\n"
-                        + "|1|• Clear tầng = nhận quà giá trị\n"
-                        + "• Càng lên cao càng nhiều quà\n\n"
-                        + "|5|BƯỚC 3: Quay Ngọc May Mắn\n"
-                        + "|1|• Dùng thỏi vàng hoặc ngọc để quay\n"
-                        + "• Trúng cải trang, vật phẩm hiếm\n\n"
-                        + "|5|BƯỚC 4: Destron Gas (Mr.PoPo)\n"
-                        + "|1|• Cần bang hội để tham gia\n"
-                        + "• Đánh boss = điểm xếp hạng bang",
-                "Quay lại");
+    // ==========================================
+    // HƯỚNG DẪN CHI TIẾT
+    // ==========================================
+    private void showGuideMenu(Player player) {
+        this.createOtherMenu(player, MENU_GUIDE,
+                "HUONG DAN THAN DIEN\n\n"
+                        + "Chon muc ban muon xem:\n\n"
+                        + "1. Luyen tap va thang cap\n"
+                        + "2. Thap PoPo va phan thuong\n"
+                        + "3. Vong quay May Man\n"
+                        + "4. Destron Gas (bang hoi)",
+                "Luyen tap", "Thap PoPo",
+                "Vong quay", "Destron Gas",
+                "Quay lai");
+    }
+
+    private void showGuideLuyen(Player player) {
+        this.createOtherMenu(player, MENU_GUIDE_LUYEN,
+                "LUYEN TAP VA THANG CAP\n\n"
+                        + "Buoc 1: Tap voi Mr.PoPo\n"
+                        + "- Tang 80 SM/phut\n"
+                        + "- Thang PoPo = mo Thuong De\n\n"
+                        + "Buoc 2: Tap voi Thuong De\n"
+                        + "- Tang 160 SM/phut\n"
+                        + "- Thang = mo Kaio (+320)\n\n"
+                        + "Buoc 3: Tap tu dong\n"
+                        + "- Offline 30 phut = tu tap\n"
+                        + "- Toc do 1280 SM/phut\n"
+                        + "- Phi 1 ngoc/lan dang ky",
+                "Quay lai");
+    }
+
+    private void showGuideThap(Player player) {
+        this.createOtherMenu(player, MENU_GUIDE_THAP,
+                "THAP POPO VA PHAN THUONG\n\n"
+                        + "Cach choi:\n"
+                        + "- Clear tang = nhan thuong\n"
+                        + "- Cang cao cang nhieu qua\n"
+                        + "- Reset hang ngay\n\n"
+                        + "Phan thuong:\n"
+                        + "- Tang 1-20: Vang + EXP\n"
+                        + "- Tang 20-50: Ngoc + Do tot\n"
+                        + "- Tang 50+: Do hiem, CT VIP",
+                "Quay lai");
+    }
+
+    private void showGuideQuay(Player player) {
+        this.createOtherMenu(player, MENU_GUIDE_QUAY,
+                "VONG QUAY MAY MAN\n\n"
+                        + "3 loai vong quay:\n\n"
+                        + "1. Quay bang Vang\n"
+                        + "- Gia: 25 trieu vang/luot\n"
+                        + "- Thuong: do thuong + vang\n\n"
+                        + "2. Quay bang Ngoc\n"
+                        + "- Gia: 4 ngoc/luot\n"
+                        + "- Thuong: cai trang, do VIP\n\n"
+                        + "3. Quay bang Thoi Vang\n"
+                        + "- Gia: 1 thoi vang/luot\n"
+                        + "- Thuong: cai trang hiem",
+                "Quay lai");
+    }
+
+    private void showGuideDestron(Player player) {
+        this.createOtherMenu(player, MENU_GUIDE_DESTRON,
+                "DESTRON GAS (BANG HOI)\n\n"
+                        + "Yeu cau:\n"
+                        + "- Can co bang hoi\n"
+                        + "- Noi chuyen Mr.PoPo\n\n"
+                        + "Cach choi:\n"
+                        + "- Ca bang vao danh boss\n"
+                        + "- Diem = xep hang bang\n\n"
+                        + "Phan thuong:\n"
+                        + "- Diem danh vong bang hoi\n"
+                        + "- Vang + Ngoc + Do hiem\n"
+                        + "- Top bang = thuong lon",
+                "Quay lai");
     }
 }
