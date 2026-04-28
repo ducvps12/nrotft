@@ -69,8 +69,9 @@ public class MagicTree {
     private static final short[][] ID_MAGIC_TREE = {
             { 84, 85, 86, 87, 88, 89, 90, 90, 90, 90 },
             { 371, 372, 373, 374, 375, 376, 377, 377, 377, 377 },
-            { 378, 379, 380, 381, 382, 383, 384, 384, 384, 384 } };
-    private static final short[][] POS_MAGIC_TREE = { { 348, 336 }, { 372, 336 }, { 348, 336 } };
+            { 378, 379, 380, 381, 382, 383, 384, 384, 384, 384 },
+            { 378, 379, 380, 381, 382, 383, 384, 384, 384, 384 } }; // Majin reuse Xayda
+    private static final short[][] POS_MAGIC_TREE = { { 348, 336 }, { 372, 336 }, { 348, 336 }, { 348, 336 } }; // +Majin
 
     // private static final int[] UPGRADE_GEM = {20, 50, 120, 300, 800, 1500, 3000,
     // 6000, 7500, 10000};

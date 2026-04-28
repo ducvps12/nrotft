@@ -15,12 +15,14 @@ public class NangCapKichHoatVip {
     private static final int[][] THAN_LINH_ITEMS = {
             { 555, 556, 562, 563, 561 },
             { 557, 558, 564, 565, 561 },
-            { 559, 560, 566, 567, 561 }
+            { 559, 560, 566, 567, 561 },
+            { 559, 560, 566, 567, 561 }  // Majin reuse Xayda
     };
     private static final int[][] HUY_DIET_ITEMS = {
             { 650, 651, 657, 658, 656 }, // gender 0
             { 652, 653, 659, 660, 656 }, // gender 1
-            { 654, 655, 661, 662, 656 } // gender 2
+            { 654, 655, 661, 662, 656 }, // gender 2
+            { 654, 655, 661, 662, 656 }  // gender 3 Majin reuse Xayda
     };
 
     // check item thần linh
@@ -203,7 +205,8 @@ public class NangCapKichHoatVip {
         // ===== 10% lên Hủy Diệt =====
         else if (rate < 60) {
 
-            int id = HUY_DIET_ITEMS[gender][type];
+            int gIdx = Math.min(gender, 3);
+            int id = HUY_DIET_ITEMS[gIdx][type];
             Item newItem = ItemService.gI().otphd((short) id, 1);
 
             // random kích hoạt mới

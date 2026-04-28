@@ -66,12 +66,13 @@ public class TaiTaoTrangBiKichHoat {
             return;
         }
 
-        if (player.gender < 0 || player.gender > 2) {
+        if (player.gender < 0 || player.gender > 3) {
             return;
         }
 
-        short[] genderToItemId = {1806, 1807, 1808};
-        short itemId = genderToItemId[player.gender];
+        short[] genderToItemId = {1806, 1807, 1808, 1808}; // Majin reuse Xayda
+        int gIdx = Math.min(player.gender, 3);
+        short itemId = genderToItemId[gIdx];
 
         InventoryService.gI().subQuantityItemsBag(player, capSule, 1);
         InventoryService.gI().subQuantityItemsBag(player, khoangTaiChe, 3);

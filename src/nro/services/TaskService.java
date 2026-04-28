@@ -1530,29 +1530,33 @@ public class TaskService {
 
     private int transformNpcId(Player player, int id) {
         if (id == ConstTask.NPC_NHA) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? ConstNpc.ONG_GOHAN
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? ConstNpc.ONG_MOORI
-                            : ConstNpc.ONG_PARAGUS);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return ConstNpc.ONG_GOHAN;
+                case ConstPlayer.NAMEC: return ConstNpc.ONG_MOORI;
+                case ConstPlayer.MAJIN: return ConstNpc.ONG_PARAGUS; // Majin reuse until unique NPC
+                default: return ConstNpc.ONG_PARAGUS;
+            }
         } else if (id == ConstTask.NPC_TTVT) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? ConstNpc.DR_DRIEF
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? ConstNpc.CARGO
-                            : ConstNpc.CUI);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return ConstNpc.DR_DRIEF;
+                case ConstPlayer.NAMEC: return ConstNpc.CARGO;
+                case ConstPlayer.MAJIN: return ConstNpc.CUI; // Majin reuse until unique NPC
+                default: return ConstNpc.CUI;
+            }
         } else if (id == ConstTask.NPC_SHOP_LANG) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? ConstNpc.BUNMA
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? ConstNpc.DENDE
-                            : ConstNpc.APPULE);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return ConstNpc.BUNMA;
+                case ConstPlayer.NAMEC: return ConstNpc.DENDE;
+                case ConstPlayer.MAJIN: return ConstNpc.APPULE; // Majin reuse until unique NPC
+                default: return ConstNpc.APPULE;
+            }
         } else if (id == ConstTask.NPC_QUY_LAO) {
-            return player.gender == ConstPlayer.TRAI_DAT
-                    ? ConstNpc.QUY_LAO_KAME
-                    : (player.gender == ConstPlayer.NAMEC
-                            ? ConstNpc.TRUONG_LAO_GURU
-                            : ConstNpc.VUA_VEGETA);
+            switch (player.gender) {
+                case ConstPlayer.TRAI_DAT: return ConstNpc.QUY_LAO_KAME;
+                case ConstPlayer.NAMEC: return ConstNpc.TRUONG_LAO_GURU;
+                case ConstPlayer.MAJIN: return ConstNpc.VUA_VEGETA; // Majin reuse until unique NPC
+                default: return ConstNpc.VUA_VEGETA;
+            }
         }
         return id;
     }
@@ -1560,78 +1564,46 @@ public class TaskService {
     // replate %1 %2 -> chữ
     private String transformName(Player player, String text) {
         byte gender = player.gender;
-        text = text.replaceAll(ConstTask.TEN_QUAI_1000, player.gender == ConstPlayer.XAYDA
-                ? "thằn lằn mẹ"
-                : (player.gender == ConstPlayer.TRAI_DAT
-                        ? "phi long mẹ"
-                        : "quỷ bay mẹ"));
-        text = text.replaceAll(ConstTask.TEN_MAP_600, player.gender == ConstPlayer.TRAI_DAT
-                ? "Rừng nấm"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Thung lũng Namếc"
-                        : "Rừng nguyên sinh"));
-        text = text.replaceAll(ConstTask.TEN_NPC_QUY_LAO, player.gender == ConstPlayer.TRAI_DAT
-                ? "Quy Lão Kame"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Trưởng lão Guru"
-                        : "Vua Vegeta"));
-        text = text.replaceAll(ConstTask.TEN_MAP_QUY_LAO, player.gender == ConstPlayer.TRAI_DAT
-                ? "Đảo Kamê"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Đảo Guru"
-                        : "Vách núi đen"));
-        text = text.replaceAll(ConstTask.TEN_QUAI_3000, player.gender == ConstPlayer.TRAI_DAT
-                ? "ốc mượn hồn"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "ốc sên"
-                        : "heo Xayda mẹ"));
+        text = text.replaceAll(ConstTask.TEN_QUAI_1000, nameByRace(gender,
+                "phi long mẹ", "quỷ bay mẹ", "thằn lằn mẹ", "quỷ bay mẹ"));
+        text = text.replaceAll(ConstTask.TEN_MAP_600, nameByRace(gender,
+                "Rừng nấm", "Thung lũng Namếc", "Rừng nguyên sinh", "Rừng Ma Majin"));
+        text = text.replaceAll(ConstTask.TEN_NPC_QUY_LAO, nameByRace(gender,
+                "Quy Lão Kame", "Trưởng lão Guru", "Vua Vegeta", "Babidi"));
+        text = text.replaceAll(ConstTask.TEN_MAP_QUY_LAO, nameByRace(gender,
+                "Đảo Kamê", "Đảo Guru", "Vách núi đen", "Hầm Ngục Majin"));
+        text = text.replaceAll(ConstTask.TEN_QUAI_3000, nameByRace(gender,
+                "ốc mượn hồn", "ốc sên", "heo Xayda mẹ", "quỷ bay mẹ"));
         // ----------------------------------------------------------------------
-        text = text.replaceAll(ConstTask.TEN_LANG, player.gender == ConstPlayer.TRAI_DAT
-                ? "Làng Aru"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Làng Mori"
-                        : "Làng Kakarot"));
-        text = text.replaceAll(ConstTask.TEN_NPC_NHA, player.gender == ConstPlayer.TRAI_DAT
-                ? "ông Gôhan"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "ông Moori"
-                        : "ông Paragus"));
-        text = text.replaceAll(ConstTask.TEN_QUAI_200, player.gender == ConstPlayer.TRAI_DAT
-                ? "khủng long"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "lợn lòi"
-                        : "quỷ đất"));
-        text = text.replaceAll(ConstTask.TEN_MAP_200, player.gender == ConstPlayer.TRAI_DAT
-                ? "Đồi hoa cúc"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Đồi nấm tím"
-                        : "Đồi hoang"));
-        text = text.replaceAll(ConstTask.TEN_VACH_NUI, player.gender == ConstPlayer.TRAI_DAT
-                ? "Vách núi Aru"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Vách núi Moori"
-                        : "Vách núi Kakarot"));
-        text = text.replaceAll(ConstTask.TEN_MAP_500, player.gender == ConstPlayer.TRAI_DAT
-                ? "Thung lũng tre"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Thị trấn Moori"
-                        : "Làng Plant"));
-        text = text.replaceAll(ConstTask.TEN_NPC_TTVT, player.gender == ConstPlayer.TRAI_DAT
-                ? "Dr. Brief"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Cargo"
-                        : "Cui"));
-        text = text.replaceAll(ConstTask.TEN_QUAI_BAY_600, player.gender == ConstPlayer.TRAI_DAT
-                ? "thằn lằn bay"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "phi long"
-                        : "quỷ bay"));
-        text = text.replaceAll(ConstTask.TEN_NPC_SHOP_LANG, player.gender == ConstPlayer.TRAI_DAT
-                ? "Bunma"
-                : (player.gender == ConstPlayer.NAMEC
-                        ? "Dende"
-                        : "Appule"));
+        text = text.replaceAll(ConstTask.TEN_LANG, nameByRace(gender,
+                "Làng Aru", "Làng Mori", "Làng Kakarot", "Hoang Mạc Majin"));
+        text = text.replaceAll(ConstTask.TEN_NPC_NHA, nameByRace(gender,
+                "ông Gôhan", "ông Moori", "ông Paragus", "Babidi"));
+        text = text.replaceAll(ConstTask.TEN_QUAI_200, nameByRace(gender,
+                "khủng long", "lợn lòi", "quỷ đất", "quỷ đất"));
+        text = text.replaceAll(ConstTask.TEN_MAP_200, nameByRace(gender,
+                "Đồi hoa cúc", "Đồi nấm tím", "Đồi hoang", "Vùng Đất Bùn"));
+        text = text.replaceAll(ConstTask.TEN_VACH_NUI, nameByRace(gender,
+                "Vách núi Aru", "Vách núi Moori", "Vách núi Kakarot", "Vách Núi Majin"));
+        text = text.replaceAll(ConstTask.TEN_MAP_500, nameByRace(gender,
+                "Thung lũng tre", "Thị trấn Moori", "Làng Plant", "Thung Lũng Kẹo"));
+        text = text.replaceAll(ConstTask.TEN_NPC_TTVT, nameByRace(gender,
+                "Dr. Brief", "Cargo", "Cui", "Cui"));
+        text = text.replaceAll(ConstTask.TEN_QUAI_BAY_600, nameByRace(gender,
+                "thằn lằn bay", "phi long", "quỷ bay", "quỷ bay"));
+        text = text.replaceAll(ConstTask.TEN_NPC_SHOP_LANG, nameByRace(gender,
+                "Bunma", "Dende", "Appule", "Appule"));
         return text;
+    }
+
+    /** Helper: chọn text theo race (0=TrD, 1=Namec, 2=Xayda, 3=Majin) */
+    private String nameByRace(int gender, String traiDat, String namec, String xayda, String majin) {
+        return switch (gender) {
+            case ConstPlayer.TRAI_DAT -> traiDat;
+            case ConstPlayer.NAMEC -> namec;
+            case ConstPlayer.MAJIN -> majin;
+            default -> xayda;
+        };
     }
 
     private boolean isCurrentTask(Player player, int idTaskCustom) {

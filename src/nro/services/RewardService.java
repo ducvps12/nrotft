@@ -30,7 +30,8 @@ public class RewardService {
             { { 129, 141, 1, 1000 }, { 127, 139, 1, 1000 }, { 128, 140, 1, 1000 } }, // songoku - thien xin hang - kirin
             { { 131, 254, 1, 1000 }, { 132, 144, 1, 1000 }, { 130, 143, 1, 1000 } }, // oc tieu - pikkoro daimao -
                                                                                      // picolo
-            { { 135, 138, 1, 1000 }, { 133, 136, 1, 1000 }, { 134, 137, 1, 1000 } } // kakarot - cadic - nappa
+            { { 135, 138, 1, 1000 }, { 133, 136, 1, 1000 }, { 134, 137, 1, 1000 } }, // kakarot - cadic - nappa
+            { { 135, 138, 1, 1000 }, { 133, 136, 1, 1000 }, { 134, 137, 1, 1000 } }  // majin (reuse xayda)
     };
     private static RewardService I;
 

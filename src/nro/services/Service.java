@@ -69,7 +69,7 @@ public class Service {
         return instance;
     }
 
-    short[][] conMeo = { { 281, 361, 351 }, { 512, 513, 536 }, { 514, 515, 537 } };
+    short[][] conMeo = { { 281, 361, 351 }, { 512, 513, 536 }, { 514, 515, 537 }, { 514, 515, 537 } }; // [3]=Majin reuse Xayda
 
     public void ServerMessageVip(String text) {
         Message msg;
@@ -898,6 +898,8 @@ public class Service {
                 return "Namếc";
             case 2:
                 return "Xayda";
+            case 3:
+                return "Majin";
             default:
                 return "";
         }

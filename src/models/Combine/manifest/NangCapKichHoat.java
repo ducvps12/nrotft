@@ -15,7 +15,8 @@ public class NangCapKichHoat {
     private static final int[][] THAN_LINH_ITEMS = {
             { 555, 556, 562, 563, 561 },
             { 557, 558, 564, 565, 561 },
-            { 559, 560, 566, 567, 561 }
+            { 559, 560, 566, 567, 561 },
+            { 559, 560, 566, 567, 561 }  // Majin reuse Xayda
     };
 
     public static boolean isThanLinh(Item item) {
@@ -114,7 +115,8 @@ public class NangCapKichHoat {
                 // NHẪN → giữ nguyên
                 newItem = ItemService.gI().createNewItem((short) base.template.id);
             } else {
-                int id = THAN_LINH_ITEMS[gender][type];
+                int gIdx = Math.min(gender, 3);
+                int id = THAN_LINH_ITEMS[gIdx][type];
                 newItem = ItemService.gI().createNewItem((short) id);
             }
 
@@ -127,11 +129,11 @@ public class NangCapKichHoat {
             } else {
 
                 int[][][] items = {
-                        { { 0, 33 }, { 1, 41 }, { 2, 49 } },
-                        { { 6, 35 }, { 7, 43 }, { 8, 51 } },
-                        { { 27, 30 }, { 28, 47 }, { 29, 55 } },
-                        { { 21, 24 }, { 22, 46 }, { 23, 53 } },
-                        { { 12, 57 }, { 12, 57 }, { 12, 57 } }
+                        { { 0, 33 }, { 1, 41 }, { 2, 49 }, { 2, 49 } },
+                        { { 6, 35 }, { 7, 43 }, { 8, 51 }, { 8, 51 } },
+                        { { 27, 30 }, { 28, 47 }, { 29, 55 }, { 29, 55 } },
+                        { { 21, 24 }, { 22, 46 }, { 23, 53 }, { 23, 53 } },
+                        { { 12, 57 }, { 12, 57 }, { 12, 57 }, { 12, 57 } }
                 };
 
                 if (type < 0 || type >= items.length) {
@@ -139,7 +141,8 @@ public class NangCapKichHoat {
                     return;
                 }
 
-                int id = items[type][gender][0];
+                int gIdx2 = Math.min(gender, 3);
+                int id = items[type][gIdx2][0];
                 newItem = ItemService.gI().createNewItem((short) id);
             }
         }

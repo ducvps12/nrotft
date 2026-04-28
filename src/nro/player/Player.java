@@ -782,7 +782,7 @@ public class Player implements Runnable {
             { 1980, 1981, 1982 }, { 1946, 1947, 1948 }, { 1985, 1986, 1987 } };
 
     public static final short[][] idOutfitGod = {
-            { -1, 472, 473 }, { -1, 476, 477 }, { -1, 474, 475 }
+            { -1, 472, 473 }, { -1, 476, 477 }, { -1, 474, 475 }, { -1, 474, 475 } // +Majin reuse Xayda
     };
 
     public static final short[][][] idOutfitHalloween = {
@@ -804,7 +804,7 @@ public class Player implements Runnable {
     };
 
     public static final short[][] idOutfitMafuba = {
-            { 1221, 1222, 1223 }, { -1, -1, -1 }, { 1218, 1219, 1220 }
+            { 1221, 1222, 1223 }, { -1, -1, -1 }, { 1218, 1219, 1220 }, { 1218, 1219, 1220 } // +Majin
     };
 
     public int getHat() {
@@ -881,7 +881,9 @@ public class Player implements Runnable {
                 return ConstPlayer.AURABIENHINH[this.gender][this.effectSkill.levelBienHinh - 1];
             }
             if (this.effectSkill.isSuper) {
-                return idAuraSuper[gender][(playerSkill.getSkillbyId(gender == 0 ? 27 : gender == 1 ? 28 : 29).point
+                int skillId = gender == 0 ? 27 : gender == 1 ? 28 : 29; // Majin uses 29 (same as Xayda)
+                int gIdx = Math.min(gender, 2);
+                return idAuraSuper[gIdx][(playerSkill.getSkillbyId(skillId).point
                         - 1) - numUseSkill];
             }
         }
@@ -1130,7 +1132,7 @@ public class Player implements Runnable {
 
             { 26, 27, 28, 29, 30, 31 }, // namec
 
-            { 32, 33, 34, 35, 36, 37 },// xayda
+            { 32, 33, 34, 35, 36, 37 },// xayda + majin
     };
 
     public short getHeadThuCung() {
@@ -1276,16 +1278,19 @@ public class Player implements Runnable {
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 1][0];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2) {
-                return idOutfitFusion[6 + this.gender][0];
+                int fGender = Math.min(this.gender, 2); // Majin reuse Xayda
+                return idOutfitFusion[6 + fGender][0];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
                 // Dùng head của ct vegito god (item 2022)
                 models.Template.ItemTemplate vegitoGod = nro.services.ItemService.gI().getTemplate(2022);
                 if (vegitoGod != null && vegitoGod.head != -1) {
                     return (short) vegitoGod.head;
                 }
-                return idOutfitFusion[9 + this.gender][0];
+                int fGender2 = Math.min(this.gender, 2);
+                return idOutfitFusion[9 + fGender2][0];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA4) {
-                return idOutfitFusion[12 + this.gender][0];
+                int fGender3 = Math.min(this.gender, 2);
+                return idOutfitFusion[12 + fGender3][0];
             }
         } else if (inventory != null && inventory.itemsBody.get(5).isNotNullItem()) {
             int headId = inventory.itemsBody.get(5).template.head;
@@ -1361,16 +1366,19 @@ public class Player implements Runnable {
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 1][1];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2) {
-                return idOutfitFusion[6 + this.gender][1];
+                int fGender = Math.min(this.gender, 2);
+                return idOutfitFusion[6 + fGender][1];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
                 // Dùng body của ct vegito god (item 2022)
                 models.Template.ItemTemplate vegitoGod = nro.services.ItemService.gI().getTemplate(2022);
                 if (vegitoGod != null && vegitoGod.body != -1) {
                     return (short) vegitoGod.body;
                 }
-                return idOutfitFusion[9 + this.gender][1];
+                int fGender2 = Math.min(this.gender, 2);
+                return idOutfitFusion[9 + fGender2][1];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA4) {
-                return idOutfitFusion[12 + this.gender][1];
+                int fGender3 = Math.min(this.gender, 2);
+                return idOutfitFusion[12 + fGender3][1];
             }
         } else if (inventory != null && inventory.itemsBody.get(5).isNotNullItem()) {
             int body = inventory.itemsBody.get(5).template.body;
@@ -1450,16 +1458,19 @@ public class Player implements Runnable {
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA) {
                 return idOutfitFusion[this.gender == ConstPlayer.NAMEC ? 2 : 1][2];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA2) {
-                return idOutfitFusion[6 + this.gender][2];
+                int fGender = Math.min(this.gender, 2);
+                return idOutfitFusion[6 + fGender][2];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA3) {
                 // Dùng leg của ct vegito god (item 2022)
                 models.Template.ItemTemplate vegitoGod = nro.services.ItemService.gI().getTemplate(2022);
                 if (vegitoGod != null && vegitoGod.leg != -1) {
                     return (short) vegitoGod.leg;
                 }
-                return idOutfitFusion[9 + this.gender][2];
+                int fGender2 = Math.min(this.gender, 2);
+                return idOutfitFusion[9 + fGender2][2];
             } else if (fusion.typeFusion == ConstPlayer.HOP_THE_PORATA4) {
-                return idOutfitFusion[12 + this.gender][2];
+                int fGender3 = Math.min(this.gender, 2);
+                return idOutfitFusion[12 + fGender3][2];
             }
         } else if (inventory != null && inventory.itemsBody.get(5).isNotNullItem()) {
             int leg = inventory.itemsBody.get(5).template.leg;

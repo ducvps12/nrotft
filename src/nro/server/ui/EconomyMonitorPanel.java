@@ -52,8 +52,8 @@ public class EconomyMonitorPanel extends JPanel {
     private long avgGold = 0, medianGold = 0;
     private double giniCoeff = 0.0;
     private int totalPlayers = 0;
-    private long[] raceGold = {0, 0, 0};    // Trái Đất, Namec, Xayda
-    private int[] racePlayers = {0, 0, 0};
+    private long[] raceGold = {0, 0, 0, 0};    // Trái Đất, Namec, Xayda, Majin
+    private int[] racePlayers = {0, 0, 0, 0};
     private String[][] topRich = new String[0][];
     private int[] wealthBrackets = new int[6]; // 0-1M, 1M-100M, 100M-1B, 1B-100B, 100B-1T, >1T
 
@@ -557,13 +557,13 @@ public class EconomyMonitorPanel extends JPanel {
                                 long gold = Long.parseLong(String.valueOf(arr.get(0)));
                                 totalGold += gold;
                                 allGolds.add(gold);
-                                if (gender >= 0 && gender <= 2) raceGold[gender] += gold;
+                                if (gender >= 0 && gender <= 3) raceGold[gender] += gold;
                                 if (arr.size() > 1) totalGem += Long.parseLong(String.valueOf(arr.get(1)));
                                 if (arr.size() > 2) totalRuby += Long.parseLong(String.valueOf(arr.get(2)));
                             }
                         } catch (Exception ignored) {}
                     }
-                    if (gender >= 0 && gender <= 2) racePlayers[gender]++;
+                    if (gender >= 0 && gender <= 3) racePlayers[gender]++;
                 }
             }
 
@@ -626,10 +626,10 @@ public class EconomyMonitorPanel extends JPanel {
                         } catch (Exception ignored) {}
                     }
 
-                    String[] raceName = {"Trái Đất", "Namec", "Xayda"};
+                    String[] raceName = {"Trái Đất", "Namec", "Xayda", "Majin"};
                     topList.add(new String[]{
                         name != null ? name : "?",
-                        gender >= 0 && gender <= 2 ? raceName[gender] : "?",
+                        gender >= 0 && gender <= 3 ? raceName[gender] : "?",
                         formatBigNum(pGold),
                         String.valueOf(goldBar),
                         String.valueOf(pGem),

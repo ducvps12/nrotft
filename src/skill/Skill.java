@@ -53,6 +53,9 @@ public class Skill {
 
     public static final byte BIEN_HINH = 27;
     public static final byte PHAN_THAN = 28;
+
+    // Majin race skills (reuse MA_PHONG_BA mechanics until unique implementation)
+    public static final byte HUYET_THONG_MAJIN = 26; // Majin uses same skill ID as Namec for now
     public long lastTimeUseThisSkillbot;
 
     public SkillTemplate template;

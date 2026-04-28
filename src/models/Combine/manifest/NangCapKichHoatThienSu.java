@@ -15,7 +15,8 @@ public class NangCapKichHoatThienSu {
     private static final int[][] THIEN_SU_ITEMS = {
             { 1048, 1051, 1054, 1057, 1060 },
             { 1049, 1052, 1055, 1058, 1061 },
-            { 1050, 1053, 1056, 1059, 1062 }
+            { 1050, 1053, 1056, 1059, 1062 },
+            { 1050, 1053, 1056, 1059, 1062 }  // Majin reuse Xayda
     };
 
     public static boolean isDoHuyDiet(Item item) {
@@ -120,7 +121,8 @@ public class NangCapKichHoatThienSu {
         // 20%
         if (Util.isTrue(100, 100)) {
 
-            int id = THIEN_SU_ITEMS[gender][type];
+            int gIdx = Math.min(gender, 3);
+            int id = THIEN_SU_ITEMS[gIdx][type];
             Item newItem = ItemService.gI().otpts((short) id, 1);
 
             // RANDOM kích hoạt mới hoàn toàn

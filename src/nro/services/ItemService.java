@@ -913,9 +913,9 @@ public class ItemService {
             List<Item> itemHDs = player.combine.itemsCombine.stream()
                     .filter(item -> item.template.id >= 650 && item.template.id <= 662).collect(Collectors.toList());
             short[][] itemIds = { { 1048, 1051, 1054, 1057, 1060 }, { 1049, 1052, 1055, 1058, 1061 },
-                    { 1050, 1053, 1056, 1059, 1062 } }; // thứ tự td - 0,nm - 1, xd - 2
-
-            Item itemTS = DoThienSu(itemIds[player.gender][itemTL.template.type], player.gender);
+                    { 1050, 1053, 1056, 1059, 1062 }, { 1050, 1053, 1056, 1059, 1062 } }; // td - 0, nm - 1, xd - 2, majin - 3 (reuse xd)
+            int gIdx = Math.min(player.gender, 3);
+            Item itemTS = DoThienSu(itemIds[gIdx][itemTL.template.type], player.gender);
             InventoryService.gI().addItemBag(player, itemTS);
 
             InventoryService.gI().subQuantityItemsBag(player, itemTL, 1);
@@ -1010,9 +1010,9 @@ public class ItemService {
     }
 
     public int randTempItemKichHoat(int gender) {
-        int[][][] items = { { { 0, 33 }, { 1, 41 }, { 2, 49 } }, { { 6, 35 }, { 7, 43 }, { 8, 51 } },
-                { { 27, 30 }, { 28, 47 }, { 29, 55 } }, { { 21, 24 }, { 22, 46 }, { 23, 53 } },
-                { { 12, 57 }, { 12, 57 }, { 12, 57 } } };
+        int[][][] items = { { { 0, 33 }, { 1, 41 }, { 2, 49 }, { 2, 49 } }, { { 6, 35 }, { 7, 43 }, { 8, 51 }, { 8, 51 } },
+                { { 27, 30 }, { 28, 47 }, { 29, 55 }, { 29, 55 } }, { { 21, 24 }, { 22, 46 }, { 23, 53 }, { 23, 53 } },
+                { { 12, 57 }, { 12, 57 }, { 12, 57 }, { 12, 57 } } };
         // a w j g rd
         int type;
         if (Util.isTrue(15, 100)) {
@@ -1027,7 +1027,8 @@ public class ItemService {
             type = 2; // giay
         }
 
-        return items[type][gender][Util.nextInt(1)];
+        int gIdx = Math.min(gender, 3);
+        return items[type][gIdx][Util.nextInt(1)];
     }
 
     // rơi món kích hoạt
@@ -1916,15 +1917,15 @@ public class ItemService {
 
     public int randTempItemDoSao(int gender) {
         // Mảng chứa các item theo từng loại (type)
-        int[][] ao = { { 3, 34, 136, 137, 138, 139 }, { 4, 42, 152, 153, 154, 155 }, { 5, 50, 168, 169, 170, 171 } };
+        int[][] ao = { { 3, 34, 136, 137, 138, 139 }, { 4, 42, 152, 153, 154, 155 }, { 5, 50, 168, 169, 170, 171 }, { 5, 50, 168, 169, 170, 171 } };
         int[][] quan = { { 9, 36, 140, 141, 142, 143 }, { 10, 44, 156, 157, 158, 159 },
-                { 11, 52, 172, 173, 174, 175 } };
+                { 11, 52, 172, 173, 174, 175 }, { 11, 52, 172, 173, 174, 175 } };
         int[][] gang = { { 37, 38, 144, 145, 146, 147 }, { 25, 45, 160, 161, 162, 163 },
-                { 26, 54, 176, 177, 178, 179 } };
+                { 26, 54, 176, 177, 178, 179 }, { 26, 54, 176, 177, 178, 179 } };
         int[][] giay = { { 39, 40, 148, 149, 150, 151 }, { 31, 48, 164, 165, 166, 167 },
-                { 32, 56, 180, 181, 182, 183 } };
+                { 32, 56, 180, 181, 182, 183 }, { 32, 56, 180, 181, 182, 183 } };
         int[][] rada = { { 58, 59, 184, 185, 186, 187 }, { 58, 59, 184, 185, 186, 187 },
-                { 58, 59, 184, 185, 186, 187 } };
+                { 58, 59, 184, 185, 186, 187 }, { 58, 59, 184, 185, 186, 187 } };
         int[][][] item = { ao, gang, quan, giay, rada };
 
         // Khởi tạo đối tượng Random
@@ -1948,16 +1949,17 @@ public class ItemService {
         int index = random.nextInt(6); // Lấy giá trị ngẫu nhiên từ 0 đến 5
 
         // Trả về phần tử tương ứng
-        return item[type][gender][index];
+        int gIdx = Math.min(gender, 3);
+        return item[type][gIdx][index];
     }
 
     public int randDoSao(int gender) {
         int[][][] items = {
-                { { 0, 33 }, { 1, 41 }, { 2, 49 } },
-                { { 6, 35 }, { 7, 43 }, { 8, 51 } },
-                { { 27, 30 }, { 28, 47 }, { 29, 55 } },
-                { { 21, 24 }, { 22, 46 }, { 23, 53 } },
-                { { 12, 57 }, { 12, 57 }, { 12, 57 } }
+                { { 0, 33 }, { 1, 41 }, { 2, 49 }, { 2, 49 } },
+                { { 6, 35 }, { 7, 43 }, { 8, 51 }, { 8, 51 } },
+                { { 27, 30 }, { 28, 47 }, { 29, 55 }, { 29, 55 } },
+                { { 21, 24 }, { 22, 46 }, { 23, 53 }, { 23, 53 } },
+                { { 12, 57 }, { 12, 57 }, { 12, 57 }, { 12, 57 } }
         };
 
         int rand = Util.nextInt(100);
@@ -1974,8 +1976,8 @@ public class ItemService {
         } else {
             type = 3; // găng (22.5%)
         }
-
-        return items[type][gender][Util.nextInt(2)];
+        int gIdx = Math.min(gender, 3);
+        return items[type][gIdx][Util.nextInt(2)];
     }
 
     public void setSongoku(Player player) throws Exception {

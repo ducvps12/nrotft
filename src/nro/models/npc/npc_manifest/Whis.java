@@ -137,6 +137,8 @@ public class Whis extends Npc {
                 Skill.SUPER_KAME;
             case 2 ->
                 Skill.LIEN_HOAN_CHUONG;
+            case 3 ->
+                Skill.HUYET_THONG_MAJIN;
             default ->
                 Skill.MA_PHONG_BA;
         };
@@ -153,6 +155,8 @@ public class Whis extends Npc {
                 "Super Kamejoko";
             case 2 ->
                 "Cái Đích Liên Hoàn Chưởng";
+            case 3 ->
+                "Huyết Thống Majin";
             default ->
                 "Ma Phong Ba";
         };
@@ -197,11 +201,18 @@ public class Whis extends Npc {
                 Skill.SUPER_KAME;
             case 2 ->
                 Skill.LIEN_HOAN_CHUONG;
+            case 3 ->
+                Skill.HUYET_THONG_MAJIN;
             default ->
                 Skill.MA_PHONG_BA;
         };
 
-        int iconSkill = (player.gender == 0) ? 11162 : (player.gender == 2 ? 11193 : 11194);
+        int iconSkill = switch (player.gender) {
+            case 0 -> 11162;
+            case 2 -> 11193;
+            case 3 -> 11194; // Majin reuse Namec icon temporarily
+            default -> 11194;
+        };
         Skill curSkill = SkillUtil.getSkillbyId(player, skillId);
         boolean chuaHoc = (curSkill == null || curSkill.point == 0);
 
@@ -237,6 +248,8 @@ public class Whis extends Npc {
                         SkillService.gI().learSkillSpecial(player, Skill.SUPER_KAME);
                     case 2 ->
                         SkillService.gI().learSkillSpecial(player, Skill.LIEN_HOAN_CHUONG);
+                    case 3 ->
+                        SkillService.gI().learSkillSpecial(player, Skill.HUYET_THONG_MAJIN);
                     default ->
                         SkillService.gI().learSkillSpecial(player, Skill.MA_PHONG_BA);
                 }

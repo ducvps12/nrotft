@@ -1913,8 +1913,10 @@ public class UseItem {
     public void hopQuaTanThu(Player pl, Item it) {
         if (InventoryService.gI().getCountEmptyBag(pl) > 23) {
             int gender = pl.gender;
+            // Majin (gender=3) reuse Xayda (gender=2) items for equipment
+            int clothesGender = (gender >= 3) ? 2 : gender;
             int soluongitem = ConstItem.LIST_ITEM_CLOTHES[0][0].length;
-            int[] id = { gender, 6 + gender, 21 + gender, 27 + gender, 12, 194, 441, 442, 443, 444, 445, 446, 447, 381,
+            int[] id = { clothesGender, 6 + clothesGender, 21 + clothesGender, 27 + clothesGender, 12, 194, 441, 442, 443, 444, 445, 446, 447, 381,
                     382, 383, 384, 385, 16, 17, 18, 19, 20 };
             int[] soluong = { 1, 1, 1, 1, 1, 1, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999,
                     999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999, 999 };
@@ -1941,7 +1943,7 @@ public class UseItem {
             for (int j = 0; j < 5; j++) {
                 int id1 = soluongitem - 1;
                 Item item = ItemService.gI()
-                        .createNewItem((short) ConstItem.LIST_ITEM_CLOTHES[gender][j][id1]);
+                        .createNewItem((short) ConstItem.LIST_ITEM_CLOTHES[clothesGender][j][id1]);
                 RewardService.gI().initBaseOptionClothes(item.template.id, item.template.type, item.itemOptions);
                 item.itemOptions.add(new ItemOption(30, 1));
                 InventoryService.gI().addItemBag(pl, item);
