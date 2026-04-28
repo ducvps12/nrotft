@@ -15,21 +15,24 @@ public class ConstPlayer {
                         // LẦN LƯỢT TỪ LB 1-5
                         { 20, 20, 21, 27, 29 }, // td
                         { 0, 22, 23, 24, 30 }, // nm
-                        { 20, 20, 21, 23, 25 } // xd
+                        { 20, 20, 21, 23, 25 }, // xd
+                        { 20, 20, 21, 27, 29 }  // majin (tạm reuse TD)
         };
         // SỬA NGOẠI HÌNH TỪ LV 1-5 Ở �?ÂY
         public static final short[][] HEADBIENHINH = {
                         { 1773, 1779, 1777, 1776, 1778 }, // head TD
                         { 1767, 1780, 1781, 1782, 1784 }, // haed NM
                         { 1770, 1785, 1786, 1787, 1788 }, // head XD
+                        { 1770, 1785, 1786, 1787, 1788 }, // head MAJIN (tạm reuse XD)
         };
         // THÂN NGOẠI HÌNH LV 1-5
-        public static final short[] BODYBIENHINH = { 1774, 1768, 1771 }; // TD /NM/ XD
-        public static final short[] LEGBIENHINH = { 1775, 1769, 1772 }; // TD /NM/ XD
+        public static final short[] BODYBIENHINH = { 1774, 1768, 1771, 1771 }; // TD /NM/ XD / MJ
+        public static final short[] LEGBIENHINH = { 1775, 1769, 1772, 1772 }; // TD /NM/ XD / MJ
 
         public static final byte TRAI_DAT = 0;
         public static final byte NAMEC = 1;
         public static final byte XAYDA = 2;
+        public static final byte MAJIN = 3;
 
         // type pk
         public static final byte NON_PK = 0;

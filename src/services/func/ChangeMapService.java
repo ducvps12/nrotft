@@ -605,7 +605,7 @@ public class ChangeMapService {
             Service.gI().sendThongBao(player, player.textThongBaoChangeMap);
             player.textThongBaoChangeMap = null;
         }
-        if (player.thongBaoThua && player.zone != null && player.zone.map.mapId == player.gender + 21) {
+        if (player.thongBaoThua && player.zone != null && player.zone.map.mapId == getHomeMapId(player)) {
             player.thongBaoThua = false;
             Service.gI().sendThongBao(player, player.textThongBaoThua);
             player.textThongBaoThua = null;
@@ -625,7 +625,7 @@ public class ChangeMapService {
         if (player.zone != null && player.zone.map.mapId == 126) {
             player.zone.sendBigBoss(player);
         }
-        if (player.zone != null && player.zone.map.mapId == (21 + player.gender)) {
+        if (player.zone != null && player.zone.map.mapId == getHomeMapId(player)) {
             if (player.mabuEgg != null) {
                 player.mabuEgg.sendMabuEgg();
             }
@@ -1086,17 +1086,22 @@ public class ChangeMapService {
         if (zoneJoin != null) {
             switch (player.gender) {
                 case ConstPlayer.TRAI_DAT:
-                    if (zoneJoin.map.mapId == 22 || zoneJoin.map.mapId == 23) {
+                    if (zoneJoin.map.mapId == 22 || zoneJoin.map.mapId == 23 || zoneJoin.map.mapId == ConstMap.NHA_MAJIN) {
                         zoneJoin = null;
                     }
                     break;
                 case ConstPlayer.NAMEC:
-                    if (zoneJoin.map.mapId == 21 || zoneJoin.map.mapId == 23) {
+                    if (zoneJoin.map.mapId == 21 || zoneJoin.map.mapId == 23 || zoneJoin.map.mapId == ConstMap.NHA_MAJIN) {
                         zoneJoin = null;
                     }
                     break;
                 case ConstPlayer.XAYDA:
-                    if (zoneJoin.map.mapId == 21 || zoneJoin.map.mapId == 22) {
+                    if (zoneJoin.map.mapId == 21 || zoneJoin.map.mapId == 22 || zoneJoin.map.mapId == ConstMap.NHA_MAJIN) {
+                        zoneJoin = null;
+                    }
+                    break;
+                case ConstPlayer.MAJIN:
+                    if (zoneJoin.map.mapId == 21 || zoneJoin.map.mapId == 22 || zoneJoin.map.mapId == 23) {
                         zoneJoin = null;
                     }
                     break;
@@ -1193,6 +1198,17 @@ public class ChangeMapService {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the home map ID for a player based on their race.
+     * Majin uses map 171 instead of the 21+gender formula.
+     */
+    public static int getHomeMapId(Player player) {
+        if (player.gender == ConstPlayer.MAJIN) {
+            return ConstMap.NHA_MAJIN;
+        }
+        return 21 + player.gender;
     }
 
 }

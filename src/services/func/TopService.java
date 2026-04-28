@@ -748,8 +748,8 @@ public class TopService {
                 }
 
                 // Body & Leg defaults
-                msg.writer().writeShort(gender == 0 ? 0 : gender == 1 ? 1 : 2);
-                msg.writer().writeShort(gender == 0 ? 6 : gender == 1 ? 7 : 8);
+                msg.writer().writeShort(gender == 0 ? 0 : gender == 1 ? 1 : gender == 3 ? 3 : 2);
+                msg.writer().writeShort(gender == 0 ? 6 : gender == 1 ? 7 : gender == 3 ? 9 : 8);
 
                 msg.writer().writeUTF(data[0]); // name
                 msg.writer().writeUTF(""); // time placeholder

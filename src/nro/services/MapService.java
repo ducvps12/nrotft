@@ -382,6 +382,8 @@ public class MapService {
                 return "Namếc";
             case 2:
                 return "Xayda";
+            case 3:
+                return "Majin";
             default:
                 return "";
         }
