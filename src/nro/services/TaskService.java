@@ -47,6 +47,7 @@ import task.Badges.BadgesTaskService;
 import task.ClanTaskTemplate;
 import task.KolTaskTemplate;
 import utils.TimeUtil;
+import services.func.ChangeMapService;
 
 public class TaskService {
 
@@ -1485,7 +1486,7 @@ public class TaskService {
 
     public int transformMapId(Player player, int id) {
         if (id == ConstTask.MAP_NHA) {
-            return (short) (player.gender + 21);
+            return (short) ChangeMapService.getHomeMapId(player);
         } else if (id == ConstTask.MAP_200) {
             return player.gender == ConstPlayer.TRAI_DAT
                     ? 1

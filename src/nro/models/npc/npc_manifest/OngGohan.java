@@ -611,9 +611,17 @@ public class OngGohan extends Npc {
                     transaction = ChuyenKhoanManager.GetTransactionById(player.id, (int) player.getSession().lastTransactionId);
                 }
                 
-                // Không fallback lấy giao dịch cũ - chỉ dùng giao dịch vừa tạo
+                // Fallback: lấy giao dịch gần nhất chưa thanh toán nếu session bị mất
                 if (transaction == null) {
-                    Service.gI().sendThongBao(player, "Vui lòng Tạo Giao Dịch trước khi quét QR!");
+                    transaction = ChuyenKhoanManager.GetTransactionLast(player.id);
+                    // Chỉ dùng nếu giao dịch chưa hoàn thành
+                    if (transaction != null && (transaction.status || transaction.isReceive)) {
+                        transaction = null;
+                    }
+                }
+                
+                if (transaction == null) {
+                    Service.gI().sendThongBao(player, "Vui lòng bấm 'Tạo Giao Dịch' và nhập số tiền trước khi quét QR!");
                     return;
                 }
                 
@@ -621,6 +629,11 @@ public class OngGohan extends Npc {
                 if (transaction.status || transaction.isReceive) {
                     Service.gI().sendThongBao(player, "Giao dịch này đã được thanh toán! Hãy tạo giao dịch mới.");
                     return;
+                }
+                
+                // Sync lại lastTransactionId cho session
+                if (player.getSession() != null) {
+                    player.getSession().lastTransactionId = transaction.id;
                 }
                 
                 // Tạo nội dung QR đúng từ transaction vừa tạo

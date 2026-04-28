@@ -106,7 +106,7 @@ public class MapService {
 
         if (this.isMapDoanhTrai(mapId)
                 && (player.zone == null || player.clan == null || player.clan.doanhTrai == null)) {
-            Zone zone = getZone(21 + player.gender);
+            Zone zone = getZone(ChangeMapService.getHomeMapId(player));
             player.location.x = Util.nextInt(100, zone.map.mapWidth - 100);
             player.location.y = zone.map.yPhysicInTop(player.location.x, 100);
             return zone;
@@ -404,7 +404,7 @@ public class MapService {
                 && !isMapTuongLai(pl.mapBeforeCapsule.map.mapId)) {
             addListMapCapsule(pl, list, pl.mapBeforeCapsule);
         }
-        addListMapCapsule(pl, list, getMapCanJoin(pl, 21 + pl.gender, 0));
+        addListMapCapsule(pl, list, getMapCanJoin(pl, ChangeMapService.getHomeMapId(pl), 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 47, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 45, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 0, 0));
@@ -413,7 +413,7 @@ public class MapService {
         addListMapCapsule(pl, list, getMapCanJoin(pl, 5, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 20, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 13, 0));
-        addListMapCapsule(pl, list, getMapCanJoin(pl, 24 + pl.gender, 0));
+        addListMapCapsule(pl, list, getMapCanJoin(pl, ChangeMapService.getSpaceStationMapId(pl), 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 27, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 19, 0));
         addListMapCapsule(pl, list, getMapCanJoin(pl, 79, 0));

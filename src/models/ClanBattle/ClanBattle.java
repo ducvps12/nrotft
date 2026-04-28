@@ -112,7 +112,7 @@ public class ClanBattle implements Runnable {
                 if (p.isDie()) {
                     Service.gI().hsChar(p, p.nPoint.hpMax, p.nPoint.mpMax);
                 }
-                ChangeMapService.gI().changeMapInYard(p, p.gender + 21, -1, 300);
+                ChangeMapService.gI().changeMapInYard(p, ChangeMapService.getHomeMapId(p), -1, 300);
             }
         }
         // Xóa trận đấu khỏi Manager khi kết thúc

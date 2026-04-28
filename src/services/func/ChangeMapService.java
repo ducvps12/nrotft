@@ -1210,5 +1210,15 @@ public class ChangeMapService {
         }
         return 21 + player.gender;
     }
+    /**
+     * Get the space station map ID for a player based on their race.
+     * Majin uses map 172 instead of the 24+gender formula.
+     */
+    public static int getSpaceStationMapId(Player player) {
+        if (player.gender == ConstPlayer.MAJIN) {
+            return ConstMap.TRAM_TAU_MAJIN;
+        }
+        return 24 + player.gender;
+    }
 
 }

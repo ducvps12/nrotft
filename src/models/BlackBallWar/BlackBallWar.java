@@ -167,7 +167,7 @@ public class BlackBallWar implements Runnable {
 
         Service.gI().sendThongBao(player, "Trò chơi tìm ngọc hôm nay đã kết thúc, hẹn gặp lại vào 20h ngày mai");
 
-        ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 24, -1, 250);
+        ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getSpaceStationMapId(player), -1, 250);
     }
 
     private void kickAllPlayersOutOfMap(Zone zone) {

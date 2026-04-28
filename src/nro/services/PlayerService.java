@@ -164,13 +164,13 @@ public class PlayerService {
                         if (x < 24 || x > player.zone.map.mapWidth - 24 || y < 0
                                 || y > player.zone.map.mapHeight - 24) {
                             if (MapService.gI().getWaypointPlayerIn(player) == null) {
-                                ChangeMapService.gI().changeMap(player, 21 + player.gender, 0, 200, 336);
+                                ChangeMapService.gI().changeMap(player, ChangeMapService.getHomeMapId(player), 0, 200, 336);
                                 return;
                             }
                         }
                         int yTop = player.zone.map.yPhysicInTop(player.location.x, player.location.y);
                         if (yTop >= player.zone.map.mapHeight - 24) {
-                            ChangeMapService.gI().changeMap(player, 21 + player.gender, 0, 200, 336);
+                            ChangeMapService.gI().changeMap(player, ChangeMapService.getHomeMapId(player), 0, 200, 336);
                             return;
                         }
                     }

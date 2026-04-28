@@ -15,6 +15,7 @@ import nro.server.Manager;
 import nro.services.TaskService;
 import java.util.ArrayList;
 import java.util.List;
+import services.func.ChangeMapService;
 
 public class NpcManager {
 
@@ -41,7 +42,7 @@ public class NpcManager {
         if (player.zone != null) {
             for (Npc npc : player.zone.map.npcs) {
                 if (npc.tempId == ConstNpc.QUA_TRUNG && player.mabuEgg == null
-                        && player.zone.map.mapId == (21 + player.gender)) {
+                        && player.zone.map.mapId == ChangeMapService.getHomeMapId(player)) {
                     continue;
                 } else if (npc.tempId == ConstNpc.CALICK && TaskService.gI().getIdTask(player) < ConstTask.TASK_21_0) {
                     continue;

@@ -80,7 +80,7 @@ public class ClanBoss implements Runnable {
 
         ChangeMapService.gI().changeMapBySpaceShip(
                 player,
-                player.gender + 24,
+                ChangeMapService.getSpaceStationMapId(player),
                 -1,
                 250);
     }

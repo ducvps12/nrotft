@@ -105,7 +105,7 @@ public class Pet extends Player {
 
             // Xử lý map offline (nhà) hoặc map đặc biệt
             if (MapService.gI().isMapOffline(this.master.zone.map.mapId) || this.master.zone.map.mapId == 113) {
-                ChangeMapService.gI().goToMap(this, MapService.gI().getMapCanJoin(this, master.gender + 21, -1));
+                ChangeMapService.gI().goToMap(this, MapService.gI().getMapCanJoin(this, ChangeMapService.getHomeMapId(master), -1));
                 return;
             }
 
@@ -148,7 +148,7 @@ public class Pet extends Player {
             if (master != null) {
                 try {
                     ChangeMapService.gI().goToMap(this,
-                            MapService.gI().getMapCanJoin(this, master.gender + 21, -1));
+                            MapService.gI().getMapCanJoin(this, ChangeMapService.getHomeMapId(master), -1));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

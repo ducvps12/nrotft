@@ -233,6 +233,8 @@ public class NDVSqlFetcher {
                         player.head = 9;
                     case 2 ->
                         player.head = 6;
+                    case 3 ->
+                        player.head = 6; // Majin: reuse Xayda head temporarily
                 }
             }
             player.haveTennisSpaceShip = rs.getBoolean("have_tennis_space_ship");
@@ -327,13 +329,13 @@ public class NDVSqlFetcher {
                 if (mapId == 51 || MapService.gI().isMapDoanhTrai(mapId) || MapService.gI().isMapMiNuong(mapId)
                         || MapService.gI().isMapBlackBallWar(mapId) || MapService.gI().isMapSieuThanhThuy(mapId)
                         || MapService.gI().isMapMabu2H(mapId)) {
-                    mapId = player.gender + 21;
+                    mapId = services.func.ChangeMapService.getHomeMapId(player);
                     player.location.x = 300;
                     player.location.y = 336;
                 }
                 if (MapService.gI().isMapMaBu(mapId)) {
                     if (!TimeUtil.isMabuOpen()) {
-                        mapId = player.gender + 21;
+                        mapId = services.func.ChangeMapService.getHomeMapId(player);
                         player.location.x = 300;
                         player.location.y = 336;
                     }

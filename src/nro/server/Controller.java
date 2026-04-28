@@ -702,7 +702,7 @@ public class Controller implements IMessageHandler {
                     break;
                 case -15: // về nhà
                     if (player != null) {
-                        int mapId = MapService.gI().isMapMaBu(player.zone.map.mapId) ? 114 : player.gender + 21;
+                        int mapId = MapService.gI().isMapMaBu(player.zone.map.mapId) ? 114 : ChangeMapService.getHomeMapId(player);
                         ChangeMapService.gI().changeMapBySpaceShip(player, mapId, 0, -1);
                     }
                     break;
@@ -868,7 +868,7 @@ public class Controller implements IMessageHandler {
                                     Service.gI().sendThongBao(player, "Nhiệm vụ của bạn là\nHãy di chuyển nhân vật");
                                     String npcSay = "Chào mừng " + player.name + " đến với thế giới Chiến Binh Rồng\n";
                                     npcSay += "Mình là "
-                                            + (player.gender == 0 ? "Puaru" : player.gender == 1 ? "Piano" : "Icarus")
+                                            + (player.gender == 0 ? "Puaru" : player.gender == 1 ? "Piano" : player.gender == 3 ? "Babidi" : "Icarus")
                                             + " sẽ đồng hành cũng bạn trên thế giới này\n";
                                     npcSay += "Để di chuyển, hãy chạm 1 lần vào nơi muốn đến";
                                     NpcService.gI().createTutorial(player, -1, npcSay);

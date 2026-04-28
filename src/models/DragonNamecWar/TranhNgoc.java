@@ -108,7 +108,7 @@ public class TranhNgoc {
 
     private void kickOutOfMap(Player player) {
         player.iDMark.setTranhNgoc((byte) -1);
-        ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, -1, 250);
+        ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), -1, 250);
         player.isHoldNamecBallTranhDoat = false;
         player.tempIdNamecBallHoldTranhDoat = -1;
     }

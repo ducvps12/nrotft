@@ -498,7 +498,7 @@ public class Player implements Runnable {
                 }
 
                 if (isPl() && zone != null
-                        && zone.map.mapId == gender + 21
+                        && zone.map.mapId == services.func.ChangeMapService.getHomeMapId(this)
                         && (TaskService.gI().getIdTask(this) == ConstTask.TASK_0_0
                                 || TaskService.gI().getIdTask(this) == ConstTask.TASK_0_1)) {
                     playerTask.taskMain.index = 2;
@@ -694,7 +694,7 @@ public class Player implements Runnable {
     }
 
     private void handleMabu() {
-        if (zone != null && zone.map.mapId == gender + 21 && mabuEgg != null) {
+        if (zone != null && zone.map.mapId == services.func.ChangeMapService.getHomeMapId(this) && mabuEgg != null) {
             mabuEgg.sendMabuEgg();
         }
 

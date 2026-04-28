@@ -95,7 +95,7 @@ public class MajinBuuService {
             }
             player.timeGohome -= 3;
             if (player.timeGohome <= 0) {
-                ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, -1, 250);
+                ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), -1, 250);
                 player.goHome = false;
             }
             player.lastUpdateGohomeTime = System.currentTimeMillis();

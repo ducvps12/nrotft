@@ -25,7 +25,7 @@ public class QuaTrung extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (canOpenNpc(player)) {
-            if (this.mapId == (21 + player.gender)) {
+            if (this.mapId == services.func.ChangeMapService.getHomeMapId(player)) {
                 player.mabuEgg.sendMabuEgg();
                 if (player.mabuEgg.getSecondDone() != 0) {
                     this.createOtherMenu(player, ConstNpc.CAN_NOT_OPEN_EGG, "Bư bư bư...",
@@ -42,7 +42,7 @@ public class QuaTrung extends Npc {
     @Override
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
-            if (this.mapId == (21 + player.gender)) {
+            if (this.mapId == services.func.ChangeMapService.getHomeMapId(player)) {
                 switch (player.iDMark.getIndexMenu()) {
                     case ConstNpc.CAN_NOT_OPEN_EGG -> {
                         if (select == 0) {

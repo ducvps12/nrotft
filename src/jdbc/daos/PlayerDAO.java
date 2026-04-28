@@ -91,10 +91,10 @@ public class PlayerDAO {
              * {"temp_id":"-1","option":[],"create_time":"0""}, ... ]
              */
 
-            int idAo = gender == 0 ? 0 : gender == 1 ? 1 : 2;
-            int idQuan = gender == 0 ? 6 : gender == 1 ? 7 : 8;
-            int def = gender == 2 ? 3 : 2;
-            long hp = gender == 0 ? 30 : 20;
+            int idAo = gender == 0 ? 0 : gender == 1 ? 1 : gender == 3 ? 3 : 2;
+            int idQuan = gender == 0 ? 6 : gender == 1 ? 7 : gender == 3 ? 9 : 8;
+            int def = gender == 2 ? 3 : gender == 3 ? 3 : 2;
+            long hp = gender == 0 ? 30 : gender == 3 ? 25 : 20;
 
             JSONArray item = new JSONArray();
             JSONArray options = new JSONArray();
@@ -222,7 +222,7 @@ public class PlayerDAO {
             String itemsMailBox = dataArray.toJSONString();
             dataArray.clear();
 
-            dataArray.add(gender == 0 ? 0 : gender == 1 ? 2 : 4);
+            dataArray.add(gender == 0 ? 0 : gender == 1 ? 2 : gender == 3 ? 6 : 4);
             String dataCheckHocSkill = dataArray.toJSONString();
             dataArray.clear();
 
@@ -307,7 +307,8 @@ public class PlayerDAO {
 
             int[] skillsArr = gender == 0 ? new int[] { 0, 1, 6, 9, 10, 20, 22, 24, 19, 27, 28 }
                     : gender == 1 ? new int[] { 2, 3, 7, 11, 12, 17, 18, 26, 19, 27, 28 }
-                            : new int[] { 4, 5, 8, 13, 14, 21, 23, 25, 19, 27, 28 };
+                            : gender == 3 ? new int[] { 0, 3, 6, 11, 10, 20, 18, 24, 19, 27, 28 } // Majin: mix TD+NM skills
+                                    : new int[] { 4, 5, 8, 13, 14, 21, 23, 25, 19, 27, 28 };
             JSONArray skill = new JSONArray();
             for (int i = 0; i < skillsArr.length; i++) {
                 skill.add(skillsArr[i]); // id skill
@@ -323,7 +324,7 @@ public class PlayerDAO {
             String skills = dataArray.toJSONString();
             dataArray.clear();
 
-            dataArray.add(gender == 0 ? 0 : gender == 1 ? 2 : 4);
+            dataArray.add(gender == 0 ? 0 : gender == 1 ? 2 : gender == 3 ? 6 : 4);
             dataArray.add(-1);
             dataArray.add(-1);
             dataArray.add(-1);
@@ -438,7 +439,7 @@ public class PlayerDAO {
                 long hp = player.nPoint.hp;
                 long mp = player.nPoint.mp;
                 if (player.isDie()) {
-                    mapId = player.gender + 21;
+                    mapId = ChangeMapService.getHomeMapId(player);
                     x = 300;
                     y = 336;
                     hp = 1;
@@ -447,7 +448,7 @@ public class PlayerDAO {
                     if (MapService.gI().isMapDoanhTrai(mapId) || MapService.gI().isMapBlackBallWar(mapId)
                             || ChangeMapService.gI().checkMapCanJoin(player,
                                     MapService.gI().getMapCanJoin(player, mapId, 0)) == null) {
-                        mapId = player.gender + 21;
+                        mapId = ChangeMapService.getHomeMapId(player);
                         x = 300;
                         y = 336;
                     }

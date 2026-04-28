@@ -137,7 +137,7 @@ public class SuperDivineWaterService {
                     }
                 }
                 if (!player.effectSkill.isPKSTT) {
-                    ChangeMapService.gI().changeMap(player, player.gender + 21, -1, -1, 1);
+                    ChangeMapService.gI().changeMap(player, ChangeMapService.getHomeMapId(player), -1, -1, 1);
                 }
             }
         } catch (Exception e) {

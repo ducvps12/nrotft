@@ -53,7 +53,7 @@ public class Rong1Sao extends Npc {
                 case ConstNpc.MENU_OPTION_GO_HOME -> {
                     switch (select) {
                         case 0 ->
-                            ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, -1, 250);
+                            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), -1, 250);
                         case 1 ->
                             this.npcChat(player, "Để ta xem ngươi trụ được bao lâu");
                         default -> {

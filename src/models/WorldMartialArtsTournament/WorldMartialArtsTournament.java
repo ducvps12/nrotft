@@ -248,9 +248,9 @@ public final class WorldMartialArtsTournament implements Runnable {
                 Zone pl2z = ChangeMapService.gI().getMapCanJoin(plWin, 52);
                 ChangeMapService.gI().changeMap(plWin, pl2z, Util.nextInt(200, 500), 336);
             }
-            if (plLose != null && plLose.zone != null && plLose.zone.map.mapId != plLose.gender + 21
-                    && plLose.thongBaoThua) {
-                Zone pl1z = ChangeMapService.gI().getMapCanJoin(plLose, plLose.gender + 21);
+            if (plLose != null && plLose.zone != null && plLose.zone.map.mapId != ChangeMapService.getHomeMapId(plLose)
+                    && !MapService.gI().isMapMaBu(plLose.zone.map.mapId)) {
+                Zone pl1z = ChangeMapService.gI().getMapCanJoin(plLose, ChangeMapService.getHomeMapId(plLose));
                 ChangeMapService.gI().changeMap(plLose, pl1z, Util.nextInt(200, 500), 1);
                 if (plLose.isDie()) {
                     Service.gI().hsChar(plLose, plLose.nPoint.hpMax, plLose.nPoint.mpMax);

@@ -39,7 +39,7 @@ public class DrDrief extends Npc {
                 this.createOtherMenu(pl, ConstNpc.BASE_MENU,
                         "Tàu Vũ Trụ của ta có thể đưa cậu đến hành tinh khác chỉ trong 3 giây. Cậu muốn đi đâu?",
                         pl.gender == ConstPlayer.TRAI_DAT ? "Đến\nTrái Đất"
-                                : pl.gender == ConstPlayer.NAMEC ? "Đến\nNamếc" : "Đến\nXayda");
+                                : pl.gender == ConstPlayer.NAMEC ? "Đến\nNamếc" : pl.gender == ConstPlayer.MAJIN ? "Đến\nMajin" : "Đến\nXayda");
             } else if (this.mapId == 184) {
 
                 ArrayList<String> menu = new ArrayList<>();
@@ -68,7 +68,7 @@ public class DrDrief extends Npc {
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
             if (this.mapId == 84 || this.mapId == 194) {
-                ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 24, -1, -1);
+                ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getSpaceStationMapId(player), -1, -1);
             } else if (this.mapId == 184 || this.mapId == 194) {
                 OUTER: switch (player.iDMark.getIndexMenu()) {
                     case ConstNpc.BASE_MENU -> {

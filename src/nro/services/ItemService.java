@@ -24,6 +24,7 @@ import map.Zone;
 import models.Combine.CombineService;
 import shop.Shop;
 import shop.TabShop;
+import services.func.ChangeMapService;
 
 public class ItemService {
 
@@ -1834,7 +1835,7 @@ public class ItemService {
 
         Item ao = ItemService.gI().otpKH((short) ((short) player.gender + 0));
         Item quan = ItemService.gI().otpKH((short) ((short) player.gender + 6));
-        Item gang = ItemService.gI().otpKH((short) ((short) player.gender + 21));
+        Item gang = ItemService.gI().otpKH((short) ChangeMapService.getHomeMapId(player));
         Item giay = ItemService.gI().otpKH((short) ((short) player.gender + 27));
         Item rd = ItemService.gI().otpKH((short) 12);
         ao.itemOptions.add(new ItemOption(255, 0));// 129

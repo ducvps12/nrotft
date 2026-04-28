@@ -61,7 +61,7 @@ public class Kibit extends Npc {
                             if (player.cFlag != 9) {
                                 return;
                             }
-                            ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, 0, -1);
+                            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), 0, -1);
                         }
                     }
                 }

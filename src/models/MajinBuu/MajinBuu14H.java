@@ -111,7 +111,7 @@ public final class MajinBuu14H implements Runnable {
 
     private void kickOut(Player player) {
         if (MapService.gI().isMapMabu2H(player.zone.map.mapId) && !player.isAdmin()) {
-            ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, -1, 336);
+            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), -1, 336);
         }
     }
 

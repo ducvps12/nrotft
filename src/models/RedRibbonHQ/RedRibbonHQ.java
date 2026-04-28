@@ -271,7 +271,7 @@ public class RedRibbonHQ implements Runnable {
     private void kickOutOfDT(Player player) {
         if (MapService.gI().isMapDoanhTrai(player.zone.map.mapId)) {
             Service.gI().sendThongBao(player, "Đã hết thời gian, bạn sẽ được đưa về nhà");
-            ChangeMapService.gI().changeMapBySpaceShip(player, 21 + player.gender, -1, -1);
+            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), -1, -1);
         }
     }
 

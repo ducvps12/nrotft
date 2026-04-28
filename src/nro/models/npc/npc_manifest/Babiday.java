@@ -72,7 +72,7 @@ public class Babiday extends Npc {
                             ChangeMapService.gI().changeMap(player, this.map.mapIdNextMabu((short) this.mapId), -1,
                                     this.cx, this.cy);
                         } else {
-                            ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, 0, -1);
+                            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), 0, -1);
                         }
                     }
                     case 2 -> {
@@ -81,11 +81,11 @@ public class Babiday extends Npc {
                             ChangeMapService.gI().changeMap(player, this.map.mapIdNextMabu((short) this.mapId), -1,
                                     this.cx, this.cy);
                         } else {
-                            ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, 0, -1);
+                            ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), 0, -1);
                         }
                     }
                     case 3 ->
-                        ChangeMapService.gI().changeMapBySpaceShip(player, player.gender + 21, 0, -1);
+                        ChangeMapService.gI().changeMapBySpaceShip(player, ChangeMapService.getHomeMapId(player), 0, -1);
                 }
             }
         }
