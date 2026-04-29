@@ -610,11 +610,33 @@ public class DashboardPanel extends JPanel {
             btnToggleAutoSave.setSelected(!enable);
         });
 
+        // === NÚT SHUTDOWN KHẨN CẤP ===
+        JButton btnEmergencyShutdown = new JButton("⚠ SHUTDOWN");
+        btnEmergencyShutdown.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnEmergencyShutdown.setForeground(Color.WHITE);
+        btnEmergencyShutdown.setBackground(new Color(180, 0, 0));
+        btnEmergencyShutdown.setFocusPainted(false);
+        btnEmergencyShutdown.setBorderPainted(false);
+        btnEmergencyShutdown.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEmergencyShutdown.setPreferredSize(new Dimension(140, 32));
+        btnEmergencyShutdown.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btnEmergencyShutdown.setBackground(new Color(220, 20, 20));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btnEmergencyShutdown.setBackground(new Color(180, 0, 0));
+            }
+        });
+        btnEmergencyShutdown.addActionListener(e -> performEmergencyShutdown());
+
         p.add(btnMaint);
         p.add(btnReload);
         p.add(btnBackupDb);
         p.add(btnClean);
         p.add(btnToggleAutoSave);
+        p.add(btnEmergencyShutdown);
         return p;
     }
     
@@ -1956,6 +1978,182 @@ public class DashboardPanel extends JPanel {
     }
 
     // ================= ACTIONS LOGIC =================
+
+    // === EMERGENCY SHUTDOWN - Tắt server khẩn cấp ===
+    private volatile boolean emergencyShutdownInProgress = false;
+
+    private void performEmergencyShutdown() {
+        if (emergencyShutdownInProgress) {
+            JOptionPane.showMessageDialog(this, "Đang trong quá trình tắt server khẩn cấp!",
+                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Xác nhận lần 1
+        int confirm1 = JOptionPane.showConfirmDialog(this,
+                "⚠ CẢNH BÁO: TẮT SERVER KHẨN CẤP!\n\n"
+                + "Quy trình sẽ thực hiện:\n"
+                + "1. Thông báo bảo trì tới toàn bộ người chơi (2 phút)\n"
+                + "2. Tự động lưu dữ liệu toàn bộ người chơi\n"
+                + "3. Backup database ra file SQL\n"
+                + "4. Tắt server KHÔNG khởi động lại\n\n"
+                + "Bạn có chắc chắn muốn tiếp tục?",
+                "⚠ Xác nhận Shutdown Khẩn Cấp",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (confirm1 != JOptionPane.YES_OPTION) return;
+
+        // Xác nhận lần 2
+        int confirm2 = JOptionPane.showConfirmDialog(this,
+                "⛔ XÁC NHẬN LẦN CUỐI!\n\n"
+                + "Server sẽ tắt hoàn toàn sau 2 phút\n"
+                + "và KHÔNG TỰ ĐỘNG RESTART.\n\n"
+                + "Nhấn YES để bắt đầu quy trình tắt khẩn cấp.",
+                "⛔ Xác nhận lần cuối",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.ERROR_MESSAGE);
+        if (confirm2 != JOptionPane.YES_OPTION) return;
+
+        emergencyShutdownInProgress = true;
+        addLog("⚠ EMERGENCY SHUTDOWN: Bắt đầu quy trình tắt server khẩn cấp!");
+
+        // Cập nhật UI
+        lblStatus.setText("⚠ EMERGENCY SHUTDOWN");
+        lblStatus.setForeground(new Color(180, 0, 0));
+        cancelAllScheduledTasks();
+
+        // Đảm bảo KHÔNG restart
+        REQUEST_AUTO_RESTART = false;
+        nro.server.ui.ServerManagerUI.REQUEST_AUTO_RESTART = false;
+
+        // Chạy nền toàn bộ quy trình
+        Thread.startVirtualThread(() -> {
+            try {
+                // ============ PHASE 1: Thông báo bảo trì 2 phút ============
+                addLog("SHUTDOWN Phase 1/4: Thông báo bảo trì 2 phút...");
+                int totalSeconds = 120; // 2 phút
+
+                for (int remaining = totalSeconds; remaining > 0; remaining--) {
+                    final int sec = remaining;
+                    // Thông báo mỗi 30 giây, mỗi 10 giây khi < 60s, và mỗi giây khi < 10s
+                    if (remaining == totalSeconds || remaining == 90 || remaining == 60
+                            || remaining == 30 || remaining == 20 || remaining == 10
+                            || remaining <= 5) {
+                        String timeStr;
+                        if (remaining >= 60) {
+                            timeStr = (remaining / 60) + " phút " + (remaining % 60 > 0 ? remaining % 60 + " giây" : "");
+                        } else {
+                            timeStr = remaining + " giây";
+                        }
+                        try {
+                            Service.gI().sendThongBaoAllPlayer(
+                                    "⚠ KHẨN CẤP: Server sẽ tắt sau " + timeStr
+                                    + " nữa. Hãy thoát game ngay để tránh mất mát vật phẩm!");
+                        } catch (Exception ignored) {}
+                    }
+
+                    // Cập nhật countdown UI
+                    SwingUtilities.invokeLater(() -> {
+                        lblCountdown.setText(String.format("SHUTDOWN: %02d:%02d", sec / 60, sec % 60));
+                        lblCountdown.setForeground(new Color(180, 0, 0));
+                    });
+
+                    Thread.sleep(1000);
+                }
+
+                // ============ PHASE 2: Auto Save toàn bộ người chơi ============
+                addLog("SHUTDOWN Phase 2/4: Đang lưu dữ liệu toàn bộ người chơi...");
+                SwingUtilities.invokeLater(() -> lblCountdown.setText("Đang lưu dữ liệu..."));
+
+                try {
+                    // Lưu thông qua AutoSaveManager
+                    AutoSaveManager.getInstance().handleAutoSave();
+                    addLog("SHUTDOWN Phase 2/4: ✅ Đã lưu thành công dữ liệu tất cả người chơi.");
+                } catch (Exception e) {
+                    addLog("SHUTDOWN Phase 2/4: ⚠ Lỗi khi lưu dữ liệu: " + e.getMessage());
+                }
+
+                // ============ PHASE 3: Backup Database ============
+                addLog("SHUTDOWN Phase 3/4: Đang backup database...");
+                SwingUtilities.invokeLater(() -> lblCountdown.setText("Đang backup DB..."));
+
+                try {
+                    backupDatabase(false);
+                    addLog("SHUTDOWN Phase 3/4: ✅ Backup database hoàn tất.");
+                } catch (Exception e) {
+                    addLog("SHUTDOWN Phase 3/4: ⚠ Lỗi backup DB: " + e.getMessage());
+                }
+
+                // ============ PHASE 4: Tắt server (KHÔNG restart) ============
+                addLog("SHUTDOWN Phase 4/4: Đang tắt server...");
+                SwingUtilities.invokeLater(() -> {
+                    lblCountdown.setText("Đang tắt server...");
+                    lblStatus.setText("⛔ SERVER SHUTTING DOWN");
+                });
+
+                // Thông báo cuối cùng
+                try {
+                    Service.gI().sendThongBaoAllPlayer("Server đã tắt. Hẹn gặp lại!");
+                } catch (Exception ignored) {}
+
+                // Chờ 2 giây cho thông báo cuối
+                Thread.sleep(2000);
+
+                // Gửi notification Telegram
+                try {
+                    nro.server.NotificationService.gI().notifyServerStop("Emergency Shutdown - Admin");
+                } catch (Exception ignored) {}
+
+                // Lưu Clan
+                try {
+                    nro.services.ClanService.gI().close();
+                } catch (Exception ignored) {}
+
+                // Lưu Shop Ký Gửi
+                try {
+                    ConsignShopManager.gI().save();
+                } catch (Exception ignored) {}
+
+                // Kick tất cả và lưu event
+                try {
+                    Client.gI().close();
+                } catch (Exception ignored) {}
+                try {
+                    jdbc.daos.EventDAO.save();
+                } catch (Exception ignored) {}
+
+                // Dừng AutoSave
+                try {
+                    AutoSaveManager.getInstance().stopAutoSave();
+                } catch (Exception ignored) {}
+
+                // Dừng Proxy
+                try {
+                    firewall.ProxyManager.getInstance().stopAll();
+                } catch (Exception ignored) {}
+
+                addLog("SHUTDOWN: ✅ Server đã tắt thành công. Không restart.");
+                Logger.log(Logger.YELLOW, "EMERGENCY SHUTDOWN COMPLETED - NO RESTART\n");
+
+                // Đảm bảo KHÔNG restart
+                REQUEST_AUTO_RESTART = false;
+                nro.server.ui.ServerManagerUI.REQUEST_AUTO_RESTART = false;
+                nro.server.ServerManager.isRunning = false;
+
+                // Tắt hẳn JVM
+                Thread.sleep(1000);
+                System.exit(0);
+
+            } catch (InterruptedException e) {
+                addLog("SHUTDOWN: Quy trình bị gián đoạn - " + e.getMessage());
+                emergencyShutdownInProgress = false;
+            } catch (Exception e) {
+                addLog("SHUTDOWN: Lỗi nghiêm trọng - " + e.getMessage());
+                // Vẫn cố gắng tắt
+                System.exit(1);
+            }
+        });
+    }
 
     private void showMaintenanceOptions(Component parent) {
         JPopupMenu menu = new JPopupMenu();

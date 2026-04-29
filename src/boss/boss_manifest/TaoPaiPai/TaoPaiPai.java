@@ -36,10 +36,10 @@ public class TaoPaiPai extends Boss {
                 }
                 damage = 1;
             }
-            if (damage >= 5000000) {
-                damage = 5000000;
+            if (damage >= 100000000) {
+                damage = 100000000;
             }
-            this.nPoint.dame = damage / Util.nextInt(500, 1000);
+            this.nPoint.dame = damage / Util.nextInt(5, 10);
             this.nPoint.subHP(damage);
             long tnSm = damage * Util.nextInt(20, 50);
             if (tnSm > 1000000) {

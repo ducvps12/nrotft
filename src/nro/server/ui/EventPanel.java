@@ -338,6 +338,7 @@ public class EventPanel extends JPanel {
         JPanel body;
         switch (index) {
             case 5 -> body = buildHungVuongDetail();
+            case 7 -> body = buildPokemonDetail();
             case 0 -> body = buildGenericDetail("Halloween", new String[][]{
                     {"Ma trơi", "500,000 HP", "Galick Lv7", "Map ngẫu nhiên", "10 phút"},
                     {"Dơi Nhí", "500,000 HP", "Galick Lv7", "Map ngẫu nhiên", "10 phút"},
@@ -435,6 +436,87 @@ public class EventPanel extends JPanel {
         scrollReward.setPreferredSize(new Dimension(0, 80));
         scrollReward.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         p.add(scrollReward);
+
+        return p;
+    }
+
+    /** Chi tiết Sự kiện Pokémon 30/4 - 1/5 */
+    private JPanel buildPokemonDetail() {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(Color.WHITE);
+
+        // 1. Mô tả
+        JTextArea desc = new JTextArea(
+            "⚡ Sự kiện Pokémon - Mừng 30/4 & 1/5\n" +
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+            "Pokémon hoang dã đã xuất hiện tại các làng!\n" +
+            "Đánh Boss Pokémon → Nhặt Trứng → Mở ra Pet Pokémon!\n" +
+            "Boss KHÔNG gây sát thương (ai cũng đánh được).\n" +
+            "Cần có Bóng Poke/Ultra/Master để nhặt trứng tương ứng.\n" +
+            "Quái thường drop vật phẩm sự kiện (695-698) với tỉ lệ 10%."
+        );
+        desc.setEditable(false);
+        desc.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        desc.setBackground(new Color(255, 255, 240));
+        desc.setBorder(new CompoundBorder(
+            new TitledBorder(BorderFactory.createLineBorder(new Color(255, 230, 0)),
+                " Mô Tả Sự Kiện ", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12), new Color(200, 170, 0)),
+            new EmptyBorder(8, 8, 8, 8)));
+        desc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 160));
+        p.add(desc);
+        p.add(Box.createVerticalStrut(10));
+
+        // 2. Bảng Boss
+        String[] bossCols = {"Tên Boss", "HP", "Dame/Hit", "Vị Trí", "Hồi Sinh"};
+        Object[][] bossData = {
+            {"⚡ Pikachu Hoang Dã", "5,000", "-1 HP/hit", "Làng Kakaro (map 2)", "30 phút"},
+            {"🔥 Charmander Hoang Dã", "5,000", "-1 HP/hit", "Làng Aru (map 9)", "30 phút"},
+            {"💧 Squirtle Hoang Dã", "5,000", "-1 HP/hit", "Làng Mori (map 16)", "30 phút"},
+        };
+        JTable tblBoss = createStyledTable(bossCols, bossData);
+        JScrollPane scrollBoss = new JScrollPane(tblBoss);
+        scrollBoss.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(0, 102, 204)),
+            " Boss Pokémon ", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12), new Color(0, 102, 204)));
+        scrollBoss.setPreferredSize(new Dimension(0, 120));
+        scrollBoss.setMaximumSize(new Dimension(Integer.MAX_VALUE, 130));
+        p.add(scrollBoss);
+        p.add(Box.createVerticalStrut(10));
+
+        // 3. Bảng Trứng
+        String[] eggCols = {"Loại Trứng", "Item ID", "Tỉ Lệ Drop", "Cần Bóng"};
+        Object[][] eggData = {
+            {"🟢 Trứng Thường", "1873", "60%", "Bóng Poke (1873)"},
+            {"🔵 Trứng Ultra", "1874", "30%", "Bóng Ultra (1874)"},
+            {"🟣 Trứng Master", "1875", "10%", "Bóng Master (1875)"},
+        };
+        JTable tblEgg = createStyledTable(eggCols, eggData);
+        JScrollPane scrollEgg = new JScrollPane(tblEgg);
+        scrollEgg.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(40, 167, 69)),
+            " Trứng Pokémon (Drop 2-4 trứng/boss) ", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12), new Color(40, 167, 69)));
+        scrollEgg.setPreferredSize(new Dimension(0, 110));
+        scrollEgg.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        p.add(scrollEgg);
+        p.add(Box.createVerticalStrut(10));
+
+        // 4. Bảng Pet
+        String[] petCols = {"Loại Trứng", "Chỉ Số", "Vĩnh Viễn", "Hạn Thuê"};
+        Object[][] petData = {
+            {"🟢 Trứng Thường", "+5~10% HP/KI/SD", "40%", "1-4 ngày"},
+            {"🔵 Trứng Ultra", "+11~16% HP/KI/SD", "60%", "1-4 ngày"},
+            {"🟣 Trứng Master", "+15~25% HP/KI/SD", "100%", "Vĩnh viễn"},
+        };
+        JTable tblPet = createStyledTable(petCols, petData);
+        JScrollPane scrollPet = new JScrollPane(tblPet);
+        scrollPet.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(142, 68, 173)),
+            " Mở Trứng → Pet (ID 1865-1868) ", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 12), new Color(142, 68, 173)));
+        scrollPet.setPreferredSize(new Dimension(0, 110));
+        scrollPet.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
+        p.add(scrollPet);
 
         return p;
     }

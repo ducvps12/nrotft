@@ -752,6 +752,12 @@ public class UseItem {
                             case 1576: // pháo bômg
                                 UseItem.gI().PhaoBongVip(pl, item);
                                 break;
+                            // ===== POKÉMON EVENT: Mở trứng Pokémon =====
+                            case 1873: // Trứng Thường (Bóng Poke)
+                            case 1874: // Trứng Ultra (Bóng Ultra)
+                            case 1875: // Trứng Master (Bóng Master)
+                                openPokemonEgg(pl, item);
+                                break;
                         }
                         break;
                 }
@@ -4179,4 +4185,84 @@ public class UseItem {
         NpcService.gI().createMenuConMeo(pl, item.template.id, -1, "Hãy chọn 1 trong các trang bị", "Áo", "Quần",
                 "Găng", "Giày", "Rađa");
     }
+
+    /**
+     * Mở trứng Pokémon → Random pet 1865-1868
+     * - Trứng Thường (1873): chỉ số 5-10%, vĩnh viễn 40%, hạn 1-4 ngày
+     * - Trứng Ultra (1874): chỉ số 11-16%, vĩnh viễn 60%, hạn 1-4 ngày
+     * - Trứng Master (1875): chỉ số 15-25%, vĩnh viễn 100%
+     */
+    private void openPokemonEgg(Player pl, Item item) {
+        if (InventoryService.gI().getCountEmptyBag(pl) == 0) {
+            Service.gI().sendThongBao(pl, "Cần 1 ô hành trang trống để mở trứng!");
+            return;
+        }
+
+        int eggId = item.template.id;
+
+        // Random pet ID: 1865 (Pikachu), 1866 (Charmander), 1867 (Bulbasaur), 1868 (Squirtle)
+        int[] petIds = {1865, 1866, 1867, 1868};
+        int petId = petIds[Util.nextInt(petIds.length)];
+
+        // Xác định chỉ số và tỉ lệ vĩnh viễn theo loại trứng
+        int minStat, maxStat, permanentChance;
+        String eggName;
+        switch (eggId) {
+            case 1874: // Ultra
+                minStat = 11;
+                maxStat = 16;
+                permanentChance = 60;
+                eggName = "Trứng Ultra";
+                break;
+            case 1875: // Master
+                minStat = 15;
+                maxStat = 25;
+                permanentChance = 100;
+                eggName = "Trứng Master";
+                break;
+            default: // 1873 - Thường
+                minStat = 5;
+                maxStat = 10;
+                permanentChance = 40;
+                eggName = "Trứng Thường";
+                break;
+        }
+
+        // Tạo pet item
+        Item petItem = ItemService.gI().createNewItem((short) petId);
+
+        // Random 1 trong 3 dòng: HP, KI, Sát Thương
+        int[] statOptions = {77, 103, 50}; // 77=HP%, 103=KI%, 50=SD%
+        String[] statNames = {"HP", "KI", "Sát Thương"};
+        int statIndex = Util.nextInt(statOptions.length);
+        int statValue = Util.nextInt(minStat, maxStat);
+        petItem.itemOptions.add(new Item.ItemOption(statOptions[statIndex], statValue));
+
+        // Xác định vĩnh viễn hay có hạn
+        boolean isPermanent = Util.isTrue(permanentChance, 100);
+        String durationText;
+        if (isPermanent) {
+            // Vĩnh viễn - không thêm option hạn sử dụng
+            durationText = "VĨNH VIỄN";
+        } else {
+            // Hạn sử dụng 1-4 ngày
+            int days = Util.nextInt(1, 4);
+            long expireTime = System.currentTimeMillis() + (long) days * 24 * 60 * 60 * 1000;
+            petItem.itemOptions.add(new Item.ItemOption(73, (int) (expireTime / 1000)));
+            durationText = days + " ngày";
+        }
+
+        // Thêm pet vào túi
+        InventoryService.gI().addItemBag(pl, petItem);
+        InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+        InventoryService.gI().sendItemBag(pl);
+
+        // Thông báo
+        Service.gI().sendThongBao(pl,
+                "🎉 Mở " + eggName + " thành công!\n"
+                + "Bạn nhận được: " + petItem.template.name + "\n"
+                + "Chỉ số: " + statNames[statIndex] + " +" + statValue + "%\n"
+                + "Thời hạn: " + durationText);
+    }
 }
+

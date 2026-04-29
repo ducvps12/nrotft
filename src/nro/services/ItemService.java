@@ -254,9 +254,9 @@ public class ItemService {
             gender = 2;
         }
         int[][] options = { { 128, 129, 127 }, { 131, 132, 130 }, { 133, 135, 134 } };
-        int skhv1 = 25;
+        int skhv1 = 35;
         int skhv2 = 35;
-        int skhc = 40;
+        int skhc = 30;
         int skhId = -1;
         int rd = Util.nextInt(1, 100);
         if (rd <= skhv1) {
@@ -1879,9 +1879,9 @@ public class ItemService {
                         Manager.gangxd[Util.nextInt(0, 6)], Manager.giayxd[Util.nextInt(0, 6)],
                         Manager.radaSKHVip[Util.nextInt(0, 6)] } };
         int[][] options = { { 128, 129, 127 }, { 130, 131, 132 }, { 133, 135, 134 } };
-        int skhv1 = 25;// ti le
+        int skhv1 = 35;// ti le
         int skhv2 = 35;// ti le
-        int skhc = 40;// ti le
+        int skhc = 30;// ti le
         int skhId = -1;
 
         int rd = Util.nextInt(1, 100);

@@ -160,25 +160,7 @@ public class NonInteractiveNPC extends Player {
     private void init() {
         for (Map m : Manager.MAPS) {
             switch (m.mapId) {
-                case 45 -> {
-                    for (Zone z : m.zones) {
-                        NonInteractiveNPC pl = new NonInteractiveNPC();
-                        pl.name = "Mr.PôPô";
-                        pl.gender = 0;
-                        pl.id = BossID.MRPOPO;
-                        pl.head = 83;
-                        pl.body = 84;
-                        pl.leg = 85;
-                        pl.nPoint.hpMax = 5100;
-                        pl.nPoint.hpg = 5100;
-                        pl.nPoint.hp = 5100;
-                        pl.nPoint.setFullHpMp();
-                        pl.location.x = 295;
-                        pl.location.y = 408;
-                        joinMap(z, pl);
-                        z.setNpc(pl);
-                    }
-                }
+                // Mr.PôPô đã bị xóa khỏi Thần Điện (map 45)
                 case 46 -> {
                     for (Zone z : m.zones) {
                         NonInteractiveNPC pl = new NonInteractiveNPC();

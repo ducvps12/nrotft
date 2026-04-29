@@ -263,10 +263,7 @@ public final class Manager {
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
             }
             
-            // Spawn Mr.PoPo ở Thần Điện (map 45) - đứng bên trái, xa Thượng Đế
-            if (map.mapId == ConstMap.THAN_DIEN) {
-                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, 200, 408, ConstNpc.MR_POPO));
-            }
+            // Mr.PoPo đã được spawn bởi NonInteractiveNPC - không cần spawn thêm NPC tĩnh ở đây
             
             // Spawn NPC Bảng Danh Vọng ở Sân Vườn (map 131-133) để tân thủ thấy ngay khi ra khỏi nhà
             if (map.mapId >= 131 && map.mapId <= 133) {
@@ -286,6 +283,17 @@ public final class Manager {
                     y = 336;
                 }
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
+            }
+
+            // Spawn NPC Hùng Vương ở 3 nhà chính khi sự kiện Giỗ Tổ bật
+            // Map 5 = Đảo Kame (TD), Map 12 = Làng Namek (NM), Map 19 = Vách Núi Đen (XD)
+            if (event.EventManager.HUNG_VUONG && (map.mapId == 5 || map.mapId == 12 || map.mapId == 19)) {
+                short x = 500;
+                short y = (short) map.yPhysicInTop(x, 100);
+                if (y <= 0) {
+                    y = 336;
+                }
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.HUNG_VUONG));
             }
 
             // Dùng Virtual Thread để update map

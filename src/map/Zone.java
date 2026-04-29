@@ -488,6 +488,21 @@ public class Zone {
                                 }
                             }
 
+                            // ===== POKÉMON EVENT: Kiểm tra bóng Pokémon khi nhặt trứng =====
+                            // Trứng Thường (1873) → cần Bóng Poke (1873) trong túi
+                            // Trứng Ultra (1874) → cần Bóng Ultra (1874) trong túi
+                            // Trứng Master (1875) → cần Bóng Master (1875) trong túi
+                            if (item.template.id == 1873 || item.template.id == 1874 || item.template.id == 1875) {
+                                int requiredBallId = item.template.id; // Bóng cùng ID với trứng
+                                if (InventoryService.gI().findItemBag(player, requiredBallId) == null) {
+                                    String ballName = item.template.id == 1873 ? "Bóng Poke" 
+                                                    : item.template.id == 1874 ? "Bóng Ultra" 
+                                                    : "Bóng Master";
+                                    Service.gI().sendThongBao(player, "Bạn cần có " + ballName + " trong hành trang mới nhặt được trứng này!");
+                                    return;
+                                }
+                            }
+
                             if (InventoryService.gI().addItemBag(player, item)) {
                                 picked = true;
                                 InventoryService.gI().sendItemBag(player);

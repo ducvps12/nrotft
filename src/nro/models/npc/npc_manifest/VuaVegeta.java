@@ -90,7 +90,7 @@ public class VuaVegeta extends Npc {
                                             + " cấp " + level + "\nThời gian còn lại " + TimeUtil.getTime(time),
                                     "Học\nCấp tốc\n" + ngoc + " ngọc", "Huỷ", "Bỏ qua");
                         } else {
-                            ShopService.gI().opendShop(player, "QUY_LAO", false);
+                            ShopService.gI().opendShop(player, "QUY_LAO_KY_NANG", false);
                         }
                     }
                     case 2 -> {

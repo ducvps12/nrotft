@@ -1183,14 +1183,9 @@ public class NDVSqlFetcher {
                 player.talkToThanMeo = false;
             }
 
-            // Sư phụ không tấn công
-            try {
-                player.doesNotAttack = rs.getBoolean("masterDoesAttack");
-                player.lastTimePlayerNotAttack = System.currentTimeMillis();
-            } catch (Exception e) {
-                player.doesNotAttack = false;
-                player.lastTimePlayerNotAttack = System.currentTimeMillis();
-            }
+            // Sư phụ không tấn công - luôn reset khi login để pet đánh bình thường
+            player.doesNotAttack = false;
+            player.lastTimePlayerNotAttack = System.currentTimeMillis();
 
             // data Nhận Thỏi Vàng
             try {

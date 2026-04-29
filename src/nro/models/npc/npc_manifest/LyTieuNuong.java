@@ -37,12 +37,16 @@ public class LyTieuNuong extends Npc {
                     + "|8|Sale 20% gói VIP 2 & VIP 3!"
                     + flashSale + "\n"
                     + "|7|━━━━━━━━━━━━━━━━━━\n"
+                    + "|2|Gói VIP Tuần: Nhận items buff mỗi tuần\n"
+                    + "|2|Gói Đệ Tử: Nhận đệ VĨNH VIỄN + items\n"
+                    + "|2|Mini Games: Kéo Búa Bao, Số May Mắn,...\n"
                     + "Chọn dịch vụ bên dưới:";
 
             createOtherMenu(player, ConstNpc.MENU_LTN_MAIN, info,
                     "Gói VIP\nTuần",
-                    "Gói Đệ Tử\nNgày",
+                    "Gói Đệ Tử\n(Vĩnh Viễn)",
                     "Mini\nGames",
+                    "Hướng Dẫn",
                     "Đóng");
         }
     }
@@ -77,7 +81,8 @@ public class LyTieuNuong extends Npc {
                         RockPaperScissors.confirmPlay(this, player, select);
                     } else {
                         createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
-                                "100k vàng", "500k vàng", "1 Tr vàng");
+                                "500K vàng", "2 Tr vàng", "5 Tr vàng",
+                                "10 Tr vàng", "25 Tr vàng", "50 Tr vàng");
                     }
                 }
                 case ConstMiniGame.MENU_CON_SO_MAY_MAN_VANG -> { /* để trống */ }
@@ -140,7 +145,8 @@ public class LyTieuNuong extends Npc {
             case 0 -> showVipMenu(player);
             case 1 -> showPetMenu(player);
             case 2 -> showMiniGameMenu(player);
-            // case 3 = Đóng
+            case 3 -> showGuideMenu(player);
+            // case 4 = Đóng
         }
     }
 
@@ -160,6 +166,7 @@ public class LyTieuNuong extends Npc {
                         ? "|2|✓ Đang có gói VIP (hết: " + expireInfo + ")\n"
                         : "|8|Chưa có gói VIP nào\n")
                 + "|8|Sale 20% cho VIP 2 & VIP 3" + flashTag + "\n"
+                + "|3|Mua 1 lần nhận items buff dùng 7 ngày\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_VIP, info,
@@ -195,19 +202,21 @@ public class LyTieuNuong extends Npc {
         VipPackageService vps = VipPackageService.gI();
         boolean hasActive = vps.hasActivePetPackage(player);
 
-        String info = "|7|━━━ GÓI ĐỆ TỬ NGÀY ━━━\n"
+        String info = "|7|━━━ GÓI ĐỆ TỬ (VĨNH VIỄN) ━━━\n"
                 + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
                 + (hasActive
                         ? "|2|✓ Hôm nay đã mua gói Đệ Tử\n"
                         : "|8|Chưa mua gói Đệ Tử hôm nay\n")
-                + "|8|Đệ tử + Items buff hài hòa\n"
+                + "|3|Đệ tử nhận được là VĨNH VIỄN!\n"
+                + "|8|Giới hạn: mua 1 gói/ngày\n"
+                + "|8|Đệ tử + Items buff kèm theo\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_PET, info,
-                "Đệ Tử 1\n" + Util.mumberToLouis(vps.getPetPrice(1)),
-                "Đệ Tử 2\n" + Util.mumberToLouis(vps.getPetPrice(2)),
-                "Đệ Tử 3\n" + Util.mumberToLouis(vps.getPetPrice(3)),
-                "Đệ Tử 4\n" + Util.mumberToLouis(vps.getPetPrice(4)),
+                "Đệ Thường\n" + Util.mumberToLouis(vps.getPetPrice(1)),
+                "Đệ Thường+\n" + Util.mumberToLouis(vps.getPetPrice(2)),
+                "Đệ Mabu\n" + Util.mumberToLouis(vps.getPetPrice(3)),
+                "Đệ B.Goku\n" + Util.mumberToLouis(vps.getPetPrice(4)),
                 "Quay Lại");
     }
 
@@ -245,7 +254,8 @@ public class LyTieuNuong extends Npc {
         switch (select) {
             case 0 ->
                 createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
-                        "100k vàng", "500k vàng", "1 Tr vàng");
+                        "500K vàng", "2 Tr vàng", "5 Tr vàng",
+                        "10 Tr vàng", "25 Tr vàng", "50 Tr vàng");
             case 1 -> {
                 LuckyNumber.showMenu(this, player, false);
                 player.iDMark.setGemCSMM(false);
@@ -257,5 +267,34 @@ public class LyTieuNuong extends Npc {
             case 3 ->
                 DecisionMaker.gI().showMenu(this, player);
         }
+    }
+    // ===================== HƯỚNG DẪN =====================
+    private void showGuideMenu(Player player) {
+        String guide = "|7|━━━ HƯỚNG DẪN CHI TIẾT ━━━\n"
+                + "\n"
+                + "|2|▶ GÓI VIP TUẦN:\n"
+                + "|8|Mua 1 lần, nhận items buff dùng trong 7 ngày.\n"
+                + "|8|Hết hạn có thể mua lại gói mới.\n"
+                + "|8|Items bao gồm: Thỏi vàng, Bình TNSM,\n"
+                + "|8|Đá Bảo Vệ, Phiếu Giảm Giá,...\n"
+                + "\n"
+                + "|2|▶ GÓI ĐỆ TỬ (VĨNH VIỄN):\n"
+                + "|1|Đệ tử nhận được là VĨNH VIỄN,\n"
+                + "|1|không mất, không hết hạn!\n"
+                + "|8|Giới hạn: mỗi ngày chỉ mua 1 gói.\n"
+                + "|8|Nếu đã có đệ tử, sẽ được nâng cấp.\n"
+                + "|8|Gói 1-2: Đệ Thường + items buff\n"
+                + "|8|Gói 3: Đệ Mabu (mạnh) + items\n"
+                + "|8|Gói 4: Đệ Black Goku (siêu mạnh) + items\n"
+                + "\n"
+                + "|2|▶ MINI GAMES:\n"
+                + "|8|Kéo Búa Bao: 6 mức cược vàng\n"
+                + "|8|(500K → 2Tr → 5Tr → 10Tr → 25Tr → 50Tr)\n"
+                + "|8|Thắng x2, Hòa trả lại, Thua mất tiền cược.\n"
+                + "|8|Con số may mắn: Chọn số từ 0-99\n"
+                + "|8|Chọn ai đây: Đoán xu hướng giá\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        npcChat(player, guide);
     }
 }

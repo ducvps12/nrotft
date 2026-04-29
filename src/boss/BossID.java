@@ -232,6 +232,11 @@ public class BossID {
     public static final int MEOWTH = -377;
     public static final int CAU_VANG = -278;
 
+    // ======================POKEMON EVENT 30/4========================
+    public static final int PIKACHU_BOSS = -410;
+    public static final int CHARMANDER_BOSS = -411;
+    public static final int SQUIRTLE_BOSS = -412;
+
     // ======================Đại tướng broly========================
     public static final int DAITUONGBROLY = -400;
     public static final int BROLY_SSJ = -401;

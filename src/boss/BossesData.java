@@ -1215,7 +1215,7 @@ public class BossesData {
                         "Tàu Pảy Pảy", // name
                         ConstPlayer.TRAI_DAT, // gender
                         new short[] { 338, 339, 340, -1, -1, -1 }, // outfit {head, body, leg, bag, aura, eff}
-                        1000, // dame
+                        500000, // dame
                         new long[] { 1000000000 }, // hp
                         new int[] { 111 }, // map join
                         (int[][]) Util.addArray(FULL_GALICK, FULL_KAMEJOKO), // skill
@@ -2150,7 +2150,7 @@ public class BossesData {
 
         public static final BossData GA_CHIN_CUA = new BossData(
                         "Gà Chín Cựa", // name
-                        ConstPlayer.NAMEK, // gender
+                        ConstPlayer.NAMEC, // gender
                         new short[] { 400, 401, 402, -1, 4, -1 }, // outfit unique - Cooler set
                         500000, // dame
                         new long[] { 50000000 }, // hp
@@ -3113,4 +3113,50 @@ public class BossesData {
                         new String[] {}, // text chat 3
                         REST_1_M // type appear
         );
+
+        // ======================POKEMON EVENT 30/4========================
+        // 3 Boss Pokémon: HP=5000, dame=0 (không gây sát thương), respawn 30 phút
+        // Outfit dùng pet x3: Pikachu=1865, Charmander=1866/1867/1868, Squirtle=tương tự
+        public static final BossData PIKACHU_BOSS = new BossData(
+                        "Pikachu Hoang Dã", // name
+                        ConstPlayer.TRAI_DAT, // gender
+                        new short[] { 1865, 1865, 1865, -1, -1, -1 }, // outfit - dùng pet Pikachu x3
+                        0, // dame = 0 → không gây sát thương lên người chơi
+                        new long[] { 5000 }, // hp = 5000
+                        new int[] { 2 }, // map join: Làng Kakaro (map 2)
+                        new int[][] {}, // không có skill
+                        new String[] { "|-1|Pika pika! Một Pokémon hoang dã xuất hiện!" }, // text chat join
+                        new String[] { "|-1|Pika~!", "|-1|Pikachu~!" }, // text chat fight
+                        new String[] { "|-1|Pika... pi..." }, // text chat die
+                        REST_30_M // respawn 30 phút
+        );
+
+        public static final BossData CHARMANDER_BOSS = new BossData(
+                        "Charmander Hoang Dã", // name
+                        ConstPlayer.TRAI_DAT, // gender
+                        new short[] { 1866, 1867, 1868, -1, -1, -1 }, // outfit - dùng pet Charmander x3
+                        0, // dame = 0
+                        new long[] { 5000 }, // hp = 5000
+                        new int[] { 9 }, // map join: Làng Aru (map 9)
+                        new int[][] {}, // không có skill
+                        new String[] { "|-1|Char char! Một Pokémon hoang dã xuất hiện!" }, // text chat join
+                        new String[] { "|-1|Char~!", "|-1|Charmander~!" }, // text chat fight
+                        new String[] { "|-1|Char... man..." }, // text chat die
+                        REST_30_M // respawn 30 phút
+        );
+
+        public static final BossData SQUIRTLE_BOSS = new BossData(
+                        "Squirtle Hoang Dã", // name
+                        ConstPlayer.TRAI_DAT, // gender
+                        new short[] { 1866, 1868, 1867, -1, -1, -1 }, // outfit - dùng pet mix x3
+                        0, // dame = 0
+                        new long[] { 5000 }, // hp = 5000
+                        new int[] { 16 }, // map join: Làng Mori (map 16)
+                        new int[][] {}, // không có skill
+                        new String[] { "|-1|Squirtle! Một Pokémon hoang dã xuất hiện!" }, // text chat join
+                        new String[] { "|-1|Squir~!", "|-1|Squirtle~!" }, // text chat fight
+                        new String[] { "|-1|Squir... tle..." }, // text chat die
+                        REST_30_M // respawn 30 phút
+        );
 }
+

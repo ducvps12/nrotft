@@ -491,31 +491,35 @@ public class VipPackageService {
         return switch (tier) {
             case 1 -> "|7|━━━ GÓI ĐỆ TỬ 1 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(1)) + " VNĐ\n"
-                    + "|8|• Đệ Tử Thường\n"
+                    + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
                     + "|8|• 50 Thỏi Vàng (khóa)\n"
                     + "|8|• 3 Bình TNSM (khóa)\n"
+                    + "|3|Đệ tử giữ mãi, không hết hạn!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             case 2 -> "|7|━━━ GÓI ĐỆ TỬ 2 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(2)) + " VNĐ\n"
-                    + "|8|• Đệ Tử Thường\n"
+                    + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
                     + "|8|• 200 Thỏi Vàng (khóa)\n"
                     + "|8|• 5 Bình TNSM (khóa)\n"
                     + "|8|• 10 Đá Bảo Vệ (khóa)\n"
+                    + "|3|Đệ tử giữ mãi, không hết hạn!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             case 3 -> "|7|━━━ GÓI ĐỆ TỬ 3 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(3)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Mabu (mạnh)\n"
+                    + "|2|• Đệ Tử Mabu - mạnh (VĨNH VIỄN)\n"
                     + "|8|• 500 Thỏi Vàng (khóa)\n"
                     + "|8|• 10 Bình TNSM (khóa)\n"
                     + "|8|• 20 Đá Bảo Vệ (khóa)\n"
+                    + "|3|Nếu đã có đệ → nâng cấp Mabu!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             case 4 -> "|7|━━━ GÓI ĐỆ TỬ 4 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(4)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Black Goku (siêu mạnh)\n"
+                    + "|2|• Đệ Black Goku - siêu mạnh (VĨNH VIỄN)\n"
                     + "|8|• 1000 Thỏi Vàng (khóa)\n"
                     + "|8|• 15 Bình TNSM (khóa)\n"
                     + "|8|• 30 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 5 Phiếu Giảm Giá\n"
+                    + "|3|Nếu đã có đệ → nâng cấp B.Goku!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             default -> "";
         };

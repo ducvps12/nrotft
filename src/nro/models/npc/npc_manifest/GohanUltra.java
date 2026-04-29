@@ -15,8 +15,10 @@ import shop.ShopService;
  */
 public class GohanUltra extends Npc {
 
-    // Menu phụ cho hướng dẫn SKH chi tiết (tránh tràn text)
-    private static final int MENU_SKH_GUIDE = 77001;
+    // Menu phụ cho hướng dẫn SKH (trang 1: giới thiệu + cách làm)
+    private static final int MENU_SKH_GUIDE_1 = 77001;
+    // Menu phụ cho hướng dẫn SKH (trang 2: tỉ lệ rơi)
+    private static final int MENU_SKH_GUIDE_2 = 77002;
 
     public GohanUltra(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
@@ -47,7 +49,8 @@ public class GohanUltra extends Npc {
         }
         switch (player.iDMark.getIndexMenu()) {
             case ConstNpc.BASE_MENU -> handleBaseMenu(player, select);
-            case MENU_SKH_GUIDE -> handleSkhGuide(player, select);
+            case MENU_SKH_GUIDE_1 -> handleSkhGuide1(player, select);
+            case MENU_SKH_GUIDE_2 -> handleSkhGuide2(player, select);
             default -> {}
         }
     }
@@ -55,7 +58,7 @@ public class GohanUltra extends Npc {
     private void handleBaseMenu(Player player, int select) {
         switch (select) {
             case 0 -> ShopService.gI().opendShop(player, "GOHAN_ULTRA", false);
-            case 1 -> showSkhGuide(player);
+            case 1 -> showSkhGuidePage1(player);
             case 2 -> createOtherMenu(player, ConstNpc.BASE_MENU,
                     "|7|━━━ SET TRÁI ĐẤT ━━━\n"
                             + "|1|Dòng: Songoku, Kaioken, Tên Xin Hăng.\n\n"
@@ -89,10 +92,10 @@ public class GohanUltra extends Npc {
     }
 
     /**
-     * Hiển thị hướng dẫn SKH ngắn gọn, vừa vặn khung dialog.
+     * Trang 1: SKH là gì + Cách làm (ngắn gọn, vừa khung).
      */
-    private void showSkhGuide(Player player) {
-        createOtherMenu(player, MENU_SKH_GUIDE,
+    private void showSkhGuidePage1(Player player) {
+        createOtherMenu(player, MENU_SKH_GUIDE_1,
                 "|7|━━━ CẨM NANG SKH ━━━\n\n"
                         + "|1|SKH là đồ có dòng kích hoạt theo\n"
                         + "hành tinh. Mặc đúng hệ, gom đủ bộ\n"
@@ -101,18 +104,35 @@ public class GohanUltra extends Npc {
                         + "|0|1. Nhặt đồ đúng hành tinh.\n"
                         + "2. Đọc dòng kích hoạt trên đồ.\n"
                         + "3. Gom cùng dòng mặc thành bộ.\n"
-                        + "4. Đồ lệch hệ bán hoặc giữ NL.\n\n"
+                        + "4. Đồ lệch hệ bán hoặc giữ NL.",
+                "Tỉ lệ rơi\n>>", "Quay lại");
+    }
+
+    /**
+     * Trang 2: Tỉ lệ rơi SKH.
+     */
+    private void showSkhGuidePage2(Player player) {
+        createOtherMenu(player, MENU_SKH_GUIDE_2,
+                "|7|━━━ TỈ LỆ RƠI SKH ━━━\n\n"
                         + "|6|Tỉ lệ rơi:\n"
                         + "|0|- Thường: 1/5000 quái\n"
                         + "- Cỏ bốn lá: 1/3500 quái\n"
                         + "- Nhánh hiếm XD: 1/7000 quái\n\n"
                         + "|8|SKH là đồ hiếm, kiên nhẫn nhé!",
-                "Quay lại");
+                "<< Quay\nlại");
     }
 
-    private void handleSkhGuide(Player player, int select) {
+    private void handleSkhGuide1(Player player, int select) {
+        switch (select) {
+            case 0 -> showSkhGuidePage2(player);
+            case 1 -> openBaseMenu(player);
+            default -> {}
+        }
+    }
+
+    private void handleSkhGuide2(Player player, int select) {
         if (select == 0) {
-            openBaseMenu(player);
+            showSkhGuidePage1(player);
         }
     }
 }

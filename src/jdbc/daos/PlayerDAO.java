@@ -1843,19 +1843,13 @@ public class PlayerDAO {
     }
 
     public static void banAccount(Session session, Player player) {
-        PreparedStatement ps = null;
-        try (Connection con = DBConnecter.getConnectionServer();) {
-            ps = con.prepareStatement("update account set ban = 1 where id = ? and username = ?");
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement("update account set ban = 1 where id = ? and username = ?")) {
             ps.setInt(1, player.getSession().userId);
             ps.setString(2, player.getSession().uu);
             ps.executeUpdate();
         } catch (Exception e) {
             Logger.logException(PlayerDAO.class, e);
-        } finally {
-            try {
-                ps.close();
-            } catch (SQLException ex) {
-            }
         }
     }
 
@@ -1933,9 +1927,9 @@ public class PlayerDAO {
     }
 
     public static void addCash(Player player, int ruby, String source, String detail) {
-        PreparedStatement ps = null;
-        try (Connection con = DBConnecter.gI().getConnectionForSaveData();) {
-            ps = con.prepareStatement("update account set cash = (cash + ?), vnd = (vnd + ?), danap = (danap + ?) where id = ?");
+        String sql = "update account set cash = (cash + ?), vnd = (vnd + ?), danap = (danap + ?) where id = ?";
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, ruby);
             ps.setInt(2, ruby);
             ps.setInt(3, ruby);
@@ -1945,52 +1939,31 @@ public class PlayerDAO {
             // vnd là tổng nạp lịch sử trong session; cash/danap được sync tại nơi gọi sau khi cộng ATM.
             player.getSession().vnd += ruby;
         } catch (Exception e) {
-            System.out.println("Loi player " + player.name);
-            e.printStackTrace();
-        } finally {
-            try {
-                ps.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            Logger.logException(PlayerDAO.class, e, "Lỗi addCash cho player " + player.name);
         }
     }
 
     public static void addDaNap(Player player, int ruby) {
-        PreparedStatement ps = null;
-        try (Connection con = DBConnecter.gI().getConnectionForSaveData();) {
-            ps = con.prepareStatement("update account set danap = (danap + ?) where id = ?");
+        String sql = "update account set danap = (danap + ?) where id = ?";
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, ruby);
             ps.setInt(2, player.getSession().userId);
             ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("Loi player " + player.name);
-            e.printStackTrace();
-        } finally {
-            try {
-                ps.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            Logger.logException(PlayerDAO.class, e, "Lỗi addDaNap cho player " + player.name);
         }
     }
 
     public static void addTongnaptuan(Player player, int ruby) {
-        PreparedStatement ps = null;
-        try (Connection con = DBConnecter.gI().getConnectionForSaveData();) {
-            ps = con.prepareStatement("update account set tongnaptuan = (tongnaptuan + ?) where id = ?");
+        String sql = "update account set tongnaptuan = (tongnaptuan + ?) where id = ?";
+        try (Connection con = DBConnecter.getConnectionServer();
+                PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, ruby);
             ps.setInt(2, player.getSession().userId);
             ps.executeUpdate();
         } catch (Exception e) {
-            System.out.println("Loi player " + player.name);
-            e.printStackTrace();
-        } finally {
-            try {
-                ps.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            Logger.logException(PlayerDAO.class, e, "Lỗi addTongnaptuan cho player " + player.name);
         }
     }
 

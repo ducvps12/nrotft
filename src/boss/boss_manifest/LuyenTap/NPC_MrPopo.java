@@ -114,7 +114,7 @@ public class NPC_MrPopo extends Player {
                     pl.nPoint.hpg = 9_000_000_000_000_000_000L;
                     pl.nPoint.hp = 9_000_000_000_000_000_000L;
                     pl.nPoint.setFullHpMp();
-                    pl.location.x = 239;
+                    pl.location.x = 340;
                     pl.location.y = 336;
                     pl.isNpc = true;
                     pl.typePk = 5;

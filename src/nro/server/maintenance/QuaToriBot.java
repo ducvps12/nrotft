@@ -36,7 +36,6 @@ public class QuaToriBot {
         CaiTrang.itemOptions.add(new ItemOption(77, 30));
         CaiTrang.itemOptions.add(new ItemOption(14, 10));
         CaiTrang.itemOptions.add(new ItemOption(93, 15));
-        CaiTrang.itemOptions.add(new ItemOption(106, 1));
         CaiTrang.itemOptions.add(new ItemOption(5, 35));
 
         Pet.itemOptions.add(new ItemOption(50, 15));
@@ -81,7 +80,6 @@ public class QuaToriBot {
         CaiTrang.itemOptions.add(new ItemOption(103, 35));
         CaiTrang.itemOptions.add(new ItemOption(77, 35));
         CaiTrang.itemOptions.add(new ItemOption(14, 10));
-        CaiTrang.itemOptions.add(new ItemOption(106, 1));
         CaiTrang.itemOptions.add(new ItemOption(5, 50));
 
         PhuKien.itemOptions.add(new ItemOption(50, 15));
@@ -129,7 +127,6 @@ public class QuaToriBot {
         CaiTrang.itemOptions.add(new ItemOption(77, 50));
         CaiTrang.itemOptions.add(new ItemOption(14, 25));
         CaiTrang.itemOptions.add(new ItemOption(204, 30));
-        CaiTrang.itemOptions.add(new ItemOption(106, 1));
         CaiTrang.itemOptions.add(new ItemOption(5, 20));
         CaiTrang.itemOptions.add(new ItemOption(30, 1));
 

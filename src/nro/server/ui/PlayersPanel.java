@@ -1176,7 +1176,7 @@ public class PlayersPanel extends JPanel {
             try (Connection conn = getConnection()) {
                 conn.setAutoCommit(false);
                 String updatePlayerSql = "UPDATE player SET data_inventory = ? WHERE id = ?";
-                String updateAccountSql = "UPDATE account SET cash = ?, danap = ? WHERE id = (SELECT account_id FROM player WHERE id = ?)";
+                String updateAccountSql = "UPDATE account SET cash = ?, vnd = ?, danap = ? WHERE id = (SELECT account_id FROM player WHERE id = ?)";
 
                 try (PreparedStatement psPlayer = conn.prepareStatement(updatePlayerSql);
                         PreparedStatement psAccount = conn.prepareStatement(updateAccountSql)) {
@@ -1214,8 +1214,9 @@ public class PlayersPanel extends JPanel {
                             psPlayer.addBatch();
 
                             psAccount.setLong(1, newCash);
-                            psAccount.setLong(2, newDaNap);
-                            psAccount.setInt(3, pid);
+                            psAccount.setLong(2, newCash); // vnd sync with cash
+                            psAccount.setLong(3, newDaNap);
+                            psAccount.setInt(4, pid);
                             psAccount.addBatch();
                         }
                     }
@@ -2973,13 +2974,15 @@ public class PlayersPanel extends JPanel {
                     ps.executeUpdate();
                 }
 
-                String sqlAccount = "UPDATE account SET cash=?, danap=?, active=?, ban=? WHERE id=?";
+                String sqlAccount = "UPDATE account SET cash=?, vnd=?, danap=?, active=?, ban=? WHERE id=?";
                 try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sqlAccount)) {
-                    ps.setLong(1, getLongVal(inputs, "cash"));
-                    ps.setLong(2, getLongVal(inputs, "danap"));
-                    ps.setInt(3, ((JComboBox) inputs.get("active_box")).getSelectedIndex());
-                    ps.setInt(4, ((JComboBox) inputs.get("ban_box")).getSelectedIndex());
-                    ps.setInt(5, accountId);
+                    long cashVal = getLongVal(inputs, "cash");
+                    ps.setLong(1, cashVal);
+                    ps.setLong(2, cashVal); // vnd sync with cash
+                    ps.setLong(3, getLongVal(inputs, "danap"));
+                    ps.setInt(4, ((JComboBox) inputs.get("active_box")).getSelectedIndex());
+                    ps.setInt(5, ((JComboBox) inputs.get("ban_box")).getSelectedIndex());
+                    ps.setInt(6, accountId);
                     ps.executeUpdate();
                 }
 

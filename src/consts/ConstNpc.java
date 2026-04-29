@@ -355,6 +355,12 @@ public class ConstNpc {
         public static final int CHUC_NANG_BANG_HOI = 530;
         public static final int CHUC_NANG_BANG_HOI2 = 531;
         public static final int MENU_BO_MONG = 532;
+        public static final int MENU_BO_MONG_NAP_TIEN = 2200;
+        public static final int MENU_BO_MONG_CHUYEN_KHOAN = 2201;
+        public static final int MENU_BO_MONG_CHUYEN_KHOAN_QR = 2202;
+        public static final int MENU_BO_MONG_NAP_VANG = 2203;
+        public static final int MENU_BO_MONG_NAP_NGOC = 2204;
+        public static final int MENU_BO_MONG_DANH_HIEU = 2205;
 
         // ------------------------------shop id-------------------------------------
         // npcname_shoporder

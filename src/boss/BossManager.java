@@ -105,6 +105,7 @@ import boss.boss_manifest.Mini.Odo;
 import boss.boss_manifest.Mini.SoiHecQuyn;
 import boss.boss_manifest.Mini.Xinbato;
 import boss.boss_manifest.Pokemon.Musashi;
+import boss.boss_manifest.Pokemon.PokemonBoss;
 //import boss.boss_manifest.Mini.Virut;
 import boss.boss_manifest.Rongnhi.RongNhi1Sao;
 import boss.boss_manifest.Rongnhi.RongNhi2Sao;
@@ -504,6 +505,12 @@ public class BossManager implements Runnable {
                     new BrolySsj();
                 case BossID.BA_CON_SOI ->
                     new BaConSoi();
+                case BossID.PIKACHU_BOSS ->
+                    PokemonBoss.createPikachu();
+                case BossID.CHARMANDER_BOSS ->
+                    PokemonBoss.createCharmander();
+                case BossID.SQUIRTLE_BOSS ->
+                    PokemonBoss.createSquirtle();
                 default ->
                     null;
             };

@@ -24,12 +24,23 @@ public class RockPaperScissors {
 
     public static long timePlay = 15; // có 15 giây để chơi
 
-    public static final long COST_0 = 500_000;  // 500k vàng (tăng từ 100k)
-    public static final long COST_1 = 2_000_000; // 2M vàng (tăng từ 500k)
-    public static final long COST_2 = 5_000_000; // 5M vàng (tăng từ 1M) (~100k VND)
+    public static final long COST_0 = 500_000;      // 500k vàng
+    public static final long COST_1 = 2_000_000;     // 2M vàng
+    public static final long COST_2 = 5_000_000;     // 5M vàng
+    public static final long COST_3 = 10_000_000;    // 10M vàng
+    public static final long COST_4 = 25_000_000;    // 25M vàng
+    public static final long COST_5 = 50_000_000;    // 50M vàng
 
     public static void confirmMenu(Npc npc, Player player, int select) { // xử lý chọn menu => chuyển qua một menu mới
-        long tiendatcuoc = (select == 0 ? COST_0 : select == 1 ? COST_1 : COST_2);
+        long tiendatcuoc = switch (select) {
+            case 0 -> COST_0;
+            case 1 -> COST_1;
+            case 2 -> COST_2;
+            case 3 -> COST_3;
+            case 4 -> COST_4;
+            case 5 -> COST_5;
+            default -> COST_0;
+        };
         String money = Util.numberFormatLouis(tiendatcuoc);
         player.iDMark.setMoneyKeoBuaBao((int) tiendatcuoc);
         player.iDMark.setTimePlayKeoBuaBao(System.currentTimeMillis() + (timePlay * 1000));
@@ -63,9 +74,12 @@ public class RockPaperScissors {
             case 3:
                 npc.createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO,
                         "Hãy chọn mức cược.",
-                        "100k vàng",
-                        "500k vàng",
-                        "1 Tr vàng");
+                        "500K vàng",
+                        "2 Tr vàng",
+                        "5 Tr vàng",
+                        "10 Tr vàng",
+                        "25 Tr vàng",
+                        "50 Tr vàng");
                 break;
             default:
                 break;

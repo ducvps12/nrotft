@@ -783,7 +783,7 @@ public class Mob {
         if (player.itemTime.isCoBonLa) {
             if (MapService.gI().isMapUpSKH(mapid)) {
                 // Cỏ bốn lá: buff thêm tỉ lệ drop SKH (đã tăng rate cho mọi người tận hưởng)
-                if (Util.isTrue(1, 700)) {
+                if (Util.isTrue(1, 300)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -803,7 +803,7 @@ public class Mob {
         } else {
             if (MapService.gI().isMapUpSKH(mapid)) {
                 // Tăng rate SKH cho mọi người thoải mái farm, kích cầu nâng cấp đồ
-                if (Util.isTrue(1, 1000)) {
+                if (Util.isTrue(1, 500)) {
                     short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
                     ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, player.id);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
@@ -822,7 +822,7 @@ public class Mob {
         }
 
         if (player.gender == 2
-                && ((Util.isTrue(1, 1500)) || (Manager.TEST && Util.isTrue(5, 10)))
+                && ((Util.isTrue(1, 700)) || (Manager.TEST && Util.isTrue(5, 10)))
                 && MapService.gI().isMapUpSKH(mapid)) {
 
             short itTemp = (short) ItemService.gI().randTempItemKichHoat(player.gender);
@@ -877,6 +877,20 @@ public class Mob {
             // Đu Đủ - 1/25 mọi map
             if (Util.isTrue(1, 25)) {
                 list.add(new ItemMap(zone, consts.ConstItem.DU_DU, 1, x, yEnd, plHV.id));
+            }
+        }
+
+        // ======================== SỰ KIỆN POKÉMON 30/4 ========================
+        if (EventManager.EVENT_POKEMON) {
+            Player plPK = player;
+            if (plPK.isPet) {
+                plPK = ((Pet) plPK).master;
+            }
+            // Item 695-698 rơi khi đánh quái, tỉ lệ 10% mỗi loại
+            if (Util.isTrue(10, 100)) {
+                int[] eventItems = {695, 696, 697, 698};
+                int randomItem = eventItems[Util.nextInt(eventItems.length)];
+                list.add(new ItemMap(zone, randomItem, 1, x, yEnd, plPK.id));
             }
         }
 

@@ -178,7 +178,10 @@ public class FlagBagService {
                     12, 11, 10, 9, 27, 26, 25, 24, 23, 36, 32, 33, 34, 35, 19, 22, 21, 20, 29, 77, 78, 79
             };
             for (int i = 0; i < flagsId.length; i++) {
-                flagClan.add(getFlagBag(flagsId[i]));
+                FlagBag fb = getFlagBag(flagsId[i]);
+                if (fb != null) {
+                    flagClan.add(fb);
+                }
             }
         }
         return flagClan;

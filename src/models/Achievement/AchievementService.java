@@ -61,15 +61,64 @@ public class AchievementService {
         if (player.achievement == null) {
             return;
         }
-        if (!player.achievement.canReward(select)) {
-            Service.gI().sendThongBao(player, "Không thể thực hiện");
+
+        // Kiểm tra index hợp lệ
+        if (select < 0 || select >= Manager.ACHIEVEMENT_TEMPLATE.size()) {
+            Service.gI().sendThongBao(player, "Thành tích không hợp lệ!");
             return;
         }
-        int money = Manager.ACHIEVEMENT_TEMPLATE.get(select).money;
+
+        AchievementTemplate at = Manager.ACHIEVEMENT_TEMPLATE.get(select);
+        long completed = player.achievement.getCompleted(select);
+
+        // Thông báo chi tiết nếu chưa đủ điều kiện
+        if (completed < at.maxCount) {
+            String rankName = getRankName(player);
+            String progressPercent = String.format("%.1f", (completed * 100.0 / at.maxCount));
+
+            Service.gI().sendThongBao(player,
+                    "|7|━━━ CHƯA ĐỦ ĐIỀU KIỆN ━━━\n"
+                    + "|1|Thành tích: " + at.info1 + "\n"
+                    + "|2|Yêu cầu: " + regex(player, at.info2) + "\n"
+                    + "|8|Tiến độ: " + numberToString(completed) + "/" + numberToString(at.maxCount)
+                    + " (" + progressPercent + "%)\n"
+                    + "|6|Rank hiện tại: " + rankName + "\n"
+                    + "|1|Sức mạnh: " + Util.numberToMoney(player.nPoint.power) + "\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━\n"
+                    + "|3|Cố lên chiến binh! Hoàn thành để nhận "
+                    + at.money + " Hồng Ngọc!");
+            return;
+        }
+
+        // Kiểm tra đã nhận rồi chưa
+        if (player.achievement.isRecieve(select)) {
+            Service.gI().sendThongBao(player,
+                    "|7|━━━ ĐÃ NHẬN RỒI ━━━\n"
+                    + "|1|Thành tích: " + at.info1 + "\n"
+                    + "|8|Bạn đã nhận thưởng thành tích này trước đó.\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━");
+            return;
+        }
+
+        // Đủ điều kiện, chưa nhận → phát thưởng
+        int money = at.money;
         player.achievement.reward(select);
         player.inventory.ruby += money;
         Service.gI().sendMoney(player);
-        Service.gI().sendThongBao(player, "Bạn vừa nhận được " + money + " Hồng ngọc.");
+
+        // Cập nhật tiến trình Danh Hiệu khi nhận thưởng thành tích
+        task.Badges.BadgesTaskService.updateCountBagesTask(player, consts.ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
+        task.Badges.BadgesTaskService.updateDoneTask(player);
+
+        String rankName = getRankName(player);
+        Service.gI().sendThongBao(player,
+                "|7|━━━ NHẬN THƯỞNG THÀNH CÔNG ━━━\n"
+                + "|1|Thành tích: " + at.info1 + "\n"
+                + "|8|Phần thưởng: +" + money + " Hồng Ngọc\n"
+                + "|6|Rank hiện tại: " + rankName + "\n"
+                + "|2|Tiến trình Danh Hiệu đã được cập nhật!\n"
+                + "|7|━━━━━━━━━━━━━━━━━━");
+
         Message msg = null;
         try {
             msg = new Message(-76);
@@ -82,6 +131,37 @@ public class AchievementService {
                 msg.cleanup();
             }
         }
+    }
+
+    /**
+     * Lấy tên rank dựa trên sức mạnh và chủng tộc
+     */
+    private String getRankName(Player player) {
+        try {
+            power.CaptionManager cm = power.CaptionManager.getInstance();
+            int level = cm.getLevel(player);
+            power.Caption cap = cm.findLevel(level);
+            if (cap != null) {
+                switch (player.gender) {
+                    case 0: return cap.getEarth();
+                    case 1: return cap.getNamek();
+                    case 2: return cap.getSaiya();
+                    default: return cap.getEarth();
+                }
+            }
+        } catch (Exception e) {
+            // fallback nếu CaptionManager chưa load
+        }
+
+        // Fallback nếu CaptionManager lỗi
+        long power = player.nPoint.power;
+        if (power >= 15_000_000L) return "Siêu cấp+";
+        if (power >= 1_500_000L) return "Vệ binh hoàng gia";
+        if (power >= 700_000L) return "Vệ binh";
+        if (power >= 340_000L) return "Chiến binh cao cấp";
+        if (power >= 170_000L) return "Chiến binh";
+        if (power >= 90_000L) return "Tân binh";
+        return "Tập sự";
     }
 
     public String numberToString(long num) {

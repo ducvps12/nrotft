@@ -551,8 +551,8 @@ public class AccountPanel extends JPanel {
                 vip.setText(rs.getString("vip"));
                 server.setText(rs.getString("server_login"));
                 
-                // Mapping: VND = cash, Đã Nạp = danap
-                vnd.setText(String.valueOf(rs.getLong("cash")));
+                // Mapping: VND = vnd (số dư VNĐ thực tế), Đã Nạp = danap
+                vnd.setText(String.valueOf(rs.getLong("vnd")));
                 danap.setText(String.valueOf(rs.getLong("danap")));
                 gold.setText(String.valueOf(rs.getLong("vang")));
                 point.setText(String.valueOf(rs.getLong("tichdiem")));
@@ -572,9 +572,9 @@ public class AccountPanel extends JPanel {
         if (JOptionPane.showConfirmDialog(d, "Lưu dữ liệu?", "Xác nhận", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
         
         new Thread(() -> {
-            // cash=vnd, danap=tongnap
+            // vnd = số dư VNĐ, cash sync = vnd, danap = tổng nạp
             StringBuilder sql = new StringBuilder("UPDATE account SET username=?, password=?, email=?, active=?, ban=?, is_admin=?, loantin=?, role=?, vip=?, server_login=?, ");
-            sql.append("cash=?, danap=?, vang=?, tichdiem=?, "); 
+            sql.append("cash=?, vnd=?, danap=?, vang=?, tichdiem=?, "); 
             for (String k : events.keySet()) sql.append(k).append("=?, ");
             sql.append("update_time=NOW() WHERE id=?");
 
@@ -594,7 +594,8 @@ public class AccountPanel extends JPanel {
                 
                 long newCash = safeLong(vnd);
                 long newDanap = safeLong(danap);
-                ps.setLong(i++, newCash); // cash
+                ps.setLong(i++, newCash); // cash = vnd
+                ps.setLong(i++, newCash); // vnd (sync with cash)
                 ps.setLong(i++, newDanap); // danap
                 ps.setLong(i++, safeLong(gold));
                 ps.setLong(i++, safeLong(point));
@@ -849,15 +850,15 @@ public class AccountPanel extends JPanel {
     }
 
     private void loadData() {
-        // Cập nhật lấy cash, danap (Mapping: cash=vnd, danap=tongnap)
-        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.cash, a.danap, a.create_time, " +
+        // Cập nhật lấy vnd, danap (Mapping: vnd=số dư VNĐ thực, danap=tổng nạp)
+        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
                     "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
                     "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name FROM account a ORDER BY a.id ASC");
     }
 
     private void searchData(String txt) {
         if(txt.isEmpty()) { loadData(); return; }
-        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.cash, a.danap, a.create_time, " +
+        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
                     "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
                     "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name FROM account a " +
                     "WHERE a.username LIKE '%"+txt+"%' OR a.id='"+txt+"' OR (SELECT name FROM player WHERE account_id=a.id LIMIT 1) LIKE '%"+txt+"%'");
@@ -883,7 +884,7 @@ public class AccountPanel extends JPanel {
                     row.add(ban == 1 ? "ĐÃ BAN" : (active == 1 ? "Active" : "Chưa KH"));
                     
                     row.add(rs.getInt("vip"));
-                    row.add(formatNum(rs.getLong("cash"))); // VND
+                    row.add(formatNum(rs.getLong("vnd"))); // VND (số dư VNĐ thực tế)
                     row.add(formatNum(rs.getLong("danap"))); // Đã nạp
                     Timestamp ts = rs.getTimestamp("create_time");
                     row.add(ts != null ? DATE_FMT.format(ts) : "N/A");

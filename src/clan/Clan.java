@@ -97,7 +97,7 @@ public class Clan {
         this.name = "";
         this.name2 = "";
         this.slogan = "";
-        this.maxMember = 10;
+        this.maxMember = 30;
         this.level = 1;
         this.createTime = (int) (System.currentTimeMillis() / 1000);
         this.members = new ArrayList<>();

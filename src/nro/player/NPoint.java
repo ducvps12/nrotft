@@ -482,6 +482,55 @@ public class NPoint {
             }
         }
         setDameTrainArmor();
+        // ======================== Apply Intrinsic Passive Effects ========================
+        // Nội tại passive: apply stats từ database vào player
+        if (this.player.playerIntrinsic != null && this.player.playerIntrinsic.intrinsic != null) {
+            Intrinsic ntiPassive = this.player.playerIntrinsic.intrinsic;
+            switch (ntiPassive.id) {
+                case 21: // +HP% tối đa
+                    this.tlHp.add((int) ntiPassive.param1);
+                    break;
+                case 23: // +KI% tối đa
+                    this.tlMp.add((int) ntiPassive.param1);
+                    break;
+                case 26: // Vàng rơi từ quái +%
+                    this.tlGold += ntiPassive.param1;
+                    break;
+                case 27: // Sức mạnh và tiềm năng khi đánh quái +%
+                    this.tlTNSM.add((int) ntiPassive.param1);
+                    break;
+                case 28: // Né đòn +%
+                    this.tlNeDon += ntiPassive.param1;
+                    break;
+                case 29: // Giáp +%
+                    this.tlGiap += ntiPassive.param1;
+                    break;
+                case 30: // Hút HP khi đánh quái +%
+                    this.tlHutHpMob += ntiPassive.param1;
+                    break;
+                case 31: // Phản sát thương +%
+                    this.tlPST += ntiPassive.param1;
+                    break;
+                case 32: // Tốc độ di chuyển +%
+                    this.tlSpeed += ntiPassive.param1;
+                    break;
+                case 33: // Hồi HP mỗi 5 giây +%
+                    this.tlHpHoi += ntiPassive.param1;
+                    break;
+                case 34: // Hồi KI mỗi 5 giây +%
+                    this.tlMpHoi += ntiPassive.param1;
+                    break;
+                case 35: // Chính xác +%
+                    this.tlchinhxac += ntiPassive.param1;
+                    break;
+                case 36: // Xuyên giáp cận chiến +%
+                    this.tlxgcc += ntiPassive.param1;
+                    break;
+                case 37: // Xuyên giáp chưởng +%
+                    this.tlxgc += ntiPassive.param1;
+                    break;
+            }
+        }
         setBasePoint();
         setOutfitFusion();
         setSpeed();

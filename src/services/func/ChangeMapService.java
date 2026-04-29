@@ -93,15 +93,13 @@ public class ChangeMapService {
                         if (zone.map.mapId != 84) {
                             if (zone.map.mapId == 52) {
                                 msg.writer().writeUTF("Tranh tài để nhận thưởng");
-                            }
-                            if (zone.map.mapId == 154) {
+                            } else if (zone.map.mapId == 154) {
                                 msg.writer().writeUTF("Nơi ở của Thần Hủy Diệt");
                             } else {
-                                msg.writer().writeUTF(zone.map.planetName);
+                                msg.writer().writeUTF(getCorrectPlanetName(zone));
                             }
                         } else {
                             msg.writer().writeUTF("Thiên đường mua sắm");
-
                         }
                     }
                 case ConstMap.CHANGE_BLACK_BALL:
@@ -1219,6 +1217,24 @@ public class ChangeMapService {
             return ConstMap.TRAM_TAU_MAJIN;
         }
         return 24 + player.gender;
+    }
+
+    /**
+     * Lấy tên hành tinh đúng dựa trên mapId (fix lỗi DB planet_id sai cho một số map).
+     * Maps 0-6: Trái Đất, 7-13: Namếc, 14-20: Xayda
+     */
+    private String getCorrectPlanetName(Zone zone) {
+        int mapId = zone.map.mapId;
+        // Các map thuộc 3 hành tinh chính (theo mapId range chuẩn NRO)
+        if (mapId >= 0 && mapId <= 6) {
+            return "Trái Đất";
+        } else if (mapId >= 7 && mapId <= 13) {
+            return "Namếc";
+        } else if (mapId >= 14 && mapId <= 20) {
+            return "Xayda";
+        }
+        // Các map khác: dùng planetName từ DB
+        return zone.map.planetName;
     }
 
 }
