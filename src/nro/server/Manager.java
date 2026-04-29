@@ -285,16 +285,7 @@ public final class Manager {
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
             }
 
-            // Spawn NPC Hùng Vương ở 3 nhà chính khi sự kiện Giỗ Tổ bật
-            // Map 5 = Đảo Kame (TD), Map 12 = Làng Namek (NM), Map 19 = Vách Núi Đen (XD)
-            if (event.EventManager.HUNG_VUONG && (map.mapId == 5 || map.mapId == 12 || map.mapId == 19)) {
-                short x = 500;
-                short y = (short) map.yPhysicInTop(x, 100);
-                if (y <= 0) {
-                    y = 336;
-                }
-                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.HUNG_VUONG));
-            }
+            // NPC Hùng Vương được spawn trong HungVuong.java (event) — không spawn ở đây vì EventManager chưa init
 
             // Dùng Virtual Thread để update map
             Thread.startVirtualThread(() -> map.run());

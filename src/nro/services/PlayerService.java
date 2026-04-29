@@ -194,7 +194,8 @@ public class PlayerService {
                 if (player.isFly && player.getMount() == -1) {
                     long mp = Math.max(1, player.nPoint.mpg / (100 * (player.effectSkill.isMonkey ? 2 : 1)));
                     player.nPoint.subMP(mp);
-                    sendInfoMp(player);
+                    // Không gửi sendInfoMp ở đây để tránh hiển thị +KI liên tục khi bay
+                    // KI sẽ tự đồng bộ khi hạ cánh hoặc regen tick tiếp theo
                 }
             }
             MapService.gI().sendPlayerMove(player);

@@ -92,6 +92,19 @@ public class NDVSqlFetcher {
                 session.bdPlayer = rs.getDouble("account.bd_player");
                 session.cash = rs.getInt("cash");
                 session.vnd = rs.getInt("vnd");
+                // Auto-sync cash & vnd nếu bị lệch
+                if (session.cash != session.vnd) {
+                    int syncValue = Math.max(session.cash, session.vnd);
+                    session.cash = syncValue;
+                    session.vnd = syncValue;
+                    try {
+                        DBConnecter.executeUpdate(
+                            "UPDATE account SET cash = ?, vnd = ? WHERE id = ?",
+                            syncValue, syncValue, session.userId);
+                    } catch (Exception syncEx) {
+                        Logger.error("Auto-sync cash/vnd failed for userId=" + session.userId);
+                    }
+                }
                 session.diemdanh = rs.getInt("DiemDanh");
                 session.danap = rs.getInt("danap");
                 session.diemboss = rs.getInt("diemboss");

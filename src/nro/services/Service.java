@@ -617,9 +617,9 @@ public class Service {
             Message msg;
             try {
                 msg = new Message(-42);
-                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.hpg), ConstNpcConfig.readInt);
-                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.mpg), ConstNpcConfig.readInt);
-                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.dameg), ConstNpcConfig.readInt);
+                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.hpg + player.pea_bonus_hp), ConstNpcConfig.readInt);
+                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.mpg + player.pea_bonus_ki), ConstNpcConfig.readInt);
+                msg.writeLongByEmti(Util.maxIntValue(player.nPoint.dameg + player.pea_bonus_sd), ConstNpcConfig.readInt);
                 msg.writeLongByEmti(Util.maxIntValue(player.nPoint.hpMax), ConstNpcConfig.readInt);// hp full
                 msg.writeLongByEmti(Util.maxIntValue(player.nPoint.mpMax), ConstNpcConfig.readInt);// mp full
                 msg.writeLongByEmti(Util.maxIntValue(player.nPoint.hp), ConstNpcConfig.readInt);// hp

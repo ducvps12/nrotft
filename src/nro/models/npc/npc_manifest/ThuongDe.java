@@ -292,20 +292,16 @@ public class ThuongDe extends Npc {
     private void showGiftCostumes(Player player) {
         this.createOtherMenu(player, MENU_GIFT_COSTUMES,
                 "CAI TRANG HAP DAN\n\n"
-                        + "Tu Vong Quay May Man:\n"
-                        + "- CT Goku SSJ4\n"
-                        + "  SD+30% HP+30% KI+30%\n"
-                        + "- CT Cadic SSJ Blue\n"
-                        + "  SD+30% HP+30% KI+50%\n"
-                        + "- CT Gogeta\n"
-                        + "  SD+25% HP+25% KI+25%\n"
-                        + "- CT Broly SSJ God\n"
-                        + "  SD+30% HP+30%\n\n"
-                        + "Tu Shop Santa (Ngoc):\n"
-                        + "- CT Chi Chi\n"
-                        + "  SD+25% HP+25% KI+50%\n"
-                        + "- CT Bunma Rider\n"
-                        + "  SD+25% HP+25% KI+50%",
+                        + "Vong Quay Thoi Vang (VIP):\n"
+                        + "- CT SSR: SD+35-50% HP+35-50%\n"
+                        + "  KI+35-50% (Cuc hiem!)\n"
+                        + "- CT VIP: SD+20-40% HP+20-40%\n\n"
+                        + "Vong Quay Vang/Ngoc:\n"
+                        + "- CT Tot: SD+20-30% HP+20-30%\n"
+                        + "- CT Thuong: SD+10-25% HP+10-25%\n\n"
+                        + "Shop Xu (Santa):\n"
+                        + "- CT Co ban: SD+10-18%\n"
+                        + "  HP+10-18% KI+10-18%",
                 "Quay lai");
     }
 

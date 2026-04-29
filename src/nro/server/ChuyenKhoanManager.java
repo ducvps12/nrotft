@@ -35,9 +35,13 @@ import java.util.regex.Pattern;
 public class ChuyenKhoanManager {
 
     private static final String ACB_HISTORY_API = "https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1";
-    private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|NAP|ID)?\\s*[:#-]?\\s*(\\d{1,12})");
+    // Pattern BẮT BUỘC phải có prefix: "chuyen tien", "nap", "id", "mtdgame" + số player ID
+    // Prefix KHÔNG optional (không có ?) để tránh match mọi số trong nội dung bank
+    private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile(
+        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAP|MTDGAME|ID)\\s*[:#-]?\\s*(\\d{1,12})");
     // Pattern để match username (chữ) sau "chuyen tien" - ví dụ: "chuyen tien admin", "chuyen tien nhimoon"
-    private static final Pattern USERNAME_TRANSFER_PATTERN = Pattern.compile("(?i)(?:CHUYEN\\s*TIEN|chuyen\\s*tien)\\s+([a-zA-Z][a-zA-Z0-9_]{2,30})");
+    private static final Pattern USERNAME_TRANSFER_PATTERN = Pattern.compile(
+        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAP|MTDGAME)\\s+([a-zA-Z][a-zA-Z0-9_]{2,30})");
 
     public static String buildTransferDescription(Player player) {
         String username = getAccountUsername(player != null && player.getSession() != null ? player.getSession().userId : -1);

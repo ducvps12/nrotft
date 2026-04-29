@@ -875,6 +875,7 @@ public class RewardService {
                     it = ItemService.gI().createNewItem((short) 2074);
                     it.quantity = Util.nextInt(1, 5);
                 } else if (Util.isTrue(1, 50)) {
+                    // === VIP TIER: Cải trang VIP 20-40% ===
                     int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000, 17, 19, 20, 21 };
                     int itemid = itemId[Util.nextInt(itemId.length)];
                     if (Util.isTrue(20, 100)) {
@@ -882,21 +883,27 @@ public class RewardService {
                         itemid = itemId2[Util.nextInt(itemId2.length)];
                     }
                     byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
-                    byte[] option_v2 = { 14, 16, 17, 19, 27, 28, 5, 47, 87 }; // 77 %hp // 80 //81 //103 //50 //94 //5 %
-                                                                              // sdcm
+                    byte[] option_v2 = { 14, 16, 17, 19, 27, 28, 5, 47, 87 };
                     byte optionid;
                     byte optionid_v2;
                     byte param;
                     Item vpdl = ItemService.gI().createNewItem((short) itemid);
                     vpdl.itemOptions.clear();
-                    vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(10, 20)));
-                    vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(10, 20)));
+                    // SSR tier (1/50 trong VIP) — 35-50%
+                    if (Util.isTrue(1, 50)) {
+                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(35, 50)));
+                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(35, 50)));
+                        vpdl.itemOptions.add(new Item.ItemOption(103, Util.nextInt(35, 50)));
+                    } else {
+                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 40)));
+                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 40)));
+                    }
                     optionid = option[Util.nextInt(0, 6)];
-                    param = (byte) Util.nextInt(5, 10);
+                    param = (byte) Util.nextInt(8, 18);
                     vpdl.itemOptions.add(new Item.ItemOption(optionid, param));
-                    if (Util.isTrue(3, 100)) {
+                    if (Util.isTrue(15, 100)) {
                         optionid_v2 = option_v2[Util.nextInt(0, option_v2.length)];
-                        vpdl.itemOptions.add(new Item.ItemOption(optionid_v2, param));
+                        vpdl.itemOptions.add(new Item.ItemOption(optionid_v2, Util.nextInt(5, 12)));
                     }
                     vpdl.itemOptions.add(new Item.ItemOption(30, 0));
                     if (Util.isTrue(90, 100)) {
@@ -915,23 +922,23 @@ public class RewardService {
                         it = ItemService.gI().createNewItem((short) Util.nextInt(2150, 2152));
                         it.quantity = 1;
                         if (Util.isTrue(5, 100)) {
-                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(10, 30)));
-                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 30)));
-                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(10, 30)));
-                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 30)));
-                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(2, 12)));
-                            it.itemOptions.add(new Item.ItemOption(108, Util.nextInt(2, 12)));
+                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(25, 45)));
+                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(25, 45)));
+                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(25, 45)));
+                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 35)));
+                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(3, 15)));
+                            it.itemOptions.add(new Item.ItemOption(108, Util.nextInt(3, 15)));
                             it.itemOptions.add(new Item.ItemOption(154, 0));
                         } else {
-                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(10, 30)));
-                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 30)));
-                            if (Util.isTrue(5, 30)) {
-                                it.itemOptions.add(new Item.ItemOption(5, Util.nextInt(1, 12)));
+                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 40)));
+                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 40)));
+                            if (Util.isTrue(10, 30)) {
+                                it.itemOptions.add(new Item.ItemOption(5, Util.nextInt(3, 15)));
                             }
-                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(10, 30)));
-                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 30)));
-                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(2, 12)));
-                            it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 15)));
+                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 40)));
+                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 35)));
+                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(3, 15)));
+                            it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 20)));
                         }
                     }
                 } else if (Util.isTrue(1, 10)) {
@@ -942,6 +949,7 @@ public class RewardService {
                     it.quantity = Util.nextInt(1, 5);
                 }
             } else {
+                // === QUAY THƯỜNG (Vàng/Ngọc): Tier trung bình 10-25% ===
                 if (Util.isTrue(1, 2)) {
                     int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000 };
                     int itemid = itemId[Util.nextInt(itemId.length)];
@@ -951,12 +959,20 @@ public class RewardService {
                     }
                     byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
                     byte optionid;
-                    byte param;
                     Item vpdl = ItemService.gI().createNewItem((short) itemid);
                     vpdl.itemOptions.clear();
-                    optionid = option[Util.nextInt(0, 6)];
-                    param = (byte) Util.nextInt(5, 10);
-                    vpdl.itemOptions.add(new Item.ItemOption(optionid, param));
+                    // 1/20 ra cải trang tốt 20-30%
+                    if (Util.isTrue(1, 20)) {
+                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 30)));
+                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 30)));
+                        optionid = option[Util.nextInt(0, 6)];
+                        vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(8, 15)));
+                    } else {
+                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(10, 25)));
+                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(10, 25)));
+                        optionid = option[Util.nextInt(0, 6)];
+                        vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(5, 12)));
+                    }
                     vpdl.itemOptions.add(new Item.ItemOption(30, 0));
                     vpdl.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 30)));
                     it = vpdl;

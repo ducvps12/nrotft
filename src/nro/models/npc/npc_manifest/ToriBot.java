@@ -193,24 +193,19 @@ public class ToriBot extends Npc {
     // ===================== HƯỚNG DẪN PREMIUM =====================
     private void showPremiumGuide(Player player) {
         createOtherMenu(player, MENU_GUIDE,
-                "|7|━━━ HƯỚNG DẪN PREMIUM ━━━\n"
+                "|7|━━ HƯỚNG DẪN PREMIUM ━━\n"
                 + "|8|★ Premium là gì?\n"
-                + "|1|Premium là gói ưu đãi đặc biệt dành cho\n"
-                + "|1|các chiến binh muốn tiến xa hơn.\n\n"
+                + "|1|Gói ưu đãi đặc biệt, quà VĨNH VIỄN!\n\n"
                 + "|8|★ Có gì đặc biệt?\n"
-                + "|2|• TẤT CẢ quà đều VĨNH VIỄN\n"
                 + "|2|• Cải trang VIP stats cực mạnh\n"
-                + "|2|• Pet độc quyền chỉ Premium có\n"
-                + "|2|• Mảnh ghép hiếm (Bông Tai, Oozaru...)\n"
-                + "|2|• Đá Bảo Vệ cường hóa an toàn\n\n"
+                + "|2|• Pet độc quyền Premium\n"
+                + "|2|• Mảnh ghép hiếm + Đá Bảo Vệ\n\n"
                 + "|8|★ Cách mua?\n"
                 + "|1|1. Nạp VNĐ qua Ông Gohan (ATM/QR)\n"
-                + "|1|2. Quay lại ToriBot → Chọn gói Premium\n"
+                + "|1|2. Quay lại ToriBot → Chọn gói\n"
                 + "|1|3. Xác nhận mua → Nhận quà ngay!\n\n"
                 + "|8|★ Lưu ý:\n"
-                + "|1|• Mỗi gói chỉ mua 1 lần / nhân vật\n"
-                + "|1|• Mua gói cao hơn không cần gói thấp\n"
-                + "|1|• Quà gửi thẳng vào hành trang\n"
+                + "|1|Mỗi gói mua 1 lần, không cần gói thấp\n"
                 + "|7|━━━━━━━━━━━━━━━━━━",
                 "Xem Gói\nPremium", "Đóng");
     }

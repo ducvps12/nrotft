@@ -5,12 +5,25 @@ package event.event_manifest;
  * - Spawn Boss Sơn Tinh + Thuỷ Tinh liên tục tại 3 hành tinh
  * - Spawn Boss Voi Chín Ngà, Gà Chín Cựa, Ngựa Chín Hồng Mao
  * - Rồng Nhí cho tìm ngọc rồng
+ * - NPC Hùng Vương (ID 52) tại Đảo Kame, Làng Namek, Vách Núi Đen
  */
 
 import boss.BossID;
+import consts.ConstNpc;
 import event.Event;
 
 public class HungVuong extends Event {
+
+    @Override
+    public void npc() {
+        // NPC Hùng Vương tại 3 nhà chính
+        // Map 5 = Đảo Kame (Trái Đất) — tọa độ (353, 288)
+        // Map 12 = Làng Namek (Namếc)
+        // Map 19 = Vách Núi Đen (Xayda) — tọa độ (867, 360)
+        createNpc(5, ConstNpc.HUNG_VUONG, 353, 288);
+        createNpc(12, ConstNpc.HUNG_VUONG, 400, 336);
+        createNpc(19, ConstNpc.HUNG_VUONG, 867, 360);
+    }
 
     @Override
     public void boss() {

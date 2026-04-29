@@ -34,13 +34,11 @@ public class ChiChi extends Npc {
         if (EventManager.EVENT_POKEMON) {
             player.iDMark.setIndexMenu(ConstNpc.BASE_MENU);
             createOtherMenu(player, ConstNpc.BASE_MENU,
-                    "Bạn muốn làm gì?",
-                    "Đổi thưởng",
-                    "Top Bóng Master",
-                    "Top tháng 9 VIP",
-                    "Top tháng 9",
-                    "Cửa hàng",
-                    "Đóng");
+                    "Su kien Pokemon 30/4!\nBan muon lam gi?",
+                    "Doi thuong",
+                    "Huong dan",
+                    "Cua hang",
+                    "Dong");
             return;
         }
 
@@ -117,12 +115,8 @@ public class ChiChi extends Npc {
                     case 0 ->
                         openMenuDoiThuong(player);
                     case 1 ->
-                        openMenuTop(player, ConstNpc.MENU_TOP_BONG_MASTER);
+                        openMenuHuongDan(player);
                     case 2 ->
-                        openMenuTop(player, ConstNpc.MENU_TOP_THANG_9_VIP);
-                    case 3 ->
-                        openMenuTop(player, ConstNpc.MENU_TOP_THANG_9);
-                    case 4 ->
                         ShopService.gI().opendShop(player, "CHI_CHI_POKE", false);
                 }
             } else if (EventManager.HALLOWEEN) {
@@ -181,42 +175,78 @@ public class ChiChi extends Npc {
         }
     }
 
+    // ================== HƯỚNG DẪN POKEMON ==================
+    private void openMenuHuongDan(Player player) {
+        String text = "HUONG DAN SU KIEN POKEMON\n\n"
+                + "1. Danh Boss Pokemon tai:\n"
+                + "   Pikachu - Lang Kakaro\n"
+                + "   Charmander - Lang Aru\n"
+                + "   Squirtle - Lang Mori\n\n"
+                + "2. Boss HP=5000 (moi hit tru 1)\n"
+                + "   Ai cung danh duoc!\n\n"
+                + "3. Boss chet drop 2-4 Trung\n"
+                + "   Can Bong Poke/Ultra/Master\n"
+                + "   trong tui de nhat trung\n\n"
+                + "4. Mo trung ra Pet Pokemon!\n"
+                + "   Trung Master = 100% vinh vien\n\n"
+                + "5. Mua Bong tai day (Cua hang)";
+        createOtherMenu(player, ConstNpc.BASE_MENU, text, "Dong");
+    }
+
     // ================== ĐỔI THƯỞNG ==================
     private void openMenuDoiThuong(Player player) {
-        String text = """
-                Chọn phần thưởng muốn đổi:
-                
-                - 99 Vỏ sên = Quà thường
-                - 99 Vỏ sên + 2 Túi đựng = Quà VIP
-                """;
+        String text = "DOI THUONG SU KIEN POKEMON\n\n"
+                + "- 50 Vo sen = 1 Bong Poke\n"
+                + "- 50 Vo sen + 2 Tui = 1 Bong Ultra\n"
+                + "- 99 Vo sen + 5 Tui = 1 Bong Master";
 
         createOtherMenu(player, ConstNpc.MENU_DOI_THUONG, text,
-                "Đổi quà thường", "Đổi quà VIP", "Từ chối");
+                "Doi Bong Poke", "Doi Bong Ultra", "Doi Bong Master", "Tu choi");
     }
 
     private void thucHienDoiQua(Player player, int select) {
         Item voSen = InventoryService.gI().findItemBag(player, VO_SEN);
+        Item tuiDung = InventoryService.gI().findItemBag(player, TUI_DUNG);
 
-        if (select == 0) { // Quà thường
-            if (voSen == null || voSen.quantity < 99) {
-                Service.gI().sendThongBao(player, "Cần 99 Vỏ sên để đổi quà thường.");
+        if (select == 0) { // Bóng Poke
+            if (voSen == null || voSen.quantity < 50) {
+                Service.gI().sendThongBao(player, "Can 50 Vo sen de doi Bong Poke.");
                 return;
             }
-            InventoryService.gI().subQuantityItemsBag(player, voSen, 99);
+            InventoryService.gI().subQuantityItemsBag(player, voSen, 50);
+            Item bong = nro.services.ItemService.gI().createNewItem((short) 1873);
+            bong.quantity = 1;
+            InventoryService.gI().addItemBag(player, bong);
             InventoryService.gI().sendItemBag(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được Quà Thường!");
+            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Poke!");
         }
 
-        if (select == 1) { // Quà VIP
-            Item tuiDung = InventoryService.gI().findItemBag(player, TUI_DUNG);
-            if (voSen == null || voSen.quantity < 99 || tuiDung == null || tuiDung.quantity < 2) {
-                Service.gI().sendThongBao(player, "Cần 99 Vỏ sên và 2 Túi đựng để đổi quà VIP.");
+        if (select == 1) { // Bóng Ultra
+            if (voSen == null || voSen.quantity < 50 || tuiDung == null || tuiDung.quantity < 2) {
+                Service.gI().sendThongBao(player, "Can 50 Vo sen + 2 Tui dung de doi Bong Ultra.");
+                return;
+            }
+            InventoryService.gI().subQuantityItemsBag(player, voSen, 50);
+            InventoryService.gI().subQuantityItemsBag(player, tuiDung, 2);
+            Item bong = nro.services.ItemService.gI().createNewItem((short) 1874);
+            bong.quantity = 1;
+            InventoryService.gI().addItemBag(player, bong);
+            InventoryService.gI().sendItemBag(player);
+            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Ultra!");
+        }
+
+        if (select == 2) { // Bóng Master
+            if (voSen == null || voSen.quantity < 99 || tuiDung == null || tuiDung.quantity < 5) {
+                Service.gI().sendThongBao(player, "Can 99 Vo sen + 5 Tui dung de doi Bong Master.");
                 return;
             }
             InventoryService.gI().subQuantityItemsBag(player, voSen, 99);
-            InventoryService.gI().subQuantityItemsBag(player, tuiDung, 2);
+            InventoryService.gI().subQuantityItemsBag(player, tuiDung, 5);
+            Item bong = nro.services.ItemService.gI().createNewItem((short) 1875);
+            bong.quantity = 1;
+            InventoryService.gI().addItemBag(player, bong);
             InventoryService.gI().sendItemBag(player);
-            Service.gI().sendThongBao(player, "Bạn đã nhận được Quà VIP!");
+            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Master!");
         }
     }
 
@@ -234,15 +264,6 @@ public class ChiChi extends Npc {
                 + "Hạn chót nhận giải: " + Manager.demTimeSuKienmaquyNhanGiai() + "\n"
                 + "Đến gặp Chi Chi để nhận giải nhé\n"
                 + "Chi tiết xem tại diễn đàn, fanpage.";
-        String textpoke = """
-                Sự kiện đua TOP - phần thưởng hấp dẫn!
-                
-                Thời gian: Đã kết thúc
-                Hạn nhận thưởng: Đã kết thúc
-                
-                Liên hệ Chi-Chi để nhận thưởng.
-                Chi tiết xem trên diễn đàn/Fanpage.
-                """;
         String texttrungthu
                 = "Sự kiện đua Top Hộp quà Trung Thu VIP nhận quà khủng\n"
                 + "Kết thúc và trao giải sau: " + Manager.demTimeSuKienTrungThuVip() + "\n"
@@ -297,21 +318,17 @@ public class ChiChi extends Npc {
 
         switch (type) {
             case ConstNpc.MENU_TOP_HALLOWEEN_MASTER ->
-                createOtherMenu(player, type, textpoke, "Top 100\nTúi Mù\nHalloween", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, texttuimu, "Top 100\nTui Mu\nHalloween", "Xem diem", "Dong");
             case ConstNpc.MENU_TOP_HOP_KEO_HALLOWEEN ->
-                createOtherMenu(player, type, texttuimu, "Top 100\nHộp Kẹo Ma\nQuỷ", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, textkeomaquy, "Top 100\nHop Keo Ma\nQuy", "Xem diem", "Dong");
             case ConstNpc.MENU_TOP_THIEP_HALLOWEEN ->
-                createOtherMenu(player, type, textkeomaquy, "Top 100\n Thiệp Ma\nHalloween", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, textthiephalloween, "Top 100\nThiep Ma\nHalloween", "Xem diem", "Dong");
             case ConstNpc.MENU_TOP_BONG_MASTER ->
-                createOtherMenu(player, type, textthiephalloween, "Top 100 Bóng Master", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, texttuimu, "Top 100 Bong Master", "Xem diem", "Dong");
             case ConstNpc.MENU_TRA_HOA_CUC ->
-                createOtherMenu(player, type, texttrahoacuc, "Top 100 Hộp trà hoa cúc", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, texttrahoacuc, "Top 100 Hop tra hoa cuc", "Xem diem", "Dong");
             case ConstNpc.MENU_MA_QUY ->
-                createOtherMenu(player, type, texthopmaquy, "Top 100 Hộp kẹo ma quỷ", "Xem điểm", "Đóng");
-            case ConstNpc.MENU_TOP_THANG_9_VIP ->
-                createOtherMenu(player, type, textpoke, "Top 100 Tháng 9 VIP", "Xem điểm", "Đóng");
-            case ConstNpc.MENU_TOP_THANG_9 ->
-                createOtherMenu(player, type, textpoke, "Top 100 Tháng 9", "Xem điểm", "Đóng");
+                createOtherMenu(player, type, texthopmaquy, "Top 100 Hop keo ma quy", "Xem diem", "Dong");
             case ConstNpc.MENU_HOP_QUA_TRUNG_THU_VIP ->
                 createOtherMenu(player, type, texttrungthu, "Top 100\nHộp quà\nTrung Thu\nVIP", "Xem điểm", "Đóng");
             case ConstNpc.MENU_LONG_DEN_TREO ->

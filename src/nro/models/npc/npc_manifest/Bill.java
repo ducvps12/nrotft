@@ -10,10 +10,7 @@ package nro.models.npc.npc_manifest;
 import consts.ConstNpc;
 import item.Item;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.InventoryService;
@@ -107,8 +104,9 @@ public class Bill extends Npc {
     }
 
     private void doiNhanhItem(Player player) {
-        int[] itemIds = { 1947, 1948, 1949, 1950, 1951 };
-        Set<Integer> itemIdSet = Arrays.stream(itemIds).boxed().collect(Collectors.toSet());
+        // Thức ăn thường (663-667): bánh pudding, xúc xích, kem dâu, mì ly, sushi
+        // Thức ăn cho Thần (1947-1951): drop từ các nguồn khác
+        int[] itemIds = { 663, 664, 665, 666, 667, 1947, 1948, 1949, 1950, 1951 };
         int total1946 = 0;
 
         for (int id : itemIds) {

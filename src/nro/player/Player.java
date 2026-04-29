@@ -728,7 +728,7 @@ public class Player implements Runnable {
         if (Util.canDoWithTime(lastTimeSendTextTime, 300000)) {
             if (DailyGiftService.checkDailyGift(this, ConstDailyGift.NHAN_BUA_MIEN_PHI)) {
                 ItemTimeService.gI().sendTextTime(this, itemTime.TEXT_NHAN_BUA_MIEN_PHI,
-                        "Nhận ngẫu nhiên bùa 1h mỗi ngày tại Bà Hạt Mít ở vách núi", 30);
+                        "\n\n\nNhận ngẫu nhiên bùa 1h mỗi ngày tại Bà Hạt Mít ở vách núi", 30);
             }
             lastTimeSendTextTime = System.currentTimeMillis();
         }
