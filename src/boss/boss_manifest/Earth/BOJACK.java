@@ -30,10 +30,6 @@ public class BOJACK extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        // Service.gI().dropItemMap(this.zone, new ItemMap(zone, 2055, Util.nextInt(1,
-        // 10), this.location.x + Util.nextInt(-50, 50),
-        // this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24),
-        // plKill.id));
         for (int i = 0; i < Util.nextInt(2); i++) {
             Service.gI().dropItemMap(this.zone,
                     new ItemMap(zone, 821, Util.nextInt(1, 3), this.location.x + i * Util.nextInt(-50, 50),
@@ -61,6 +57,19 @@ public class BOJACK extends Boss {
             it.options = ops;
         }
         Service.gI().dropItemMap(this.zone, it);
+
+        // Drop hồng ngọc (ruby, item 861) 1-3 viên
+        for (int i = 0; i < Util.nextInt(1, 3); i++) {
+            Service.gI().dropItemMap(this.zone,
+                    new ItemMap(zone, 861, Util.nextInt(1, 2), this.location.x + i * Util.nextInt(-30, 30),
+                            this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
+        }
+        // Drop thỏi vàng (item 457) 2-5 thỏi
+        for (int i = 0; i < Util.nextInt(1, 2); i++) {
+            Service.gI().dropItemMap(this.zone,
+                    new ItemMap(zone, 457, Util.nextInt(2, 5), this.location.x + i * Util.nextInt(-40, 40),
+                            this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id));
+        }
     }
 
     @Override

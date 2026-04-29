@@ -13,6 +13,7 @@ import consts.ConstPlayer;
 import models.Training.TrainingService;
 import nro.player.Player;
 import consts.ConstTask;
+import consts.ConstMap;
 import boss.Boss;
 import boss.BossID;
 import clan.ClanMember;

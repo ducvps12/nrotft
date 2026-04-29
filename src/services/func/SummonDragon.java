@@ -313,33 +313,44 @@ public class SummonDragon {
                     case 1: // găng tay đang đeo lên 1 cấp (giới hạn +3)
                         Item item = this.playerSummonShenron.inventory.itemsBody.get(2);
                         if (item.isNotNullItem()) {
+                            // Tìm option 72 (cấp nâng rồng) trên găng
                             int level = 0;
+                            ItemOption upgradeOption = null;
                             for (ItemOption io : item.itemOptions) {
                                 if (io.optionTemplate.id == 72) {
+                                    upgradeOption = io;
                                     level = io.param;
-                                    if (level < 3) {
-                                        io.param++;
-                                    }
                                     break;
                                 }
                             }
-                            if (level < 3) {
-                                if (level == 0) {
-                                    item.itemOptions.add(new ItemOption(72, 1));
-                                }
-                                for (ItemOption io : item.itemOptions) {
-                                    if (io.optionTemplate.id == 0) {
-                                        io.param += (io.param * 10 / 100);
-                                        break;
-                                    }
-                                }
-                                InventoryService.gI().sendItemBody(playerSummonShenron);
-                            } else {
+                            if (level >= 3) {
                                 Service.gI().sendThongBao(playerSummonShenron,
                                         "Găng tay của ngươi đã đạt cấp +3, không thể nâng thêm bằng ước rồng");
                                 reOpenShenronWishes(playerSummonShenron);
                                 return;
                             }
+                            // Nâng cấp: tăng level option 72
+                            if (upgradeOption != null) {
+                                upgradeOption.param++;
+                            } else {
+                                item.itemOptions.add(new ItemOption(72, 1));
+                            }
+                            // Tăng 10% sức đánh cho găng (tìm option sức đánh: 0, 23, hoặc 50)
+                            boolean foundDameOption = false;
+                            for (ItemOption io : item.itemOptions) {
+                                if (io.optionTemplate.id == 0 || io.optionTemplate.id == 23 || io.optionTemplate.id == 50) {
+                                    io.param += Math.max(1, io.param * 10 / 100);
+                                    foundDameOption = true;
+                                    break;
+                                }
+                            }
+                            if (!foundDameOption) {
+                                // Nếu không tìm thấy option sức đánh, thêm option 0 (sức đánh +10)
+                                item.itemOptions.add(new ItemOption(0, 10));
+                            }
+                            InventoryService.gI().sendItemBody(playerSummonShenron);
+                            Service.gI().sendThongBao(playerSummonShenron,
+                                    "Găng tay đã được nâng lên +" + (level + 1) + "!");
                         } else {
                             Service.gI().sendThongBao(playerSummonShenron, "Ngươi hiện tại có đeo găng đâu");
                             reOpenShenronWishes(playerSummonShenron);

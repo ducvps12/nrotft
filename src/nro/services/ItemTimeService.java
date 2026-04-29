@@ -80,6 +80,7 @@ public class ItemTimeService {
                                     - System.currentTimeMillis()) / 1000);
                     break;
                 case 2:// xd
+                case 3:// majin (reuse xd)
                     sendItemTime(player, 20412 + (player.playerSkill.getSkillbyId(27).point - player.numUseSkill - 1),
                             (int) ((player.effectSkill.lastTimeBienHinh + player.effectSkill.timeBienHinh)
                                     - System.currentTimeMillis()) / 1000);
@@ -319,6 +320,7 @@ public class ItemTimeService {
                 sendItemTime(player, 30012 + (player.playerSkill.getSkillbyId(28).point - player.numUseSkill - 1), 5);
                 break;
             case 2:
+            case 3: // Majin reuse Xayda
                 sendItemTime(player, 30000 + (player.playerSkill.getSkillbyId(29).point - player.numUseSkill - 1), 5);
                 break;
         }
@@ -467,7 +469,7 @@ public class ItemTimeService {
     }
 
     public void sendItemTimeBienHinh(Player player, int level) {// sữa icon biến hình ở đây
-        int iconLvFirst = player.gender == 0 ? 20427 : player.gender == 1 ? 20437 : 20432;
+        int iconLvFirst = player.gender == 0 ? 20427 : player.gender == 1 ? 20437 : 20432; // Majin falls to default (xd)
         int timeIcon = player.effectSkill.timeBienHinh / 1000;
         if (level == 1) {
             sendItemTime(player, iconLvFirst, timeIcon);

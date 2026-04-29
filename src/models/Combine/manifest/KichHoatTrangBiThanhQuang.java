@@ -105,7 +105,7 @@ public class KichHoatTrangBiThanhQuang {
             return new int[] { 130, 142 };
         }
 
-        if (gender == 2) {
+        if (gender == 2 || gender == 3) { // Majin reuse Xayda
             if (rd == 0)
                 return new int[] { 135, 138 };
             if (rd == 1)

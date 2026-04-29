@@ -747,7 +747,8 @@ public class EffectSkillService {
 
         }
 
-        Skill template = Manager.NCLASS.get(player.gender)
+        int gIdx = Math.min(player.gender, 2); // Majin reuse Xayda class
+        Skill template = Manager.NCLASS.get(gIdx)
                 .getSkillTemplate(player.playerSkill.skillSelect.template.id).skillss.stream()
                 .filter(s -> s.point == player.playerSkill.skillSelect.point)
                 .findFirst().orElse(null);

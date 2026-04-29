@@ -1925,7 +1925,6 @@ public class UseItem {
             int[] param = { 0, 0, 0, 0, 0, 0, 5, 5, 5, 3, 3, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                     1, 1, 1, 1, 1, 1, 1, 1 };
             int arrLength = id.length - 1;
-            // pl.inventory.gold += 50_000_000_000L;
             for (int i = 0; i < arrLength; i++) {
                 if (i < 5) {
                     Item item = ItemService.gI().createNewItem((short) id[i]);
@@ -1949,12 +1948,20 @@ public class UseItem {
                 InventoryService.gI().addItemBag(pl, item);
             }
 
+            // Tặng 500 thỏi vàng cho tân thủ (500tv)
+            int thoiVangConLai = 500;
+            while (thoiVangConLai > 0) {
+                int qty = Math.min(thoiVangConLai, 99);
+                if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
+                    Item thoiVang = ItemService.gI().createNewItem((short) 457, qty);
+                    InventoryService.gI().addItemBag(pl, thoiVang);
+                }
+                thoiVangConLai -= qty;
+            }
+
             InventoryService.gI().subQuantityItemsBag(pl, it, 1);
-            // Service.gI().sendMoney(pl);
             InventoryService.gI().sendItemBag(pl);
-            // Service.getInstance().sendThongBao(pl, "Bạn mở hộp quà tân thủ nhận được 50
-            // tỷ vàng");
-            Service.gI().sendThongBao(pl, "Chúc bạn chơi game vui vẻ");
+            Service.gI().sendThongBao(pl, "Chúc bạn chơi game vui vẻ! Bạn nhận được 500 thỏi vàng!");
         } else {
             Service.gI().sendThongBao(pl, "Cần tối thiểu 14 ô trống để nhận thưởng");
         }

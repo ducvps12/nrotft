@@ -44,6 +44,7 @@ import nro.services.PetService;
 import nro.services.Service;
 import nro.services.SkillService;
 import nro.services.TaskService;
+import nro.services.VipPackageService;
 import services.func.ChangeMapService;
 import services.func.Input;
 import skill.Skill;
@@ -106,6 +107,8 @@ public class Command {
                         // Item
                         Map.entry("item", () -> Input.gI().createFormGiveItem(player)),
                         Map.entry("getitem", () -> Input.gI().createFormGetItem(player)),
+                        // Flash Sale VIP
+                        Map.entry("flashsale", () -> toggleFlashSale(player)),
                         // Di chuyển / position
                         Map.entry("d", () -> Service.gI().setPos(player, player.location.x, player.location.y + 10)));
 
@@ -336,6 +339,16 @@ public class Command {
     private void repeatNotify(String message, int times) {
         for (int i = 0; i < times; i++) {
             ServerNotify.gI().notify(message);
+        }
+    }
+
+    private void toggleFlashSale(Player player) {
+        boolean current = VipPackageService.isFlashSaleActive();
+        VipPackageService.setFlashSale(!current, VipPackageService.getFlashSalePercent());
+        String status = !current ? "BẬT (-" + VipPackageService.getFlashSalePercent() + "%)" : "TẮT";
+        Service.gI().sendThongBao(player, "⚡ Flash Sale: " + status);
+        if (!current) {
+            ServerNotify.gI().notify("⚡ FLASH SALE -" + VipPackageService.getFlashSalePercent() + "% tất cả Gói VIP tại Lý Tiểu Nương!");
         }
     }
 

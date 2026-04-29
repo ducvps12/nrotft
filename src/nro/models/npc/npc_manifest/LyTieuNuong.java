@@ -1,10 +1,10 @@
 package nro.models.npc.npc_manifest;
 
 /**
- * Box ZALO:https://zalo.me/g/irufas657 sdt zalo: 0376263452 Chuyên chỉnh sữa
- * mua bán source nro,...
+ * NPC Lý Tiểu Nương - Mini Games + Gói VIP Tuần + Gói Đệ Tử Ngày
  */
 import consts.ConstMiniGame;
+import consts.ConstNpc;
 import minigame.DecisionMaker.DecisionMaker;
 import minigame.DecisionMaker.DecisionMakerGem;
 import minigame.DecisionMaker.DecisionMakerGold;
@@ -15,7 +15,9 @@ import minigame.RockPaperScissors.RockPaperScissors;
 import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.TaskService;
+import nro.services.VipPackageService;
 import services.func.Input;
+import utils.Util;
 
 public class LyTieuNuong extends Npc {
 
@@ -26,9 +28,22 @@ public class LyTieuNuong extends Npc {
     @Override
     public void openBaseMenu(Player player) {
         if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
-            createOtherMenu(player, ConstMiniGame.MENU_CHINH, "Bạn muốn tham gia mini game nào?",
-                    "Kéo\nBúa\nBao", "Con số\nmay mắn\nvàng",
-                    "Con số\nmay mắn\nngọc xanh", "Chọn ai đây", "Đóng");
+            String flashSale = VipPackageService.isFlashSaleActive()
+                    ? "\n|2|⚡ FLASH SALE -" + VipPackageService.getFlashSalePercent() + "% ĐANG DIỄN RA!"
+                    : "";
+
+            String info = "|7|━━━ LÝ TIỂU NƯƠNG ━━━\n"
+                    + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                    + "|8|Sale 20% gói VIP 2 & VIP 3!"
+                    + flashSale + "\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━\n"
+                    + "Chọn dịch vụ bên dưới:";
+
+            createOtherMenu(player, ConstNpc.MENU_LTN_MAIN, info,
+                    "Gói VIP\nTuần",
+                    "Gói Đệ Tử\nNgày",
+                    "Mini\nGames",
+                    "Đóng");
         }
     }
 
@@ -36,29 +51,27 @@ public class LyTieuNuong extends Npc {
     public void confirmMenu(Player player, int select) {
         if (canOpenNpc(player)) {
             switch (player.iDMark.getIndexMenu()) {
-                case ConstMiniGame.MENU_CHINH -> {
-                    switch (select) {
-                        case 0 ->
-                            createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
-                                    "100k vàng", "500k vàng", "1 Tr vàng");
-                        case 1 -> {
-                            LuckyNumber.showMenu(this, player, false);
-                            player.iDMark.setGemCSMM(false);
-                        }
-                        case 2 -> {
-                            LuckyNumber.showMenu(this, player, true);
-                            player.iDMark.setGemCSMM(true);
-                        }
-                        case 3 ->
-                            DecisionMaker.gI().showMenu(this, player);
-                    }
-                }
 
+                // ================== MENU CHÍNH ==================
+                case ConstNpc.MENU_LTN_MAIN -> handleMainMenu(player, select);
 
+                // ================== GÓI VIP TUẦN ==================
+                case ConstNpc.MENU_LTN_VIP -> handleVipMenu(player, select);
+                case ConstNpc.MENU_LTN_VIP_CONFIRM_1 -> handleVipConfirm(player, select, 1);
+                case ConstNpc.MENU_LTN_VIP_CONFIRM_2 -> handleVipConfirm(player, select, 2);
+                case ConstNpc.MENU_LTN_VIP_CONFIRM_3 -> handleVipConfirm(player, select, 3);
 
+                // ================== GÓI ĐỆ TỬ NGÀY ==================
+                case ConstNpc.MENU_LTN_PET -> handlePetMenu(player, select);
+                case ConstNpc.MENU_LTN_PET_CONFIRM_1 -> handlePetConfirm(player, select, 1);
+                case ConstNpc.MENU_LTN_PET_CONFIRM_2 -> handlePetConfirm(player, select, 2);
+                case ConstNpc.MENU_LTN_PET_CONFIRM_3 -> handlePetConfirm(player, select, 3);
+                case ConstNpc.MENU_LTN_PET_CONFIRM_4 -> handlePetConfirm(player, select, 4);
+
+                // ================== MINI GAMES (GIỮ NGUYÊN) ==================
+                case ConstMiniGame.MENU_CHINH -> handleMiniGameMain(player, select);
                 case ConstMiniGame.MENU_KEO_BUA_BAO ->
                     RockPaperScissors.confirmMenu(this, player, select);
-
                 case ConstMiniGame.MENU_PLAY_KEO_BUA_BAO -> {
                     if (player.iDMark.getTimePlayKeoBuaBao() - System.currentTimeMillis() > 0) {
                         RockPaperScissors.confirmPlay(this, player, select);
@@ -67,85 +80,182 @@ public class LyTieuNuong extends Npc {
                                 "100k vàng", "500k vàng", "1 Tr vàng");
                     }
                 }
-
-                case ConstMiniGame.MENU_CON_SO_MAY_MAN_VANG -> {
-                    /* để trống */ }
-                case ConstMiniGame.MENU_CON_SO_MAY_MAN_NGOC -> {
-                    /* để trống */ }
-
+                case ConstMiniGame.MENU_CON_SO_MAY_MAN_VANG -> { /* để trống */ }
+                case ConstMiniGame.MENU_CON_SO_MAY_MAN_NGOC -> { /* để trống */ }
                 case ConstMiniGame.MENU_CHON_AI_DAY -> {
                     switch (select) {
-                        case 0 ->
-                            DecisionMaker.gI().showTutorial(this, player);
-                        case 1 ->
-                            DecisionMakerGold.showMenuSelect(this, player);
-                        case 2 ->
-                            DecisionMakerRuby.showMenuSelect(this, player);
-                        case 3 ->
-                            DecisionMakerGem.showMenuSelect(this, player);
+                        case 0 -> DecisionMaker.gI().showTutorial(this, player);
+                        case 1 -> DecisionMakerGold.showMenuSelect(this, player);
+                        case 2 -> DecisionMakerRuby.showMenuSelect(this, player);
+                        case 3 -> DecisionMakerGem.showMenuSelect(this, player);
                     }
                 }
-
                 case ConstMiniGame.MENU_LUCKY_NUMBER -> {
                     if (select == 0) {
                         LuckyNumber.showMenu(this, player, player.iDMark.isGemCSMM());
                     }
                 }
-
                 case ConstMiniGame.MENU_PLAY_LUCKY_NUMBER_GOLD, ConstMiniGame.MENU_PLAY_LUCKY_NUMBER_GEM -> {
                     switch (select) {
-                        case 0 ->
-                            LuckyNumber.showMenu(this, player, player.iDMark.isGemCSMM());
-                        case 1 ->
-                            Input.gI().createFormSelectOneNumberLuckyNumber(player, player.iDMark.isGemCSMM());
-                        case 2 ->
-                            LuckyNumberService.addOneNumber(player, true);
-                        case 3 ->
-                            LuckyNumberService.addOneNumber(player, false);
-                        case 4 ->
-                            LuckyNumber.showMenuTutorials(this, player);
+                        case 0 -> LuckyNumber.showMenu(this, player, player.iDMark.isGemCSMM());
+                        case 1 -> Input.gI().createFormSelectOneNumberLuckyNumber(player, player.iDMark.isGemCSMM());
+                        case 2 -> LuckyNumberService.addOneNumber(player, true);
+                        case 3 -> LuckyNumberService.addOneNumber(player, false);
+                        case 4 -> LuckyNumber.showMenuTutorials(this, player);
                     }
                 }
-
                 case ConstMiniGame.MENU_PLAY_DECISION_MAKER_GOLD -> {
                     switch (select) {
-                        case 0 ->
-                            DecisionMakerGold.showMenuSelect(this, player);
-                        case 1 ->
-                            DecisionMakerGold.selectPlay(this, player, true);
-                        case 2 ->
-                            DecisionMakerGold.selectPlay(this, player, false);
+                        case 0 -> DecisionMakerGold.showMenuSelect(this, player);
+                        case 1 -> DecisionMakerGold.selectPlay(this, player, true);
+                        case 2 -> DecisionMakerGold.selectPlay(this, player, false);
                     }
                 }
-
                 case ConstMiniGame.MENU_PLAY_DECISION_MAKER_GEM -> {
                     switch (select) {
-                        case 0 ->
-                            DecisionMakerGem.showMenuSelect(this, player);
-                        case 1 ->
-                            DecisionMakerGem.selectPlay(this, player, true);
-                        case 2 ->
-                            DecisionMakerGem.selectPlay(this, player, false);
+                        case 0 -> DecisionMakerGem.showMenuSelect(this, player);
+                        case 1 -> DecisionMakerGem.selectPlay(this, player, true);
+                        case 2 -> DecisionMakerGem.selectPlay(this, player, false);
                     }
                 }
-
                 case ConstMiniGame.MENU_PLAY_DECISION_MAKER_RUBY -> {
                     switch (select) {
-                        case 0 ->
-                            DecisionMakerRuby.showMenuSelect(this, player);
-                        case 1 ->
-                            DecisionMakerRuby.selectPlay(this, player, true);
-                        case 2 ->
-                            DecisionMakerRuby.selectPlay(this, player, false);
+                        case 0 -> DecisionMakerRuby.showMenuSelect(this, player);
+                        case 1 -> DecisionMakerRuby.selectPlay(this, player, true);
+                        case 2 -> DecisionMakerRuby.selectPlay(this, player, false);
                     }
                 }
-
                 case ConstMiniGame.MENU_WAIT_NEW_GAME -> {
                     if (select == 0) {
                         DecisionMaker.gI().showTutorial(this, player);
                     }
                 }
             }
+        }
+    }
+
+    // ===================== XỬ LÝ MENU CHÍNH =====================
+    private void handleMainMenu(Player player, int select) {
+        switch (select) {
+            case 0 -> showVipMenu(player);
+            case 1 -> showPetMenu(player);
+            case 2 -> showMiniGameMenu(player);
+            // case 3 = Đóng
+        }
+    }
+
+    // ===================== GÓI VIP TUẦN =====================
+    private void showVipMenu(Player player) {
+        VipPackageService vps = VipPackageService.gI();
+        boolean hasActive = vps.hasActiveVipPackage(player);
+        String expireInfo = hasActive ? vps.getVipExpireInfo(player) : null;
+
+        String flashTag = VipPackageService.isFlashSaleActive()
+                ? " ⚡-" + VipPackageService.getFlashSalePercent() + "%"
+                : "";
+
+        String info = "|7|━━━ GÓI VIP TUẦN ━━━\n"
+                + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                + (hasActive
+                        ? "|2|✓ Đang có gói VIP (hết: " + expireInfo + ")\n"
+                        : "|8|Chưa có gói VIP nào\n")
+                + "|8|Sale 20% cho VIP 2 & VIP 3" + flashTag + "\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_VIP, info,
+                "VIP 1\n" + Util.mumberToLouis(vps.getVipPrice(1)),
+                "VIP 2\n" + Util.mumberToLouis(vps.getVipPrice(2)) + " ❌" + Util.mumberToLouis(VipPackageService.VIP2_PRICE_ORIGINAL),
+                "VIP 3\n" + Util.mumberToLouis(vps.getVipPrice(3)) + " ❌" + Util.mumberToLouis(VipPackageService.VIP3_PRICE_ORIGINAL),
+                "Quay Lại");
+    }
+
+    private void handleVipMenu(Player player, int select) {
+        VipPackageService vps = VipPackageService.gI();
+        switch (select) {
+            case 0 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_CONFIRM_1,
+                    vps.getVipDescription(1), "Mua Ngay", "Quay Lại");
+            case 1 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_CONFIRM_2,
+                    vps.getVipDescription(2), "Mua Ngay", "Quay Lại");
+            case 2 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_CONFIRM_3,
+                    vps.getVipDescription(3), "Mua Ngay", "Quay Lại");
+            case 3 -> openBaseMenu(player);
+        }
+    }
+
+    private void handleVipConfirm(Player player, int select, int tier) {
+        if (select == 0) {
+            VipPackageService.gI().purchaseVipPackage(player, tier);
+        } else {
+            showVipMenu(player);
+        }
+    }
+
+    // ===================== GÓI ĐỆ TỬ NGÀY =====================
+    private void showPetMenu(Player player) {
+        VipPackageService vps = VipPackageService.gI();
+        boolean hasActive = vps.hasActivePetPackage(player);
+
+        String info = "|7|━━━ GÓI ĐỆ TỬ NGÀY ━━━\n"
+                + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                + (hasActive
+                        ? "|2|✓ Hôm nay đã mua gói Đệ Tử\n"
+                        : "|8|Chưa mua gói Đệ Tử hôm nay\n")
+                + "|8|Đệ tử + Items buff hài hòa\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_PET, info,
+                "Đệ Tử 1\n" + Util.mumberToLouis(vps.getPetPrice(1)),
+                "Đệ Tử 2\n" + Util.mumberToLouis(vps.getPetPrice(2)),
+                "Đệ Tử 3\n" + Util.mumberToLouis(vps.getPetPrice(3)),
+                "Đệ Tử 4\n" + Util.mumberToLouis(vps.getPetPrice(4)),
+                "Quay Lại");
+    }
+
+    private void handlePetMenu(Player player, int select) {
+        VipPackageService vps = VipPackageService.gI();
+        switch (select) {
+            case 0 -> createOtherMenu(player, ConstNpc.MENU_LTN_PET_CONFIRM_1,
+                    vps.getPetDescription(1), "Mua Ngay", "Quay Lại");
+            case 1 -> createOtherMenu(player, ConstNpc.MENU_LTN_PET_CONFIRM_2,
+                    vps.getPetDescription(2), "Mua Ngay", "Quay Lại");
+            case 2 -> createOtherMenu(player, ConstNpc.MENU_LTN_PET_CONFIRM_3,
+                    vps.getPetDescription(3), "Mua Ngay", "Quay Lại");
+            case 3 -> createOtherMenu(player, ConstNpc.MENU_LTN_PET_CONFIRM_4,
+                    vps.getPetDescription(4), "Mua Ngay", "Quay Lại");
+            case 4 -> openBaseMenu(player);
+        }
+    }
+
+    private void handlePetConfirm(Player player, int select, int tier) {
+        if (select == 0) {
+            VipPackageService.gI().purchasePetPackage(player, tier);
+        } else {
+            showPetMenu(player);
+        }
+    }
+
+    // ===================== MINI GAMES (GIỮ NGUYÊN) =====================
+    private void showMiniGameMenu(Player player) {
+        createOtherMenu(player, ConstMiniGame.MENU_CHINH, "Bạn muốn tham gia mini game nào?",
+                "Kéo\nBúa\nBao", "Con số\nmay mắn\nvàng",
+                "Con số\nmay mắn\nngọc xanh", "Chọn ai đây", "Đóng");
+    }
+
+    private void handleMiniGameMain(Player player, int select) {
+        switch (select) {
+            case 0 ->
+                createOtherMenu(player, ConstMiniGame.MENU_KEO_BUA_BAO, "Hãy chọn mức cược.",
+                        "100k vàng", "500k vàng", "1 Tr vàng");
+            case 1 -> {
+                LuckyNumber.showMenu(this, player, false);
+                player.iDMark.setGemCSMM(false);
+            }
+            case 2 -> {
+                LuckyNumber.showMenu(this, player, true);
+                player.iDMark.setGemCSMM(true);
+            }
+            case 3 ->
+                DecisionMaker.gI().showMenu(this, player);
         }
     }
 }

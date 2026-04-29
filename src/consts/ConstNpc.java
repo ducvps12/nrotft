@@ -491,4 +491,16 @@ public class ConstNpc {
         public static final int menutd = 1106;
         public static final int menunm = 1107;
         public static final int menuxd = 1108;
+
+        // ===================== MENU GÓI VIP TUẦN (Lý Tiểu Nương) =====================
+        public static final int MENU_LTN_MAIN = 2100;          // Menu chính LTN
+        public static final int MENU_LTN_VIP = 2101;           // Chọn gói VIP
+        public static final int MENU_LTN_VIP_CONFIRM_1 = 2102; // Xác nhận VIP 1
+        public static final int MENU_LTN_VIP_CONFIRM_2 = 2103; // Xác nhận VIP 2
+        public static final int MENU_LTN_VIP_CONFIRM_3 = 2104; // Xác nhận VIP 3
+        public static final int MENU_LTN_PET = 2105;           // Chọn gói Đệ Tử
+        public static final int MENU_LTN_PET_CONFIRM_1 = 2106; // Xác nhận Đệ Tử 1
+        public static final int MENU_LTN_PET_CONFIRM_2 = 2107; // Xác nhận Đệ Tử 2
+        public static final int MENU_LTN_PET_CONFIRM_3 = 2108; // Xác nhận Đệ Tử 3
+        public static final int MENU_LTN_PET_CONFIRM_4 = 2109; // Xác nhận Đệ Tử 4
 }

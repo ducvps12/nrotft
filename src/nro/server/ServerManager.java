@@ -96,6 +96,7 @@ public class ServerManager {
     public void init() {
         Manager.gI();
         HistoryTransactionDAO.deleteHistory();
+        nro.services.VipPackageService.initTable();
     }
 
     /**
