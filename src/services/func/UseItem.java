@@ -2169,7 +2169,7 @@ public class UseItem {
     private void changePet(Player player, Item item) {
         if (player.pet != null) {
             int gender = player.pet.gender + 1;
-            if (gender > 2) {
+            if (gender > 3) { // cycle through 0,1,2,3 (include Majin)
                 gender = 0;
             }
             PetService.gI().changeNormalPet(player, gender);

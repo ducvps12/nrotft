@@ -975,7 +975,8 @@ public class Pet extends Player {
             case 5:
                 return 1442;
             default:
-                return PET_ID[3][this.gender];
+                int gIdx = Math.min(this.gender, 2);
+                return PET_ID[3][gIdx];
         }
     }
 
@@ -1027,9 +1028,11 @@ public class Pet extends Player {
             }
         }
         if (this.nPoint.power < 1500000) {
-            return PET_ID[this.gender][0];
+            int gIdx = Math.min(this.gender, 2);
+            return PET_ID[gIdx][0];
         } else {
-            return PET_ID[3][this.gender];
+            int gIdx2 = Math.min(this.gender, 2);
+            return PET_ID[3][gIdx2];
         }
     }
 
@@ -1080,7 +1083,8 @@ public class Pet extends Player {
             return inventory.itemsBody.get(0).template.part;
         }
         if (this.nPoint.power < 1500000) {
-            return PET_ID[this.gender][1];
+            int gIdx = Math.min(this.gender, 2);
+            return PET_ID[gIdx][1];
         } else {
             return (short) (gender == ConstPlayer.NAMEC ? 59 : 57);
         }
@@ -1134,7 +1138,8 @@ public class Pet extends Player {
         }
 
         if (this.nPoint.power < 1500000) {
-            return PET_ID[this.gender][2];
+            int gIdx = Math.min(this.gender, 2);
+            return PET_ID[gIdx][2];
         } else {
             return (short) (gender == ConstPlayer.NAMEC ? 60 : 58);
         }
@@ -1274,7 +1279,7 @@ public class Pet extends Player {
                 skill = SkillUtil.createSkill(Skill.SUPER_KAME, 1);
             case 1 ->
                 skill = SkillUtil.createSkill(Skill.MA_PHONG_BA, 1);
-            case 2 ->
+            case 2, 3 -> // Majin uses same as Xayda
                 skill = SkillUtil.createSkill(Skill.LIEN_HOAN_CHUONG, 1);
             default -> {
                 return;

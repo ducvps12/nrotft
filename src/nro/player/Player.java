@@ -1166,6 +1166,7 @@ public class Player implements Runnable {
             case 1:
                 return idOutFitSuperNamec[(playerSkill.getSkillbyId(28).point - 1) - numUseSkill][0];
             case 2:
+            case 3: // Majin reuse Xayda
                 return idOutFitSuperSaiyan[(playerSkill.getSkillbyId(29).point - 1) - numUseSkill][0];
         }
         return -1;
@@ -1178,6 +1179,7 @@ public class Player implements Runnable {
             case 1:
                 return idOutFitSuperNamec[(playerSkill.getSkillbyId(28).point - 1) - numUseSkill][1];
             case 2:
+            case 3: // Majin reuse Xayda
                 return idOutFitSuperSaiyan[(playerSkill.getSkillbyId(29).point - 1) - numUseSkill][1];
         }
         return -1;
@@ -1190,6 +1192,7 @@ public class Player implements Runnable {
             case 1:
                 return idOutFitSuperNamec[(playerSkill.getSkillbyId(28).point - 1) - numUseSkill][2];
             case 2:
+            case 3: // Majin reuse Xayda
                 return idOutFitSuperSaiyan[(playerSkill.getSkillbyId(29).point - 1) - numUseSkill][2];
         }
         return -1;

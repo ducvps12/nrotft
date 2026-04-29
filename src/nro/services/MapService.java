@@ -490,7 +490,7 @@ public class MapService {
     }
 
     public boolean isHome(int mapId) {
-        return mapId >= 21 && mapId <= 23;
+        return (mapId >= 21 && mapId <= 23) || mapId == consts.ConstMap.NHA_MAJIN;
     }
 
     public boolean isMapYardart(int mapId) {
