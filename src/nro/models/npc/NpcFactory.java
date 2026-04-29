@@ -214,6 +214,8 @@ public class NpcFactory {
                     new Brolysama(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.HOA_HONG ->
                     new HoaHong(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.HUNG_VUONG ->
+                    new HungVuong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BANG_DANH_VONG ->
                     new BangDanhVong(mapId, status, cx, cy, tempId, avatar);
                 default ->

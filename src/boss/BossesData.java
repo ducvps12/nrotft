@@ -2124,6 +2124,74 @@ public class BossesData {
                         new String[] {}, // text chat 3
                         AppearType.APPEAR_WITH_ANOTHER);
 
+        // ======================== HUNG VUONG EVENT - SPECIAL BOSSES ========================
+
+        public static final BossData VOI_CHIN_NGA = new BossData(
+                        "Voi Chín Ngà", // name
+                        ConstPlayer.TRAI_DAT, // gender
+                        new short[] { 394, 395, 396, -1, 3, -1 }, // outfit unique - Bojack set
+                        500000, // dame
+                        new long[] { 50000000 }, // hp
+                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
+                                        26, 27, 28,
+                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
+                                        74, 75, 76, 77, 79,
+                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
+                                        107, 108, 109, 110 }, // map join
+                        new int[][] {
+                                        { Skill.DRAGON, 7, 3000 },
+                                        { Skill.KAMEJOKO, 7, 5000 },
+                                        { Skill.GALICK, 5, 4000 } },
+                        new String[] { "|-1|Ta là Voi Chín Ngà, ai dám cản đường ta!" }, // text chat 1
+                        new String[] { "|-1|Hừ! Ngà ta cứng hơn thép!",
+                                        "|-1|Chớ đùa với Voi Chín Ngà!" }, // text chat 2
+                        new String[] { "|-1|Ngà ta... gãy rồi sao..." }, // text chat 3
+                        REST_5_M);
+
+        public static final BossData GA_CHIN_CUA = new BossData(
+                        "Gà Chín Cựa", // name
+                        ConstPlayer.NAMEK, // gender
+                        new short[] { 400, 401, 402, -1, 4, -1 }, // outfit unique - Cooler set
+                        500000, // dame
+                        new long[] { 50000000 }, // hp
+                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
+                                        26, 27, 28,
+                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
+                                        74, 75, 76, 77, 79,
+                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
+                                        107, 108, 109, 110 }, // map join
+                        new int[][] {
+                                        { Skill.DEMON, 7, 3000 },
+                                        { Skill.MASENKO, 7, 5000 },
+                                        { Skill.GALICK, 5, 4000 } },
+                        new String[] { "|-1|Cúc cù cu! Gà Chín Cựa tới đây!" }, // text chat 1
+                        new String[] { "|-1|Cựa ta sắc hơn kiếm!",
+                                        "|-1|Đá gà đi, nếu dám!" }, // text chat 2
+                        new String[] { "|-1|Hết cựa rồi..." }, // text chat 3
+                        REST_5_M);
+
+        public static final BossData NGUA_CHIN_HONG_MAO = new BossData(
+                        "Ngựa Chín Hồng Mao", // name
+                        ConstPlayer.XAYDA, // gender
+                        new short[] { 365, 366, 367, -1, 5, -1 }, // outfit unique - Janemba set
+                        500000, // dame
+                        new long[] { 50000000 }, // hp
+                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
+                                        26, 27, 28,
+                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
+                                        74, 75, 76, 77, 79,
+                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
+                                        107, 108, 109, 110 }, // map join
+                        new int[][] {
+                                        { Skill.ANTOMIC, 7, 3000 },
+                                        { Skill.KAMEJOKO, 7, 5000 },
+                                        { Skill.DRAGON, 5, 4000 } },
+                        new String[] { "|-1|Hí hí! Ngựa Chín Hồng Mao phóng nhanh!" }, // text chat 1
+                        new String[] { "|-1|Bờm ta không ai dám chạm!",
+                                        "|-1|Phi nước đại đây!" }, // text chat 2
+                        new String[] { "|-1|Hồng mao... rụng hết..." }, // text chat 3
+                        REST_5_M);
+
         public static final BossData KARIN = new BossData(
                         "Karin", // name
                         ConstPlayer.XAYDA, // gender

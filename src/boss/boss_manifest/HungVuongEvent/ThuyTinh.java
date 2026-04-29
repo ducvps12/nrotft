@@ -60,6 +60,13 @@ public class ThuyTinh extends Boss {
             it.options.add(new Item.ItemOption(154, 0));
             it.options.add(new Item.ItemOption(93, Util.nextInt(1, 15)));
             Service.gI().dropItemMap(this.zone, it);
+            // Drop Mảnh Cung Tên 10-15
+            ItemMap itMCT = new ItemMap(this.zone, consts.ConstItem.MANH_CUNG_TEN, Util.nextInt(10, 15),
+                    this.location.x, this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24),
+                    playerReward.id);
+            Service.gI().dropItemMap(this.zone, itMCT);
+            // +1 điểm BXH
+            pointBoss(playerReward);
             isReward = true;
             lastTimeReward = System.currentTimeMillis();
             this.chat("Được! hảo hán!");

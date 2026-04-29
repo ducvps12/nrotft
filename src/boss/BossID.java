@@ -197,6 +197,9 @@ public class BossID {
     // ========================HUNGVUONG EVENT========================
     public static final int SON_TINH = -354;
     public static final int THUY_TINH = -355;
+    public static final int VOI_CHIN_NGA = -403;
+    public static final int GA_CHIN_CUA = -404;
+    public static final int NGUA_CHIN_HONG_MAO = -405;
 
     // ========================TET EVENT========================
     public static final int LAN_CON = -371;

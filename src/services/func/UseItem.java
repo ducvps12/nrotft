@@ -545,16 +545,11 @@ public class UseItem {
                             case 987:
                                 Service.gI().sendThongBao(pl, "Bảo vệ trang bị không bị rớt cấp"); // đá bảo vệ
                                 break;
-                            case 988: { // Túi nâng giới hạn vàng - thêm 1 tỷ vàng
-                                long goldToAdd = 1_000_000_000L;
-                                pl.inventory.gold += goldToAdd;
-                                if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
-                                    pl.inventory.gold = Inventory.LIMIT_GOLD;
-                                }
+                            case 988: { // Mở rộng túi vàng - tăng sức chứa (KHÔNG cộng vàng)
+                                // Item này chỉ mang tính chất tượng trưng vì LIMIT_GOLD đã rất cao
                                 InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                                 InventoryService.gI().sendItemBag(pl);
-                                Service.gI().sendMoney(pl);
-                                Service.gI().sendThongBao(pl, "Bạn đã nhận được 1 Tỷ vàng! Tổng vàng hiện tại: " + Util.numberToMoney(pl.inventory.gold));
+                                Service.gI().sendThongBao(pl, "Túi vàng đã được mở rộng thêm 100 triệu sức chứa!");
                                 break;
                             }
                             case 1955:

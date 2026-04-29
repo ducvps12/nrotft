@@ -856,6 +856,29 @@ public class Mob {
                 }
             }
         }
+        // ======================== SỰ KIỆN GIỖ TỔ HÙNG VƯƠNG ========================
+        if (EventManager.HUNG_VUONG) {
+            Player plHV = player;
+            if (plHV.isPet) {
+                plHV = ((Pet) plHV).master;
+            }
+            // Hạt Dưa Hấu - 1/20 mọi map
+            if (Util.isTrue(1, 20)) {
+                list.add(new ItemMap(zone, consts.ConstItem.HAT_DUA_HAU, Util.nextInt(1, 3), x, yEnd, plHV.id));
+            }
+            // Dưa Hấu - 1/30 mọi map
+            if (Util.isTrue(1, 30)) {
+                list.add(new ItemMap(zone, consts.ConstItem.DUA_HAU, 1, x, yEnd, plHV.id));
+            }
+            // Quả Xoài - 1/25 mọi map
+            if (Util.isTrue(1, 25)) {
+                list.add(new ItemMap(zone, consts.ConstItem.QUA_XOAI, 1, x, yEnd, plHV.id));
+            }
+            // Đu Đủ - 1/25 mọi map
+            if (Util.isTrue(1, 25)) {
+                list.add(new ItemMap(zone, consts.ConstItem.DU_DU, 1, x, yEnd, plHV.id));
+            }
+        }
 
         if (player.itemTime.isUseMayDo && (Util.isTrue(15, 100) || (player.actived() && Util.isTrue(1, 10)))
                 && this.tempId > 57 && this.tempId < 66) {
