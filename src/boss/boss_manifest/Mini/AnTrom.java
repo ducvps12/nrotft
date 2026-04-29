@@ -114,7 +114,7 @@ public class AnTrom extends Boss {
                 return;
 
             int mapId = this.zone.map.mapId;
-            if (mapId == 21 || mapId == 22 || mapId == 23) {
+            if (mapId == 21 || mapId == 22 || mapId == 23 || mapId == consts.ConstMap.NHA_MAJIN) {
                 return;
             }
 

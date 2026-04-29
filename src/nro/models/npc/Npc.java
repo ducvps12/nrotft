@@ -169,7 +169,8 @@ public abstract class Npc implements IAtionNpc {
         if (this.tempId == ConstNpc.DAU_THAN) {
             if (player.zone.map.mapId == 21
                     || player.zone.map.mapId == 22
-                    || player.zone.map.mapId == 23) {
+                    || player.zone.map.mapId == 23
+                    || player.zone.map.mapId == consts.ConstMap.NHA_MAJIN) {
                 return true;
             } else {
                 Service.gI().hideWaitDialog(player);
