@@ -33,6 +33,7 @@ public class ThuongDe extends Npc {
     private static final int MENU_GUIDE_THAP = 3111;
     private static final int MENU_GUIDE_QUAY = 3112;
     private static final int MENU_GUIDE_DESTRON = 3113;
+    private static final int MENU_CHOOSE_LUCKY_ROUND_COUNT = 3114;
 
     public ThuongDe(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
@@ -207,12 +208,18 @@ public class ThuongDe extends Npc {
         // Vòng quay May Mắn - menu chọn loại
         else if (menu == ConstNpc.MENU_CHOOSE_LUCKY_ROUND) {
             switch (select) {
-                case 0 -> // Quay bằng Vàng (gold)
-                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GOLD);
-                case 1 -> // Quay bằng Ngọc (gem)
-                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_GEM);
-                case 2 -> // Quay bằng Thỏi Vàng (ticket)
-                    LuckyRound.gI().openCrackBallUI(player, LuckyRound.USING_TICKET);
+                case 0 -> { // Quay bằng Vàng (gold)
+                    player.iDMark.setTypeLuckyRound(LuckyRound.USING_GOLD);
+                    showLuckyRoundCountMenu(player, "Vàng", "25tr vàng/lượt");
+                }
+                case 1 -> { // Quay bằng Ngọc (gem)
+                    player.iDMark.setTypeLuckyRound(LuckyRound.USING_GEM);
+                    showLuckyRoundCountMenu(player, "Ngọc", "4 ngọc/lượt");
+                }
+                case 2 -> { // Quay bằng Thỏi Vàng (ticket)
+                    player.iDMark.setTypeLuckyRound(LuckyRound.USING_TICKET);
+                    showLuckyRoundCountMenu(player, "Thỏi Vàng", "1 thỏi/lượt");
+                }
                 case 3 -> // Rương phụ
                     ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
                 case 4 -> // Xóa rương
@@ -220,6 +227,16 @@ public class ThuongDe extends Npc {
                             ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,
                             "Xóa hết vật phẩm trong\nrương phụ?\n\nKhông thể khôi phục!",
                             "Đồng ý", "Hủy bỏ");
+            }
+        }
+        // Vòng quay May Mắn - Chọn số lượng quay
+        else if (menu == MENU_CHOOSE_LUCKY_ROUND_COUNT) {
+            byte type = player.iDMark.getTypeLuckyRound();
+            switch (select) {
+                case 0 -> LuckyRound.gI().openCrackBallUI(player, type);
+                case 1 -> fastPlayLuckyRound(player, type, (byte) 10);
+                case 2 -> fastPlayLuckyRound(player, type, (byte) 50);
+                case 3 -> fastPlayLuckyRound(player, type, (byte) 100);
             }
         }
         // Quà Thần Điện - menu chính
@@ -262,15 +279,37 @@ public class ThuongDe extends Npc {
         int itemCount = player.inventory.itemsBoxCrackBall.size()
                 - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall);
         this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
-                "Chon loai vong quay:\n\n"
-                        + "Quay Vang: 25tr vang/luot\n"
-                        + "Quay Ngoc: 4 ngoc/luot\n"
-                        + "Quay Thoi Vang: 1 thoi/luot\n\n"
-                        + "Ruong phu: " + itemCount + "/100 mon",
-                "Quay bang\nVang", "Quay bang\nNgoc",
-                "Quay bang\nThoi Vang",
-                "Ruong phu\n(" + itemCount + " mon)",
-                "Xoa het\ntrong ruong", "Dong");
+                "Chọn loại vòng quay:\n\n"
+                        + "Quay Vàng: 25tr vàng/lượt\n"
+                        + "Quay Ngọc: 4 ngọc/lượt\n"
+                        + "Quay Thỏi Vàng: 1 thỏi/lượt\n\n"
+                        + "Rương phụ: " + itemCount + "/100 món",
+                "Quay bằng\nVàng", "Quay bằng\nNgọc",
+                "Quay bằng\nThỏi Vàng",
+                "Rương phụ\n(" + itemCount + " món)",
+                "Xóa hết\ntrong rương", "Đóng");
+    }
+
+    private void showLuckyRoundCountMenu(Player player, String name, String price) {
+        this.createOtherMenu(player, MENU_CHOOSE_LUCKY_ROUND_COUNT,
+                "Chọn số lượng Quay bằng " + name + ":\nGiá: " + price + "\n"
+                        + "Lưu ý: Rương phụ chứa tối đa 100 món.",
+                "Quay tự\nchọn (UI)", "Quay nhanh\nx10", "Quay nhanh\nx50", "Quay nhanh\nx100", "Đóng");
+    }
+
+    private void fastPlayLuckyRound(Player player, byte type, byte count) {
+        int emptyCount = 100 - player.inventory.itemsBoxCrackBall.size();
+        if (count > emptyCount) {
+            Service.gI().sendThongBao(player, "Rương phụ không đủ chỗ trống! (Chỉ còn " + emptyCount + " ô trống)");
+            return;
+        }
+
+        switch (type) {
+            case LuckyRound.USING_GOLD -> LuckyRound.gI().openBallByGold(player, count);
+            case LuckyRound.USING_GEM -> LuckyRound.gI().openBallByGem(player, count);
+            case LuckyRound.USING_TICKET -> LuckyRound.gI().openBallByTicket(player, count);
+        }
+        Service.gI().sendThongBao(player, "Đã quay xong " + count + " lượt. Mở Rương phụ để xem quà!");
     }
 
     // ==========================================

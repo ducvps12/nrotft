@@ -112,7 +112,7 @@ public class LuckyRound {
         }
     }
 
-    private void openBallByGem(Player player, byte count) {
+    public void openBallByGem(Player player, byte count) {
         int gemNeed = (count * PRICE_GEM);
         if (player.inventory.gem < gemNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ ngọc để mở");
@@ -129,7 +129,7 @@ public class LuckyRound {
         }
     }
 
-    private void openBallByGold(Player player, byte count) {
+    public void openBallByGold(Player player, byte count) {
         int goldNeed = (count * PRICE_GOLD);
         if (player.inventory.gold < goldNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ vàng để mở");
@@ -146,7 +146,7 @@ public class LuckyRound {
         }
     }
 
-    private void openBallByTicket(Player player, byte count) {
+    public void openBallByTicket(Player player, byte count) {
         int ticketNeed = (count * PRICE_TICKET);
         Item ticket = InventoryService.gI().findItemBag(player, TICKET);
         if (ticket == null || ticket.quantity < ticketNeed) {
