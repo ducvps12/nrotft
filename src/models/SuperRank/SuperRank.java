@@ -242,6 +242,7 @@ public final class SuperRank implements Runnable {
             PlayerService.gI().changeAndSendTypePK(player, ConstPlayer.NON_PK);
             Service.gI().sendPlayerVS(player, null, (byte) 0);
             player.playerTask.kolTask.addCount();
+            player.martialArtsTournamentWins++;
         }
     }
 

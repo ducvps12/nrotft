@@ -279,7 +279,7 @@ public class VipPackageService {
      */
     private void giveVip1Rewards(Player player) {
         // Thỏi Vàng khóa
-        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 100);
+        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 500);
         thoiVang.itemOptions.add(new ItemOption(30, 1)); // khóa
         InventoryService.gI().addItemBag(player, thoiVang);
 
@@ -302,7 +302,7 @@ public class VipPackageService {
      * VIP 2 (80K): 500 Thỏi Vàng khóa, 5 Bình TNSM, 30 Đá Bảo Vệ, 5 Phiếu GG, Danh hiệu 7 ngày
      */
     private void giveVip2Rewards(Player player) {
-        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 500);
+        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 1000);
         thoiVang.itemOptions.add(new ItemOption(30, 1));
         InventoryService.gI().addItemBag(player, thoiVang);
 
@@ -325,7 +325,7 @@ public class VipPackageService {
      * VIP 3 (400K): 2000 TV khóa, 10 TNSM, 100 ĐBV, 10 PGG, 5 NR 1 sao, Capsule Vàng, DH 7 ngày
      */
     private void giveVip3Rewards(Player player) {
-        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 2000);
+        Item thoiVang = ItemService.gI().createNewItem(THOI_VANG, 5000);
         thoiVang.itemOptions.add(new ItemOption(30, 1));
         InventoryService.gI().addItemBag(player, thoiVang);
 
@@ -353,7 +353,7 @@ public class VipPackageService {
     private void givePetRewards(Player player, int tier) {
         switch (tier) {
             case 1 -> {
-                Item tv = ItemService.gI().createNewItem(THOI_VANG, 50);
+                Item tv = ItemService.gI().createNewItem(THOI_VANG, 200);
                 tv.itemOptions.add(new ItemOption(30, 1));
                 InventoryService.gI().addItemBag(player, tv);
 
@@ -362,7 +362,7 @@ public class VipPackageService {
                 InventoryService.gI().addItemBag(player, tnsm);
             }
             case 2 -> {
-                Item tv = ItemService.gI().createNewItem(THOI_VANG, 200);
+                Item tv = ItemService.gI().createNewItem(THOI_VANG, 500);
                 tv.itemOptions.add(new ItemOption(30, 1));
                 InventoryService.gI().addItemBag(player, tv);
 
@@ -375,7 +375,7 @@ public class VipPackageService {
                 InventoryService.gI().addItemBag(player, daBV);
             }
             case 3 -> {
-                Item tv = ItemService.gI().createNewItem(THOI_VANG, 500);
+                Item tv = ItemService.gI().createNewItem(THOI_VANG, 1000);
                 tv.itemOptions.add(new ItemOption(30, 1));
                 InventoryService.gI().addItemBag(player, tv);
 
@@ -388,7 +388,7 @@ public class VipPackageService {
                 InventoryService.gI().addItemBag(player, daBV);
             }
             case 4 -> {
-                Item tv = ItemService.gI().createNewItem(THOI_VANG, 1000);
+                Item tv = ItemService.gI().createNewItem(THOI_VANG, 2000);
                 tv.itemOptions.add(new ItemOption(30, 1));
                 InventoryService.gI().addItemBag(player, tv);
 
@@ -459,7 +459,7 @@ public class VipPackageService {
         return switch (tier) {
             case 1 -> "|7|━━━ GÓI VIP 1 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getVipPrice(1)) + " VNĐ\n"
-                    + "|8|• 100 Thỏi Vàng (khóa)\n"
+                    + "|8|• 500 Thỏi Vàng (khóa)\n"
                     + "|8|• 3 Bình TNSM (khóa)\n"
                     + "|8|• 10 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 3 Phiếu Giảm Giá\n"
@@ -467,7 +467,7 @@ public class VipPackageService {
             case 2 -> "|7|━━━ GÓI VIP 2 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getVipPrice(2)) + " VNĐ"
                     + (VIP2_PRICE < VIP2_PRICE_ORIGINAL ? " (Gốc " + Util.mumberToLouis(VIP2_PRICE_ORIGINAL) + ")" : "") + "\n"
-                    + "|8|• 500 Thỏi Vàng (khóa)\n"
+                    + "|8|• 1000 Thỏi Vàng (khóa)\n"
                     + "|8|• 5 Bình TNSM (khóa)\n"
                     + "|8|• 30 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 5 Phiếu Giảm Giá\n"
@@ -476,7 +476,7 @@ public class VipPackageService {
             case 3 -> "|7|━━━ GÓI VIP 3 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getVipPrice(3)) + " VNĐ"
                     + (VIP3_PRICE < VIP3_PRICE_ORIGINAL ? " (Gốc " + Util.mumberToLouis(VIP3_PRICE_ORIGINAL) + ")" : "") + "\n"
-                    + "|8|• 2000 Thỏi Vàng (khóa)\n"
+                    + "|8|• 5000 Thỏi Vàng (khóa)\n"
                     + "|8|• 10 Bình TNSM (khóa)\n"
                     + "|8|• 100 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 10 Phiếu Giảm Giá\n"
@@ -492,14 +492,14 @@ public class VipPackageService {
             case 1 -> "|7|━━━ GÓI ĐỆ TỬ 1 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(1)) + " VNĐ\n"
                     + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
-                    + "|8|• 50 Thỏi Vàng (khóa)\n"
+                    + "|8|• 200 Thỏi Vàng (khóa)\n"
                     + "|8|• 3 Bình TNSM (khóa)\n"
                     + "|3|Đệ tử giữ mãi, không hết hạn!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             case 2 -> "|7|━━━ GÓI ĐỆ TỬ 2 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(2)) + " VNĐ\n"
                     + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
-                    + "|8|• 200 Thỏi Vàng (khóa)\n"
+                    + "|8|• 500 Thỏi Vàng (khóa)\n"
                     + "|8|• 5 Bình TNSM (khóa)\n"
                     + "|8|• 10 Đá Bảo Vệ (khóa)\n"
                     + "|3|Đệ tử giữ mãi, không hết hạn!\n"
@@ -507,7 +507,7 @@ public class VipPackageService {
             case 3 -> "|7|━━━ GÓI ĐỆ TỬ 3 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(3)) + " VNĐ\n"
                     + "|2|• Đệ Tử Mabu - mạnh (VĨNH VIỄN)\n"
-                    + "|8|• 500 Thỏi Vàng (khóa)\n"
+                    + "|8|• 1000 Thỏi Vàng (khóa)\n"
                     + "|8|• 10 Bình TNSM (khóa)\n"
                     + "|8|• 20 Đá Bảo Vệ (khóa)\n"
                     + "|3|Nếu đã có đệ → nâng cấp Mabu!\n"
@@ -515,7 +515,7 @@ public class VipPackageService {
             case 4 -> "|7|━━━ GÓI ĐỆ TỬ 4 ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(4)) + " VNĐ\n"
                     + "|2|• Đệ Black Goku - siêu mạnh (VĨNH VIỄN)\n"
-                    + "|8|• 1000 Thỏi Vàng (khóa)\n"
+                    + "|8|• 2000 Thỏi Vàng (khóa)\n"
                     + "|8|• 15 Bình TNSM (khóa)\n"
                     + "|8|• 30 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 5 Phiếu Giảm Giá\n"

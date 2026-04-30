@@ -222,11 +222,18 @@ public class ThuongDe extends Npc {
                 }
                 case 3 -> // Rương phụ
                     ShopService.gI().opendShop(player, "ITEMS_LUCKY_ROUND", true);
-                case 4 -> // Xóa rương
+                case 4 -> { // Xóa rương - Làm mới về 0
+                    int count = player.inventory.itemsBoxCrackBall.size()
+                            - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall);
                     NpcService.gI().createMenuConMeo(player,
                             ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, this.avartar,
-                            "Xóa hết vật phẩm trong\nrương phụ?\n\nKhông thể khôi phục!",
-                            "Đồng ý", "Hủy bỏ");
+                            "|8|⚠ XÁC NHẬN LÀM MỚI RƯƠNG\n\n"
+                                    + "|1|Số vật phẩm sẽ bị xóa: " + count + "\n\n"
+                                    + "|2|Toàn bộ vật phẩm trong rương\n"
+                                    + "|2|sẽ bị hủy VĨNH VIỄN!\n\n"
+                                    + "|8|Không thể khôi phục!",
+                            "Xóa hết\n(" + count + " món)", "Hủy bỏ");
+                }
             }
         }
         // Vòng quay May Mắn - Chọn số lượng quay
@@ -234,9 +241,9 @@ public class ThuongDe extends Npc {
             byte type = player.iDMark.getTypeLuckyRound();
             switch (select) {
                 case 0 -> LuckyRound.gI().openCrackBallUI(player, type);
-                case 1 -> fastPlayLuckyRound(player, type, (byte) 10);
-                case 2 -> fastPlayLuckyRound(player, type, (byte) 50);
-                case 3 -> fastPlayLuckyRound(player, type, (byte) 100);
+                case 1 -> fastPlayLuckyRound(player, type, 10);
+                case 2 -> fastPlayLuckyRound(player, type, 50);
+                case 3 -> fastPlayLuckyRound(player, type, 100);
             }
         }
         // Quà Thần Điện - menu chính
@@ -279,11 +286,12 @@ public class ThuongDe extends Npc {
         int itemCount = player.inventory.itemsBoxCrackBall.size()
                 - InventoryService.gI().getCountEmptyListItem(player.inventory.itemsBoxCrackBall);
         this.createOtherMenu(player, ConstNpc.MENU_CHOOSE_LUCKY_ROUND,
-                "Chọn loại vòng quay:\n\n"
-                        + "Quay Vàng: 25tr vàng/lượt\n"
-                        + "Quay Ngọc: 4 ngọc/lượt\n"
-                        + "Quay Thỏi Vàng: 1 thỏi/lượt\n\n"
-                        + "Rương phụ: " + itemCount + "/100 món",
+                "|7|━━━ VÒNG QUAY MAY MẮN ━━━\n"
+                        + "|1|Quay Vàng: 25 triệu vàng/lượt\n"
+                        + "|1|Quay Ngọc: 4 ngọc/lượt\n"
+                        + "|2|Quay Thỏi Vàng (VIP): 1 thỏi/lượt\n"
+                        + "|8|Rương phụ: " + itemCount + "/1000 món\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
                 "Quay bằng\nVàng", "Quay bằng\nNgọc",
                 "Quay bằng\nThỏi Vàng",
                 "Rương phụ\n(" + itemCount + " món)",
@@ -292,13 +300,15 @@ public class ThuongDe extends Npc {
 
     private void showLuckyRoundCountMenu(Player player, String name, String price) {
         this.createOtherMenu(player, MENU_CHOOSE_LUCKY_ROUND_COUNT,
-                "Chọn số lượng Quay bằng " + name + ":\nGiá: " + price + "\n"
-                        + "Lưu ý: Rương phụ chứa tối đa 100 món.",
+                "|7|━━━ QUAY BẰNG " + name.toUpperCase() + " ━━━\n"
+                        + "|1|Giá: " + price + "\n"
+                        + "|8|Rương phụ chứa tối đa 1000 món.\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
                 "Quay tự\nchọn (UI)", "Quay nhanh\nx10", "Quay nhanh\nx50", "Quay nhanh\nx100", "Đóng");
     }
 
-    private void fastPlayLuckyRound(Player player, byte type, byte count) {
-        int emptyCount = 100 - player.inventory.itemsBoxCrackBall.size();
+    private void fastPlayLuckyRound(Player player, byte type, int count) {
+        int emptyCount = 1000 - player.inventory.itemsBoxCrackBall.size();
         if (count > emptyCount) {
             Service.gI().sendThongBao(player, "Rương phụ không đủ chỗ trống! (Chỉ còn " + emptyCount + " ô trống)");
             return;
@@ -317,50 +327,55 @@ public class ThuongDe extends Npc {
     // ==========================================
     private void showGiftMainMenu(Player player) {
         this.createOtherMenu(player, MENU_GIFT_MAIN,
-                "Chao " + player.name + "!\n\n"
-                        + "Than Dien ban tang phan\n"
-                        + "thuong dac biet cho chien binh.\n\n"
-                        + "Cach nhan qua:\n"
-                        + "- Vong quay May Man\n"
-                        + "- Thap PoPo (clear tang)\n"
-                        + "- Luyen tap voi Thuong De\n"
-                        + "- Destron Gas (tai Mr.PoPo)",
-                "Cai Trang", "Vat Pham", "Huong Dan", "Dong");
+                "|7|━━━ QUÀ THẦN ĐIỆN ━━━\n"
+                        + "|1|Chào " + player.name + "!\n\n"
+                        + "|8|Thần Điện ban tặng phần\n"
+                        + "|8|thưởng đặc biệt cho chiến binh.\n\n"
+                        + "|2|Cách nhận quà:\n"
+                        + "|1|• Vòng Quay May Mắn\n"
+                        + "|1|• Tháp PôPô (clear tầng)\n"
+                        + "|1|• Luyện tập với Thượng Đế\n"
+                        + "|1|• Destron Gas (tại Mr.PôPô)\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                "Cải Trang", "Vật Phẩm", "Hướng Dẫn", "Đóng");
     }
 
     private void showGiftCostumes(Player player) {
         this.createOtherMenu(player, MENU_GIFT_COSTUMES,
-                "CAI TRANG HAP DAN\n\n"
-                        + "Vong Quay Thoi Vang (VIP):\n"
-                        + "- CT SSR: SD+35-50% HP+35-50%\n"
-                        + "  KI+35-50% (Cuc hiem!)\n"
-                        + "- CT VIP: SD+20-40% HP+20-40%\n\n"
-                        + "Vong Quay Vang/Ngoc:\n"
-                        + "- CT Tot: SD+20-30% HP+20-30%\n"
-                        + "- CT Thuong: SD+10-25% HP+10-25%\n\n"
-                        + "Shop Xu (Santa):\n"
-                        + "- CT Co ban: SD+10-18%\n"
-                        + "  HP+10-18% KI+10-18%",
-                "Quay lai");
+                "|7|━━ CẢI TRANG HẤP DẪN ━━\n\n"
+                        + "|2|▶ Quay Thỏi Vàng (VIP):\n"
+                        + "|8|• CT SSR: SĐ+35-50% HP+35-50%\n"
+                        + "|8|  KI+35-50% (Cực hiếm! 1/2500)\n"
+                        + "|8|• CT VIP: SĐ+20-40% HP+20-40%\n"
+                        + "|8|  Tỉ lệ ra CT: ~2%\n\n"
+                        + "|2|▶ Quay Vàng / Ngọc:\n"
+                        + "|8|• CT Tốt: SĐ+20-30% HP+20-30%\n"
+                        + "|8|  Tỉ lệ: 1/20 (5%)\n"
+                        + "|8|• CT Thường: SĐ+10-25% HP+10-25%\n"
+                        + "|8|  Tỉ lệ: 50%\n\n"
+                        + "|2|▶ Shop Xu (Santa):\n"
+                        + "|8|• CT Cơ bản: SĐ+10-18%\n"
+                        + "|8|  HP+10-18% KI+10-18%",
+                "Quay lại");
     }
 
     private void showGiftItems(Player player) {
         this.createOtherMenu(player, MENU_GIFT_ITEMS,
-                "VAT PHAM DAC BIET\n\n"
-                        + "Tu Vong Quay May Man:\n"
-                        + "- Thoi vang (ban duoc vang)\n"
-                        + "- Capsule thoi trang 5-7 ngay\n"
-                        + "- Sach tien hoa Lv1-5\n"
-                        + "- Da xanh lam nang cap\n\n"
-                        + "Tu Thap PoPo:\n"
-                        + "- Vang + Ngoc theo tang\n"
-                        + "- Trang bi manh (tang cao)\n"
-                        + "- Do hiem (tang 50+)\n\n"
-                        + "Tu Rong Than 1 Sao:\n"
-                        + "- 100K ngoc + 100 thoi vang\n"
-                        + "- +2 Ty SM va tiem nang\n"
-                        + "- Gang tay len cap, CM+2%",
-                "Quay lai");
+                "|7|━━ VẬT PHẨM ĐẶC BIỆT ━━\n\n"
+                        + "|2|▶ Từ Vòng Quay May Mắn:\n"
+                        + "|8|• Thỏi Vàng (bán được vàng)\n"
+                        + "|8|• Capsule thời trang 5-7 ngày\n"
+                        + "|8|• Sách Tiến Hóa Lv1-5\n"
+                        + "|8|• Đá Xanh Lam nâng cấp\n\n"
+                        + "|2|▶ Từ Tháp PôPô:\n"
+                        + "|8|• Vàng + Ngọc theo tầng\n"
+                        + "|8|• Trang bị mạnh (tầng cao)\n"
+                        + "|8|• Đồ hiếm (tầng 50+)\n\n"
+                        + "|2|▶ Từ Rồng Thần 1 Sao:\n"
+                        + "|8|• 100K ngọc + 100 Thỏi Vàng\n"
+                        + "|8|• +2 Tỷ SM và Tiềm Năng\n"
+                        + "|8|• Găng tay lên cấp, CM+2%",
+                "Quay lại");
     }
 
     // ==========================================
@@ -368,76 +383,79 @@ public class ThuongDe extends Npc {
     // ==========================================
     private void showGuideMenu(Player player) {
         this.createOtherMenu(player, MENU_GUIDE,
-                "HUONG DAN THAN DIEN\n\n"
-                        + "Chon muc ban muon xem:\n\n"
-                        + "1. Luyen tap va thang cap\n"
-                        + "2. Thap PoPo va phan thuong\n"
-                        + "3. Vong quay May Man\n"
-                        + "4. Destron Gas (bang hoi)",
-                "Luyen tap", "Thap PoPo",
-                "Vong quay", "Destron Gas",
-                "Quay lai");
+                "|7|━━ HƯỚNG DẪN THẦN ĐIỆN ━━\n\n"
+                        + "|8|Chọn mục bạn muốn xem:\n\n"
+                        + "|1|1. Luyện tập và thăng cấp\n"
+                        + "|1|2. Tháp PôPô và phần thưởng\n"
+                        + "|1|3. Vòng Quay May Mắn\n"
+                        + "|1|4. Destron Gas (bang hội)",
+                "Luyện Tập", "Tháp PôPô",
+                "Vòng Quay", "Destron Gas",
+                "Quay lại");
     }
 
     private void showGuideLuyen(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_LUYEN,
-                "LUYEN TAP VA THANG CAP\n\n"
-                        + "Buoc 1: Tap voi Mr.PoPo\n"
-                        + "- Tang 80 SM/phut\n"
-                        + "- Thang PoPo = mo Thuong De\n\n"
-                        + "Buoc 2: Tap voi Thuong De\n"
-                        + "- Tang 160 SM/phut\n"
-                        + "- Thang = mo Kaio (+320)\n\n"
-                        + "Buoc 3: Tap tu dong\n"
-                        + "- Offline 30 phut = tu tap\n"
-                        + "- Toc do 1280 SM/phut\n"
-                        + "- Phi 1 ngoc/lan dang ky",
-                "Quay lai");
+                "|7|━━ LUYỆN TẬP VÀ THĂNG CẤP ━━\n\n"
+                        + "|2|▶ Bước 1: Tập với Mr.PôPô\n"
+                        + "|8|• Tăng 80 SM/phút\n"
+                        + "|8|• Thắng PôPô = mở Thượng Đế\n\n"
+                        + "|2|▶ Bước 2: Tập với Thượng Đế\n"
+                        + "|8|• Tăng 160 SM/phút\n"
+                        + "|8|• Thắng = mở Kaio (+320)\n\n"
+                        + "|2|▶ Bước 3: Tập tự động\n"
+                        + "|8|• Offline 30 phút = tự tập\n"
+                        + "|8|• Tốc độ 1280 SM/phút\n"
+                        + "|8|• Phí 1 ngọc/lần đăng ký",
+                "Quay lại");
     }
 
     private void showGuideThap(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_THAP,
-                "THAP POPO VA PHAN THUONG\n\n"
-                        + "Cach choi:\n"
-                        + "- Clear tang = nhan thuong\n"
-                        + "- Cang cao cang nhieu qua\n"
-                        + "- Reset hang ngay\n\n"
-                        + "Phan thuong:\n"
-                        + "- Tang 1-20: Vang + EXP\n"
-                        + "- Tang 20-50: Ngoc + Do tot\n"
-                        + "- Tang 50+: Do hiem, CT VIP",
-                "Quay lai");
+                "|7|━━ THÁP PÔPÔ VÀ PHẦN THƯỞNG ━━\n\n"
+                        + "|2|▶ Cách chơi:\n"
+                        + "|8|• Clear tầng = nhận thưởng\n"
+                        + "|8|• Càng cao càng nhiều quà\n"
+                        + "|8|• Reset hàng ngày\n\n"
+                        + "|2|▶ Phần thưởng:\n"
+                        + "|8|• Tầng 1-20: Vàng + EXP\n"
+                        + "|8|• Tầng 20-50: Ngọc + Đồ tốt\n"
+                        + "|8|• Tầng 50+: Đồ hiếm, CT VIP",
+                "Quay lại");
     }
 
     private void showGuideQuay(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_QUAY,
-                "VONG QUAY MAY MAN\n\n"
-                        + "3 loai vong quay:\n\n"
-                        + "1. Quay bang Vang\n"
-                        + "- Gia: 25 trieu vang/luot\n"
-                        + "- Thuong: do thuong + vang\n\n"
-                        + "2. Quay bang Ngoc\n"
-                        + "- Gia: 4 ngoc/luot\n"
-                        + "- Thuong: cai trang, do VIP\n\n"
-                        + "3. Quay bang Thoi Vang\n"
-                        + "- Gia: 1 thoi vang/luot\n"
-                        + "- Thuong: cai trang hiem",
-                "Quay lai");
+                "|7|━━ VÒNG QUAY MAY MẮN ━━\n\n"
+                        + "|2|▶ 1. Quay bằng Vàng (25tr/lượt)\n"
+                        + "|8|• 50% Cải Trang SĐ+10-25%\n"
+                        + "|8|• 5% Cải Trang Tốt SĐ+20-30%\n"
+                        + "|8|• 5% Sách Tiến Hóa Lv1-5\n"
+                        + "|8|• Còn lại: Vàng thưởng\n\n"
+                        + "|2|▶ 2. Quay bằng Ngọc (4 ngọc/lượt)\n"
+                        + "|8|• Tương tự quay Vàng\n\n"
+                        + "|2|▶ 3. Quay Thỏi Vàng (1 thỏi/lượt)\n"
+                        + "|8|• 2% CT VIP SĐ+20-40% HP+20-40%\n"
+                        + "|8|• 0.04% CT SSR SĐ+35-50% (CỰC HIẾM)\n"
+                        + "|8|• 1% Capsule Vàng x1-5\n"
+                        + "|8|• 2% Phụ kiện VIP SĐ+20-45%\n"
+                        + "|8|• 33% Vàng thưởng 5-50K",
+                "Quay lại");
     }
 
     private void showGuideDestron(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_DESTRON,
-                "DESTRON GAS (BANG HOI)\n\n"
-                        + "Yeu cau:\n"
-                        + "- Can co bang hoi\n"
-                        + "- Noi chuyen Mr.PoPo\n\n"
-                        + "Cach choi:\n"
-                        + "- Ca bang vao danh boss\n"
-                        + "- Diem = xep hang bang\n\n"
-                        + "Phan thuong:\n"
-                        + "- Diem danh vong bang hoi\n"
-                        + "- Vang + Ngoc + Do hiem\n"
-                        + "- Top bang = thuong lon",
-                "Quay lai");
+                "|7|━━ DESTRON GAS (BANG HỘI) ━━\n\n"
+                        + "|2|▶ Yêu cầu:\n"
+                        + "|8|• Cần có bang hội\n"
+                        + "|8|• Nói chuyện Mr.PôPô\n\n"
+                        + "|2|▶ Cách chơi:\n"
+                        + "|8|• Cả bang vào đánh boss\n"
+                        + "|8|• Điểm = xếp hạng bang\n\n"
+                        + "|2|▶ Phần thưởng:\n"
+                        + "|8|• Điểm danh vọng bang hội\n"
+                        + "|8|• Vàng + Ngọc + Đồ hiếm\n"
+                        + "|8|• Top bang = thưởng lớn",
+                "Quay lại");
     }
 }

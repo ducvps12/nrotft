@@ -40,6 +40,7 @@ public class BabyMonKeyYellow extends Boss {
         // Cộng điểm cho người chơi
         plKill.effect.addPointTrumSanBoss();
         plKill.playerTask.kolTask.addCount();
+        plKill.bossBabyDefeatParticipationCount++;
 
         // Random index cho TL_GN và TL_AWJ
         byte randomDoGN = (byte) rnd.nextInt(Manager.itemIds_tl_GN.length);

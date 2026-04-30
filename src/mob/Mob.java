@@ -1174,6 +1174,18 @@ public class Mob {
                 list.add(new ItemMap(zone, 1778, soLuong, x, yEnd, player.id));
             }
         }
+        if (player.kolQuestStage == 2 || player.kolVIPQuestStage == 2) {
+            int baseTileDrop = 20;
+            int tileDrop = baseTileDrop;
+            if (player.itemTime.isCoBonLa) {
+                tileDrop = (int) (baseTileDrop * 1.15);
+            }
+
+            if (Util.isTrue(tileDrop, 100)) {
+                int soLuong = 1;
+                list.add(new ItemMap(zone, 1824, soLuong, x, yEnd, player.id));
+            }
+        }
         if (MapService.gI().isMapRiengTu(mapid)) {
             int baseTileDrop = 3;
             int tileDrop = baseTileDrop;

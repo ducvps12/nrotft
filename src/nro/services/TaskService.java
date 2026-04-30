@@ -1733,6 +1733,7 @@ public class TaskService {
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         break;
                     case ConstTask.VERY_HARD:
+                        player.dailySuperHardQuestCompletionCount++;
                         goldReward = ConstTask.GOLD_VERY_HARD;
                         if (EventManager.TEACHERS_DAY && quetre != null) {
                             quetre.quantity += 4;
@@ -1744,6 +1745,7 @@ public class TaskService {
                         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.NONG_DAN_CHAM_CHI, 1);
                         break;
                     case ConstTask.HELL:
+                        player.dailySuperHardQuestCompletionCount++;
                         goldReward = ConstTask.GOLD_HELL;
                         if (EventManager.TEACHERS_DAY && quetre != null) {
                             quetre.quantity += 5;

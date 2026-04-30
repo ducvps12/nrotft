@@ -25,7 +25,7 @@ public class Santa extends Npc {
     // Shopee Affiliate config
     private static final String SHOPEE_LINK = "https://s.shopee.vn/1BIoU3HenV";
     private static final int SHOPEE_REWARD_VND = 10_000; // 10k VND
-    private static final long SHOPEE_COOLDOWN = 24 * 60 * 60 * 1000L; // 24h
+    private static final long SHOPEE_COOLDOWN = 48 * 60 * 60 * 1000L; // 48h
     private static final ConcurrentHashMap<Integer, Long> lastShopeeClick = new ConcurrentHashMap<>();
 
     public Santa(int mapId, int status, int cx, int cy, int tempId, int avatar) {
@@ -220,58 +220,13 @@ public class Santa extends Npc {
     // ==========================================
     private void openMenuShopee(Player player) {
         Long lastClick = lastShopeeClick.get((int) player.id);
-        String cooldownInfo = "";
         if (lastClick != null && (System.currentTimeMillis() - lastClick) < SHOPEE_COOLDOWN) {
             long remaining = SHOPEE_COOLDOWN - (System.currentTimeMillis() - lastClick);
             long hours = remaining / (60 * 60 * 1000);
             long mins = (remaining % (60 * 60 * 1000)) / (60 * 1000);
-            cooldownInfo = "\nĐã nhận hôm nay. Còn " + hours + "h" + mins + "p";
-        } else {
-            cooldownInfo = "\nSẵn sàng nhận thưởng!";
-        }
-
-        createOtherMenu(
-                player,
-                MENU_SHOPEE,
-                "UNG HO ADMIN QUA SHOPEE\n"
-                        + "Mua sắm qua link ủng hộ Admin\n"
-                        + "Nhận ngay " + Util.numberToMoney(SHOPEE_REWARD_VND) + " VNĐ!\n"
-                        + "Link: " + SHOPEE_LINK
-                        + cooldownInfo,
-                "Đã ủng hộ\nNhận thưởng",
-                "Đóng");
-    }
-
-    private void openMenuShopeeConfirm(Player player) {
-        Long lastClick = lastShopeeClick.get((int) player.id);
-        if (lastClick != null && (System.currentTimeMillis() - lastClick) < SHOPEE_COOLDOWN) {
-            long remaining = SHOPEE_COOLDOWN - (System.currentTimeMillis() - lastClick);
-            long hours = remaining / (60 * 60 * 1000);
-            long mins = (remaining % (60 * 60 * 1000)) / (60 * 1000);
-            Service.gI().sendThongBao(player,
-                    "Bạn đã nhận thưởng rồi!\nCòn " + hours + "h" + mins + "p nữa.");
-            return;
-        }
-
-        createOtherMenu(
-                player,
-                MENU_SHOPEE_CONFIRM,
-                "XÁC NHẬN ỦNG HỘ\n"
-                        + "Bạn đã truy cập link Shopee\n"
-                        + "và ủng hộ Admin chưa?\n"
-                        + "Link: " + SHOPEE_LINK + "\n"
-                        + "Nhấn xác nhận để nhận " + Util.numberToMoney(SHOPEE_REWARD_VND) + " VNĐ",
-                "Xác nhận\nĐã ủng hộ",
-                "Quay lại");
-    }
-
-    private void claimShopeeReward(Player player) {
-        Long lastClick = lastShopeeClick.get((int) player.id);
-        if (lastClick != null && (System.currentTimeMillis() - lastClick) < SHOPEE_COOLDOWN) {
-            long remaining = SHOPEE_COOLDOWN - (System.currentTimeMillis() - lastClick);
-            long hours = remaining / (60 * 60 * 1000);
-            Service.gI().sendThongBao(player,
-                    "Bạn đã nhận thưởng rồi! Còn " + hours + "h nữa.");
+            Service.gI().LinkService(player, 10684,
+                    "Bạn đã nhận thưởng rồi!\nCòn " + hours + "h" + mins + "p nữa mới nhận tiếp được.\n\nHãy nhấn Mở Shopee để mua sắm ủng hộ Admin nhé!",
+                    SHOPEE_LINK, "Mở Shopee");
             return;
         }
 
@@ -289,13 +244,22 @@ public class Santa extends Npc {
         lastShopeeClick.put((int) player.id, System.currentTimeMillis());
 
         Service.gI().sendMoney(player);
-        Service.gI().sendThongBaoFromAdmin(player,
+        
+        Service.gI().LinkService(player, 10684,
                 "CẢM ƠN BẠN ĐÃ ỦNG HỘ!\n"
-                        + "Nhận thưởng: +" + Util.numberToMoney(SHOPEE_REWARD_VND) + " VNĐ\n"
-                        + "Hãy mua sắm qua link:\n"
-                        + SHOPEE_LINK + "\n"
-                        + "để ủng hộ Admin nhé!");
+                        + "Nhận thưởng: +" + Util.numberToMoney(SHOPEE_REWARD_VND) + " VNĐ\n\n"
+                        + "Hệ thống sẽ tự động chuyển hướng,\n"
+                        + "nhấn Mở Shopee để bắt đầu mua sắm ủng hộ Admin!",
+                SHOPEE_LINK, "Mở Shopee");
 
         System.out.println("[SHOPEE] " + player.name + " claimed affiliate reward " + SHOPEE_REWARD_VND + " VND");
+    }
+
+    private void openMenuShopeeConfirm(Player player) {
+        // Không dùng nữa, đã gộp vào openMenuShopee
+    }
+
+    private void claimShopeeReward(Player player) {
+        // Không dùng nữa, đã gộp vào openMenuShopee
     }
 }

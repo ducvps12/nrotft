@@ -20,7 +20,7 @@ import nro.services.ItemService;
 
 public class LuckyRound {
 
-    private static final byte MAX_ITEM_IN_BOX = 100;
+    private static final short MAX_ITEM_IN_BOX = 1000;
 
     // 1 gem and ruby
     public static final byte USING_GEM = 2;
@@ -51,9 +51,16 @@ public class LuckyRound {
             for (int i = 0; i < 7; i++) {
                 msg.writer().writeShort(419 + i);
             }
-            msg.writer().writeByte(type); // type price
-            msg.writer().writeInt(type == USING_GEM ? PRICE_GEM : PRICE_GOLD); // price
-            msg.writer().writeShort(-1); // id ticket
+            if (type == USING_TICKET) {
+                // Thỏi Vàng: gửi type=0 (gold mode), price=0, ticketId=457
+                msg.writer().writeByte(USING_GOLD);
+                msg.writer().writeInt(0);
+                msg.writer().writeShort(TICKET); // 457 - client sẽ check item này trong túi
+            } else {
+                msg.writer().writeByte(type);
+                msg.writer().writeInt(type == USING_GEM ? PRICE_GEM : PRICE_GOLD);
+                msg.writer().writeShort(-1);
+            }
             pl.sendMessage(msg);
         } catch (IOException e) {
         } finally {
@@ -73,9 +80,15 @@ public class LuckyRound {
             for (int i = 0; i < 7; i++) {
                 msg.writer().writeShort(419 + i);
             }
-            msg.writer().writeByte(type); // type price
-            msg.writer().writeInt(type == USING_GEM ? PRICE_GEM : PRICE_GOLD); // price
-            msg.writer().writeShort(-1); // id ticket
+            if (type == USING_TICKET) {
+                msg.writer().writeByte(USING_GOLD);
+                msg.writer().writeInt(0);
+                msg.writer().writeShort(TICKET);
+            } else {
+                msg.writer().writeByte(type);
+                msg.writer().writeInt(type == USING_GEM ? PRICE_GEM : PRICE_GOLD);
+                msg.writer().writeShort(-1);
+            }
             pl.sendMessage(msg);
         } catch (IOException e) {
         } finally {
@@ -112,7 +125,7 @@ public class LuckyRound {
         }
     }
 
-    public void openBallByGem(Player player, byte count) {
+    public void openBallByGem(Player player, int count) {
         int gemNeed = (count * PRICE_GEM);
         if (player.inventory.gem < gemNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ ngọc để mở");
@@ -129,7 +142,7 @@ public class LuckyRound {
         }
     }
 
-    public void openBallByGold(Player player, byte count) {
+    public void openBallByGold(Player player, int count) {
         int goldNeed = (count * PRICE_GOLD);
         if (player.inventory.gold < goldNeed) {
             Service.gI().sendThongBao(player, "Bạn không đủ vàng để mở");
@@ -146,7 +159,7 @@ public class LuckyRound {
         }
     }
 
-    public void openBallByTicket(Player player, byte count) {
+    public void openBallByTicket(Player player, int count) {
         int ticketNeed = (count * PRICE_TICKET);
         Item ticket = InventoryService.gI().findItemBag(player, TICKET);
         if (ticket == null || ticket.quantity < ticketNeed) {

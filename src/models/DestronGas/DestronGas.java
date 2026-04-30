@@ -214,6 +214,7 @@ public class DestronGas implements Runnable {
                     Player pl = zone.getPlayers().get(i);
                     kickOutOfKGHD(pl);
                     pl.playerTask.kolTask.addCount();
+                    pl.destronGas70CompletionCount++;
                 }
             }
 

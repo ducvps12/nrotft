@@ -17,7 +17,7 @@ public class QuaToriBot {
             return;
         }
 
-        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 500);
+        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 5000);
         Item PhieuGiamGia = ItemService.gI().createNewItem((short) 459, 10);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 20);
         Item CaiTrang = ItemService.gI().createNewItem((short) 883, 1);
@@ -62,7 +62,7 @@ public class QuaToriBot {
             return;
         }
 
-        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 2000);
+        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 10000);
         Item PhieuGiamGia = ItemService.gI().createNewItem((short) 459, 10);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 150);
         Item CaiTrang = ItemService.gI().createNewItem((short) 883, 1);
@@ -107,7 +107,7 @@ public class QuaToriBot {
             return;
         }
 
-        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 10000);
+        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 20000);
         Item PhieuGiamGia = ItemService.gI().createNewItem((short) 459, 10);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 500);
         Item CaiTrang = ItemService.gI().createNewItem((short) 1941, 1);
@@ -156,7 +156,7 @@ public class QuaToriBot {
             return;
         }
 
-        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 15000);
+        Item ThoiVang = ItemService.gI().createNewItem((short) 457, 30000);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 500);
         Item CaiTrang = ItemService.gI().createNewItem((short) 1961, 1);
         Item TheTieuDoiTruongVang = ItemService.gI().createNewItem((short) 956, 20);

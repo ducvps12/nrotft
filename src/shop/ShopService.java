@@ -348,14 +348,17 @@ public class ShopService {
             return;
         }
         player.iDMark.setTagNameShop(tagName);
+        // Giới hạn hiển thị tối đa 200 items/lần để tránh tràn packet
+        int displayCount = Math.min(items.size(), 200);
         Message msg = null;
         try {
             msg = new Message(-44);
             msg.writer().writeByte(4);
             msg.writer().writeByte(1);
             msg.writer().writeUTF(items.size() + "Vật\nphẩm");
-            msg.writer().writeByte(items.size());
-            for (Item item : items) {
+            msg.writer().writeByte(displayCount > 127 ? 127 : displayCount);
+            for (int i = 0; i < Math.min(displayCount, 127); i++) {
+                Item item = items.get(i);
                 msg.writer().writeShort(item.template.id);
                 msg.writer().writeUTF("LUCKY DRAGON BALL");
                 msg.writer().writeByte(item.itemOptions.size() + 1);
