@@ -1056,7 +1056,7 @@ public class NPoint {
         }
         // Xử lý phù
         if (this.player.zone != null && MapService.gI().isMapBlackBallWar(this.player.zone.map.mapId)) {
-            hpMax *= this.player.effectSkin.xHPKI;
+            hpMax = (long)(hpMax * this.player.effectSkin.xHPKI);
         }
 
         // Xử lý thức ăn 2
@@ -1102,7 +1102,7 @@ public class NPoint {
             }
 
             if (this.player.itemTime.isUseBoHuyet2) {
-                hpMax *= 2.2;
+                hpMax = hpMax * 22 / 10; // x2.2
             }
         }
 
@@ -1278,7 +1278,7 @@ public class NPoint {
         }
         // Xử lý phù
         if (this.player.zone != null && MapService.gI().isMapBlackBallWar(this.player.zone.map.mapId)) {
-            mpMax *= this.player.effectSkin.xHPKI;
+            mpMax = (long)(mpMax * this.player.effectSkin.xHPKI);
         }
 
         // Xử lý gogeta
@@ -1335,7 +1335,7 @@ public class NPoint {
             }
 
             if (this.player.itemTime.isUseBoKhi2) {
-                mpMax *= 2.2;
+                mpMax = mpMax * 22 / 10; // x2.2
             }
         }
 
@@ -1549,7 +1549,7 @@ public class NPoint {
             }
 
             if (this.player.itemTime.isUseCuongNo2) {
-                dame *= 2.2;
+                dame = dame * 22 / 10; // x2.2
             }
         }
 
@@ -1591,7 +1591,7 @@ public class NPoint {
 
         // Xử lý phù
         if (this.player.zone != null && MapService.gI().isMapBlackBallWar(this.player.zone.map.mapId)) {
-            dame *= this.player.effectSkin.xDame;
+            dame = (long)(dame * this.player.effectSkin.xDame);
         }
 
         // Xử lý hợp thể
