@@ -29,7 +29,7 @@ public class VoiChinNga extends Boss {
     private long lastTimeReward;
 
     public VoiChinNga() throws Exception {
-        super(HUNGVUONG_EVENT, BossID.VOI_CHIN_NGA, true, false, BossesData.VOI_CHIN_NGA);
+        super(HUNGVUONG_EVENT, BossID.VOI_CHIN_NGA, false, false, BossesData.VOI_CHIN_NGA);
     }
 
     @Override

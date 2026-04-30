@@ -1,0 +1,21 @@
+﻿id	player_1	player_2	items_1	items_2	gold_1_before	gold_1_after	gold_2_before	gold_2_after	time_tran
+164	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Thỏi vàng (x534),Ngọc Rồng 1 sao (x2),Ngọc Rồng 2 sao (x3),Ngọc Rồng 3 sao (x3),Xu NRO (x23),Rada cấp 12 (x1),	Gold: 0, 	60117314634850	60117314634850	55967464	55967464	2026-04-30 18:57:24
+163	kuxauzai (27)	novaroyal2 (118)	Gold: 0, 	Gold: 0, Ngọc Rồng 2 sao (x3),Ngọc Rồng 3 sao (x3),Thỏi vàng (x534),	55967464	55967464	60117314634850	60117314634850	2026-04-30 18:40:45
+162	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Áo vàng Zealot (x1),Găng vàng Zealot (x1),Quần vàng Zealot (x1),Rada cấp 12 (x1),Giày vàng Zealot (x1),Ngọc Rồng 1 sao (x2),	Gold: 0, 	60117314634850	60117314634850	55967464	55967464	2026-04-30 18:39:47
+159	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Mảnh hồn bông tai (x900),	Gold: 0, 	64354729878556	64354729878556	55967464	55967464	2026-04-30 16:24:06
+158	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Mảnh hồn bông tai (x400),Đá xanh lam (x49),	Gold: 0, 	66158729878556	66158729878556	55967464	55967464	2026-04-30 16:21:23
+157	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Áo vải 3 lỗ (x2),Giầy nhựa (x1),Găng Thần Linh (x1),Găng vải đen (x1),	Gold: 0, Ngọc Rồng 1 sao (x1),Ngọc Rồng 2 sao (x1),Ngọc Rồng 3 sao (x1),	72839209878556	72839209878556	55967464	55967464	2026-04-30 16:16:03
+156	novaroyal2 (118)	kuxauzai (27)	Gold: 0, 	Gold: 0, Găng vải đen (x1),Áo vải 3 lỗ (x1),	74084809878556	74084809878556	55967464	55967464	2026-04-30 16:11:31
+155	novaroyal2 (118)	kuxauzai (27)	Gold: 0, Rada cấp 12 (x1),	Gold: 0, Áo vải 3 lỗ (x1),Giầy nhựa (x1),Găng Thần Linh (x1),	74450329878556	74450329878556	55967464	55967464	2026-04-30 16:08:58
+153	novaroyal2 (118)	vnsun (33)	Gold: 0, 	Gold: 0, Ngọc Rồng 3 sao (x18),	87033907901963	87033907901963	6952591537	6952591537	2026-04-30 12:33:22
+151	vnsun (33)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x10),	Gold: 0, Áo vải thô (x1),Quần vải thô (x1),Găng vải thô (x1),Giầy vải thô (x1),Rada cấp 1 (x1),	6952591537	6952591537	87041907901963	87041907901963	2026-04-30 12:20:12
+149	vnsun (33)	novaroyal2 (118)	Gold: 0, Áo vải thô (x1),Quần vải thô (x1),Găng vải thô (x1),Giầy vải thô (x1),Rada cấp 1 (x1),Thỏi vàng (x400),	Gold: 0, 	6952591537	6952591537	87254407901963	87254407901963	2026-04-30 12:16:11
+147	vnsun (33)	novaroyal2 (118)	Gold: 0, Cuồng nộ (x10),Ngọc Rồng 1 sao (x5),	Gold: 0, Giày lưỡng long (x1),Găng Thần Xayda (x1),Rada cấp 9 (x1),	6952591537	6952591537	87254407901963	87254407901963	2026-04-30 12:12:43
+146	novaroyal2 (118)	vnsun (33)	Gold: 0, 	Gold: 0, Găng Thần Xayda (x1),Giày lưỡng long (x1),Rada cấp 9 (x1),	88075807901963	88075807901963	6952591537	6952591537	2026-04-30 12:10:21
+145	novaroyal2 (118)	vnsun (33)	Gold: 0, Áo siêu xayda (x1),Quần lưỡng long (x1),	Gold: 0, Ngọc Rồng 1 sao (x2),Ngọc Rồng 2 sao (x7),	88075807901963	88075807901963	6952591537	6952591537	2026-04-30 12:09:14
+144	novaroyal2 (118)	vnsun (33)	Gold: 0, 	Gold: 0, Quần lưỡng long (x1),Áo siêu xayda (x1),Ngọc Rồng 1 sao (x1),	89030407901963	89030407901963	6952591537	6952591537	2026-04-30 12:04:49
+143	vnsun2 (42)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x2),	Gold: 2000000000, 	8029007234	10029007234	99245100000887	99243100000887	2026-04-30 10:55:01
+142	vnsun2 (42)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x2),	Gold: 2000000000, 	6029007234	8029007234	99247100000887	99245100000887	2026-04-30 10:53:06
+141	vnsun2 (42)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x5),	Gold: 2000000000, Thỏi vàng (x30),	4029007234	6029007234	99249100000887	99247100000887	2026-04-30 10:52:02
+140	vnsun2 (42)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x2),	Gold: 2000000000, 	2029007234	4029007234	99251100000887	99249100000887	2026-04-30 10:50:30
+139	vnsun2 (42)	novaroyal2 (118)	Gold: 0, Ngọc Rồng 3 sao (x2),	Gold: 2000000000, 	29007234	2029007234	99253100000887	99251100000887	2026-04-30 10:49:06

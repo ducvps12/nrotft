@@ -1,0 +1,9 @@
+﻿C:\xampp\mysql\bin\mysql.exe : ERROR 1054 (42S22) at line 1: Unknown column 'player_id' in 'where 
+clause'
+At line:1 char:1
++ C:\xampp\mysql\bin\mysql.exe -h 103.157.204.182 -u root -p"Nro@2026!" ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ERROR 1054 (42S... 'where clause':String) [], RemoteE 
+   xception
+    + FullyQualifiedErrorId : NativeCommandError
+ 

@@ -35,7 +35,7 @@ public class SonTinh extends Boss {
     private long lastTimeReward;
 
     public SonTinh() throws Exception {
-        super(HUNGVUONG_EVENT, BossID.SON_TINH, true, false, BossesData.SON_TINH);
+        super(HUNGVUONG_EVENT, BossID.SON_TINH, false, false, BossesData.SON_TINH);
     }
 
     @Override

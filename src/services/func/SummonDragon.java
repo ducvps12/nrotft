@@ -497,11 +497,12 @@ public class SummonDragon {
                     case 1: // +20 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 20000000, false);
                         break;
-                    case 2: // 2 tr vàng
-                        if (this.playerSummonShenron.inventory.gold > 1800000000) {
+                    case 2: // +200 triệu vàng
+                        long addGold2 = 200_000_000L;
+                        if (this.playerSummonShenron.inventory.gold + addGold2 > Inventory.LIMIT_GOLD) {
                             this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
                         } else {
-                            this.playerSummonShenron.inventory.gold += 200000000;
+                            this.playerSummonShenron.inventory.gold += addGold2;
                         }
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
@@ -518,11 +519,12 @@ public class SummonDragon {
                     case 1: // +2 tr smtn
                         Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 2000000, false);
                         break;
-                    case 2: // 200k vàng
-                        if (this.playerSummonShenron.inventory.gold > (2000000000 - 20000000)) {
+                    case 2: // +20 triệu vàng
+                        long addGold3 = 20_000_000L;
+                        if (this.playerSummonShenron.inventory.gold + addGold3 > Inventory.LIMIT_GOLD) {
                             this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
                         } else {
-                            this.playerSummonShenron.inventory.gold += 20000000;
+                            this.playerSummonShenron.inventory.gold += addGold3;
                         }
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;

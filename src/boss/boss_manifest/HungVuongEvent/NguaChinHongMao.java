@@ -29,7 +29,7 @@ public class NguaChinHongMao extends Boss {
     private long lastTimeReward;
 
     public NguaChinHongMao() throws Exception {
-        super(HUNGVUONG_EVENT, BossID.NGUA_CHIN_HONG_MAO, true, false, BossesData.NGUA_CHIN_HONG_MAO);
+        super(HUNGVUONG_EVENT, BossID.NGUA_CHIN_HONG_MAO, false, false, BossesData.NGUA_CHIN_HONG_MAO);
     }
 
     @Override

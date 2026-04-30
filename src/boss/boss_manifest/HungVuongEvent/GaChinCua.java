@@ -29,7 +29,7 @@ public class GaChinCua extends Boss {
     private long lastTimeReward;
 
     public GaChinCua() throws Exception {
-        super(HUNGVUONG_EVENT, BossID.GA_CHIN_CUA, true, false, BossesData.GA_CHIN_CUA);
+        super(HUNGVUONG_EVENT, BossID.GA_CHIN_CUA, false, false, BossesData.GA_CHIN_CUA);
     }
 
     @Override

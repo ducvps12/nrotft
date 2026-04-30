@@ -81,7 +81,7 @@ public class Bill extends Npc {
                         }
                         case 2 -> {
                             if (select == 0 && InventoryService.gI().canOpenBillShop(player)) {
-                                ShopService.gI().opendShop(player, "BILL", true);
+                                ShopService.gI().opendShop(player, "BILL", false);
                                 break;
                             }
                         }
