@@ -923,13 +923,35 @@ public class ShopService {
             item = ItemService.gI().createNewItem((short) 521);
             item.itemOptions.addAll(is.options);
         }
+        // Random chỉ số cho Shop Xu (LUNAR_NEW_YEAR) - items 999 xu trở lên
+        if (shop.tagName.equals("LUNAR_NEW_YEAR") && is.cost >= 999) {
+            randomizeShopXuStats(item);
+        }
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
         // Theo dõi mảnh vỡ bông tai mua tích lũy
         if (is.temp.id == 934) {
             player.totalManhVoBought += item.quantity;
         }
-        Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);
+        // Thông báo đặc biệt cho shop xu random
+        if (shop.tagName.equals("LUNAR_NEW_YEAR") && is.cost >= 999) {
+            StringBuilder sb = new StringBuilder("Mua thành công " + is.temp.name + "\n");
+            sb.append("Chỉ số nhận được:\n");
+            for (Item.ItemOption opt : item.itemOptions) {
+                if (opt.optionTemplate == null) continue;
+                switch (opt.optionTemplate.id) {
+                    case 50 -> sb.append("• SD +").append(opt.param).append("%\n");
+                    case 77 -> sb.append("• HP +").append(opt.param).append("%\n");
+                    case 103 -> sb.append("• KI +").append(opt.param).append("%\n");
+                    case 5 -> sb.append("• SD +").append(opt.param).append("\n");
+                    case 14 -> sb.append("• HP +").append(opt.param).append("\n");
+                    case 17 -> sb.append("• KI +").append(opt.param).append("\n");
+                }
+            }
+            Service.gI().sendThongBaoFromAdmin(player, sb.toString());
+        } else {
+            Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);
+        }
     }
 
     /**
@@ -942,6 +964,48 @@ public class ShopService {
         if (totalBought >= 3000) return 6_000_000;
         if (totalBought >= 1000) return 8_000_000;
         return 10_000_000;
+    }
+
+    /**
+     * Random chỉ số cho items Shop Xu (cải trang, pet).
+     * Các option % (SD, HP, KI) sẽ được random từ 1-49%.
+     * Phân bổ: 1-15% (50%), 16-30% (30%), 31-49% (20%) - chỉ số cao hiếm hơn.
+     */
+    private void randomizeShopXuStats(Item item) {
+        for (Item.ItemOption opt : item.itemOptions) {
+            if (opt.optionTemplate == null) continue;
+            switch (opt.optionTemplate.id) {
+                case 50:  // Sức đánh %
+                case 77:  // HP %
+                case 103: // KI %
+                    opt.param = rollRandomPercent();
+                    break;
+                case 5:   // Sức đánh flat
+                    opt.param = Util.nextInt(3, 15);
+                    break;
+                case 14:  // HP flat
+                    opt.param = Util.nextInt(3, 15);
+                    break;
+                case 17:  // KI flat
+                    opt.param = Util.nextInt(3, 15);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Roll chỉ số % với weighted distribution:
+     * 50% chance: 1-15%  (thường)
+     * 30% chance: 16-30% (tốt)
+     * 15% chance: 31-42% (hiếm)
+     * 5%  chance: 43-49% (cực hiếm)
+     */
+    private int rollRandomPercent() {
+        int roll = Util.nextInt(100);
+        if (roll < 50)  return Util.nextInt(1, 15);   // thường
+        if (roll < 80)  return Util.nextInt(16, 30);  // tốt
+        if (roll < 95)  return Util.nextInt(31, 42);  // hiếm
+        return Util.nextInt(43, 49);                  // cực hiếm
     }
 
     private void buyDanhHieu(Player pl) {
