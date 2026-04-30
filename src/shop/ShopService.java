@@ -79,6 +79,9 @@ public class ShopService {
                                 item.cost = 1;
                             }
                             break;
+                        case 934: // Mảnh vỡ bông tai - giảm giá theo mốc mua tích lũy
+                            item.cost = getManhVoTieredPrice(player.totalManhVoBought);
+                            break;
                     }
                 }
             }
@@ -922,7 +925,23 @@ public class ShopService {
         }
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
+        // Theo dõi mảnh vỡ bông tai mua tích lũy
+        if (is.temp.id == 934) {
+            player.totalManhVoBought += item.quantity;
+        }
         Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);
+    }
+
+    /**
+     * Hệ thống giá giảm dần theo mốc mua tích lũy cho Mảnh Vỡ Bông Tai (934).
+     * Mốc 0-999: 10Tr | 1000-2999: 8Tr | 3000-5999: 6Tr | 6000-8999: 4Tr | 9000+: 3Tr
+     */
+    public static int getManhVoTieredPrice(int totalBought) {
+        if (totalBought >= 9000) return 3_000_000;
+        if (totalBought >= 6000) return 4_000_000;
+        if (totalBought >= 3000) return 6_000_000;
+        if (totalBought >= 1000) return 8_000_000;
+        return 10_000_000;
     }
 
     private void buyDanhHieu(Player pl) {

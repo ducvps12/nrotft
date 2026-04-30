@@ -317,6 +317,10 @@ public class Player implements Runnable {
     /** Bộ đếm đổi Xu → VND trong ngày (tối đa 3 lần/ngày) */
     public int doiVndTodayCount;
     public long doiVndLastDay;
+    // --- Top Rewards Weekly Claim ---
+    public long lastClaimTopSM;  // Timestamp lần cuối nhận thưởng top SM
+    public long lastClaimTopNV;  // Timestamp lần cuối nhận thưởng top NV
+    public int totalManhVoBought; // Tổng mảnh vỡ đã mua (cho tiered pricing)
     public int tnsmLuyenTap;
     public boolean dangKyTapTuDong;
     public long lastTimeOffline;

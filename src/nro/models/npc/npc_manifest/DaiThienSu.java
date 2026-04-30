@@ -35,6 +35,9 @@ public class DaiThienSu extends Npc {
     private static final int MENU_MOC_VND = 2303;
 
     private static final int MENU_TOP_SU_KIEN = 1117;
+    private static final int MENU_TOP_NV = 1118;
+
+    private static final long WEEKLY_COOLDOWN = 7L * 24 * 60 * 60 * 1000; // 7 ngày
 
     // --- MENU MỚI: Thông báo & Hướng dẫn ---
     private static final int MENU_THONG_BAO = 3001;
@@ -69,6 +72,16 @@ public class DaiThienSu extends Npc {
                 "Hướng Dẫn\nGame");
     }
 
+    private String getWeeklyCooldownText(long lastClaim) {
+        if (lastClaim <= 0) return "|5|[Chưa nhận lần nào]";
+        long remaining = WEEKLY_COOLDOWN - (System.currentTimeMillis() - lastClaim);
+        if (remaining <= 0) return "|5|[Có thể nhận thưởng]";
+        long hours = remaining / (60 * 60 * 1000);
+        long days = hours / 24;
+        hours = hours % 24;
+        return "|1|[Còn " + days + "d " + hours + "h]";
+    }
+
     @Override
     public void confirmMenu(Player player, int select) {
         if (!canOpenNpc(player))
@@ -79,7 +92,7 @@ public class DaiThienSu extends Npc {
             case ConstMenu.MENU_SHOW -> {
                 if (select == 0) showTopSMMenu(player);
                 if (select == 1) showTopNapMenu(player);
-                if (select == 2) TopService.showListTop(player, 0);
+                if (select == 2) showTopNVMenu(player);
                 if (select == 3) showTopSuKienMenu(player);
                 if (select == 4) showThongBao(player);
                 if (select == 5) showHuongDan(player);
@@ -87,6 +100,7 @@ public class DaiThienSu extends Npc {
 
             case 1115 -> handleTopSMOptions(player, select);
             case 1116 -> handleTopNapOptions(player, select);
+            case MENU_TOP_NV -> handleTopNVOptions(player, select);
             case MENU_TOP_SU_KIEN -> handleTopSuKienOptions(player, select);
             case MENU_THONG_BAO -> handleThongBao(player, select);
             case MENU_HUONG_DAN -> handleHuongDan(player, select);
@@ -110,22 +124,22 @@ public class DaiThienSu extends Npc {
         String drop = getDropRateStatus();
 
         createOtherMenu(player, MENU_THONG_BAO,
-                "====== THONG BAO ======\n\n"
-                        + ">> Su kien: " + events + "\n\n"
+                "====== THÔNG BÁO ======\n\n"
+                        + ">> Sự kiện: " + events + "\n\n"
                         + "------------------------------\n"
                         + "* TNSM: " + tnsm + "\n"
                         + "* Drop: " + drop + "\n"
                         + "------------------------------\n\n"
-                        + ">> Cap nhat moi:\n"
-                        + "  - Shop Uron gia moi\n"
-                        + "  - Dau Than nang cap\n"
-                        + "  - NPC Huong Dan tai lang\n"
-                        + "  - Can bang kinh te Xu NRO\n\n"
-                        + ">> Tan thu:\n"
-                        + "  - Tang 2 ti vang + 100k ngoc\n"
-                        + "  - Farm SKH tai map Fide\n"
-                        + "  - Thap PoPo nhan Xu NRO",
-                "Quay lai");
+                        + ">> Cập nhật mới:\n"
+                        + "  - Shop Uron giá mới\n"
+                        + "  - Đậu Thần nâng cấp\n"
+                        + "  - NPC Hướng Dẫn tại làng\n"
+                        + "  - Cân bằng kinh tế Xu NRO\n\n"
+                        + ">> Tân thủ:\n"
+                        + "  - Tặng 2 tỉ vàng + 100k ngọc\n"
+                        + "  - Farm SKH tại map Fide\n"
+                        + "  - Tháp PoPo nhận Xu NRO",
+                "Quay lại");
     }
 
     private void handleThongBao(Player player, int select) {
@@ -134,17 +148,17 @@ public class DaiThienSu extends Npc {
 
     private String getActiveEventLine() {
         StringBuilder sb = new StringBuilder();
-        if (EventManager.HUNG_VUONG) sb.append("Gio To Hung Vuong, ");
+        if (EventManager.HUNG_VUONG) sb.append("Giỗ Tổ Hùng Vương, ");
         if (EventManager.TRUNG_THU) sb.append("Trung Thu, ");
         if (EventManager.HALLOWEEN) sb.append("Halloween, ");
-        if (EventManager.CHRISTMAS) sb.append("Giang Sinh, ");
-        if (EventManager.LUNNAR_NEW_YEAR) sb.append("Tet Nguyen Dan, ");
-        if (EventManager.INTERNATIONAL_WOMANS_DAY) sb.append("Ngay 8/3, ");
-        if (EventManager.TOP_UP) sb.append("Dua Top Nap, ");
+        if (EventManager.CHRISTMAS) sb.append("Giáng Sinh, ");
+        if (EventManager.LUNNAR_NEW_YEAR) sb.append("Tết Nguyên Đán, ");
+        if (EventManager.INTERNATIONAL_WOMANS_DAY) sb.append("Ngày 8/3, ");
+        if (EventManager.TOP_UP) sb.append("Đua Top Nạp, ");
         if (EventManager.EVENT_POKEMON) sb.append("Pokemon, ");
-        if (EventManager.TEACHERS_DAY) sb.append("Ngay 20/11, ");
-        if (EventManager.PHO_ANH_HAI) sb.append("Pho Anh Hai, ");
-        if (sb.length() == 0) return "Khong co su kien dac biet.";
+        if (EventManager.TEACHERS_DAY) sb.append("Ngày 20/11, ");
+        if (EventManager.PHO_ANH_HAI) sb.append("Phố Anh Hai, ");
+        if (sb.length() == 0) return "Không có sự kiện đặc biệt.";
         sb.setLength(sb.length() - 2);
         return sb.toString();
     }
@@ -152,16 +166,16 @@ public class DaiThienSu extends Npc {
     private String getTNSMStatus() {
         // Kiểm tra các event có buff TNSM
         if (EventManager.HUNG_VUONG || EventManager.CHRISTMAS || EventManager.LUNNAR_NEW_YEAR) {
-            return "x2 (Su kien dac biet!)";
+            return "x2 (Sự kiện đặc biệt!)";
         }
-        return "x1 (Binh thuong)";
+        return "x1 (Bình thường)";
     }
 
     private String getDropRateStatus() {
         if (EventManager.HUNG_VUONG || EventManager.CHRISTMAS) {
-            return "x1.5 (Su kien tang drop!)";
+            return "x1.5 (Sự kiện tăng drop!)";
         }
-        return "x1 (Binh thuong)";
+        return "x1 (Bình thường)";
     }
 
     // ==========================================
@@ -169,17 +183,17 @@ public class DaiThienSu extends Npc {
     // ==========================================
     private void showHuongDan(Player player) {
         createOtherMenu(player, MENU_HUONG_DAN,
-                "=== HUONG DAN GAME ===\n\n"
-                        + "Chao " + player.name + "!\n"
-                        + "Chon muc muon tim hieu:",
-                "Lo Trinh\nTan Thu",
-                "Trang Bi\n& SKH",
-                "Dau Than\n& Hoi Phuc",
-                "Boss &\nSan Do",
-                "De Tu\n& Kilis",
-                "Bang Hoi\n& Pho Ban",
-                "PVP &\nKinh Te",
-                "Quay lai");
+                "=== HƯỚNG DẪN GAME ===\n\n"
+                        + "Chào " + player.name + "!\n"
+                        + "Chọn mục muốn tìm hiểu:",
+                "Lộ Trình\nTân Thủ",
+                "Trang Bị\n& SKH",
+                "Đậu Thần\n& Hồi Phục",
+                "Boss &\nSăn Đồ",
+                "Đệ Tử\n& Kilis",
+                "Bang Hội\n& Phó Bản",
+                "PVP &\nKinh Tế",
+                "Quay lại");
     }
 
     private void handleHuongDan(Player player, int select) {
@@ -197,143 +211,153 @@ public class DaiThienSu extends Npc {
 
     private void showFlowGuide(Player player) {
         createOtherMenu(player, MENU_HD_FLOW,
-                "=== LO TRINH TAN THU ===\n\n"
-                        + "B1: Nhiem vu chinh\n"
-                        + "  NPC ong noi -> nhan NV\n"
-                        + "  Hoan thanh NV = mo map moi\n\n"
-                        + "B2: Nang suc manh\n"
-                        + "  Thu hoach dau than moi ngay\n"
-                        + "  Dung tiem nang tang HP/KI/SD\n\n"
-                        + "B3: Trang bi SKH\n"
-                        + "  Farm quai map Fide (NV 20+)\n"
-                        + "  Kich hoat set SKH = SM x10\n\n"
+                "=== LỘ TRÌNH TÂN THỦ ===\n\n"
+                        + "B1: Nhiệm vụ chính\n"
+                        + "  NPC ông nội -> nhận NV\n"
+                        + "  Hoàn thành NV = mở map mới\n\n"
+                        + "B2: Nâng sức mạnh\n"
+                        + "  Thu hoạch đậu thần mỗi ngày\n"
+                        + "  Dùng tiềm năng tăng HP/KI/SD\n\n"
+                        + "B3: Trang bị SKH\n"
+                        + "  Farm quái map Fide (NV 20+)\n"
+                        + "  Kích hoạt set SKH = SM x10\n\n"
                         + "B4: Boss & Endgame\n"
-                        + "  San boss nhan do hiem\n"
-                        + "  Bang hoi, pho ban, PVP",
-                "Quay lai");
+                        + "  Săn boss nhận đồ hiếm\n"
+                        + "  Bang hội, phó bản, PVP",
+                "Quay lại");
     }
 
     private void showEquipGuide(Player player) {
         createOtherMenu(player, MENU_HD_TRANG_BI,
-                "=== TRANG BI & SKH ===\n\n"
-                        + "Loai trang bi:\n"
-                        + "  Do thuong: shop NPC\n"
-                        + "  Do SKH: farm quai map Fide\n"
-                        + "  Do Sao: nang cap tu SKH\n\n"
-                        + "Cach farm SKH:\n"
-                        + "  Map Fide: trai linh, vuc chet\n"
-                        + "  Ti le 1/5000 (Co 4 la 1/3500)\n"
-                        + "  Du 4 mon = Kich Hoat\n\n"
-                        + "Nang cap:\n"
-                        + "  Ba Hat Mit: ep do, nang cap\n"
-                        + "  Lo Son + Thien Su + 2 SKH = VIP",
-                "Quay lai");
+                "=== TRANG BỊ & SKH ===\n\n"
+                        + "Loại trang bị:\n"
+                        + "  Đồ thường: shop NPC\n"
+                        + "  Đồ SKH: farm quái map Fide\n"
+                        + "  Đồ Sao: nâng cấp từ SKH\n\n"
+                        + "Cách farm SKH:\n"
+                        + "  Map Fide: trại lính, vực chết\n"
+                        + "  Tỉ lệ 1/5000 (Cỏ 4 lá 1/3500)\n"
+                        + "  Đủ 4 món = Kích Hoạt\n\n"
+                        + "Nâng cấp:\n"
+                        + "  Bà Hạt Mít: ép đồ, nâng cấp\n"
+                        + "  Lò Sơn + Thiên Sứ + 2 SKH = VIP",
+                "Quay lại");
     }
 
     private void showBeanGuide(Player player) {
         createOtherMenu(player, MENU_HD_BEAN,
-                "=== DAU THAN & HOI PHUC ===\n\n"
-                        + "Dau than:\n"
-                        + "  Cay dau o NHA (canh ong noi)\n"
-                        + "  Thu hoach -> hoi HP/KI\n"
-                        + "  Nang cap cay = nhieu dau hon\n\n"
-                        + "Nang cap dau than:\n"
-                        + "  Noi cay Dau Than -> Nang cap\n"
-                        + "  Cap cao = HP/KI/SD bonus lon\n"
-                        + "  Chi phi: vang + ngoc (tang dan)\n\n"
-                        + "Hoi phuc khac:\n"
-                        + "  Dui ga: nhat tu quai\n"
-                        + "  Bua ho tro: mua Ba Hat Mit",
-                "Quay lai");
+                "=== ĐẬU THẦN & HỒI PHỤC ===\n\n"
+                        + "Đậu thần:\n"
+                        + "  Cây đậu ở NHÀ (cạnh ông nội)\n"
+                        + "  Thu hoạch -> hồi HP/KI\n"
+                        + "  Nâng cấp cây = nhiều đậu hơn\n\n"
+                        + "Nâng cấp đậu thần:\n"
+                        + "  Nơi cây Đậu Thần -> Nâng cấp\n"
+                        + "  Cấp cao = HP/KI/SD bonus lớn\n"
+                        + "  Chi phí: vàng + ngọc (tăng dần)\n\n"
+                        + "Hồi phục khác:\n"
+                        + "  Đùi gà: nhặt từ quái\n"
+                        + "  Bùa hỗ trợ: mua Bà Hạt Mít",
+                "Quay lại");
     }
 
     private void showBossGuide(Player player) {
         createOtherMenu(player, MENU_HD_BOSS,
-                "=== BOSS & SAN DO ===\n\n"
-                        + "Boss thuong:\n"
-                        + "  So 1-4, Black Goku, Frieza\n"
-                        + "  Tieu Doi Truong (Fide)\n\n"
-                        + "Boss su kien:\n"
-                        + "  Thuy Tinh, Son Tinh\n"
-                        + "  Xen Bo Hung, MaBu\n\n"
-                        + "Boss Rong Nhi:\n"
-                        + "  Drop Binh hut nang luong\n"
-                        + "  Dung de doi de tu Kilis\n\n"
-                        + "Cach san:\n"
-                        + "  Xem khung PHAI -> bam [Den]\n"
-                        + "  Di nhom/bang hieu qua hon",
-                "Quay lai");
+                "=== BOSS & SĂN ĐỒ ===\n\n"
+                        + "Boss thường:\n"
+                        + "  Số 1-4, Black Goku, Frieza\n"
+                        + "  Tiểu Đội Trưởng (Fide)\n\n"
+                        + "Boss sự kiện:\n"
+                        + "  Thủy Tinh, Sơn Tinh\n"
+                        + "  Xên Bọ Hung, MaBu\n\n"
+                        + "Boss Rồng Nhí:\n"
+                        + "  Drop Bình hút năng lượng\n"
+                        + "  Dùng để đổi đệ tử Kilis\n\n"
+                        + "Cách săn:\n"
+                        + "  Xem khung PHẢI -> bấm [Đến]\n"
+                        + "  Đi nhóm/bang hiệu quả hơn",
+                "Quay lại");
     }
 
     private void showKilisGuide(Player player) {
         createOtherMenu(player, MENU_HD_KILIS,
-                "=== DE TU & KILIS ===\n\n"
-                        + "Kiem Binh hut nang luong:\n"
-                        + "  Boss Rong Nhi 1-7 sao (1-3 cai)\n"
-                        + "  Boss Hirudegarn (1 cai)\n"
-                        + "  NV Quy Lao Kame (10-20 cai)\n\n"
-                        + "Farm chi so Kilis:\n"
-                        + "  Danh quai tai MAP CADIC\n"
-                        + "  Ti le: 1/333 (co buff: 10/333)\n"
-                        + "  Buff tai NPC Osin (map 187)\n"
-                        + "  100 hong ngoc = 10 phut buff\n\n"
-                        + "Tien hoa de tu:\n"
-                        + "  3000 Kilis + de Mabu 40 ti SM\n"
-                        + "  = De 3K (Black Goku/Cell/Berus)\n"
-                        + "  6000 Kilis + de 3K 100 ti SM\n"
-                        + "  = Tuyet The De Tu",
-                "Quay lai");
+                "=== ĐỆ TỬ & KILIS ===\n\n"
+                        + "Kiếm Bình hút năng lượng:\n"
+                        + "  Boss Rồng Nhí 1-7 sao (1-3 cái)\n"
+                        + "  Boss Hirudegarn (1 cái)\n"
+                        + "  NV Quỷ Lão Kame (10-20 cái)\n\n"
+                        + "Farm chỉ số Kilis:\n"
+                        + "  Đánh quái tại MAP CADIC\n"
+                        + "  Tỉ lệ: 1/333 (có buff: 10/333)\n"
+                        + "  Buff tại NPC Osin (map 187)\n"
+                        + "  100 hồng ngọc = 10 phút buff\n\n"
+                        + "Tiến hóa đệ tử:\n"
+                        + "  3000 Kilis + đệ Mabu 40 tỉ SM\n"
+                        + "  = Đệ 3K (Black Goku/Cell/Berus)\n"
+                        + "  6000 Kilis + đệ 3K 100 tỉ SM\n"
+                        + "  = Tuyệt Thế Đệ Tử",
+                "Quay lại");
     }
 
     private void showClanGuide(Player player) {
         createOtherMenu(player, MENU_HD_CLAN,
-                "=== BANG HOI & PHO BAN ===\n\n"
-                        + "Tao/gia nhap bang:\n"
-                        + "  NPC Bo Mong: tao hoac gia nhap\n\n"
-                        + "Pho ban:\n"
-                        + "  Trai Doc Nhan: 2+ nguoi\n"
-                        + "  Ban Do Kho Bau: kham pha\n"
-                        + "  Con Duong Ran Doc: thu thach\n\n"
-                        + "Hoat dong bang:\n"
-                        + "  NV bang: cay quai cung nhau\n"
-                        + "  Goi Rong Than Namec\n"
-                        + "  Tranh Ngoc Sao Den: 20h-21h",
-                "Quay lai");
+                "=== BANG HỘI & PHÓ BẢN ===\n\n"
+                        + "Tạo/gia nhập bang:\n"
+                        + "  NPC Bò Mộng: tạo hoặc gia nhập\n\n"
+                        + "Phó bản:\n"
+                        + "  Trại Độc Nhãn: 2+ người\n"
+                        + "  Bản Đồ Kho Báu: khám phá\n"
+                        + "  Con Đường Rắn Độc: thử thách\n\n"
+                        + "Hoạt động bang:\n"
+                        + "  NV bang: cày quái cùng nhau\n"
+                        + "  Gọi Rồng Thần Namếc\n"
+                        + "  Tranh Ngọc Sao Đen: 20h-21h",
+                "Quay lại");
     }
 
     private void showPvpEconomyGuide(Player player) {
         createOtherMenu(player, MENU_HD_PVP,
-                "=== PVP & KINH TE ===\n\n"
+                "=== PVP & KINH TẾ ===\n\n"
                         + "PVP:\n"
-                        + "  Cham nguoi choi -> Thach dau\n"
-                        + "  Dai Hoi Vo Thuat: giai ngoc\n"
-                        + "  Tranh Ngoc Sao Den: 20h-21h\n\n"
-                        + "Tien te:\n"
-                        + "  Vang: danh quai, ban do\n"
-                        + "  Ngoc xanh: free, su kien\n"
-                        + "  Hong Ngoc: nap VND doi\n\n"
-                        + "Cach nap:\n"
-                        + "  NHA -> NPC ong noi -> Nap Tien\n"
-                        + "  QR/ATM -> tu cong VND\n\n"
+                        + "  Chạm người chơi -> Thách đấu\n"
+                        + "  Đại Hội Võ Thuật: giải ngọc\n"
+                        + "  Tranh Ngọc Sao Đen: 20h-21h\n\n"
+                        + "Tiền tệ:\n"
+                        + "  Vàng: đánh quái, bán đồ\n"
+                        + "  Ngọc xanh: free, sự kiện\n"
+                        + "  Hồng Ngọc: nạp VNĐ đổi\n\n"
+                        + "Cách nạp:\n"
+                        + "  NHÀ -> NPC ông nội -> Nạp Tiền\n"
+                        + "  QR/ATM -> tự cộng VNĐ\n\n"
                         + "Shop:\n"
-                        + "  Uron: sach ky nang\n"
-                        + "  Santa: trang phuc, capsule",
-                "Quay lai");
+                        + "  Uron: sách kỹ năng\n"
+                        + "  Santa: trang phục, capsule",
+                "Quay lại");
     }
 
     // ==========================================
     // TOP XẾP HẠNG (giữ nguyên logic cũ)
     // ==========================================
     private void showTopSMMenu(Player player) {
+        String cd = getWeeklyCooldownText(player.lastClaimTopSM);
         createOtherMenu(player, 1115,
-                "|8|BẢNG XẾP HẠNG SỨC MẠNH",
-                "Xem Top", "Phần Thưởng Top", "Phần Thưởng Mốc", "Nhận Thưởng");
+                "|8|BẢNG XẾP HẠNG SỨC MẠNH\n" + cd
+                + "\n|1|Nhận thưởng: 1 lần / tuần",
+                "Xem Top", "Phần Thưởng\nTop", "Phần Thưởng\nMốc", "Nhận Thưởng\nMốc", "Nhận Thưởng\nTop Tuần");
     }
 
     private void showTopNapMenu(Player player) {
         createOtherMenu(player, 1116,
                 "|8|BẢNG XẾP HẠNG NẠP TIỀN",
                 "Xem Top", "Phần Thưởng");
+    }
+
+    private void showTopNVMenu(Player player) {
+        String cd = getWeeklyCooldownText(player.lastClaimTopNV);
+        createOtherMenu(player, MENU_TOP_NV,
+                "|8|BẢNG XẾP HẠNG NHIỆM VỤ\n" + cd
+                + "\n|1|Nhận thưởng: 1 lần / tuần",
+                "Xem Top", "Phần Thưởng\nTop", "Nhận Thưởng\nTop Tuần");
     }
 
     private void showTopSuKienMenu(Player player) {
@@ -353,6 +377,17 @@ public class DaiThienSu extends Npc {
             showRewardList(player, "moc_suc_manh");
         if (select == 3 && player.getSession().actived)
             ArchivementSucManh.gI().getAchievement(player);
+        if (select == 4)
+            handleNhanThuongTopWeekly(player, "moc_suc_manh_top", "SM");
+    }
+
+    private void handleTopNVOptions(Player player, int select) {
+        if (select == 0)
+            TopService.showListTop(player, 0);
+        if (select == 1)
+            showRewardList(player, "moc_nhiem_vu_top");
+        if (select == 2)
+            handleNhanThuongTopWeekly(player, "moc_nhiem_vu_top", "NV");
     }
 
     private void handleTopNapOptions(Player player, int select) {
@@ -360,6 +395,97 @@ public class DaiThienSu extends Npc {
             TopService.gI().showListTopVnd(player);
         if (select == 1)
             showRewardList(player, "moc_nap_top");
+    }
+
+    // ==========================================
+    // NHẬN THƯỞNG TOP TUẦN (SM / NV)
+    // ==========================================
+    private void handleNhanThuongTopWeekly(Player player, String table, String type) {
+        // Kiểm tra cooldown 7 ngày
+        long lastClaim = type.equals("SM") ? player.lastClaimTopSM : player.lastClaimTopNV;
+        if (lastClaim > 0 && (System.currentTimeMillis() - lastClaim) < WEEKLY_COOLDOWN) {
+            long remaining = WEEKLY_COOLDOWN - (System.currentTimeMillis() - lastClaim);
+            long hours = remaining / (60 * 60 * 1000);
+            long days = hours / 24;
+            hours = hours % 24;
+            Service.gI().sendThongBao(player, "Bạn đã nhận thưởng Top " + type + " tuần này rồi!\nCòn " + days + " ngày " + hours + " giờ nữa.");
+            return;
+        }
+
+        // Tìm rank player
+        int rank = type.equals("SM") ? getPlayerPowerRank(player) : getPlayerTaskRank(player);
+        if (rank <= 0 || rank > 10) {
+            Service.gI().sendThongBao(player, "Bạn không nằm trong Top 10 " + type + "!");
+            return;
+        }
+
+        // Phát thưởng từ DB
+        try (Connection con = DBConnecter.getConnectionServer();
+             PreparedStatement ps = con.prepareStatement("SELECT detail FROM " + table + " WHERE id = ?")) {
+            ps.setInt(1, rank);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String detail = rs.getString("detail");
+                    JSONArray arr = (JSONArray) JSONValue.parse(detail);
+                    if (arr == null || arr.isEmpty()) {
+                        Service.gI().sendThongBao(player, "Top " + rank + " chưa có phần thưởng!");
+                        return;
+                    }
+                    if (InventoryService.gI().getCountEmptyBag(player) < arr.size()) {
+                        Service.gI().sendThongBao(player, "Hành trang không đủ chỗ!\nCần " + arr.size() + " ô trống.");
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder("Phần thưởng Top " + rank + " " + type + ":\n");
+                    for (Object o : arr) {
+                        JSONObject obj = (JSONObject) JSONValue.parse(o.toString());
+                        int tempId = Integer.parseInt(String.valueOf(obj.get("temp_id")));
+                        int quantity = Integer.parseInt(String.valueOf(obj.get("quantity")));
+                        Item item = ItemService.gI().createNewItem((short) tempId, quantity);
+                        InventoryService.gI().addItemBag(player, item);
+                        sb.append("- x").append(quantity).append(" ")
+                          .append(ItemService.gI().getTemplate(tempId).name).append("\n");
+                    }
+                    // Cập nhật timestamp
+                    if (type.equals("SM")) {
+                        player.lastClaimTopSM = System.currentTimeMillis();
+                    } else {
+                        player.lastClaimTopNV = System.currentTimeMillis();
+                    }
+                    InventoryService.gI().sendItemBag(player);
+                    PlayerService.gI().sendInfoHpMpMoney(player);
+                    Service.gI().sendThongBaoFromAdmin(player, sb.toString());
+                } else {
+                    Service.gI().sendThongBao(player, "Không tìm thấy phần thưởng cho Top " + rank + "!");
+                }
+            }
+        } catch (SQLException e) {
+            logError(e);
+            Service.gI().sendThongBao(player, "Lỗi hệ thống, thử lại sau!");
+        }
+    }
+
+    private int getPlayerPowerRank(Player player) {
+        Top.TopPowerManager.getInstance().load();
+        java.util.List<Player> list = Top.TopPowerManager.getInstance().getList();
+        list.sort((p1, p2) -> Long.compare(p2.nPoint.power, p1.nPoint.power));
+        for (int i = 0; i < Math.min(10, list.size()); i++) {
+            if (list.get(i).name.equals(player.name)) return i + 1;
+        }
+        return -1;
+    }
+
+    private int getPlayerTaskRank(Player player) {
+        try (Connection con = DBConnecter.getConnectionServer();
+             PreparedStatement ps = con.prepareStatement(consts.ConstSQL.TOP_NV)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                int rank = 1;
+                while (rs.next() && rank <= 10) {
+                    if (rs.getString("name").equals(player.name)) return rank;
+                    rank++;
+                }
+            }
+        } catch (SQLException e) { logError(e); }
+        return -1;
     }
 
     private void handleTopSuKienOptions(Player player, int select) {

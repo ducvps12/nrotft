@@ -216,6 +216,15 @@ public class DuongTang extends Npc {
         int destIndex = player.iDMark.getMenuType();
         if (destIndex < 0 || destIndex >= ESCORT_DESTINATIONS.length) return;
 
+        // Cooldown 60s chống spam
+        long now = System.currentTimeMillis();
+        long lastEscort = player.event.lastEscortTime;
+        if (now - lastEscort < 60_000) {
+            long remain = (60_000 - (now - lastEscort)) / 1000;
+            Service.gI().sendThongBao(player, "Vui long cho " + remain + "s de ho tong tiep!");
+            return;
+        }
+
         int[] dest = ESCORT_DESTINATIONS[destIndex];
         int targetMap = dest[0];
         int targetX = dest[1];
@@ -223,7 +232,10 @@ public class DuongTang extends Npc {
         int diemThuong = dest[3];
         String destName = ESCORT_NAMES[destIndex];
 
-        // Thêm điểm công đức (NHS points)
+        // Lưu cooldown
+        player.event.lastEscortTime = now;
+
+        // Thêm điểm công đức
         player.event.addEventPointNHS(diemThuong);
 
         // Chuyển map
@@ -231,9 +243,10 @@ public class DuongTang extends Npc {
 
         // Thông báo
         Service.gI().sendThongBao(player,
-                "Hộ tống Đường Tăng đến " + destName + " thành công!\n"
-                + "Bạn tích được +" + diemThuong + " điểm công đức.\n"
-                + "Tổng điểm: " + player.event.getEventPointNHS());
+                "Ho tong den " + destName + " thanh cong!\n"
+                + "+" + diemThuong + " diem cong duc.\n"
+                + "Tong diem: " + player.event.getEventPointNHS()
+                + "\nCho 60s de ho tong tiep.");
     }
 
     // ====================================================================
@@ -350,22 +363,22 @@ public class DuongTang extends Npc {
     // ====================================================================
     private void showGuide(Player player) {
         npcChat(player,
-                "|7|━━━ HƯỚNG DẪN ĐƯỜNG TĂNG ━━━\n\n"
-                + "|8|★ Nhiệm vụ Hộ Tống:\n"
-                + "|1|Hộ tống sư phụ đi thỉnh chân kinh qua\n"
-                + "|1|các tuyến đường khác nhau.\n"
-                + "|1|Mỗi tuyến cho điểm công đức khác nhau.\n\n"
-                + "|8|★ Cách tích điểm nhanh:\n"
-                + "|2|• Hộ tống qua các tuyến (5-30 điểm/lần)\n"
-                + "|2|• Đánh quái tại Ngũ Hành Sơn (+1/quái)\n"
-                + "|2|• Tuyến khó cho nhiều điểm hơn!\n\n"
-                + "|8|★ Nhận Thưởng:\n"
-                + "|1|Tích đủ điểm → Nhận thưởng tại đây:\n"
-                + "|1|50 điểm → Đậu Thần + Vàng\n"
-                + "|1|150 điểm → Thỏi Vàng + Đá Bảo Vệ\n"
-                + "|1|300 điểm → Thỏi Vàng + Ngọc Xanh\n"
-                + "|1|500 điểm → Thỏi Vàng + Mảnh Oozaru\n"
-                + "|7|━━━━━━━━━━━━━━━━━━");
+                "|7|HUONG DAN DUONG TANG\n\n"
+                + "|8|Ho tong su phu qua cac tuyen:\n"
+                + "|1|Tay Do +5, Dao Kame +10\n"
+                + "|1|Namek +15, Xayda +20\n"
+                + "|2|Ngu Hanh Son +30 (kho)\n\n"
+                + "|8|Cach kiem diem nhanh:\n"
+                + "|2|Ho tong lien tuc (cd 60s)\n"
+                + "|2|Danh quai Ngu Hanh Son +1/con\n\n"
+                + "|8|Nhan Thuong tai day:\n"
+                + "|1|50d = Dau Than + 5M Vang\n"
+                + "|1|150d = 3 Thoi Vang + Da BV\n"
+                + "|1|300d = 10 Thoi Vang + 5k Ngoc\n"
+                + "|1|500d = 50 Thoi Vang + Manh Oozaru\n\n"
+                + "|8|Shop doi diem tai Ngu Hanh Son:\n"
+                + "|1|Ngoc Rong 7s=30d, 6s=80d\n"
+                + "|1|5s=200d, 4s=500d, 3s=1000d");
     }
 
     // ====================================================================

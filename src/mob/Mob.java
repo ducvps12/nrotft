@@ -1379,7 +1379,7 @@ public class Mob {
             if (player.itemTime.isCoBonLa) {
                 rate = (int) (rate * 0.85);
             }
-            if (Util.isTrue(1, 50000)) {
+            if (Util.isTrue(1, 5000)) {
                 ItemMap it = ItemService.gI().randDoTL(this.zone, 1, x, yEnd, player.id);
                 list.add(it);
                 // ChatGlobalService.gI().ThongBaoRoiDo(player, "[ Hệ Thống ] " + player.name +
@@ -1490,7 +1490,7 @@ public class Mob {
             if (player.isPet || player.isClone) {
                 player = ((Pet) player).master;
             }
-            if (Util.isTrue(1, 10000)) {
+            if (Util.isTrue(1, 3000)) {
                 ItemMap it = ItemService.gI().randDoTL(this.zone, 1, x, yEnd, player.id);
                 list.add(it);
                 ServerNotify.gI().notify(player.name + " vừa nhặt được " + it.itemTemplate.name + " tại "

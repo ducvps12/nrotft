@@ -11,6 +11,7 @@ import boss.Boss;
 import boss.BossID;
 import boss.BossesData;
 import consts.ConstTaskBadges;
+import nro.services.ItemService;
 import item.Item;
 import map.ItemMap;
 import nro.player.Player;
@@ -34,7 +35,7 @@ public class Cooler extends Boss {
     @Override
     public void reward(Player plKill) {
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-
+        plKill.effect.addPointTrumSanBoss();
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
 
         // --- Rơi thêm đồ từ Panel ---
@@ -63,6 +64,14 @@ public class Cooler extends Boss {
                 }
             }
         }
+
+        // --- Rơi đồ Thần Linh 15% ---
+        if (Util.isTrue(15, 100)) {
+            ItemMap itTL = ItemService.gI().randDoTL(this.zone, 1, this.location.x,
+                    this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
+            Service.gI().dropItemMap(this.zone, itTL);
+        }
+
         int[] itemDos = new int[] { 233, 237, 241, 245, 249, 253, 257, 261, 265, 269, 273, 277, 281 };
         int[] itemtime = new int[] { 381, 382, 383, 384, 385 };
         int randomDo = new Random().nextInt(itemDos.length);

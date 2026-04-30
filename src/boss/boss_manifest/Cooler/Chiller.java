@@ -32,11 +32,12 @@ public class Chiller extends Boss {
     public void reward(Player plKill) {
         plKill.effect.addPointTrumSanBoss();
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
-        byte randomDo = (byte) new Random().nextInt(Manager.itemIds_tl_GN.length - 1);
-        byte randomDo1 = (byte) new Random().nextInt(Manager.itemIds_tl_AWJ.length - 1);
+        byte randomDo = (byte) new Random().nextInt(Manager.itemIds_tl_GN.length);
+        byte randomDo1 = (byte) new Random().nextInt(Manager.itemIds_tl_AWJ.length);
         if (Util.isTrue(8, 30)) {
             Service.gI().dropItemMap(this.zone, Util.ratiDTL(zone, Manager.itemIds_tl_GN[randomDo], 1, this.location.x, this.location.y, plKill.id));
-        } else if (Util.isTrue(15, 50)) {
+        }
+        if (Util.isTrue(15, 50)) {
             Service.gI().dropItemMap(this.zone, Util.ratiDTL(zone, Manager.itemIds_tl_AWJ[randomDo1], 1, this.location.x, this.location.y, plKill.id));
         }
                 // --- Rơi thêm đồ từ Panel ---

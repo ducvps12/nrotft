@@ -1501,6 +1501,17 @@ public class NDVSqlFetcher {
                 // Column chưa tồn tại hoặc data rỗng - giữ giá trị mặc định 0
             }
 
+            // Data Top Weekly Claim
+            try {
+                player.lastClaimTopSM = rs.getLong("lastClaimTopSM");
+                player.lastClaimTopNV = rs.getLong("lastClaimTopNV");
+                player.totalManhVoBought = rs.getInt("totalManhVoBought");
+            } catch (Exception e) {
+                player.lastClaimTopSM = 0;
+                player.lastClaimTopNV = 0;
+                player.totalManhVoBought = 0;
+            }
+
             PlayerService.gI().dailyLogin(player);
             if (player.getSession() != null && player.getSession().actived && player.getSession().cash < 0) {
                 player.getSession().actived = false;

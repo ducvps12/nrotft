@@ -160,6 +160,7 @@ public class PlayerEvent {
     private boolean cookingTetCake;
     private int timeCookTetCake;
     private boolean receivedLuckyMoney;
+    public long lastEscortTime = 0;
 
     public PlayerEvent(Player player) {
         this.player = player;

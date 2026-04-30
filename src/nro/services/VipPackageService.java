@@ -73,7 +73,7 @@ public class VipPackageService {
     private static final short THOI_VANG = 457;
     private static final short DA_BAO_VE = 987;
     private static final short PHIEU_GIAM_GIA = 459;
-    private static final short NGOC_RONG_1_SAO = 17;
+    private static final short NGOC_RONG_1_SAO = 14; // ID 14 = Ngọc Rồng 1 sao (ID 17 = 4 sao!)
     private static final short CAPSULE_VANG = 956;
     // Bình TNSM: 441-447
     private static final int TNSM_MIN = 441;

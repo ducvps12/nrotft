@@ -34,11 +34,11 @@ public class ChiChi extends Npc {
         if (EventManager.EVENT_POKEMON) {
             player.iDMark.setIndexMenu(ConstNpc.BASE_MENU);
             createOtherMenu(player, ConstNpc.BASE_MENU,
-                    "Su kien Pokemon 30/4!\nBan muon lam gi?",
-                    "Doi thuong",
-                    "Huong dan",
-                    "Cua hang",
-                    "Dong");
+                    "Sự kiện Pokemon 30/4!\nBạn muốn làm gì?",
+                    "Đổi thưởng",
+                    "Hướng dẫn",
+                    "Cửa hàng",
+                    "Đóng");
             return;
         }
 
@@ -177,31 +177,31 @@ public class ChiChi extends Npc {
 
     // ================== HƯỚNG DẪN POKEMON ==================
     private void openMenuHuongDan(Player player) {
-        String text = "HUONG DAN SU KIEN POKEMON\n\n"
-                + "1. Danh Boss Pokemon tai:\n"
-                + "   Pikachu - Lang Kakaro\n"
-                + "   Charmander - Lang Aru\n"
-                + "   Squirtle - Lang Mori\n\n"
-                + "2. Boss HP=5000 (moi hit tru 1)\n"
-                + "   Ai cung danh duoc!\n\n"
-                + "3. Boss chet drop 2-4 Trung\n"
-                + "   Can Bong Poke/Ultra/Master\n"
-                + "   trong tui de nhat trung\n\n"
-                + "4. Mo trung ra Pet Pokemon!\n"
-                + "   Trung Master = 100% vinh vien\n\n"
-                + "5. Mua Bong tai day (Cua hang)";
-        createOtherMenu(player, ConstNpc.BASE_MENU, text, "Dong");
+        String text = "HƯỚNG DẪN SỰ KIỆN POKEMON\n"
+                + "1. Đánh Boss Pokemon tại:\n"
+                + "  Pikachu - Làng Kakaro\n"
+                + "  Charmander - Làng Aru\n"
+                + "  Squirtle - Làng Mori\n"
+                + "2. Boss HP=5000 (mỗi hit trừ 1)\n"
+                + "  Ai cũng đánh được!\n"
+                + "3. Boss chết drop 2-4 Trứng\n"
+                + "  Cần Bóng Poke/Ultra/Master\n"
+                + "  trong túi để nhặt trứng\n"
+                + "4. Mở trứng ra Pet Pokemon!\n"
+                + "  Trứng Master = 100% vĩnh viễn\n"
+                + "5. Mua Bóng tại đây (Cửa hàng)";
+        createOtherMenu(player, ConstNpc.BASE_MENU, text, "Đóng");
     }
 
     // ================== ĐỔI THƯỞNG ==================
     private void openMenuDoiThuong(Player player) {
-        String text = "DOI THUONG SU KIEN POKEMON\n\n"
-                + "- 50 Vo sen = 1 Bong Poke\n"
-                + "- 50 Vo sen + 2 Tui = 1 Bong Ultra\n"
-                + "- 99 Vo sen + 5 Tui = 1 Bong Master";
+        String text = "ĐỔI THƯỞNG SỰ KIỆN POKEMON\n"
+                + "- 50 Vỏ sên = 1 Bóng Poké\n"
+                + "- 50 Vỏ sên + 2 Túi = 1 Bóng Ultra\n"
+                + "- 99 Vỏ sên + 5 Túi = 1 Bóng Master";
 
         createOtherMenu(player, ConstNpc.MENU_DOI_THUONG, text,
-                "Doi Bong Poke", "Doi Bong Ultra", "Doi Bong Master", "Tu choi");
+                "Đổi Bóng\nPoké", "Đổi Bóng\nUltra", "Đổi Bóng\nMaster", "Từ chối");
     }
 
     private void thucHienDoiQua(Player player, int select) {
@@ -210,7 +210,7 @@ public class ChiChi extends Npc {
 
         if (select == 0) { // Bóng Poke
             if (voSen == null || voSen.quantity < 50) {
-                Service.gI().sendThongBao(player, "Can 50 Vo sen de doi Bong Poke.");
+                Service.gI().sendThongBao(player, "Cần 50 Vỏ sên để đổi Bóng Poké.");
                 return;
             }
             InventoryService.gI().subQuantityItemsBag(player, voSen, 50);
@@ -218,12 +218,12 @@ public class ChiChi extends Npc {
             bong.quantity = 1;
             InventoryService.gI().addItemBag(player, bong);
             InventoryService.gI().sendItemBag(player);
-            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Poke!");
+            Service.gI().sendThongBao(player, "Nhận được 1 Bóng Poké!");
         }
 
         if (select == 1) { // Bóng Ultra
             if (voSen == null || voSen.quantity < 50 || tuiDung == null || tuiDung.quantity < 2) {
-                Service.gI().sendThongBao(player, "Can 50 Vo sen + 2 Tui dung de doi Bong Ultra.");
+                Service.gI().sendThongBao(player, "Cần 50 Vỏ sên + 2 Túi dựng để đổi Bóng Ultra.");
                 return;
             }
             InventoryService.gI().subQuantityItemsBag(player, voSen, 50);
@@ -232,12 +232,12 @@ public class ChiChi extends Npc {
             bong.quantity = 1;
             InventoryService.gI().addItemBag(player, bong);
             InventoryService.gI().sendItemBag(player);
-            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Ultra!");
+            Service.gI().sendThongBao(player, "Nhận được 1 Bóng Ultra!");
         }
 
         if (select == 2) { // Bóng Master
             if (voSen == null || voSen.quantity < 99 || tuiDung == null || tuiDung.quantity < 5) {
-                Service.gI().sendThongBao(player, "Can 99 Vo sen + 5 Tui dung de doi Bong Master.");
+                Service.gI().sendThongBao(player, "Cần 99 Vỏ sên + 5 Túi dựng để đổi Bóng Master.");
                 return;
             }
             InventoryService.gI().subQuantityItemsBag(player, voSen, 99);
@@ -246,7 +246,7 @@ public class ChiChi extends Npc {
             bong.quantity = 1;
             InventoryService.gI().addItemBag(player, bong);
             InventoryService.gI().sendItemBag(player);
-            Service.gI().sendThongBao(player, "Nhan duoc 1 Bong Master!");
+            Service.gI().sendThongBao(player, "Nhận được 1 Bóng Master!");
         }
     }
 
