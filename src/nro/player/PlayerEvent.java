@@ -10,6 +10,7 @@ public class PlayerEvent {
     private int eventPointPhaoBong;
     public int luotNhanNgocMienPhi = 1;
     public int luotNhanCapsuleBang = 1;
+    public long lastTimeChucPhucHungVuong = 0;
 
     public boolean isIsUseQuanHoa() {
         return isUseQuanHoa;

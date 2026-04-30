@@ -889,6 +889,7 @@ public class PlayerDAO {
                 dataArray.add(player.event.luotNhanNgocMienPhi);
                 dataArray.add(player.event.luotNhanCapsuleBang);
                 dataArray.add(player.lastCheckIn != null ? player.lastCheckIn.toString() : null);
+                dataArray.add(player.event.lastTimeChucPhucHungVuong);
 
                 String checkNhanQua = dataArray.toJSONString();
                 dataArray.clear();

@@ -320,6 +320,11 @@ public class NDVSqlFetcher {
                     if (arr.size() > 2 && arr.get(2) != null) {
                         lastCheckIn = LocalDateTime.parse(String.valueOf(arr.get(2)));
                     }
+                    if (arr.size() > 3 && arr.get(3) != null) {
+                        try {
+                            player.event.lastTimeChucPhucHungVuong = Long.parseLong(String.valueOf(arr.get(3)));
+                        } catch (Exception e) {}
+                    }
                 }
 
                 player.event.luotNhanNgocMienPhi = luotNhan;
@@ -329,6 +334,7 @@ public class NDVSqlFetcher {
                 player.event.luotNhanNgocMienPhi = 1;
                 player.event.luotNhanCapsuleBang = 1;
                 player.lastCheckIn = null;
+                player.event.lastTimeChucPhucHungVuong = 0;
                 System.err.println("Lỗi đọc checkNhanQua: " + e.getMessage());
             }
 

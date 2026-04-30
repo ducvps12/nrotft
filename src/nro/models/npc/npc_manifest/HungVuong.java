@@ -10,6 +10,7 @@ import nro.services.InventoryService;
 import nro.services.ItemService;
 import nro.services.PlayerService;
 import nro.services.Service;
+import utils.Util;
 
 /**
  * NPC Hùng Vương - Sự kiện Giỗ Tổ Hùng Vương
@@ -454,6 +455,11 @@ public class HungVuong extends Npc {
     // CHÚC PHÚC x2 TNSM
     // ==========================================
     private void doChucPhuc(Player player) {
+        if (player.event.lastTimeChucPhucHungVuong > 0 && !Util.isAfterMidnight(player.event.lastTimeChucPhucHungVuong)) {
+            Service.gI().sendThongBao(player, "Mỗi ngày chỉ được Chúc Phúc 1 lần!");
+            return;
+        }
+
         Item thoiVang = InventoryService.gI().findItemBag(player, ConstItem.THOI_VANG);
         if (thoiVang == null || thoiVang.quantity < 5) {
             Service.gI().sendThongBao(player, "Cần 5 Thỏi Vàng để được Chúc Phúc (+50 điểm sự kiện)");
@@ -463,6 +469,7 @@ public class HungVuong extends Npc {
 
         // +50 điểm sự kiện
         player.event.addDiemSuKien(50);
+        player.event.lastTimeChucPhucHungVuong = System.currentTimeMillis();
         InventoryService.gI().sendItemBag(player);
         PlayerService.gI().sendInfoHpMpMoney(player);
 
