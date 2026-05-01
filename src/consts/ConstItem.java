@@ -1275,9 +1275,9 @@ public class ConstItem {
         public static final int HOP_QUA_TET_2023 = 2039;
 
         // ======================== HUNG VUONG EVENT ITEMS ========================
-        public static final int HAT_DUA_HAU = 2040;
-        public static final int MANH_DINH_BA = 2041;
-        public static final int MANH_CUNG_TEN = 2042;
+        public static final int HAT_DUA_HAU = 2080;
+        public static final int MANH_DINH_BA = 2081;
+        public static final int MANH_CUNG_TEN = 2082;
 
         public static final int[] LIST_ITEM_NLSK_TET_2023 = { 2027, 2028, 2029, 2030, 2030, 2037, 2038 };
         public static final int[][][] LIST_ITEM_CLOTHES = {

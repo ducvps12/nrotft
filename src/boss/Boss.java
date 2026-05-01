@@ -631,6 +631,14 @@ public class Boss extends Player implements IBoss, IBossOutfit {
     public void pointBoss(Player plKill) {
         plKill.event.addEventPointBHM(1);
         plKill.event.addDiemSuKien(5);
+        // Cộng điểm săn boss cho mốc thưởng
+        plKill.getSession().diemboss += 1;
+        try {
+            jdbc.DBConnecter.executeUpdate("UPDATE account SET diemboss = ? WHERE id = ?",
+                    plKill.getSession().diemboss, plKill.getSession().userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt được " + this.name + " và nhận 1 điểm săn boss + 5 điểm sự kiện");
     }
 
@@ -956,7 +964,14 @@ public class Boss extends Player implements IBoss, IBossOutfit {
                 }
             }
             ItemMap it3 = new ItemMap(this.zone, 674, Util.nextInt(1, 3), x, y, player.id);
-            // player.pointSb += 1;
+            // Cộng điểm săn boss cho mốc thưởng
+            player.getSession().diemboss += 1;
+            try {
+                jdbc.DBConnecter.executeUpdate("UPDATE account SET diemboss = ? WHERE id = ?",
+                        player.getSession().diemboss, player.getSession().userId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Service.gI().sendThongBao(player, "Bạn đã nhận được 1 điểm Săn boss");
             if (itemMap != null) {
                 Service.gI().dropItemMap(zone, itemMap);

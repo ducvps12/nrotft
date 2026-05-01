@@ -878,6 +878,14 @@ public class Mob {
             if (Util.isTrue(1, 25)) {
                 list.add(new ItemMap(zone, consts.ConstItem.DU_DU, 1, x, yEnd, plHV.id));
             }
+            // Mảnh Đinh Ba - 1/40 mọi map
+            if (Util.isTrue(1, 40)) {
+                list.add(new ItemMap(zone, consts.ConstItem.MANH_DINH_BA, Util.nextInt(1, 2), x, yEnd, plHV.id));
+            }
+            // Mảnh Cung Tên - 1/40 mọi map
+            if (Util.isTrue(1, 40)) {
+                list.add(new ItemMap(zone, consts.ConstItem.MANH_CUNG_TEN, Util.nextInt(1, 2), x, yEnd, plHV.id));
+            }
         }
 
         // ======================== SỰ KIỆN POKÉMON 30/4 ========================

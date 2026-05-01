@@ -1887,9 +1887,9 @@ public class Service {
                 if (newPass.equals(rePass)) {
                     player.getSession().pp = newPass;
                     try {
-                        rePass = Util.md5(Util.md5(rePass));
+                        // Lưu plaintext vì login so sánh plaintext
                         DBConnecter.executeUpdate("update account set password = ? where id = ? and username = ?",
-                                rePass, player.getSession().userId, player.getSession().uu);
+                                newPass, player.getSession().userId, player.getSession().uu);
                         Service.gI().sendThongBao(player, "Đổi mật khẩu thành công!");
                     } catch (Exception ex) {
                         Service.gI().sendThongBao(player, "Đổi mật khẩu thất bại!");

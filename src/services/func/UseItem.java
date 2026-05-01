@@ -2265,47 +2265,24 @@ public class UseItem {
                 pl.itemTime.isUsevevang = true;
             }
 
-            // ==== LỌ NƯỚC THÁNH (X2 - X15) ====
+            // ==== LỌ NƯỚC THÁNH (X2 - X15) — CHO DÙNG CHUNG CỘNG DỒN ====
             case 1731 -> {
-                if (pl.itemTime.isUseLoX5 || pl.itemTime.isUseLoX7 || pl.itemTime.isUseLoX10
-                        || pl.itemTime.isUseLoX15) {
-                    Service.gI().sendThongBao(pl, "Bạn đang sử dụng nước thánh rồi");
-                    return;
-                }
                 pl.itemTime.lastTimeLoX2 = System.currentTimeMillis();
                 pl.itemTime.isUseLoX2 = true;
             }
             case 1727 -> {
-                if (pl.itemTime.isUseLoX2 || pl.itemTime.isUseLoX7 || pl.itemTime.isUseLoX10
-                        || pl.itemTime.isUseLoX15) {
-                    Service.gI().sendThongBao(pl, "Bạn đang sử dụng nước thánh rồi");
-                    return;
-                }
                 pl.itemTime.lastTimeLoX5 = System.currentTimeMillis();
                 pl.itemTime.isUseLoX5 = true;
             }
             case 1728 -> {
-                if (pl.itemTime.isUseLoX5 || pl.itemTime.isUseLoX2 || pl.itemTime.isUseLoX10
-                        || pl.itemTime.isUseLoX15) {
-                    Service.gI().sendThongBao(pl, "Bạn đang sử dụng nước thánh rồi");
-                    return;
-                }
                 pl.itemTime.lastTimeLoX7 = System.currentTimeMillis();
                 pl.itemTime.isUseLoX7 = true;
             }
             case 1729 -> {
-                if (pl.itemTime.isUseLoX5 || pl.itemTime.isUseLoX7 || pl.itemTime.isUseLoX2 || pl.itemTime.isUseLoX15) {
-                    Service.gI().sendThongBao(pl, "Bạn đang sử dụng nước thánh rồi");
-                    return;
-                }
                 pl.itemTime.lastTimeLoX10 = System.currentTimeMillis();
                 pl.itemTime.isUseLoX10 = true;
             }
             case 1730 -> {
-                if (pl.itemTime.isUseLoX5 || pl.itemTime.isUseLoX7 || pl.itemTime.isUseLoX10 || pl.itemTime.isUseLoX2) {
-                    Service.gI().sendThongBao(pl, "Bạn đang sử dụng nước thánh rồi");
-                    return;
-                }
                 pl.itemTime.lastTimeLoX15 = System.currentTimeMillis();
                 pl.itemTime.isUseLoX15 = true;
             }
