@@ -36,6 +36,10 @@ public class PlayerEvent {
         this.eventPointPhaoBong = eventPointPhaoBong;
     }
 
+    public int getEventPointPhaoBong() {
+        return eventPointPhaoBong;
+    }
+
     public void setDiemTichLuy(int diemTichLuy) {
         this.diemTichLuy = diemTichLuy;
     }
