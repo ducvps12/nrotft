@@ -251,6 +251,22 @@ public final class Manager {
             MAPS.add(map);
             map.initMob(mapTemp.mobTemp, mapTemp.mobLevel, mapTemp.mobHp, mapTemp.mobX, mapTemp.mobY);
             map.initNpc(mapTemp.npcId, mapTemp.npcX, mapTemp.npcY);
+
+            // Đảm bảo map 187 (Cadic) luôn có waypoint để thoát về ĐHVT (map 52)
+            if (map.mapId == 187 && map.wayPoints.isEmpty()) {
+                WayPoint wp = new WayPoint();
+                wp.name = "ĐHVT";
+                wp.minX = 0;
+                wp.minY = 300;
+                wp.maxX = 30;
+                wp.maxY = 360;
+                wp.isEnter = false;
+                wp.isOffline = false;
+                wp.goMap = 52;
+                wp.goX = 300;
+                wp.goY = 336;
+                map.wayPoints.add(wp);
+            }
             
             // Spawn GohanUltra ở 3 map đầu có SKH: map 1 (Trái Đất), map 8 (Namếc), map 15 (Xayda)
             // Mỗi map chỉ 1 NPC duy nhất - không spam spawn
@@ -283,6 +299,20 @@ public final class Manager {
                     y = 336;
                 }
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, x, y, ConstNpc.GOHAN_ULTRA));
+            }
+
+            // Đảm bảo map 187 (Bình hút năng lượng Cadic) luôn có NPC Ôsin để người chơi thoát ra
+            if (map.mapId == 187) {
+                boolean hasOsin = false;
+                for (Npc npc : map.npcs) {
+                    if (npc.tempId == ConstNpc.OSIN) {
+                        hasOsin = true;
+                        break;
+                    }
+                }
+                if (!hasOsin) {
+                    map.npcs.add(NpcFactory.createNPC(map.mapId, 1, (short) 300, (short) 336, ConstNpc.OSIN));
+                }
             }
 
             // NPC Hùng Vương được spawn trong HungVuong.java (event) — không spawn ở đây vì EventManager chưa init

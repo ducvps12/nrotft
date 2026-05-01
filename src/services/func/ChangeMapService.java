@@ -553,6 +553,12 @@ public class ChangeMapService {
             changeMap(player, zoneJoin, -1, -1, xGo, yGo, NON_SPACE_SHIP);
 
         } else {
+            // Fallback: nếu người chơi ở map Cadic (187) mà không có waypoint, cho về ĐHVT
+            if (MapService.gI().isMapCadic(player.zone.map.mapId)) {
+                Service.gI().sendThongBao(player, "Bạn đang rời khỏi khu vực Cadic...");
+                changeMap(player, 52, -1, Util.nextInt(100, 300), 336);
+                return;
+            }
             resetPoint(player);
             if (MapService.gI().isMapPhoBan(player.zone.map.mapId)) {
                 Service.gI().sendThongBao(player, "Chưa hạ hết đối thủ");
