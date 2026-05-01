@@ -659,6 +659,12 @@ public class UseItem {
                             case 1592:
                                 UseItem.gI().Gokudayvip(pl, item);
                                 break;
+                            case 1695: // Hộp quà tháng 9
+                                UseItem.gI().hopQuaThang9(pl, item);
+                                break;
+                            case 1696: // Hộp quà tháng 9 VIP
+                                UseItem.gI().hopQuaThang9VIP(pl, item);
+                                break;
                             case 1377:
                                 thiepchucvip(pl, item);
                                 break;
@@ -4263,6 +4269,148 @@ public class UseItem {
                 + "Bạn nhận được: " + petItem.template.name + "\n"
                 + "Chỉ số: " + statNames[statIndex] + " +" + statValue + "%\n"
                 + "Thời hạn: " + durationText);
+    }
+
+    // ========================================================================
+    // HỘP QUÀ THÁNG 9
+    // ========================================================================
+    private void hopQuaThang9(Player pl, Item item) {
+        try {
+            if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                Service.gI().sendThongBao(pl, "Hành trang đã đầy, cần ít nhất 1 ô trống!");
+                return;
+            }
+
+            RandomCollection<Integer> rd = new RandomCollection<>();
+            rd.add(25, 1); // Công thức / đá nâng cấp
+            rd.add(25, 2); // Nguyên liệu sự kiện
+            rd.add(20, 3); // Cải trang thường
+            rd.add(15, 4); // Bùa bình an / may mắn
+            rd.add(10, 5); // Capsule kích hoạt
+            rd.add(5, 6);  // Rương rồng thần
+
+            int color = rd.next();
+            Item reward = null;
+            switch (color) {
+                case 1: { // Công thức / đá nâng cấp
+                    int[] ids = {1071, 1072, 1073, 1074, 1075, 1076, 1077, 1078, 1084, 1085, 1086};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.quantity = Util.nextInt(1, 3);
+                    break;
+                }
+                case 2: { // Nguyên liệu sự kiện
+                    int[] ids = {1310, 1311, 1312, 674, 670};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.quantity = Util.nextInt(3, 10);
+                    break;
+                }
+                case 3: { // Cải trang thường
+                    int[] ids = {1693, 1697, 1698, 1700};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.itemOptions.add(new Item.ItemOption(50, Util.nextInt(5, 12)));
+                    reward.itemOptions.add(new Item.ItemOption(77, Util.nextInt(5, 12)));
+                    reward.itemOptions.add(new Item.ItemOption(103, Util.nextInt(5, 12)));
+                    if (Util.isTrue(80, 100)) {
+                        reward.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 7)));
+                    }
+                    break;
+                }
+                case 4: { // Bùa bình an / may mắn
+                    int[] ids = {1691, 1692};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.quantity = Util.nextInt(1, 3);
+                    break;
+                }
+                case 5: { // Capsule kích hoạt
+                    reward = ItemService.gI().createNewItem((short) 1559);
+                    break;
+                }
+                case 6: { // Rương rồng thần
+                    reward = ItemService.gI().createNewItem((short) 1898);
+                    break;
+                }
+            }
+
+            if (reward != null) {
+                InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                InventoryService.gI().addItemBag(pl, reward);
+                InventoryService.gI().sendItemBag(pl);
+                pl.event.addDiemSuKien(3);
+                Service.gI().sendThongBao(pl, "Bạn nhận được " + reward.template.name
+                        + (reward.quantity > 1 ? " x" + reward.quantity : "") + " + 3 điểm sự kiện!");
+            }
+        } catch (Exception e) {
+            Logger.error("Lỗi hopQuaThang9: " + e.getMessage());
+        }
+    }
+
+    private void hopQuaThang9VIP(Player pl, Item item) {
+        try {
+            if (InventoryService.gI().getCountEmptyBag(pl) <= 0) {
+                Service.gI().sendThongBao(pl, "Hành trang đã đầy, cần ít nhất 1 ô trống!");
+                return;
+            }
+
+            RandomCollection<Integer> rd = new RandomCollection<>();
+            rd.add(20, 1); // Cải trang VIP
+            rd.add(20, 2); // Đồ thần linh / hủy diệt
+            rd.add(20, 3); // Set kích hoạt
+            rd.add(15, 4); // Capsule cải trang VIP
+            rd.add(15, 5); // Công thức VIP + đá nâng cao
+            rd.add(10, 6); // Rương rồng thần
+
+            int color = rd.next();
+            Item reward = null;
+            switch (color) {
+                case 1: { // Cải trang VIP
+                    int[] ids = {1693, 1697, 1698, 1700};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.itemOptions.add(new Item.ItemOption(50, Util.nextInt(15, 25)));
+                    reward.itemOptions.add(new Item.ItemOption(77, Util.nextInt(15, 25)));
+                    reward.itemOptions.add(new Item.ItemOption(103, Util.nextInt(15, 25)));
+                    reward.itemOptions.add(new Item.ItemOption(210, Util.nextInt(1, 3)));
+                    if (Util.isTrue(90, 100)) {
+                        reward.itemOptions.add(new Item.ItemOption(93, Util.nextInt(3, 14)));
+                    }
+                    break;
+                }
+                case 2: { // Hộp SKH Thần Linh / Hủy Diệt
+                    int[] ids = {1703, 1704};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    break;
+                }
+                case 3: { // Set kích hoạt
+                    int[] ids = {1536, 1537, 1538};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    break;
+                }
+                case 4: { // Capsule cải trang VIP
+                    reward = ItemService.gI().createNewItem((short) 2006);
+                    break;
+                }
+                case 5: { // Công thức VIP + đá nâng cao
+                    int[] ids = {1084, 1085, 1086, 1079, 1080, 1081, 1082, 1083};
+                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                    reward.quantity = Util.nextInt(2, 5);
+                    break;
+                }
+                case 6: { // Rương rồng thần
+                    reward = ItemService.gI().createNewItem((short) 1898);
+                    break;
+                }
+            }
+
+            if (reward != null) {
+                InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                InventoryService.gI().addItemBag(pl, reward);
+                InventoryService.gI().sendItemBag(pl);
+                pl.event.addDiemSuKien(10);
+                Service.gI().sendThongBao(pl, "Bạn nhận được " + reward.template.name
+                        + (reward.quantity > 1 ? " x" + reward.quantity : "") + " + 10 điểm sự kiện!");
+            }
+        } catch (Exception e) {
+            Logger.error("Lỗi hopQuaThang9VIP: " + e.getMessage());
+        }
     }
 }
 

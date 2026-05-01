@@ -630,7 +630,8 @@ public class Boss extends Player implements IBoss, IBossOutfit {
 
     public void pointBoss(Player plKill) {
         plKill.event.addEventPointBHM(1);
-        Service.gI().sendThongBao(plKill, "Bạn đã Đã tiêu diệt được " + this.name + " và nhận 1 điểm săn boss");
+        plKill.event.addDiemSuKien(5);
+        Service.gI().sendThongBao(plKill, "Bạn đã tiêu diệt được " + this.name + " và nhận 1 điểm săn boss + 5 điểm sự kiện");
     }
 
     protected long lastTimeAttack;
@@ -705,6 +706,7 @@ public class Boss extends Player implements IBoss, IBossOutfit {
         generalRewards(plKill);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);
         plKill.event.addEventPointBHM(1);
+        plKill.event.addDiemSuKien(5);
     }
 
     @Override

@@ -88,13 +88,16 @@ public class AccountPanel extends JPanel {
 
         JButton btnSearch = createButton("Tìm kiếm", COL_PRIMARY);
         JButton btnReload = createButton("Làm mới", new Color(40, 167, 69));
+        JButton btnPurge = createButton("🗑 Xóa TK chưa tạo NV", new Color(220, 53, 69));
 
         btnSearch.addActionListener(e -> searchData(txtSearch.getText()));
         btnReload.addActionListener(e -> { txtSearch.setText(""); loadData(); });
+        btnPurge.addActionListener(e -> purgeEmptyAccounts());
 
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
         searchPanel.add(btnReload);
+        searchPanel.add(btnPurge);
 
         topPanel.add(lblTitle, BorderLayout.NORTH);
         topPanel.add(searchPanel, BorderLayout.CENTER);
@@ -911,6 +914,66 @@ public class AccountPanel extends JPanel {
             g2.dispose();
             return new ImageIcon(img);
         }
+    }
+
+    /**
+     * Xóa toàn bộ tài khoản chưa tạo nhân vật (không có record trong bảng player)
+     */
+    private void purgeEmptyAccounts() {
+        new Thread(() -> {
+            try (Connection conn = DBConnecter.getConnectionServer()) {
+                // Đếm số tài khoản chưa tạo NV
+                String countSql = "SELECT COUNT(*) FROM account a WHERE NOT EXISTS (SELECT 1 FROM player p WHERE p.account_id = a.id)";
+                int count = 0;
+                try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(countSql)) {
+                    if (rs.next()) count = rs.getInt(1);
+                }
+
+                if (count == 0) {
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this,
+                            "Không có tài khoản nào chưa tạo nhân vật!", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+                    return;
+                }
+
+                final int totalCount = count;
+                SwingUtilities.invokeAndWait(() -> {
+                    int confirm = JOptionPane.showConfirmDialog(this,
+                            "⚠ Tìm thấy " + totalCount + " tài khoản chưa tạo nhân vật.\n\n"
+                            + "Bạn có chắc muốn XÓA VĨNH VIỄN tất cả?\n"
+                            + "Hành động này KHÔNG THỂ hoàn tác!",
+                            "Xác nhận xóa TK rỗng", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                    if (confirm != JOptionPane.YES_OPTION) return;
+
+                    // Double confirm
+                    int doubleConfirm = JOptionPane.showConfirmDialog(this,
+                            "XÁC NHẬN LẦN 2:\nXóa " + totalCount + " tài khoản chưa tạo nhân vật?",
+                            "Xác nhận lần cuối", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+
+                    if (doubleConfirm != JOptionPane.YES_OPTION) return;
+
+                    // Thực hiện xóa trên thread riêng
+                    new Thread(() -> {
+                        try (Connection conn2 = DBConnecter.getConnectionServer(); Statement stmt2 = conn2.createStatement()) {
+                            String deleteSql = "DELETE FROM account WHERE NOT EXISTS (SELECT 1 FROM player p WHERE p.account_id = account.id)";
+                            int deleted = stmt2.executeUpdate(deleteSql);
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(this,
+                                        "✅ Đã xóa thành công " + deleted + " tài khoản chưa tạo nhân vật!",
+                                        "Hoàn tất", JOptionPane.INFORMATION_MESSAGE);
+                                loadData();
+                            });
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()));
+                        }
+                    }).start();
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()));
+            }
+        }).start();
     }
 
     /**
