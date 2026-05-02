@@ -7,6 +7,7 @@ import models.WorldMartialArtsTournament.WorldMartialArtsTournamentService;
 import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.server.Manager;
+import nro.server.ServerNotify;
 import nro.services.InventoryService;
 import nro.services.ItemService;
 import nro.services.NpcService;
@@ -27,14 +28,27 @@ public class GhiDanh extends Npc {
     public void openBaseMenu(Player pl) {
         if (canOpenNpc(pl)) {
             switch (this.mapId) {
-                case 42, 43, 44 ->
+                case 42, 43, 44 -> {
+                    int pts = pl.point_maydam;
+                    int nextMilestone = getNextMilestone(pts);
+                    String milestoneInfo = nextMilestone > 0
+                            ? "\nMốc tiếp: " + nextMilestone + " điểm"
+                            : "\n★ Đã đạt tất cả mốc thưởng!";
                     this.createOtherMenu(pl, ConstNpc.MAY_DAM,
-                            "Tính điểm máy đấm nào các thí sinh\nMáy đấm đằng kia không phải tôi.",
-                            "Top 100\n Trái đất",
+                            "|7|━━ MÁY ĐO SỨC MẠNH ━━\n\n"
+                                    + "|1|Điểm hiện tại: |8|" + pts + milestoneInfo + "\n\n"
+                                    + "|2|★ Phần thưởng mốc:\n"
+                                    + "|8|• 100đ: 5 Xu NRO + 50M vàng\n"
+                                    + "|8|• 500đ: 2 Thỏi vàng + 100M\n"
+                                    + "|8|• 1000đ: Capsule + 5 TV\n"
+                                    + "|8|• 5000đ: Hộp SKH + 20 TV\n"
+                                    + "|8|• 10000đ: Sách TK2 + 50 TV",
+                            "Top 100\nTrái đất",
                             "Top 100\nNamek",
                             "Top 100\nXayda",
-                            "Xem điểm",
+                            "Xem điểm\n& Thưởng",
                             "Đóng");
+                }
                 case 52 ->
                     WorldMartialArtsTournamentService.menu(this, pl);
                 case 129 -> {
@@ -56,7 +70,14 @@ public class GhiDanh extends Npc {
                                 "Nhận\nthưởng\nRương Cấp\n" + pl.levelWoodChest, "Về\nĐại Hội\nVõ Thuật" };
                     }
                     this.createOtherMenu(pl, ConstNpc.BASE_MENU,
-                            "Đại hội võ thuật lần thứ 23\nDiễn ra bất kể ngày đêm, ngày nghỉ, ngày lễ\nPhần thưởng vô cùng quý giá\nNhanh chóng tham gia nào",
+                            "|7|━━ ĐẠI HỘI VÕ THUẬT 23 ━━\n\n"
+                                    + "|1|Round hiện tại: |8|" + pl.levelWoodChest + " / 12\n\n"
+                                    + "|2|★ Thưởng mốc đặc biệt:\n"
+                                    + "|8|• Round 4: 50M vàng + 10 ngọc\n"
+                                    + "|8|• Round 8: 3 Thỏi vàng + 30 ngọc\n"
+                                    + "|8|• Round 12: JACKPOT + Thông báo!\n\n"
+                                    + "|8|Chi phí: " + Util.numberToMoney(goldchallenge) + " vàng"
+                                    + " hoặc " + Util.numberToMoney(rubychallenge) + " hồng ngọc",
                             menuselect, "Từ chối");
                 }
                 default ->
@@ -212,19 +233,124 @@ public class GhiDanh extends Npc {
                                 Service.gI().showListTopNamek(player, Manager.Topmaydam);
                             case 2 ->
                                 Service.gI().showListTopXayda(player, Manager.Topmaydam);
-                            case 3 -> {
-                                if (player.point_maydam >= 10) {
-                                    Service.gI().sendThongBaoOK(player, "Bạn đang có " + player.point_maydam + " Điểm");
-                                } else {
-                                    createOtherMenu(player, 2010,
-                                            "Chưa đủ điểm vào TOP (ít nhất là 10 điểm)",
-                                            "Đóng");
-                                }
-                            }
+                            case 3 -> handleMaydamReward(player);
+                        }
+                    }
+                    case 2010 -> {
+                        if (select == 0) {
+                            claimMaydamMilestone(player);
                         }
                     }
                 }
             }
         }
+    }
+
+    // ============ PHẦN THƯỞNG MỐC MÁY ĐẤM ============
+    private void handleMaydamReward(Player player) {
+        int pts = player.point_maydam;
+        int nextMilestone = getNextMilestone(pts);
+        boolean canClaim = canClaimMilestone(player);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("|7|━━ ĐIỂM MÁY ĐẤM ━━\n\n");
+        sb.append("|1|Điểm hiện tại: |8|").append(pts).append("\n\n");
+        sb.append("|2|Trạng thái mốc thưởng:\n");
+        sb.append(getMilestoneStatus(pts, 100, "5 Xu NRO + 50M vàng"));
+        sb.append(getMilestoneStatus(pts, 500, "2 Thỏi vàng + 100M + 20 ngọc"));
+        sb.append(getMilestoneStatus(pts, 1000, "Capsule DC + 5 TV + 50 ngọc"));
+        sb.append(getMilestoneStatus(pts, 5000, "Hộp SKH + 20 TV + 200 ngọc"));
+        sb.append(getMilestoneStatus(pts, 10000, "Sách TK2 + 50 TV + 500 ngọc"));
+
+        if (canClaim) {
+            this.createOtherMenu(player, 2010, sb.toString(), "Nhận\nthưởng mốc", "Đóng");
+        } else {
+            if (nextMilestone > 0) {
+                sb.append("\n|1|Còn |8|").append(nextMilestone - pts).append("|1| điểm nữa!");
+            }
+            this.createOtherMenu(player, 2010, sb.toString(), "Đóng");
+        }
+    }
+
+    private String getMilestoneStatus(int pts, int milestone, String reward) {
+        if (pts >= milestone) {
+            return "|8|✅ " + milestone + "đ: " + reward + "\n";
+        }
+        return "|1|⬜ " + milestone + "đ: " + reward + "\n";
+    }
+
+    private boolean canClaimMilestone(Player player) {
+        int pts = player.point_maydam;
+        // Kiểm tra có mốc nào đạt mà chưa nhận không
+        // Dùng total_damage_maydam bit flags hoặc đơn giản: trừ điểm khi nhận
+        return pts >= 100;
+    }
+
+    private int getNextMilestone(int pts) {
+        int[] milestones = {100, 500, 1000, 5000, 10000};
+        for (int m : milestones) {
+            if (pts < m) return m;
+        }
+        return 0;
+    }
+
+    // Xử lý nhận thưởng mốc máy đấm (menu 2010, select 0)
+    private void claimMaydamMilestone(Player player) {
+        int pts = player.point_maydam;
+        if (pts < 100) {
+            Service.gI().sendThongBao(player, "Chưa đủ điểm để nhận thưởng!");
+            return;
+        }
+
+        StringBuilder reward = new StringBuilder();
+        int xuTotal = 0;
+        long goldTotal = 0;
+        int gemTotal = 0;
+
+        if (pts >= 100) { xuTotal += 5; goldTotal += 50_000_000L; }
+        if (pts >= 500) { goldTotal += 100_000_000L; gemTotal += 20;
+            Item tv = ItemService.gI().createNewItem((short) 457, 2);
+            InventoryService.gI().addItemBag(player, tv);
+            reward.append(", 2 Thỏi vàng");
+        }
+        if (pts >= 1000) { gemTotal += 50;
+            Item cap = ItemService.gI().createNewItem((short) 192, 1);
+            InventoryService.gI().addItemBag(player, cap);
+            Item tv = ItemService.gI().createNewItem((short) 457, 5);
+            InventoryService.gI().addItemBag(player, tv);
+            reward.append(", Capsule DC, 5 TV");
+        }
+        if (pts >= 5000) { gemTotal += 200;
+            Item hop = ItemService.gI().createNewItem((short) 860, 1);
+            InventoryService.gI().addItemBag(player, hop);
+            Item tv = ItemService.gI().createNewItem((short) 457, 20);
+            InventoryService.gI().addItemBag(player, tv);
+            reward.append(", Hộp SKH, 20 TV");
+        }
+        if (pts >= 10000) { gemTotal += 500;
+            Item stk = ItemService.gI().createNewItem((short) 456, 1);
+            InventoryService.gI().addItemBag(player, stk);
+            Item tv = ItemService.gI().createNewItem((short) 457, 50);
+            InventoryService.gI().addItemBag(player, tv);
+            reward.append(", Sách TK2, 50 TV");
+            ServerNotify.gI().notify("★ " + player.name + " đạt 10.000 điểm Máy Đấm!");
+        }
+
+        if (xuTotal > 0) {
+            Item xu = ItemService.gI().createNewItem((short) 1705, xuTotal);
+            InventoryService.gI().addItemBag(player, xu);
+        }
+        player.inventory.gold += goldTotal;
+        player.inventory.gem += gemTotal;
+
+        // Reset điểm sau khi nhận
+        player.point_maydam = 0;
+        Service.gI().updatePlayerPointMayDam(player);
+
+        InventoryService.gI().sendItemBag(player);
+        PlayerService.gI().sendInfoHpMpMoney(player);
+        Service.gI().sendThongBao(player, "★ Nhận thưởng mốc Máy Đấm!\n"
+                + xuTotal + " Xu NRO, " + gemTotal + " ngọc, "
+                + Util.numberToMoney(goldTotal) + " vàng" + reward);
     }
 }

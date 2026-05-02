@@ -50,6 +50,7 @@ public class DaiThienSu extends Npc {
     private static final int MENU_HD_ECONOMY = 3008;
     private static final int MENU_HD_FLOW = 3009;
     private static final int MENU_HD_KILIS = 3010;
+    private static final int MENU_HD_MABU = 3011;
 
     private static final int[] MOC_5 = { 500, 800, 1500, 3000, 5000 };
 
@@ -112,6 +113,7 @@ public class DaiThienSu extends Npc {
             case MENU_HD_PVP -> { if (select == 0) showHuongDan(player); }
             case MENU_HD_ECONOMY -> { if (select == 0) showHuongDan(player); }
             case MENU_HD_KILIS -> { if (select == 0) showHuongDan(player); }
+            case MENU_HD_MABU -> { if (select == 0) showHuongDan(player); }
         }
     }
 
@@ -191,9 +193,9 @@ public class DaiThienSu extends Npc {
                 "Đậu Thần\n& Hồi Phục",
                 "Boss &\nSăn Đồ",
                 "Đệ Tử\n& Kilis",
+                "Map MaBu\n& Kilis",
                 "Bang Hội\n& Phó Bản",
-                "PVP &\nKinh Tế",
-                "Quay lại");
+                "PVP &\nKinh Tế");
     }
 
     private void handleHuongDan(Player player, int select) {
@@ -203,9 +205,9 @@ public class DaiThienSu extends Npc {
             case 2 -> showBeanGuide(player);
             case 3 -> showBossGuide(player);
             case 4 -> showKilisGuide(player);
-            case 5 -> showClanGuide(player);
-            case 6 -> showPvpEconomyGuide(player);
-            case 7 -> openBaseMenu(player);
+            case 5 -> showMabuGuide(player);
+            case 6 -> showClanGuide(player);
+            case 7 -> showPvpEconomyGuide(player);
         }
     }
 
@@ -332,6 +334,37 @@ public class DaiThienSu extends Npc {
                         + "Shop:\n"
                         + "  Uron: sách kỹ năng\n"
                         + "  Santa: trang phục, capsule",
+                "Quay lại");
+    }
+
+    // ==========================================
+    // HƯỚNG DẪN MAP MABU & KILIS
+    // ==========================================
+    private void showMabuGuide(Player player) {
+        createOtherMenu(player, MENU_HD_MABU,
+                "=== MAP MABU & KILIS ===\n\n"
+                        + "Cách vào Map MaBu:\n"
+                        + "  NPC Ôsin tại Đại Hội Võ Thuật\n"
+                        + "  Mở từ 12h hàng ngày\n"
+                        + "  Bấm OK để vào map\n\n"
+                        + "Cơ chế phong ấn:\n"
+                        + "  Mọi sức mạnh bị phong ấn\n"
+                        + "  Tích 10 điểm TL = xuống tầng\n"
+                        + "  Hạ quái/người chơi = tích điểm\n\n"
+                        + "Hệ thống tầng:\n"
+                        + "  T1: Drabura → T2: BuiBui\n"
+                        + "  T3: BuiBui 2 → T4: YaCon\n"
+                        + "  T5: Drabura 2 → T6: MaBu\n\n"
+                        + "Phe phái:\n"
+                        + "  Kaiô (Ôsin) vs Babiday\n"
+                        + "  Bị thôi miên → đổi phe ngẫu nhiên\n\n"
+                        + "Farm Kilis (Map 187):\n"
+                        + "  Cần Bình hút năng lượng\n"
+                        + "  100 hồng ngọc = 10p buff x2\n"
+                        + "  Kilis dùng tiến hóa đệ tử\n\n"
+                        + "MaBu 14H (map 127-128):\n"
+                        + "  Phù hộ: 10 ngọc = +1tr HP/KI\n"
+                        + "  Boss: MaBu, Super Bu",
                 "Quay lại");
     }
 

@@ -265,27 +265,34 @@ public class Input {
                             System.out.println("[PAYMENT ERROR] InsertTransactionAndGetId returned " + transactionId + " for player " + player.name);
                         }
 
-                        Npc npc = NpcManager.getByIdAndMap(ConstNpc.ONG_GOHAN, player.zone.map.mapId);
+                        Npc npc = NpcManager.getByIdAndMap(ConstNpc.BO_MONG, player.zone.map.mapId);
+                        if (npc == null) {
+                            npc = NpcManager.getByIdAndMap(ConstNpc.ONG_GOHAN, player.zone.map.mapId);
+                        }
                         if (npc == null) {
                             npc = NpcManager.getByIdAndMap(ConstNpc.ONG_PARAGUS, player.zone.map.mapId);
                         }
                         if (npc == null) {
                             npc = NpcManager.getByIdAndMap(ConstNpc.ONG_MOORI, player.zone.map.mapId);
                         }
+                        String paymentInfo = "Con đã tạo thành công giao dịch Với Mệnh Giá Là: " + Util.mumberToLouis(money)
+                                + " VNĐ\n"
+                                + "Vui Lòng Chuyển Khoản Theo Cú Pháp Như Sau:\n"
+                                + "Ngân Hàng: ACB\n"
+                                + "Chủ TK: MAI XUAN ANH\n"
+                                + "STK: 24488671\n"
+                                + "Nội Dung: " + description + "\n"
+                                + "|7|HOẶC CÓ THỂ QUÉT QR BÊN DƯỚI\n"
+                                + "|1|LƯU Ý: ĐỢI 1-3 PHÚT TIỀN SẼ TỰ ĐỘNG CỘNG VÀO TÀI KHOẢN CỦA BẠN";
                         if (npc != null) {
                             npc.createOtherMenu(player, ConstNpc.CONTENT_CHUYEN_KHOAN,
-                                    "Con đã tạo thành công giao dịch Với Mệnh Giá Là: " + Util.mumberToLouis(money)
-                                            + " VNĐ\n"
-                                            + "Vui Lòng Chuyển Khoản Theo Cú Pháp Như Sau:\n"
-                                            + "Ngân Hàng: ACB\n"
-                                            + "Chủ TK: MAI XUAN ANH\n"
-                                            + "STK: 24488671\n"
-                                            + "Nội Dung: " + description + "\n"
-                                            + "|7|HOẶC CÓ THỂ QUÉT QR BÊN DƯỚI\n"
-                                            + "|1|LƯU Ý: ĐỢI 1-3 PHÚT TIỀN SẼ TỰ ĐỘNG CỘNG VÀO TÀI KHOẢN CỦA BẠN",
+                                    paymentInfo,
                                     "Quét Mã\nQR", "Từ chối");
                         } else {
-                            Service.gI().sendThongBao(player, "Không tìm thấy NPC nhận giao dịch ở map hiện tại, vui lòng thử lại tại nhà.");
+                            // Fallback: dùng menu con mèo nếu không tìm thấy NPC nào trên map
+                            NpcService.gI().createMenuConMeo(player, ConstNpc.CONTENT_CHUYEN_KHOAN, -1,
+                                    paymentInfo,
+                                    "Quét Mã\nQR", "Từ chối");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

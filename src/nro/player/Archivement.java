@@ -464,38 +464,23 @@ public class Archivement {
     }
 
     public int getRuby(int index) {
-        switch (index) {
-            case 0:
-                return 0;
-            case 1:
-                return 0;
-            case 2:
-                return 0;
-            case 3:
-                return 0;
-            case 4:
-                return 0;
-            case 5:
-                return 0;
-            case 6:
-                return 0;
-            case 7:
-                return 0;
-            case 8:
-                return 0;
-            case 9:
-                return 0;
-            case 10:
-                return 0;
-            case 11:
-                return 0;
-            case 12:
-                return 0;
-            case 13:
-                return 0;
-
-            default:
-                return -1;
-        }
+        // Hồng ngọc hiển thị trên UI (short max = 32767, cap tại 32000)
+        return switch (index) {
+            case 0 -> 500;      // Mốc 20K
+            case 1 -> 1000;     // Mốc 40K
+            case 2 -> 2000;     // Mốc 60K
+            case 3 -> 3000;     // Mốc 100K
+            case 4 -> 5000;     // Mốc 140K
+            case 5 -> 8000;     // Mốc 200K
+            case 6 -> 15000;    // Mốc 400K
+            case 7 -> 25000;    // Mốc 800K
+            case 8 -> 30000;    // Mốc 1.2M
+            case 9 -> 32000;    // Mốc 1.6M
+            case 10 -> 32000;   // Mốc 2M
+            case 11 -> 32000;   // Mốc 2.6M
+            case 12 -> 32000;   // Mốc 4M
+            case 13 -> 32000;   // Mốc 6M
+            default -> 0;
+        };
     }
 }

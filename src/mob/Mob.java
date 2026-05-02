@@ -894,11 +894,13 @@ public class Mob {
             if (plPK.isPet) {
                 plPK = ((Pet) plPK).master;
             }
-            // Item 695-698 rơi khi đánh quái, tỉ lệ 10% mỗi loại
-            if (Util.isTrue(10, 100)) {
-                int[] eventItems = {695, 696, 697, 698};
-                int randomItem = eventItems[Util.nextInt(eventItems.length)];
-                list.add(new ItemMap(zone, randomItem, 1, x, yEnd, plPK.id));
+            // Vỏ Sên (1664) - item chính để đổi Bóng Poké tại ChiChi
+            if (Util.isTrue(8, 100)) {
+                list.add(new ItemMap(zone, 1664, Util.nextInt(1, 2), x, yEnd, plPK.id));
+            }
+            // Túi Dựng (1665) - item phụ để đổi Bóng Ultra/Master
+            if (Util.isTrue(3, 100)) {
+                list.add(new ItemMap(zone, 1665, 1, x, yEnd, plPK.id));
             }
         }
 
@@ -1453,11 +1455,11 @@ public class Mob {
             }
         }
         if (player.setClothes.checkSetDes() && MapService.gI().isMapNgucTu(mapid)) {
-            if ((player.isActive() && Util.isTrue(2, 555)) || Util.isTrue(10, 100)) {
+            if ((player.isActive() && Util.isTrue(1, 555)) || Util.isTrue(2, 100)) {
                 list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
             }
         }
-        if ((Util.isTrue(10, 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(20, 100)))
+        if ((Util.isTrue(3, 100) || (player.isActive() && player.setClothes.checkSetDes() && Util.isTrue(5, 100)))
                 && MapService.gI().isMapNgucTu(mapid)) {
             list.add(new ItemMap(zone, 1229, 1, x, yEnd, player.id));
         }

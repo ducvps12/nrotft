@@ -657,6 +657,8 @@ public class UseItem {
 
                                 break;
                             case 1592:
+                            case 1591: // Hộp quà Goku Day (thường)
+                            case 1594: // Hộp quà Goku Day (thường 2)
                                 UseItem.gI().Gokudayvip(pl, item);
                                 break;
                             case 1695: // Hộp quà tháng 9
@@ -3587,7 +3589,7 @@ public class UseItem {
             List<Short> itemList = Arrays.asList((short) 1759, (short) 1760, (short) 1761, (short) 1762, (short) 1763,
                     (short) 1764);
 
-            short selectedItemId = itemList.get(Util.nextInt(0, itemList.size()));
+            short selectedItemId = itemList.get(Util.nextInt(0, itemList.size() - 1));
 
             Item selectedItem = ItemService.gI().createNewItem(selectedItemId);
 
@@ -3752,7 +3754,7 @@ public class UseItem {
 
             List<Short> itemList = Arrays.asList((short) 1588, (short) 1589, (short) 1590, (short) 1593, (short) 955);
 
-            short selectedItemId = itemList.get(Util.nextInt(0, itemList.size()));
+            short selectedItemId = itemList.get(Util.nextInt(0, itemList.size() - 1));
 
             Item selectedItem = ItemService.gI().createNewItem(selectedItemId);
             switch (selectedItemId) {
@@ -4351,9 +4353,9 @@ public class UseItem {
                     }
                     break;
                 }
-                case 2: { // Hộp SKH Thần Linh / Hủy Diệt
-                    int[] ids = {1703, 1704};
-                    reward = ItemService.gI().createNewItem((short) ids[Util.nextInt(0, ids.length - 1)]);
+                case 2: { // Mảnh vỡ bông tai cấp 3
+                    reward = ItemService.gI().createNewItem((short) 1855);
+                    reward.quantity = Util.nextInt(3, 5);
                     break;
                 }
                 case 3: { // Set kích hoạt

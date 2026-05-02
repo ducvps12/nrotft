@@ -35,13 +35,15 @@ import java.util.regex.Pattern;
 public class ChuyenKhoanManager {
 
     private static final String ACB_HISTORY_API = "https://api.sieuthicode.net/historyapiacb/ec4f8aeb9d87bc0ffa48f709365313d1";
-    // Pattern BẮT BUỘC phải có prefix: "chuyen tien", "nap", "id", "mtdgame" + số player ID
-    // Prefix KHÔNG optional (không có ?) để tránh match mọi số trong nội dung bank
+    // Pattern BẮT BUỘC phải có prefix: "chuyen tien", "naptien", "mtdgame", "id" + số player ID
+    // QUAN TRỌNG: KHÔNG dùng "NAP" đơn lẻ vì match quá rộng (NAPAS, nội dung bank tự sinh)
     private static final Pattern WEBSITE_TRANSFER_PATTERN = Pattern.compile(
-        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAP|MTDGAME|ID)\\s*[:#-]?\\s*(\\d{1,12})");
+        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAPTIEN|MTDGAME|\\bID\\b)\\s*[:#-]?\\s*(\\d{1,12})");
     // Pattern để match username (chữ) sau "chuyen tien" - ví dụ: "chuyen tien admin", "chuyen tien nhimoon"
     private static final Pattern USERNAME_TRANSFER_PATTERN = Pattern.compile(
-        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAP|MTDGAME)\\s+([a-zA-Z][a-zA-Z0-9_]{2,30})");
+        "(?i)(?:CHUYEN\\s*TIEN|NAP\\s*TIEN|NAPTIEN|MTDGAME)\\s+([a-zA-Z][a-zA-Z0-9_]{2,30})");
+    // ID admin - KHÔNG BAO GIỜ cộng tiền tự động cho admin từ bank pattern matching
+    private static final long ADMIN_PLAYER_ID = 2;
 
     public static String buildTransferDescription(Player player) {
         String username = getAccountUsername(player != null && player.getSession() != null ? player.getSession().userId : -1);
@@ -603,6 +605,13 @@ public class ChuyenKhoanManager {
                 continue;
             }
 
+            // AN TOÀN: KHÔNG BAO GIỜ cộng tiền tự động cho admin
+            if (playerId == ADMIN_PLAYER_ID) {
+                System.out.println("[ATM-SKIP] Bỏ qua admin ID " + playerId + " | Nội dung: " + description + " | Số tiền: " + amount);
+                skipped++;
+                continue;
+            }
+
             matched++;
 
             // Dedup trong cùng 1 lần check (cùng player + amount + nội dung bank)
@@ -834,16 +843,33 @@ public class ChuyenKhoanManager {
             return -1;
         }
         
-        // 1. Thử match player ID bằng số trước (cách cũ)
+        // Loại bỏ các pattern ngân hàng tự sinh để tránh match nhầm
+        // Ví dụ: "NAPAS", mã giao dịch ngân hàng chứa số dài, etc.
+        String upperDesc = description.toUpperCase();
+        
+        // QUAN TRỌNG: Bỏ qua nội dung bank KHÔNG chứa keyword game hợp lệ
+        boolean hasGameKeyword = upperDesc.contains("CHUYEN TIEN") 
+                || upperDesc.contains("CHUYENTIEN")
+                || upperDesc.contains("NAP TIEN")
+                || upperDesc.contains("NAPTIEN")
+                || upperDesc.contains("MTDGAME")
+                || (upperDesc.contains(" ID ") || upperDesc.startsWith("ID ") || upperDesc.startsWith("ID:"));
+        if (!hasGameKeyword) {
+            return -1; // Không có keyword game → skip hoàn toàn
+        }
+        
+        // 1. Thử match player ID bằng số trước
         Matcher matcher = WEBSITE_TRANSFER_PATTERN.matcher(description);
         long lastValidId = -1;
         while (matcher.find()) {
             long candidateId = Long.parseLong(matcher.group(1));
-            if (candidateId > 0 && playerExists(candidateId)) {
+            // Bỏ qua số quá lớn (có thể là mã giao dịch ngân hàng, số tài khoản)
+            if (candidateId > 0 && candidateId < 100000 && candidateId != ADMIN_PLAYER_ID && playerExists(candidateId)) {
                 lastValidId = candidateId;
             }
         }
         if (lastValidId > 0) {
+            System.out.println("[ATM-MATCH] Matched player ID " + lastValidId + " from: " + description);
             return lastValidId;
         }
         
@@ -851,13 +877,23 @@ public class ChuyenKhoanManager {
         Matcher usernameMatcher = USERNAME_TRANSFER_PATTERN.matcher(description);
         while (usernameMatcher.find()) {
             String candidateUsername = usernameMatcher.group(1).trim();
+            // Bỏ qua các từ khóa ngân hàng phổ biến để tránh match nhầm
+            if (candidateUsername.equalsIgnoreCase("GD")
+                    || candidateUsername.equalsIgnoreCase("MBVCB")
+                    || candidateUsername.equalsIgnoreCase("FT")
+                    || candidateUsername.equalsIgnoreCase("admin")
+                    || candidateUsername.length() <= 2) {
+                continue;
+            }
             long playerIdFromUsername = getPlayerIdByAccountUsername(candidateUsername);
-            if (playerIdFromUsername > 0) {
+            if (playerIdFromUsername > 0 && playerIdFromUsername != ADMIN_PLAYER_ID) {
+                System.out.println("[ATM-MATCH] Matched username '" + candidateUsername + "' → player ID " + playerIdFromUsername + " from: " + description);
                 return playerIdFromUsername;
             }
             // Thử tìm bằng player name nếu không tìm thấy bằng account username
             playerIdFromUsername = getPlayerIdByPlayerName(candidateUsername);
-            if (playerIdFromUsername > 0) {
+            if (playerIdFromUsername > 0 && playerIdFromUsername != ADMIN_PLAYER_ID) {
+                System.out.println("[ATM-MATCH] Matched player name '" + candidateUsername + "' → player ID " + playerIdFromUsername + " from: " + description);
                 return playerIdFromUsername;
             }
         }

@@ -6,6 +6,7 @@ package shop;
  * @author
  */
 import consts.ConstAchievement;
+import consts.ConstNpc;
 import item.Item;
 import npc.specialnpc.MagicTree;
 import nro.player.Inventory;
@@ -1382,14 +1383,14 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
         if (items == null) {
             return;
         }
-        if (index < 0 || index >= items.size()) {
+        if (type != 1 && (index < 0 || index >= items.size())) {
             Service.gI().sendThongBao(player, "Không thể thực hiện");
             return;
         }
-        Item item = items.get(index);
+        Item item = (type != 1 && index >= 0 && index < items.size()) ? items.get(index) : null;
         switch (type) {
             case 0: // nhận
-                if (item.isNotNullItem()) {
+                if (item != null && item.isNotNullItem()) {
                     if (InventoryService.gI().getCountEmptyBag(player) != 0) {
                         InventoryService.gI().addItemBag(player, item);
                         Service.gI().sendThongBao(player,
@@ -1405,10 +1406,24 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
                     Service.gI().sendThongBao(player, "Không thể thực hiện");
                 }
                 break;
-            case 1: // xóa
-                items.remove(index);
-                Service.gI().sendThongBao(player, "Xóa vật phẩm thành công");
-                break;
+            case 1: // xóa hết - hiện dialog xác nhận
+            {
+                int count = items.size()
+                        - InventoryService.gI().getCountEmptyListItem(items);
+                if (count <= 0) {
+                    Service.gI().sendThongBao(player, "Rương đang trống!");
+                    break;
+                }
+                NpcService.gI().createMenuConMeo(player,
+                        ConstNpc.CONFIRM_REMOVE_ALL_ITEM_LUCKY_ROUND, -1,
+                        "|8|⚠ XÓA HẾT RƯƠNG PHỤ\n\n"
+                                + "|1|Số vật phẩm sẽ bị xóa: " + count + "\n\n"
+                                + "|2|Toàn bộ vật phẩm trong rương\n"
+                                + "|2|sẽ bị hủy VĨNH VIỄN!\n\n"
+                                + "|8|Không thể khôi phục!",
+                        "Xóa hết\n(" + count + " món)", "Hủy bỏ");
+                return; // không mở lại shop
+            }
             case 2: // nhận hết
                 for (int i = items.size() - 1; i >= 0; i--) {
                     item = items.get(i);

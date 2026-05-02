@@ -14,6 +14,7 @@ import item.Item.ItemOption;
 import map.ItemMap;
 import mob.Mob;
 import nro.player.Player;
+import nro.server.ServerNotify;
 import utils.Util;
 
 import java.time.Instant;
@@ -860,22 +861,78 @@ public class RewardService {
         for (int i = 0; i < num; i++) {
             Item it = ItemService.gI().createNewItem((short) 189); // vang
             it.quantity = Util.nextInt(5, 50) * 1000;
-            boolean success = Util.isTrue(1, 2);
             if (vip) {
+                // ========== QUAY BẰNG THỎI VÀNG (VIP) - PHẦN THƯỞNG SIÊU HẤP DẪN ==========
+                // --- SSR GOD TIER: Goku Blue (1/10000) - Cải trang thần thoại ---
                 if (Util.isTrue(1, 10000)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(2000, 2005));
+                    it = ItemService.gI().createNewItem((short) 1858); // Goku Blue
                     it.quantity = 1;
-                } else if (Util.isTrue(1, 1000)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(2000, 2002));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 1000)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(1066, 1070));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 500)) {
-                    it = ItemService.gI().createNewItem((short) 2074);
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 50)) {
-                    // === VIP TIER: Cải trang VIP 20-40% ===
+                    it.itemOptions.clear();
+                    it.itemOptions.add(new Item.ItemOption(5, Util.nextInt(50, 60)));   // SĐ chí mạng
+                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(50, 60)));  // Sức đánh %
+                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(50, 60)));  // HP %
+                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(50, 60))); // KI %
+                    it.itemOptions.add(new Item.ItemOption(99, Util.nextInt(50, 60)));  // Xuyên giáp
+                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(15, 20)));  // Chí mạng
+                    it.itemOptions.add(new Item.ItemOption(125, Util.nextInt(15, 20))); // Hồi phục HP
+                    it.itemOptions.add(new Item.ItemOption(116, 0));                    // Kháng TDHS
+                    ServerNotify.gI().notify("🌟🌟🌟 JACKPOT! " + player.name + " trúng CT GOKU BLUE GOD từ Vòng Quay Thỏi Vàng! 🌟🌟🌟");
+                    Service.gI().sendThongBaoAllPlayer("[JACKPOT] " + player.name + " trúng CT GOKU BLUE GOD từ Vòng Quay Thỏi Vàng!");
+                }
+                // --- SSR TIER: Hào quang God (1/5000) ---
+                else if (Util.isTrue(1, 5000)) {
+                    it = ItemService.gI().createNewItem((short) 2005); // Hào quang God
+                    it.quantity = 1;
+                    it.itemOptions.clear();
+                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(25, 35)));  // Sức đánh %
+                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(25, 35)));  // HP %
+                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(25, 35))); // KI %
+                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(10, 18)));  // Chí mạng
+                    it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 30)));  // Giáp %
+                    it.itemOptions.add(new Item.ItemOption(30, 0));                     // Không GD
+                    ServerNotify.gI().notify("✨ " + player.name + " vừa trúng HÀO QUANG GOD từ Vòng Quay Thỏi Vàng! ✨");
+                    Service.gI().sendThongBaoAllPlayer("[SSR] " + player.name + " trúng HÀO QUANG GOD từ Vòng Quay Thỏi Vàng!");
+                }
+                // --- LEGENDARY TIER: Thú cưỡi / Pet (1/2000) ---
+                else if (Util.isTrue(1, 2000)) {
+                    int[] legendaryItems = { 1904, 1564 }; // Thú cưỡi rồng Vô Cực, Pet Po
+                    int chosenId = legendaryItems[Util.nextInt(legendaryItems.length)];
+                    it = ItemService.gI().createNewItem((short) chosenId);
+                    it.quantity = 1;
+                    it.itemOptions.clear();
+                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 30)));
+                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 30)));
+                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 30)));
+                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(5, 12)));
+                    it.itemOptions.add(new Item.ItemOption(30, 0));
+                    ServerNotify.gI().notify("🔥 " + player.name + " vừa trúng " + it.template.name + " từ Vòng Quay Thỏi Vàng!");
+                    Service.gI().sendThongBaoAllPlayer("[LEGENDARY] " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
+                }
+                // --- EPIC TIER: Set Thần Linh + Bông tai Porata (1/500) ---
+                else if (Util.isTrue(1, 500)) {
+                    int[] epicItems = { 555, 556, 562, 563, 561, 921 }; // Áo/Quần/Găng/Giày/Nhẫn Thần Linh, Porata+2
+                    int chosenId = epicItems[Util.nextInt(epicItems.length)];
+                    it = ItemService.gI().createNewItem((short) chosenId);
+                    it.quantity = 1;
+                    ServerNotify.gI().notify("🎉 " + player.name + " vừa trúng " + it.template.name + " từ Vòng Quay Thỏi Vàng!");
+                    Service.gI().sendThongBaoAllPlayer("[EPIC] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
+                }
+                // --- RARE TIER: Chân Mệnh / Sách tuyệt kỹ / Giáp tập luyện (1/100) ---
+                else if (Util.isTrue(1, 100)) {
+                    int[] rareItems = { 1893, 1278, 1751 }; // Chân Mệnh c9, Sách tuyệt kỹ 2, Giáp tập luyện c4
+                    int chosenId = rareItems[Util.nextInt(rareItems.length)];
+                    it = ItemService.gI().createNewItem((short) chosenId);
+                    it.quantity = 1;
+                    if (chosenId == 1893) { // Chân Mệnh Cấp 9
+                        it.itemOptions.clear();
+                        it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(8, 15)));
+                        it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(8, 15)));
+                        it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(8, 15)));
+                    }
+                    Service.gI().sendThongBaoAllPlayer("[RARE] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
+                }
+                // --- VIP CT TIER: Cải trang VIP 20-40% (1/50) ---
+                else if (Util.isTrue(1, 50)) {
                     int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000, 17, 19, 20, 21 };
                     int itemid = itemId[Util.nextInt(itemId.length)];
                     if (Util.isTrue(20, 100)) {
@@ -884,13 +941,10 @@ public class RewardService {
                     }
                     byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
                     byte[] option_v2 = { 14, 16, 17, 19, 27, 28, 5, 47, 87 };
-                    byte optionid;
-                    byte optionid_v2;
-                    byte param;
                     Item vpdl = ItemService.gI().createNewItem((short) itemid);
                     vpdl.itemOptions.clear();
-                    // SSR tier (1/50 trong VIP) — 35-50%
                     if (Util.isTrue(1, 50)) {
+                        // SSR tier — 35-50%
                         vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(35, 50)));
                         vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(35, 50)));
                         vpdl.itemOptions.add(new Item.ItemOption(103, Util.nextInt(35, 50)));
@@ -898,11 +952,10 @@ public class RewardService {
                         vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 40)));
                         vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 40)));
                     }
-                    optionid = option[Util.nextInt(0, 6)];
-                    param = (byte) Util.nextInt(8, 18);
-                    vpdl.itemOptions.add(new Item.ItemOption(optionid, param));
+                    byte optionid = option[Util.nextInt(0, option.length - 1)];
+                    vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(8, 18)));
                     if (Util.isTrue(15, 100)) {
-                        optionid_v2 = option_v2[Util.nextInt(0, option_v2.length)];
+                        byte optionid_v2 = option_v2[Util.nextInt(0, option_v2.length - 1)];
                         vpdl.itemOptions.add(new Item.ItemOption(optionid_v2, Util.nextInt(5, 12)));
                     }
                     vpdl.itemOptions.add(new Item.ItemOption(30, 0));
@@ -911,43 +964,38 @@ public class RewardService {
                     }
                     it = vpdl;
                     it.quantity = 1;
-                } else if (Util.isTrue(1, 100)) {
-                    it = ItemService.gI().createNewItem((short) 956);
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 50)) {
+                    Service.gI().sendThongBaoAllPlayer("[VIP] Chúc mừng " + player.name + " trúng CT " + it.template.name + " chỉ số khủng từ Vòng Quay!");
+                }
+                // --- UNCOMMON: Hộp SKH Thần Linh / Phụ kiện (1/50) ---
+                else if (Util.isTrue(1, 50)) {
                     if (Util.isTrue(50, 100)) {
-                        it = ItemService.gI().createNewItem((short) Util.nextInt(18, 20));
+                        it = ItemService.gI().createNewItem((short) 1703); // Hộp SKH Thần Linh
+                        it.quantity = 1;
+                        Service.gI().sendThongBao(player, "🎁 Chúc mừng! Bạn trúng Hộp SKH Thần Linh!");
+                    } else {
+                        it = ItemService.gI().createNewItem((short) 1855); // Mảnh vỡ bông tai cấp 3
+                        it.quantity = Util.nextInt(1, 3);
+                    }
+                }
+                // --- COMMON: Capsule / Sách / Đồ phụ (1/5) ---
+                else if (Util.isTrue(1, 5)) {
+                    int rng = Util.nextInt(100);
+                    if (rng < 25) {
+                        it = ItemService.gI().createNewItem((short) 956);  // Capsule
+                        it.quantity = Util.nextInt(1, 5);
+                    } else if (rng < 50) {
+                        it = ItemService.gI().createNewItem((short) Util.nextInt(220, 224)); // Sách
+                        it.quantity = Util.nextInt(1, 5);
+                    } else if (rng < 75) {
+                        it = ItemService.gI().createNewItem((short) 585);  // Đá xanh lam
                         it.quantity = Util.nextInt(1, 5);
                     } else {
-                        it = ItemService.gI().createNewItem((short) Util.nextInt(2150, 2152));
-                        it.quantity = 1;
-                        if (Util.isTrue(5, 100)) {
-                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(25, 45)));
-                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(25, 45)));
-                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(25, 45)));
-                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 35)));
-                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(3, 15)));
-                            it.itemOptions.add(new Item.ItemOption(108, Util.nextInt(3, 15)));
-                            it.itemOptions.add(new Item.ItemOption(154, 0));
-                        } else {
-                            it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 40)));
-                            it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 40)));
-                            if (Util.isTrue(10, 30)) {
-                                it.itemOptions.add(new Item.ItemOption(5, Util.nextInt(3, 15)));
-                            }
-                            it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 40)));
-                            it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 35)));
-                            it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(3, 15)));
-                            it.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 20)));
-                        }
+                        it = ItemService.gI().createNewItem((short) Util.nextInt(18, 20)); // Capsule thời trang
+                        it.quantity = Util.nextInt(1, 3);
                     }
-                } else if (Util.isTrue(1, 10)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(220, 224));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 3)) {
-                    it = ItemService.gI().createNewItem((short) 585);
-                    it.quantity = Util.nextInt(1, 5);
                 }
+                // --- Còn lại: Vàng thưởng ---
+                // (giữ nguyên it = vàng ở trên)
             } else {
                 // === QUAY THƯỜNG (Vàng/Ngọc): Tier trung bình 10-25% ===
                 if (Util.isTrue(1, 2)) {
@@ -961,7 +1009,6 @@ public class RewardService {
                     byte optionid;
                     Item vpdl = ItemService.gI().createNewItem((short) itemid);
                     vpdl.itemOptions.clear();
-                    // 1/20 ra cải trang tốt 20-30%
                     if (Util.isTrue(1, 20)) {
                         vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 30)));
                         vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 30)));
@@ -991,7 +1038,6 @@ public class RewardService {
                     it.quantity = Util.nextInt(1, 5);
                 }
             }
-            it = itemRand(it, success);
             list.add(it);
         }
         return list;

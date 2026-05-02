@@ -152,6 +152,8 @@ public class QuyLaoKame extends Npc {
                 }
                 // Menu đổi Hộp Quà Sự Kiện
                 menu.add("Đổi Hộp\nQuà SK");
+                // Menu điểm danh hàng ngày
+                menu.add("Điểm\ndanh");
             } else {
                 menu.add("Giao\nLân con");
             }
@@ -159,7 +161,14 @@ public class QuyLaoKame extends Npc {
             player.iDMark.menuSelect = menus;
 
             if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
-                this.createOtherMenu(player, ConstNpc.BASE_MENU, "Con muốn hỏi gì nào?", menus);
+                this.createOtherMenu(player, ConstNpc.BASE_MENU,
+                        "|7|━━ QUY LÃO KAME ━━\n\n"
+                                + "|1|Chào con, ta rất vui khi gặp con!\n"
+                                + "|2|★ Xu NRO: |8|" + slMCL + "\n\n"
+                                + "|8|Nói chuyện → Nhiệm vụ, Kỹ năng\n"
+                                + "|8|KOL → 7 nhiệm vụ + VIP\n"
+                                + "|8|Điểm danh → Quà mỗi ngày!",
+                        menus);
             }
         }
     }
@@ -294,8 +303,74 @@ public class QuyLaoKame extends Npc {
             return;
         }
 
+        if (chosen.equals("Điểm\ndanh")) {
+            handleDiemDanh(player);
+            return;
+        }
+
         // fallback
         Service.gI().sendThongBao(player, "Lựa chọn không hợp lệ!");
+    }
+
+    // ============ ĐIỂM DANH HÀNG NGÀY ============
+    private void handleDiemDanh(Player player) {
+        // Kiểm tra đã điểm danh hôm nay chưa (dùng lastTimeRewardWoodChest tạm)
+        if (!Util.isAfterMidnight(player.lastTimeRewardWoodChest)) {
+            Service.gI().sendThongBao(player, "Hôm nay con đã điểm danh rồi!\nQuay lại vào ngày mai nhé.");
+            return;
+        }
+
+        // Tính streak (dùng hopqua2010 làm counter streak)
+        int streak = player.hopqua2010;
+        if (streak >= 7) streak = 0; // reset sau 7 ngày
+        streak++;
+        player.hopqua2010 = streak;
+        player.lastTimeRewardWoodChest = System.currentTimeMillis();
+
+        // Phần thưởng theo ngày streak
+        int xu = 2 + streak;
+        long gold = streak * 10_000_000L;
+        int gem = streak;
+
+        Item xuNro = ItemService.gI().createNewItem((short) 1705, xu);
+        InventoryService.gI().addItemBag(player, xuNro);
+        player.inventory.gold += gold;
+        player.inventory.gem += gem;
+
+        StringBuilder bonus = new StringBuilder();
+
+        // Bonus ngày 3: Thỏi vàng
+        if (streak == 3) {
+            Item tv = ItemService.gI().createNewItem((short) 457, 1);
+            InventoryService.gI().addItemBag(player, tv);
+            bonus.append("\n+ BONUS: 1 Thỏi vàng!");
+        }
+
+        // Bonus ngày 5: Capsule
+        if (streak == 5) {
+            Item cap = ItemService.gI().createNewItem((short) 192, 1);
+            InventoryService.gI().addItemBag(player, cap);
+            bonus.append("\n+ BONUS: 1 Capsule dây chuyền!");
+        }
+
+        // Bonus ngày 7: Hộp SKH + reset streak
+        if (streak >= 7) {
+            Item hop = ItemService.gI().createNewItem((short) 860, 1);
+            InventoryService.gI().addItemBag(player, hop);
+            Item tv = ItemService.gI().createNewItem((short) 457, 3);
+            InventoryService.gI().addItemBag(player, tv);
+            bonus.append("\n★ STREAK 7 NGÀY! 1 Hộp SKH + 3 Thỏi vàng!");
+            player.hopqua2010 = 0; // reset streak
+        }
+
+        InventoryService.gI().sendItemBag(player);
+        PlayerService.gI().sendInfoHpMpMoney(player);
+
+        Service.gI().sendThongBao(player,
+                "★ Điểm danh ngày " + streak + "/7!\n"
+                        + xu + " Xu NRO, " + gem + " ngọc, "
+                        + Util.numberToMoney(gold) + " vàng"
+                        + bonus);
     }
 
     private static long lastCheckTime = 0;

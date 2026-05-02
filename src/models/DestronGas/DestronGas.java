@@ -11,11 +11,16 @@ import EMTI.Functions;
 import boss.Boss;
 import boss.boss_manifest.DestronGas.DrLychee;
 import clan.Clan;
+import item.Item;
 import map.Zone;
 import mob.Mob;
 import nro.player.Player;
+import nro.server.ServerNotify;
+import nro.services.InventoryService;
+import nro.services.ItemService;
 import nro.services.ItemTimeService;
 import nro.services.MapService;
+import nro.services.PlayerService;
 import nro.services.Service;
 import services.func.ChangeMapService;
 import utils.Util;
@@ -208,16 +213,127 @@ public class DestronGas implements Runnable {
 
     // kết thúc khí gas hủy diệt
     public void finish() {
+        boolean bossesCleared = hatchiyatchDead;
         for (Zone zone : zones) {
             for (int i = zone.getPlayers().size() - 1; i >= 0; i--) {
                 if (i < zone.getPlayers().size()) {
                     Player pl = zone.getPlayers().get(i);
+                    // Trao phần thưởng hoàn thành trước khi kick
+                    rewardCompletion(pl, bossesCleared);
                     kickOutOfKGHD(pl);
                     pl.playerTask.kolTask.addCount();
                     pl.destronGas70CompletionCount++;
                 }
             }
+        }
+        // Thông báo toàn server cho level cao
+        if (bossesCleared && level >= 80 && clan != null) {
+            ServerNotify.gI().notify("★ Bang " + clan.name + " đã chinh phục Destron Gas cấp " + level + "!");
+        }
+    }
 
+    // ============ PHẦN THƯỞNG HOÀN THÀNH DESTRON GAS ============
+    private void rewardCompletion(Player pl, boolean bossesCleared) {
+        try {
+            // Phần thưởng cơ bản: Vàng + Ngọc + Xu NRO (scale theo level)
+            long goldReward = (long) level * 2_000_000L;
+            int gemReward = Math.max(1, level / 5);
+            int xuReward = Math.max(2, level / 3);
+
+            // Bonus x2 nếu đã hạ hết boss
+            if (bossesCleared) {
+                goldReward *= 2;
+                gemReward *= 2;
+                xuReward = (int) (xuReward * 1.5);
+            }
+
+            // Trao Vàng
+            pl.inventory.gold += goldReward;
+
+            // Trao Ngọc
+            pl.inventory.gem += gemReward;
+
+            // Trao Xu NRO
+            Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
+            InventoryService.gI().addItemBag(pl, xuNro);
+
+            // ---- PHẦN THƯỞNG ITEM THEO MỐC LEVEL ----
+            StringBuilder bonus = new StringBuilder();
+
+            // Level 20+: Cơ hội nhận Thỏi vàng (457)
+            if (level >= 20) {
+                int thoiVangChance = Math.min(30, 10 + level / 5);
+                if (Util.nextInt(100) < thoiVangChance) {
+                    int slTV = Util.nextInt(1, Math.max(1, level / 20));
+                    Item tv = ItemService.gI().createNewItem((short) 457, slTV);
+                    InventoryService.gI().addItemBag(pl, tv);
+                    bonus.append(", ").append(slTV).append(" Thỏi vàng");
+                }
+            }
+
+            // Level 40+: Cơ hội nhận Capsule dây chuyền (192)
+            if (level >= 40) {
+                if (Util.nextInt(100) < 20) {
+                    Item capsule = ItemService.gI().createNewItem((short) 192, Util.nextInt(1, 2));
+                    InventoryService.gI().addItemBag(pl, capsule);
+                    bonus.append(", Capsule dây chuyền");
+                }
+            }
+
+            // Level 60+: Cơ hội nhận Sách kỹ năng (215) + Hộp SKH (860)
+            if (level >= 60) {
+                if (Util.nextInt(100) < 12) {
+                    Item skn = ItemService.gI().createNewItem((short) 215, 1);
+                    InventoryService.gI().addItemBag(pl, skn);
+                    bonus.append(", Sách kỹ năng");
+                }
+                if (Util.nextInt(100) < 8) {
+                    Item hop = ItemService.gI().createNewItem((short) 860, 1);
+                    InventoryService.gI().addItemBag(pl, hop);
+                    bonus.append(", Hộp SKH");
+                }
+            }
+
+            // Level 80+: Cơ hội nhận Mảnh bông tai (441) + Sách TK2 (456)
+            if (level >= 80) {
+                if (Util.nextInt(100) < 8) {
+                    Item mbt = ItemService.gI().createNewItem((short) 441, 1);
+                    InventoryService.gI().addItemBag(pl, mbt);
+                    bonus.append(", Mảnh bông tai Porata");
+                }
+                if (Util.nextInt(100) < 3) {
+                    Item stk = ItemService.gI().createNewItem((short) 456, 1);
+                    InventoryService.gI().addItemBag(pl, stk);
+                    bonus.append(", Sách TK2");
+                }
+            }
+
+            // Level 100+: Cơ hội nhận item cực hiếm
+            if (level >= 100 && bossesCleared) {
+                int superRare = Util.nextInt(1000);
+                if (superRare < 5) { // 0.5% Pet Po
+                    Item pet = ItemService.gI().createNewItem((short) 1667, 1);
+                    InventoryService.gI().addItemBag(pl, pet);
+                    bonus.append(", ★Pet Po★");
+                    ServerNotify.gI().notify("★ " + pl.name + " nhận được Pet Po từ Destron Gas cấp " + level + "!");
+                } else if (superRare < 15) { // 1% Capsule thú cưỡi
+                    Item thuCuoi = ItemService.gI().createNewItem((short) 193, 1);
+                    InventoryService.gI().addItemBag(pl, thuCuoi);
+                    bonus.append(", ★Capsule thú cưỡi★");
+                }
+            }
+
+            InventoryService.gI().sendItemBag(pl);
+            PlayerService.gI().sendInfoHpMpMoney(pl);
+
+            String msg = "★ Hoàn thành Destron Gas Lv." + level
+                    + (bossesCleared ? " (Clear Boss!)" : "") + "\n"
+                    + "Nhận: " + xuReward + " Xu NRO, " + gemReward + " ngọc, "
+                    + Util.numberToMoney(goldReward) + " vàng"
+                    + bonus;
+            Service.gI().sendThongBao(pl, msg);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -291,6 +291,7 @@ public class SummonDragon {
     }
 
     public void confirmWish() {
+        try {
         switch (this.menuShenron) {
             case ConstNpc.SHENRON_1_1:
                 switch (this.select) {
@@ -310,7 +311,7 @@ public class SummonDragon {
                                 "Bạn nhận được 100.000 Ngọc xanh + 100 Thỏi vàng!");
                         BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
                         break;
-                    case 1: // găng tay đang đeo lên 1 cấp (giới hạn +3)
+                    case 1: // găng tay đang đeo lên 2 cấp (giới hạn +3)
                         Item item = this.playerSummonShenron.inventory.itemsBody.get(2);
                         if (item.isNotNullItem()) {
                             // Tìm option 72 (cấp nâng rồng) trên găng
@@ -329,28 +330,28 @@ public class SummonDragon {
                                 reOpenShenronWishes(playerSummonShenron);
                                 return;
                             }
-                            // Nâng cấp: tăng level option 72
+                            // Nâng cấp: tăng 2 level option 72 (cap tại 3)
+                            int addLevel = Math.min(2, 3 - level);
                             if (upgradeOption != null) {
-                                upgradeOption.param++;
+                                upgradeOption.param += addLevel;
                             } else {
-                                item.itemOptions.add(new ItemOption(72, 1));
+                                item.itemOptions.add(new ItemOption(72, addLevel));
                             }
-                            // Tăng 10% sức đánh cho găng (tìm option sức đánh: 0, 23, hoặc 50)
+                            // Tăng 20% sức đánh cho găng (tìm option sức đánh: 0, 23, hoặc 50)
                             boolean foundDameOption = false;
                             for (ItemOption io : item.itemOptions) {
                                 if (io.optionTemplate.id == 0 || io.optionTemplate.id == 23 || io.optionTemplate.id == 50) {
-                                    io.param += Math.max(1, io.param * 10 / 100);
+                                    io.param += Math.max(1, io.param * 20 / 100);
                                     foundDameOption = true;
                                     break;
                                 }
                             }
                             if (!foundDameOption) {
-                                // Nếu không tìm thấy option sức đánh, thêm option 0 (sức đánh +10)
-                                item.itemOptions.add(new ItemOption(0, 10));
+                                item.itemOptions.add(new ItemOption(0, 20));
                             }
                             InventoryService.gI().sendItemBody(playerSummonShenron);
                             Service.gI().sendThongBao(playerSummonShenron,
-                                    "Găng tay đã được nâng lên +" + (level + 1) + "!");
+                                    "Găng tay đã được nâng lên +" + (level + addLevel) + "!");
                         } else {
                             Service.gI().sendThongBao(playerSummonShenron, "Ngươi hiện tại có đeo găng đâu");
                             reOpenShenronWishes(playerSummonShenron);
@@ -532,6 +533,18 @@ public class SummonDragon {
                 break;
         }
         shenronLeave(this.playerSummonShenron, WISHED);
+        } catch (Exception e) {
+            Logger.logException(SummonDragon.class, e, "Lỗi ước rồng thần");
+            // Nếu lỗi xảy ra giữa chừng, mở lại menu ước thay vì kẹt
+            try {
+                if (this.playerSummonShenron != null) {
+                    Service.gI().sendThongBao(playerSummonShenron, "Có lỗi xảy ra, hãy chọn lại điều ước!");
+                    reOpenShenronWishes(this.playerSummonShenron);
+                }
+            } catch (Exception ex) {
+                Logger.logException(SummonDragon.class, ex, "Lỗi reopen shenron");
+            }
+        }
     }
 
     public void showConfirmShenron(Player pl, int menu, byte select) {

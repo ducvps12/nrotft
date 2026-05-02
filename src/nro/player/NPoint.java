@@ -490,14 +490,16 @@ public class NPoint {
                 case 21: // +HP% tối đa
                     this.tlHp.add((int) ntiPassive.param1);
                     break;
-                case 23: // +KI% tối đa
-                    this.tlMp.add((int) ntiPassive.param1);
-                    break;
-                case 26: // Vàng rơi từ quái +%
+                case 23: // Vàng rơi từ quái +% (DB cũ)
+                case 26: // Vàng rơi từ quái +% (DB mới)
                     this.tlGold += ntiPassive.param1;
                     break;
-                case 27: // Sức mạnh và tiềm năng khi đánh quái +%
+                case 24: // Sức mạnh và tiềm năng khi đánh quái +% (DB cũ)
+                case 27: // Sức mạnh và tiềm năng khi đánh quái +% (DB mới)
                     this.tlTNSM.add((int) ntiPassive.param1);
+                    break;
+                case 25: // Chí mạng liên tục khi HP thấp
+                    this.critAdd += ntiPassive.param1;
                     break;
                 case 28: // Né đòn +%
                     this.tlNeDon += ntiPassive.param1;

@@ -15,6 +15,7 @@ import boss.boss_manifest.The23rdMartialArtCongress.Xinbato;
 import consts.ConstPlayer;
 import boss.Boss;
 import boss.BossStatus;
+import item.Item;
 import nro.player.Player;
 import nro.services.EffectSkillService;
 import nro.services.ItemTimeService;
@@ -215,7 +216,24 @@ public class The23rdMartialArtCongress {
     }
 
     private void champion() {
-        Service.gI().sendThongBao(player, "Chúc mừng " + player.name + " vừa vô địch giải");
+        Service.gI().sendThongBao(player, "★★★ VÔ ĐỊCH ĐHVT 23! ★★★");
+        // Jackpot thưởng vô địch
+        try {
+            player.inventory.gold += 1_000_000_000L;
+            player.inventory.gem += 100;
+            Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 50);
+            nro.services.InventoryService.gI().addItemBag(player, xu);
+            Item tv = nro.services.ItemService.gI().createNewItem((short) 457, 10);
+            nro.services.InventoryService.gI().addItemBag(player, tv);
+            Item hop = nro.services.ItemService.gI().createNewItem((short) 860, 1);
+            nro.services.InventoryService.gI().addItemBag(player, hop);
+            nro.services.InventoryService.gI().sendItemBag(player);
+            nro.services.PlayerService.gI().sendInfoHpMpMoney(player);
+            Service.gI().sendThongBao(player, "★ JACKPOT VÔ ĐỊCH!\n1B vàng, 100 ngọc, 50 Xu NRO\n10 Thỏi vàng, 1 Hộp SKH");
+            nro.server.ServerNotify.gI().notify("★★★ " + player.name + " VÔ ĐỊCH Đại Hội Võ Thuật 23! ★★★");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         endChallenge();
     }
 
@@ -233,6 +251,33 @@ public class The23rdMartialArtCongress {
     private void reward() {
         if (player.levelWoodChest < round) {
             player.levelWoodChest = round;
+        }
+        // ============ THƯỞNG MỐC ĐHVT 23 ============
+        try {
+            switch (round) {
+                case 4 -> {
+                    player.inventory.gold += 50_000_000L;
+                    player.inventory.gem += 10;
+                    Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 5);
+                    nro.services.InventoryService.gI().addItemBag(player, xu);
+                    nro.services.InventoryService.gI().sendItemBag(player);
+                    nro.services.PlayerService.gI().sendInfoHpMpMoney(player);
+                    Service.gI().sendThongBao(player, "★ Mốc Round 4! +50M vàng, 10 ngọc, 5 Xu NRO");
+                }
+                case 8 -> {
+                    player.inventory.gold += 200_000_000L;
+                    player.inventory.gem += 30;
+                    Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 15);
+                    nro.services.InventoryService.gI().addItemBag(player, xu);
+                    Item tv = nro.services.ItemService.gI().createNewItem((short) 457, 3);
+                    nro.services.InventoryService.gI().addItemBag(player, tv);
+                    nro.services.InventoryService.gI().sendItemBag(player);
+                    nro.services.PlayerService.gI().sendInfoHpMpMoney(player);
+                    Service.gI().sendThongBao(player, "★ Mốc Round 8! +200M vàng, 30 ngọc, 15 Xu NRO, 3 Thỏi vàng");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

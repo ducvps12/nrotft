@@ -289,7 +289,14 @@ public class ThuongDe extends Npc {
                 "|7|━━━ VÒNG QUAY MAY MẮN ━━━\n"
                         + "|1|Quay Vàng: 25 triệu vàng/lượt\n"
                         + "|1|Quay Ngọc: 4 ngọc/lượt\n"
-                        + "|2|Quay Thỏi Vàng (VIP): 1 thỏi/lượt\n"
+                        + "|2|Quay Thỏi Vàng (VIP): 1 thỏi/lượt\n\n"
+                        + "|8|★ PHẦN THƯỞNG THỎI VÀNG:\n"
+                        + "|2|» GOD: Goku Blue +60% ALL\n"
+                        + "|2|» SSR: Hào quang God\n"
+                        + "|2|» Thú cưỡi Vô Cực / Pet Po\n"
+                        + "|2|» Set Thần Linh, Porata +2\n"
+                        + "|2|» Chân Mệnh c9, Sách TK2\n"
+                        + "|2|» CT VIP 35-50% chỉ số\n\n"
                         + "|8|Rương phụ: " + itemCount + "/1000 món\n"
                         + "|7|━━━━━━━━━━━━━━━━━━",
                 "Quay bằng\nVàng", "Quay bằng\nNgọc",
@@ -299,9 +306,16 @@ public class ThuongDe extends Npc {
     }
 
     private void showLuckyRoundCountMenu(Player player, String name, String price) {
+        String vipPreview = name.equals("Thỏi Vàng")
+                ? "|8|\n★ JACKPOT: Goku Blue GOD\n"
+                        + "|8|★ Thú cưỡi rồng Vô Cực\n"
+                        + "|8|★ Full set Thần Linh\n"
+                        + "|8|★ CT VIP chỉ số 35-50%\n"
+                : "";
         this.createOtherMenu(player, MENU_CHOOSE_LUCKY_ROUND_COUNT,
                 "|7|━━━ QUAY BẰNG " + name.toUpperCase() + " ━━━\n"
                         + "|1|Giá: " + price + "\n"
+                        + vipPreview
                         + "|8|Rương phụ chứa tối đa 1000 món.\n"
                         + "|7|━━━━━━━━━━━━━━━━━━",
                 "Quay tự\nchọn (UI)", "Quay nhanh\nx10", "Quay nhanh\nx50", "Quay nhanh\nx100", "Đóng");
@@ -344,8 +358,8 @@ public class ThuongDe extends Npc {
         this.createOtherMenu(player, MENU_GIFT_COSTUMES,
                 "|7|━━ CẢI TRANG HẤP DẪN ━━\n\n"
                         + "|2|▶ Quay Thỏi Vàng (VIP):\n"
-                        + "|8|• CT SSR: SĐ+35-50% HP+35-50%\n"
-                        + "|8|  KI+35-50% (Cực hiếm! 1/2500)\n"
+                        + "|8|• GOD: Goku Blue +60% ALL (1/10K)\n"
+                        + "|8|• SSR: Hào quang God (1/5K)\n"
                         + "|8|• CT VIP: SĐ+20-40% HP+20-40%\n"
                         + "|8|  Tỉ lệ ra CT: ~2%\n\n"
                         + "|2|▶ Quay Vàng / Ngọc:\n"
@@ -362,19 +376,22 @@ public class ThuongDe extends Npc {
     private void showGiftItems(Player player) {
         this.createOtherMenu(player, MENU_GIFT_ITEMS,
                 "|7|━━ VẬT PHẨM ĐẶC BIỆT ━━\n\n"
-                        + "|2|▶ Từ Vòng Quay May Mắn:\n"
-                        + "|8|• Thỏi Vàng (bán được vàng)\n"
-                        + "|8|• Capsule thời trang 5-7 ngày\n"
-                        + "|8|• Sách Tiến Hóa Lv1-5\n"
-                        + "|8|• Đá Xanh Lam nâng cấp\n\n"
-                        + "|2|▶ Từ Tháp PôPô:\n"
-                        + "|8|• Vàng + Ngọc theo tầng\n"
-                        + "|8|• Trang bị mạnh (tầng cao)\n"
-                        + "|8|• Đồ hiếm (tầng 50+)\n\n"
-                        + "|2|▶ Từ Rồng Thần 1 Sao:\n"
-                        + "|8|• 100K ngọc + 100 Thỏi Vàng\n"
-                        + "|8|• +2 Tỷ SM và Tiềm Năng\n"
-                        + "|8|• Găng tay lên cấp, CM+2%",
+                        + "|2|▶ Từ Vòng Quay Thỏi Vàng:\n"
+                        + "|8|• Goku Blue GOD +60% ALL\n"
+                        + "|8|• Thú cưỡi rồng Vô Cực\n"
+                        + "|8|• Pet Po siêu đáng yêu\n"
+                        + "|8|• Set Thần Linh (5 món)\n"
+                        + "|8|• Bông tai Porata +2\n\n"
+                        + "|2|▶ Từ Tháp PôPô (50 tầng):\n"
+                        + "|8|• T10+: Capsule, Đá nâng cấp\n"
+                        + "|8|• T20+: Thỏi vàng, Hộp SKH\n"
+                        + "|8|• T30+: Mảnh BT, Sách TK2\n"
+                        + "|8|• T40+: Pet Po, Thú cưỡi\n"
+                        + "|8|• T50: JACKPOT cực khủng!\n\n"
+                        + "|2|▶ Từ Destron Gas (Mr.PôPô):\n"
+                        + "|8|• Boss drop Cải trang mạnh\n"
+                        + "|8|• Lv60+: SKH, Sách kỹ năng\n"
+                        + "|8|• Lv100: Pet Po, Thú cưỡi",
                 "Quay lại");
     }
 
@@ -412,34 +429,40 @@ public class ThuongDe extends Npc {
 
     private void showGuideThap(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_THAP,
-                "|7|━━ THÁP PÔPÔ VÀ PHẦN THƯỞNG ━━\n\n"
+                "|7|━━ THÁP PÔPÔ (50 TẦNG) ━━\n\n"
                         + "|2|▶ Cách chơi:\n"
-                        + "|8|• Clear tầng = nhận thưởng\n"
-                        + "|8|• Càng cao càng nhiều quà\n"
-                        + "|8|• Reset hàng ngày\n\n"
-                        + "|2|▶ Phần thưởng:\n"
-                        + "|8|• Tầng 1-20: Vàng + EXP\n"
-                        + "|8|• Tầng 20-50: Ngọc + Đồ tốt\n"
-                        + "|8|• Tầng 50+: Đồ hiếm, CT VIP",
+                        + "|8|• 8 lượt miễn phí/ngày\n"
+                        + "|8|• Solo 1v1, 3 phút/trận\n"
+                        + "|8|• Tầng càng cao PôPô càng mạnh\n\n"
+                        + "|2|▶ Phần thưởng mỗi tầng:\n"
+                        + "|8|• Xu NRO + Vàng + Ngọc\n"
+                        + "|8|• T10+: Capsule, Đá nâng cấp\n"
+                        + "|8|• T20+: Thỏi vàng, Hộp SKH\n"
+                        + "|8|• T30+: Mảnh BT, Sách TK2\n"
+                        + "|8|• T40+: Pet Po (0.5%)\n\n"
+                        + "|2|▶ Mốc đặc biệt (5→50):\n"
+                        + "|8|• T50: 500 Xu + 500 ngọc\n"
+                        + "|8|  + 50 TV + Pet Po + Sách TK2",
                 "Quay lại");
     }
 
     private void showGuideQuay(Player player) {
         this.createOtherMenu(player, MENU_GUIDE_QUAY,
                 "|7|━━ VÒNG QUAY MAY MẮN ━━\n\n"
-                        + "|2|▶ 1. Quay bằng Vàng (25tr/lượt)\n"
-                        + "|8|• 50% Cải Trang SĐ+10-25%\n"
-                        + "|8|• 5% Cải Trang Tốt SĐ+20-30%\n"
-                        + "|8|• 5% Sách Tiến Hóa Lv1-5\n"
-                        + "|8|• Còn lại: Vàng thưởng\n\n"
-                        + "|2|▶ 2. Quay bằng Ngọc (4 ngọc/lượt)\n"
-                        + "|8|• Tương tự quay Vàng\n\n"
-                        + "|2|▶ 3. Quay Thỏi Vàng (1 thỏi/lượt)\n"
-                        + "|8|• 2% CT VIP SĐ+20-40% HP+20-40%\n"
-                        + "|8|• 0.04% CT SSR SĐ+35-50% (CỰC HIẾM)\n"
-                        + "|8|• 1% Capsule Vàng x1-5\n"
-                        + "|8|• 2% Phụ kiện VIP SĐ+20-45%\n"
-                        + "|8|• 33% Vàng thưởng 5-50K",
+                        + "|2|▶ 1. Quay Vàng/Ngọc:\n"
+                        + "|8|• 50% CT SĐ+10-25%\n"
+                        + "|8|• 5% CT Tốt SĐ+20-30%\n"
+                        + "|8|• Còn lại: Vàng/Sách/Đá\n\n"
+                        + "|2|▶ 2. Quay Thỏi Vàng (VIP):\n"
+                        + "|8|• 1/10K: Goku Blue GOD +60%\n"
+                        + "|8|• 1/5K: Hào quang God SSR\n"
+                        + "|8|• 1/2K: Thú cưỡi/Pet huyền thoại\n"
+                        + "|8|• 1/500: Set Thần Linh, Porata\n"
+                        + "|8|• 1/100: Chân Mệnh, Sách TK2\n"
+                        + "|8|• 2% CT VIP 20-50% chỉ số\n"
+                        + "|8|• 5% Hộp SKH, Mảnh bông tai\n"
+                        + "|8|• 20% Capsule/Sách/Đá\n"
+                        + "|8|• Còn lại: Vàng thưởng",
                 "Quay lại");
     }
 
@@ -447,15 +470,20 @@ public class ThuongDe extends Npc {
         this.createOtherMenu(player, MENU_GUIDE_DESTRON,
                 "|7|━━ DESTRON GAS (BANG HỘI) ━━\n\n"
                         + "|2|▶ Yêu cầu:\n"
-                        + "|8|• Cần có bang hội\n"
-                        + "|8|• Nói chuyện Mr.PôPô\n\n"
+                        + "|8|• Có bang hội, bang chủ mở\n"
+                        + "|8|• Nói chuyện Mr.PôPô\n"
+                        + "|8|• Tối đa 3 lượt/ngày/bang\n\n"
                         + "|2|▶ Cách chơi:\n"
-                        + "|8|• Cả bang vào đánh boss\n"
-                        + "|8|• Điểm = xếp hạng bang\n\n"
-                        + "|2|▶ Phần thưởng:\n"
-                        + "|8|• Điểm danh vọng bang hội\n"
-                        + "|8|• Vàng + Ngọc + Đồ hiếm\n"
-                        + "|8|• Top bang = thưởng lớn",
+                        + "|8|• Chọn cấp 1-110, đánh quái\n"
+                        + "|8|• Hạ quái → Boss DrLychee\n"
+                        + "|8|• Hạ tiếp → Boss Hatchiyack\n"
+                        + "|8|• Thời gian: 30 phút\n\n"
+                        + "|2|▶ Phần thưởng hoàn thành:\n"
+                        + "|8|• Vàng + Ngọc + Xu NRO\n"
+                        + "|8|• Clear Boss = x2 thưởng\n"
+                        + "|8|• Lv20+: Thỏi vàng\n"
+                        + "|8|• Lv60+: SKH, Sách kỹ năng\n"
+                        + "|8|• Lv100: 0.5% Pet Po!",
                 "Quay lại");
     }
 }

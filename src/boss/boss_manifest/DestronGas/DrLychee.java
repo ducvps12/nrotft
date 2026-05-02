@@ -89,11 +89,48 @@ public class DrLychee extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        // Drop Cải trang cho tất cả player
         dropCt(0);
         for (int i = 0; i < this.zone.getNumOfPlayers(); i++) {
             int x = (i + 1) * 50;
             dropCt(x);
             dropCt(-x);
+        }
+        
+        // Thưởng thêm cho tất cả player trong zone
+        for (Player pl : this.zone.getPlayers()) {
+            try {
+                // Vàng thưởng theo level
+                long goldBonus = (long) level * 1_500_000L;
+                pl.inventory.gold += goldBonus;
+                
+                // Ngọc thưởng (level 30+)
+                if (level >= 30) {
+                    int gemBonus = Math.max(1, level / 10);
+                    pl.inventory.gem += gemBonus;
+                }
+                
+                // Xu NRO (level 50+)
+                if (level >= 50) {
+                    int xuBonus = Math.max(1, level / 15);
+                    Item xuNro = nro.services.ItemService.gI().createNewItem((short) 1705, xuBonus);
+                    nro.services.InventoryService.gI().addItemBag(pl, xuNro);
+                }
+                
+                // Thỏi vàng (level 80+, 15% chance)
+                if (level >= 80 && Util.nextInt(100) < 15) {
+                    Item thoiVang = nro.services.ItemService.gI().createNewItem((short) 457, Util.nextInt(1, 2));
+                    nro.services.InventoryService.gI().addItemBag(pl, thoiVang);
+                    Service.gI().sendThongBao(pl, "★ DrLychee drop Thỏi vàng!");
+                }
+                
+                nro.services.InventoryService.gI().sendItemBag(pl);
+                nro.services.PlayerService.gI().sendInfoHpMpMoney(pl);
+                Service.gI().sendThongBao(pl, "Hạ DrLychee! Nhận " + Util.numberToMoney(goldBonus) + " vàng"
+                        + (level >= 30 ? " + " + Math.max(1, level / 10) + " ngọc" : ""));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

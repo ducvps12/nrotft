@@ -88,11 +88,74 @@ public class Hatchiyack extends Boss {
 
     @Override
     public void reward(Player plKill) {
+        // Drop Cải trang cho tất cả player
         dropCt(0);
         for (int i = 0; i < this.zone.getNumOfPlayers(); i++) {
             int x = (i + 1) * 50;
             dropCt(x);
             dropCt(-x);
+        }
+        
+        // Boss cuối - Thưởng lớn cho tất cả player trong zone
+        for (Player pl : this.zone.getPlayers()) {
+            try {
+                // Vàng thưởng x2 so với DrLychee
+                long goldBonus = (long) level * 3_000_000L;
+                pl.inventory.gold += goldBonus;
+                
+                // Ngọc thưởng 
+                int gemBonus = Math.max(2, level / 5);
+                pl.inventory.gem += gemBonus;
+                
+                // Xu NRO
+                int xuBonus = Math.max(3, level / 8);
+                Item xuNro = nro.services.ItemService.gI().createNewItem((short) 1705, xuBonus);
+                nro.services.InventoryService.gI().addItemBag(pl, xuNro);
+                
+                StringBuilder extra = new StringBuilder();
+                
+                // Thỏi vàng (level 40+, 25% chance)
+                if (level >= 40 && Util.nextInt(100) < 25) {
+                    int slTV = Util.nextInt(1, Math.max(1, level / 25));
+                    Item thoiVang = nro.services.ItemService.gI().createNewItem((short) 457, slTV);
+                    nro.services.InventoryService.gI().addItemBag(pl, thoiVang);
+                    extra.append(", ").append(slTV).append(" Thỏi vàng");
+                }
+                
+                // Hộp SKH (level 60+, 10% chance)
+                if (level >= 60 && Util.nextInt(100) < 10) {
+                    Item hop = nro.services.ItemService.gI().createNewItem((short) 860, 1);
+                    nro.services.InventoryService.gI().addItemBag(pl, hop);
+                    extra.append(", Hộp SKH");
+                }
+                
+                // Mảnh bông tai (level 80+, 5% chance)
+                if (level >= 80 && Util.nextInt(100) < 5) {
+                    Item mbt = nro.services.ItemService.gI().createNewItem((short) 441, 1);
+                    nro.services.InventoryService.gI().addItemBag(pl, mbt);
+                    extra.append(", Mảnh BT Porata");
+                }
+                
+                // Sách TK2 (level 100+, 2% chance)
+                if (level >= 100 && Util.nextInt(100) < 2) {
+                    Item stk = nro.services.ItemService.gI().createNewItem((short) 456, 1);
+                    nro.services.InventoryService.gI().addItemBag(pl, stk);
+                    extra.append(", ★Sách TK2★");
+                    nro.server.ServerNotify.gI().notify("★ " + pl.name + " nhận Sách TK2 từ Hatchiyack Lv." + level + "!");
+                }
+                
+                nro.services.InventoryService.gI().sendItemBag(pl);
+                nro.services.PlayerService.gI().sendInfoHpMpMoney(pl);
+                Service.gI().sendThongBao(pl, "★ Hạ Hatchiyack! Nhận " + xuBonus + " Xu NRO, "
+                        + gemBonus + " ngọc, " + Util.numberToMoney(goldBonus) + " vàng" + extra);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // Thông báo server
+        if (level >= 90 && plKill != null) {
+            nro.server.ServerNotify.gI().notify("★ " + plKill.name + " và đồng đội hạ Hatchiyack Lv." + level + "!");
         }
     }
 

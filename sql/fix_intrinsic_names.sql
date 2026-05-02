@@ -1,0 +1,13 @@
+UPDATE intrinsic SET name = 'Vàng rơi từ quái +p0% đến p1%' WHERE id = 26;
+UPDATE intrinsic SET name = 'Sức mạnh và tiềm năng khi đánh quái +p0% đến p1%' WHERE id = 27;
+UPDATE intrinsic SET name = 'Né đòn +p0% đến p1%' WHERE id = 28;
+UPDATE intrinsic SET name = 'Giáp cộng thêm +p0% đến p1%' WHERE id = 29;
+UPDATE intrinsic SET name = 'Hút HP khi đánh quái +p0% đến p1%' WHERE id = 30;
+UPDATE intrinsic SET name = 'Phản sát thương +p0% đến p1%' WHERE id = 31;
+UPDATE intrinsic SET name = 'Tốc độ di chuyển +p0% đến p1%' WHERE id = 32;
+UPDATE intrinsic SET name = 'Hồi HP mỗi 5 giây +p0% đến p1%' WHERE id = 33;
+UPDATE intrinsic SET name = 'Hồi KI mỗi 5 giây +p0% đến p1%' WHERE id = 34;
+UPDATE intrinsic SET name = 'Chính xác +p0% đến p1%' WHERE id = 35;
+UPDATE intrinsic SET name = 'Xuyên giáp cận chiến +p0% đến p1%' WHERE id = 36;
+UPDATE intrinsic SET name = 'Xuyên giáp chưởng +p0% đến p1%' WHERE id = 37;
+SELECT id, name, gender FROM intrinsic WHERE id >= 26 ORDER BY id;

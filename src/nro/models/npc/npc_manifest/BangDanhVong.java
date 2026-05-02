@@ -27,6 +27,7 @@ public class BangDanhVong extends Npc {
     private static final int MENU_FLOW_GUIDE = 88010;
     private static final int MENU_TOP_MAIN = 88011;
     private static final int MENU_EVENT_INFO = 88012;
+    private static final int MENU_MABU_GUIDE = 88013;
 
     public BangDanhVong(int mapId, int status, int cx, int cy, int tempId, int avatar) {
         super(mapId, status, cx, cy, tempId, avatar);
@@ -67,6 +68,7 @@ public class BangDanhVong extends Npc {
             case MENU_ECONOMY_GUIDE -> handleBackToTutorial(player, select);
             case MENU_MAP_GUIDE -> handleBackToTutorial(player, select);
             case MENU_PVP_GUIDE -> handleBackToTutorial(player, select);
+            case MENU_MABU_GUIDE -> handleBackToTutorial(player, select);
             case MENU_TOP_MAIN -> handleTopMenu(player, select);
             case MENU_EVENT_INFO -> handleBackToBase(player, select);
             default -> {}
@@ -138,7 +140,8 @@ public class BangDanhVong extends Npc {
                 "Bang Hội\n& Phó Bản",
                 "Kinh Tế\n& Nạp",
                 "Map Đặc\nBiệt",
-                "PVP &\nMini Game");
+                "PVP &\nMini Game",
+                "Map MaBu\n& Kilis");
     }
 
     private void handleTutorialMain(Player player, int select) {
@@ -151,6 +154,7 @@ public class BangDanhVong extends Npc {
             case 5 -> showEconomyGuide(player);
             case 6 -> showMapGuide(player);
             case 7 -> showPvpGuide(player);
+            case 8 -> showMabuGuide(player);
         }
     }
 
@@ -327,6 +331,37 @@ public class BangDanhVong extends Npc {
                         + "- Phần thưởng buff cả bang 1 ngày\n\n"
                         + "|5|Oẳn Tù Tì:\n"
                         + "|1|- Chạm người chơi → chơi OTT cược 5tr vàng",
+                "Quay lại");
+    }
+
+    // ========== 9. MAP MABU & KILIS ==========
+    private void showMabuGuide(Player player) {
+        createOtherMenu(player, MENU_MABU_GUIDE,
+                "|7|━━ MAP MABU & KILIS ━━\n\n"
+                        + "|5|Cách vào Map MaBu:\n"
+                        + "|1|- NPC Ôsin tại Đại Hội Võ Thuật (map 52)\n"
+                        + "- Mở từ 12h hàng ngày, bấm OK để vào\n"
+                        + "- MaBu 14H: mở riêng cho bản nâng cao\n\n"
+                        + "|5|Cơ chế phong ấn:\n"
+                        + "|1|- Tất cả sức mạnh bị phong ấn như nhau\n"
+                        + "- Tích 10 điểm Tích Lũy (TL) = xuống tầng\n"
+                        + "- Hạ người chơi hoặc boss để tích điểm\n"
+                        + "- Giải trừ phong ấn: 1 ngọc\n\n"
+                        + "|5|Hệ thống 6 tầng:\n"
+                        + "|1|- T1: Drabura → T2: BuiBui\n"
+                        + "- T3: BuiBui 2 → T4: YaCon\n"
+                        + "- T5: Drabura 2 → T6: MaBu (Boss cuối)\n\n"
+                        + "|5|Phe phái (PvP nội bộ):\n"
+                        + "|1|- Phe Kaiô (Ôsin) vs Phe Babiday\n"
+                        + "- Babiday thôi miên (1%) đổi phe\n"
+                        + "- Ôsin giải bùa (2%) về phe gốc\n\n"
+                        + "|5|Farm Kilis (map 187):\n"
+                        + "|1|- Cần item Bình hút năng lượng\n"
+                        + "- 100 hồng ngọc = 10p buff hút x2\n"
+                        + "- Kilis dùng tiến hóa đệ tử\n\n"
+                        + "|5|MaBu 14H (map 127-128):\n"
+                        + "|1|- Phù hộ: 10 ngọc = +1tr HP/KI/10k SĐ\n"
+                        + "- Boss: MaBu + Super Bu",
                 "Quay lại");
     }
 
