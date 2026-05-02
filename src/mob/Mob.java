@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import nro.server.Maintenance;
 import nro.server.Manager;
+import nro.models.npc.npc_manifest.DuongTang;
 import utils.Util;
 
 import java.util.ArrayList;
@@ -184,6 +185,8 @@ public class Mob {
                     TaskService.gI().checkDoneSideTaskKillMob(plAtt, this);
                     TaskService.gI().checkDoneClanTaskKillMob(plAtt, this);
                     AchievementService.gI().checkDoneTaskKillMob(plAtt, this);
+                    // Nhiệm vụ hộ tống Đường Tăng — đếm kill
+                    DuongTang.onMobKill(plAtt);
                     if (plAtt.itemTime != null && plAtt.itemTime.isUseTDLT) {
                         plAtt.playerTask.kolTask.addCount();
                     }

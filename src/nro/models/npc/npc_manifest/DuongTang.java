@@ -164,21 +164,27 @@ public class DuongTang extends Npc {
     private void showEscortMenu(Player player) {
         int diemHienTai = player.event.getEventPointNHS();
 
+        String missionStatus = "";
+        if (player.event.escortActive) {
+            missionStatus = "|6|⚔ Đang hộ tống: " + player.event.escortKills
+                    + "/" + player.event.escortKillsRequired + " quái\n\n";
+        }
+
         createOtherMenu(player, MENU_ESCORT_INFO,
                 "|7|━━━ NHIỆM VỤ HỘ TỐNG ━━━\n"
-                + "|8|Hộ tống Đường Tăng đi thỉnh chân kinh!\n\n"
-                + "|1|Chọn tuyến đường hộ tống:\n"
-                + "|1|1. Tây Đô (dễ) — +5 điểm\n"
-                + "|1|2. Đảo Kame — +10 điểm\n"
-                + "|1|3. Thung lũng Namek — +15 điểm\n"
-                + "|1|4. Đồng cỏ Xayda — +20 điểm\n"
-                + "|2|5. Ngũ Hành Sơn (khó) — +30 điểm\n\n"
+                + "|8|Hộ tống Đường Tăng đi thỉnh chân kinh!\n"
+                + "|8|Diệt quái tại map đích để bảo vệ sư phụ!\n\n"
+                + missionStatus
+                + "|1|1. Tây Đô — +5đ (diệt 5 quái)\n"
+                + "|1|2. Đảo Kame — +10đ (diệt 10 quái)\n"
+                + "|1|3. Namek — +15đ (diệt 15 quái)\n"
+                + "|2|4. Xayda — +20đ (diệt 20 quái)\n\n"
                 + "|2|Điểm hiện tại: " + diemHienTai + "\n"
                 + "|7|━━━━━━━━━━━━━━━━━━",
-                "Tây Đô\n+5 điểm",
-                "Đảo Kame\n+10 điểm",
-                "Namek\n+15 điểm",
-                "Xayda\n+20 điểm");
+                "Tây Đô\ndiệt 5 quái",
+                "Đảo Kame\ndiệt 10 quái",
+                "Namek\ndiệt 15 quái",
+                "Xayda\ndiệt 20 quái");
     }
 
     private void handleEscortSelect(Player player, int select) {
@@ -216,12 +222,21 @@ public class DuongTang extends Npc {
         int destIndex = player.iDMark.getMenuType();
         if (destIndex < 0 || destIndex >= ESCORT_DESTINATIONS.length) return;
 
-        // Cooldown 60s chống spam
+        // Kiểm tra đang có nhiệm vụ hộ tống chưa hoàn thành
+        if (player.event.escortActive) {
+            Service.gI().sendThongBao(player,
+                    "Bạn đang có nhiệm vụ hộ tống chưa hoàn thành!\n"
+                    + "Tiến độ: " + player.event.escortKills + "/" + player.event.escortKillsRequired + " quái\n"
+                    + "Hãy đánh quái tại map đích để hoàn thành!");
+            return;
+        }
+
+        // Cooldown 3 phút chống spam
         long now = System.currentTimeMillis();
         long lastEscort = player.event.lastEscortTime;
-        if (now - lastEscort < 60_000) {
-            long remain = (60_000 - (now - lastEscort)) / 1000;
-            Service.gI().sendThongBao(player, "Vui long cho " + remain + "s de ho tong tiep!");
+        if (now - lastEscort < 180_000) {
+            long remain = (180_000 - (now - lastEscort)) / 1000;
+            Service.gI().sendThongBao(player, "Vui lòng chờ " + remain + "s để hộ tống tiếp!");
             return;
         }
 
@@ -232,21 +247,67 @@ public class DuongTang extends Npc {
         int diemThuong = dest[3];
         String destName = ESCORT_NAMES[destIndex];
 
+        // Số quái cần giết tùy theo độ khó
+        int killsRequired = switch (destIndex) {
+            case 0 -> 5;   // Tây Đô (dễ)
+            case 1 -> 10;  // Đảo Kame
+            case 2 -> 15;  // Namek
+            case 3 -> 20;  // Xayda
+            default -> 10;
+        };
+
         // Lưu cooldown
         player.event.lastEscortTime = now;
 
-        // Thêm điểm công đức
-        player.event.addEventPointNHS(diemThuong);
+        // Lưu nhiệm vụ hộ tống — CHƯA cộng điểm!
+        player.event.escortActive = true;
+        player.event.escortMapId = targetMap;
+        player.event.escortPoints = diemThuong;
+        player.event.escortKills = 0;
+        player.event.escortKillsRequired = killsRequired;
 
         // Chuyển map
         ChangeMapService.gI().changeMapNonSpaceship(player, targetMap, targetX, targetY);
 
         // Thông báo
         Service.gI().sendThongBao(player,
-                "Ho tong den " + destName + " thanh cong!\n"
-                + "+" + diemThuong + " diem cong duc.\n"
-                + "Tong diem: " + player.event.getEventPointNHS()
-                + "\nCho 60s de ho tong tiep.");
+                "Hộ tống Đường Tăng đến " + destName + "!\n"
+                + "Tiêu diệt " + killsRequired + " quái vật tại đây\n"
+                + "để bảo vệ sư phụ và nhận +" + diemThuong + " điểm công đức!");
+    }
+
+    // Gọi từ Mob.java khi player giết quái — kiểm tra hoàn thành hộ tống
+    public static void onMobKill(Player player) {
+        if (player == null || player.event == null || !player.event.escortActive) return;
+        if (player.zone == null || player.zone.map == null) return;
+
+        // Chỉ tính kill ở đúng map đích
+        if (player.zone.map.mapId != player.event.escortMapId) return;
+
+        player.event.escortKills++;
+
+        // Kiểm tra hoàn thành
+        if (player.event.escortKills >= player.event.escortKillsRequired) {
+            // Hoàn thành! Cộng điểm
+            player.event.addEventPointNHS(player.event.escortPoints);
+
+            Service.gI().sendThongBao(player,
+                    "Hộ tống thành công!\n"
+                    + "+" + player.event.escortPoints + " điểm công đức\n"
+                    + "Tổng điểm: " + player.event.getEventPointNHS()
+                    + "\nQuay về gặp Đường Tăng để nhận thưởng!");
+
+            // Reset nhiệm vụ
+            player.event.escortActive = false;
+            player.event.escortMapId = -1;
+            player.event.escortPoints = 0;
+            player.event.escortKills = 0;
+            player.event.escortKillsRequired = 0;
+        } else if (player.event.escortKills % 5 == 0) {
+            // Thông báo tiến độ mỗi 5 con
+            Service.gI().sendThongBao(player,
+                    "Hộ tống: " + player.event.escortKills + "/" + player.event.escortKillsRequired + " quái");
+        }
     }
 
     // ====================================================================
@@ -363,22 +424,23 @@ public class DuongTang extends Npc {
     // ====================================================================
     private void showGuide(Player player) {
         npcChat(player,
-                "|7|HUONG DAN DUONG TANG\n\n"
-                + "|8|Ho tong su phu qua cac tuyen:\n"
-                + "|1|Tay Do +5, Dao Kame +10\n"
-                + "|1|Namek +15, Xayda +20\n"
-                + "|2|Ngu Hanh Son +30 (kho)\n\n"
-                + "|8|Cach kiem diem nhanh:\n"
-                + "|2|Ho tong lien tuc (cd 60s)\n"
-                + "|2|Danh quai Ngu Hanh Son +1/con\n\n"
-                + "|8|Nhan Thuong tai day:\n"
-                + "|1|50d = Dau Than + 5M Vang\n"
-                + "|1|150d = 3 Thoi Vang + Da BV\n"
-                + "|1|300d = 10 Thoi Vang + 5k Ngoc\n"
-                + "|1|500d = 50 Thoi Vang + Manh Oozaru\n\n"
-                + "|8|Shop doi diem tai Ngu Hanh Son:\n"
-                + "|1|Ngoc Rong 7s=30d, 6s=80d\n"
-                + "|1|5s=200d, 4s=500d, 3s=1000d");
+                "|7|━━━ HƯỚNG DẪN HỘ TỐNG ━━━\n\n"
+                + "|8|Chọn tuyến → Dịch chuyển đến map đích\n"
+                + "|8|→ Tiêu diệt quái vật để bảo vệ sư phụ\n"
+                + "|8|→ Hoàn thành = Nhận điểm công đức!\n\n"
+                + "|1|Tây Đô: +5đ (diệt 5 quái)\n"
+                + "|1|Đảo Kame: +10đ (diệt 10 quái)\n"
+                + "|1|Namek: +15đ (diệt 15 quái)\n"
+                + "|2|Xayda: +20đ (diệt 20 quái)\n\n"
+                + "|8|Cooldown: 3 phút giữa mỗi lần\n\n"
+                + "|8|Nhận Thưởng tại đây:\n"
+                + "|1|50đ = Đậu Thần + 5M Vàng\n"
+                + "|1|150đ = 3 Thỏi Vàng + Đá BV\n"
+                + "|1|300đ = 10 Thỏi Vàng + 5k Ngọc\n"
+                + "|1|500đ = 50 Thỏi Vàng + Mảnh Oozaru\n\n"
+                + "|8|Shop đổi điểm tại Ngũ Hành Sơn:\n"
+                + "|1|Ngọc Rồng 7s=30đ, 6s=80đ\n"
+                + "|1|5s=200đ, 4s=500đ, 3s=1000đ");
     }
 
     // ====================================================================

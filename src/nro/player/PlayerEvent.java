@@ -167,6 +167,13 @@ public class PlayerEvent {
     private boolean receivedLuckyMoney;
     public long lastEscortTime = 0;
 
+    // Nhiệm vụ hộ tống Đường Tăng
+    public boolean escortActive = false;
+    public int escortMapId = -1;       // Map đích cần đến
+    public int escortPoints = 0;       // Điểm sẽ nhận khi hoàn thành
+    public int escortKills = 0;        // Số quái đã giết
+    public int escortKillsRequired = 0; // Số quái cần giết
+
     public PlayerEvent(Player player) {
         this.player = player;
     }
