@@ -284,7 +284,22 @@ public class Item {
     }
     
     public boolean canPutInCollectionBox() {
-        return isNotNullItem() && (template.type == 5 || template.type == 11 || template.type == 21 || template.type == 23) && itemOptions.stream().noneMatch(ItemOption::haveExpiryDate);
+        if (!isNotNullItem()) return false;
+        // Chặn item có hạn sử dụng
+        if (itemOptions.stream().anyMatch(ItemOption::haveExpiryDate)) return false;
+        // Cho phép theo type: rada(5), bông tai(11), cải trang(21), sách(23), trang bị(0-4,32), phụ kiện(27), mảnh(12)
+        if (template.type == 5 || template.type == 11 || template.type == 21 || template.type == 23
+                || template.type == 12 || template.type == 27
+                || (template.type >= 0 && template.type <= 4) || template.type == 32) {
+            return true;
+        }
+        // Cho phép theo ID cụ thể: mảnh thiên sứ, mảnh rồng thần, mảnh oozaru, mảnh bông tai
+        if (template.id >= 1066 && template.id <= 1070) return true; // Mảnh Thiên Sứ
+        if (template.id == 1204) return true; // Mảnh Rồng thần Namếc
+        if (template.id == 1173) return true; // Mảnh Quỷ
+        if (template.id == 1901) return true; // Mảnh Khí Oozaru
+        if (template.id == 1855) return true; // Mảnh vỡ bông tai cấp 3
+        return false;
     }
 
     public boolean isHaveOption(int id) {
