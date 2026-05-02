@@ -363,6 +363,33 @@ public class UseItem {
                                 // ⭐ thông báo
                                 Service.gI().sendThongBao(pl, "Đệ tử của bạn đã tiến hóa thành Jiren!");
                                 break;
+                            case 1204: // Mảnh Rồng thần Namếc - ghép 7 mảnh = 1 Ngọc Rồng Namếc ngẫu nhiên
+                            {
+                                if (item.quantity < 7) {
+                                    Service.gI().sendThongBao(pl,
+                                            "Cần 7 Mảnh Rồng thần Namếc để ghép!\n"
+                                            + "Hiện có: " + item.quantity + "/7 mảnh");
+                                    break;
+                                }
+                                if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
+                                    Service.gI().sendThongBao(pl, "Cần 1 ô trống hành trang!");
+                                    break;
+                                }
+                                // Trừ 7 mảnh
+                                InventoryService.gI().subQuantityItemsBag(pl, item, 7);
+                                // Tạo ngọc rồng Namếc ngẫu nhiên 1-7 sao (ID 353-359)
+                                int ngocSao = 353 + Util.nextInt(0, 6);
+                                Item ngocRong = ItemService.gI().createNewItem((short) ngocSao);
+                                ngocRong.quantity = 1;
+                                InventoryService.gI().addItemBag(pl, ngocRong);
+                                InventoryService.gI().sendItemBag(pl);
+                                int sao = ngocSao - 352;
+                                Service.gI().sendThongBao(pl,
+                                        "Ghép thành công!\nNhận được: Ngọc Rồng Namếc " + sao + " sao!");
+                                Service.gI().sendThongBaoAllPlayer(
+                                        pl.name + " vừa ghép được Ngọc Rồng Namếc " + sao + " sao từ mảnh!");
+                                break;
+                            }
                             case 211: // nho tím
                             case 212: // nho xanh
                                 eatGrapes(pl, item);
