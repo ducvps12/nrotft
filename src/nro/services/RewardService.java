@@ -910,10 +910,23 @@ public class RewardService {
                 }
                 // --- EPIC TIER: Set Thần Linh + Bông tai Porata (1/500) ---
                 else if (Util.isTrue(1, 500)) {
-                    int[] epicItems = { 555, 556, 562, 563, 561, 921 }; // Áo/Quần/Găng/Giày/Nhẫn Thần Linh, Porata+2
+                    // Thần Linh: Trái Đất (555,556,562,563), Namếc (557,558,564,565), Xayda (559,560,566,567), Nhẫn (561)
+                    int[] epicItems = {
+                        555, 556, 562, 563,  // Áo/Quần/Găng/Giày TĐ
+                        557, 558, 564, 565,  // Áo/Quần/Găng/Giày Namếc
+                        559, 560, 566, 567,  // Áo/Quần/Găng/Giày Xayda
+                        561,                 // Nhẫn Thần Linh
+                        921                  // Bông tai Porata +2
+                    };
                     int chosenId = epicItems[Util.nextInt(epicItems.length)];
                     it = ItemService.gI().createNewItem((short) chosenId);
                     it.quantity = 1;
+                    // Thêm chỉ số base cho đồ Thần Linh (áo/quần/găng/giày)
+                    if (chosenId != 921) { // Không phải bông tai
+                        it.itemOptions.clear();
+                        int type = it.template.type; // 0=áo, 1=quần, 2=găng, 3=giày, 4=nhẫn
+                        initBaseOptionClothes(chosenId, type, it.itemOptions);
+                    }
                     ServerNotify.gI().notify("🎉 " + player.name + " vừa trúng " + it.template.name + " từ Vòng Quay Thỏi Vàng!");
                     Service.gI().sendThongBaoAllPlayer("[EPIC] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
                 }
@@ -935,12 +948,9 @@ public class RewardService {
                 }
                 // --- VIP CT TIER: Cải trang VIP 20-40% (1/50) ---
                 else if (Util.isTrue(1, 50)) {
-                    int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000, 17, 19, 20, 21 };
+                    // CHỈ cải trang, KHÔNG bao gồm đồ NRO thường
+                    int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 999, 1000, 1001 };
                     int itemid = itemId[Util.nextInt(itemId.length)];
-                    if (Util.isTrue(20, 100)) {
-                        int[] itemId2 = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 999, 1000, 1001 };
-                        itemid = itemId2[Util.nextInt(itemId2.length)];
-                    }
                     byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
                     byte[] option_v2 = { 14, 16, 17, 19, 27, 28, 5, 47, 87 };
                     Item vpdl = ItemService.gI().createNewItem((short) itemid);
