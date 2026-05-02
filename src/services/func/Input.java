@@ -30,6 +30,7 @@ import models.GiftCode.GiftCodeService;
 import nro.services.InventoryService;
 import nro.services.ItemService;
 import nro.services.NpcService;
+import nro.models.npc.npc_manifest.Santa;
 
 import java.io.FileReader;
 import java.util.HashMap;
@@ -752,7 +753,8 @@ public class Input {
     private void handleBanThoiVang(Player player, String slText) {
         try {
             int sltv = Integer.parseInt(slText);
-            long cost = (long) sltv * GOLD_PER_GOLD_BAR;
+            long sellPrice = Santa.getCurrentSellPrice();
+            long cost = (long) sltv * sellPrice;
 
             if (sltv < 0) {
                 Service.gI().sendThongBao(player, "Số lượng không hợp lệ");
@@ -765,7 +767,7 @@ public class Input {
                     Service.gI().sendThongBao(player, "Bạn chỉ có " + ThoiVang.quantity + " Thỏi vàng");
                 } else {
                     if (player.inventory.gold + cost > Inventory.LIMIT_GOLD) {
-                        int slban = (int) ((Inventory.LIMIT_GOLD - player.inventory.gold) / GOLD_PER_GOLD_BAR);
+                        int slban = (int) ((Inventory.LIMIT_GOLD - player.inventory.gold) / sellPrice);
                         if (slban < 1) {
                             Service.gI().sendThongBao(player, "Vàng sau khi bán vượt quá giới hạn");
                         } else if (slban < 2) {
@@ -779,7 +781,8 @@ public class Input {
                         player.inventory.gold += cost;
                         Service.gI().sendMoney(player);
                         Service.gI().sendThongBao(player,
-                                "Đã bán " + sltv + " Thỏi vàng thu được " + Util.numberToMoney(cost) + " vàng");
+                                "Đã bán " + sltv + " Thỏi vàng thu được " + Util.numberToMoney(cost) + " vàng"
+                                + "\nGiá thị trường: " + Util.numberToMoney(sellPrice) + "/thỏi");
                         TransactionService.gI().cancelTrade(player);
                     }
                 }
@@ -1012,7 +1015,8 @@ public class Input {
     }
 
     public void createFormBanSLL(Player pl) {
-        createForm(pl, BANSLL, "Bán Thỏi vàng - Nhập số lượng (1 → tối đa, trong giới hạn 1000,000,000,000 vàng)",
+        long sellPrice = Santa.getCurrentSellPrice();
+        createForm(pl, BANSLL, "Bán Thỏi vàng - Giá: " + Util.numberToMoney(sellPrice) + "/thỏi\nNhập số lượng (1 → tối đa)",
                 new SubInput("Số lượng", NUMERIC));
     }
 

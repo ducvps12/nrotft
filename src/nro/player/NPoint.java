@@ -765,19 +765,28 @@ public class NPoint {
                     this.wearingTrainArmor = true;
                     this.player.inventory.trainArmor = gtl;
                     this.tlSubSD += ItemService.gI().getPercentTrainArmor(gtl);
+                    // Auto-add option 9 nếu giáp tập luyện chưa có (fix cho item cũ)
+                    boolean hasOpt9 = gtl.itemOptions.stream()
+                            .anyMatch(io -> io.optionTemplate.id == 9);
+                    if (!hasOpt9 && ItemService.gI().isTrainArmor(gtl)) {
+                        gtl.itemOptions.add(new Item.ItemOption(9, 0));
+                    }
                 } else {
                     if (this.player.inventory.trainArmor == null) {
                         gtl = this.player.inventory.itemsBag.stream()
                                 .filter(item -> item.isNotNullItem() && item.template.type == 32
-                                        && item.itemOptions != null
-                                        && item.itemOptions.stream()
-                                                .filter(io -> io.optionTemplate.id == 9 && io.param > 0).findFirst()
-                                                .orElse(null) != null)
+                                        && ItemService.gI().isTrainArmor(item))
                                 .findFirst().orElse(null);
                         if (gtl == null) {
                             return;
                         }
                         this.player.inventory.trainArmor = gtl;
+                        // Auto-add option 9 nếu thiếu
+                        boolean hasOpt9 = gtl.itemOptions.stream()
+                                .anyMatch(io -> io.optionTemplate.id == 9);
+                        if (!hasOpt9) {
+                            gtl.itemOptions.add(new Item.ItemOption(9, 0));
+                        }
                     }
                     this.wearingTrainArmor = false;
                     for (Item.ItemOption io : this.player.inventory.trainArmor.itemOptions) {

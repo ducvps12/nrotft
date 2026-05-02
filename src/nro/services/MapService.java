@@ -623,7 +623,7 @@ public class MapService {
     }
 
     public boolean isMapCadic(int mapId) {
-        return mapId >= 187;
+        return mapId == 187;
     }
 
     public void goToMap(Player player, Zone zoneJoin) {

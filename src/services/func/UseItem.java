@@ -1957,20 +1957,15 @@ public class UseItem {
                 InventoryService.gI().addItemBag(pl, item);
             }
 
-            // Tặng 500 thỏi vàng cho tân thủ (500tv)
-            int thoiVangConLai = 500;
-            while (thoiVangConLai > 0) {
-                int qty = Math.min(thoiVangConLai, 99);
-                if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
-                    Item thoiVang = ItemService.gI().createNewItem((short) 457, qty);
-                    InventoryService.gI().addItemBag(pl, thoiVang);
-                }
-                thoiVangConLai -= qty;
+            // Tặng 10 thỏi vàng cho tân thủ
+            if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
+                Item thoiVang = ItemService.gI().createNewItem((short) 457, 10);
+                InventoryService.gI().addItemBag(pl, thoiVang);
             }
 
             InventoryService.gI().subQuantityItemsBag(pl, it, 1);
             InventoryService.gI().sendItemBag(pl);
-            Service.gI().sendThongBao(pl, "Chúc bạn chơi game vui vẻ! Bạn nhận được 500 thỏi vàng!");
+            Service.gI().sendThongBao(pl, "Chúc bạn chơi game vui vẻ! Bạn nhận được 10 thỏi vàng!");
         } else {
             Service.gI().sendThongBao(pl, "Cần tối thiểu 14 ô trống để nhận thưởng");
         }
@@ -2000,99 +1995,139 @@ public class UseItem {
                 if (level == 0) {
                     InventoryService.gI().subQuantityItemsBag(player, ruongGo, 1);
                     InventoryService.gI().sendItemBag(player);
-
-                    // Tạo item vàng (ID 190) cho phần thưởng
                     Item item = ItemService.gI().createNewItem((short) 190);
-                    item.quantity = 1; // Số lượng vàng ở level 0 là 1
+                    item.quantity = 1;
                     InventoryService.gI().addItemBag(player, item);
                     InventoryService.gI().sendItemBag(player);
-
                     Service.gI().sendThongBao(player, "reward");
-                    return; // Thoát ra nếu cấp độ = 0
+                    return;
                 }
 
-                // Tính toán số lượng vàng thưởng dựa trên cấp độ
-                int baseGoldAmount = 100 * level; // Tính số lượng vàng cơ bản
-                int randomFactor = Util.nextInt(-15, 15); // Tạo một yếu tố ngẫu nhiên để biến động số lượng vàng
-                int goldAmount = baseGoldAmount + (baseGoldAmount * randomFactor / 100);
+                // ============ VÀNG (nâng cấp lớn) ============
+                long goldReward;
+                if (level <= 3) goldReward = level * 20_000_000L;
+                else if (level <= 6) goldReward = level * 25_000_000L;
+                else if (level <= 9) goldReward = level * 40_000_000L;
+                else if (level <= 11) goldReward = level * 55_000_000L;
+                else goldReward = 1_000_000_000L; // Level 12 = 1B
+
+                int randomFactor = Util.nextInt(-10, 10);
+                goldReward += goldReward * randomFactor / 100;
 
                 Item itemGold = ItemService.gI().createNewItem((short) 190);
-                itemGold.quantity = goldAmount * 1000; // Số lượng vàng thưởng (đơn vị là vàng)
-                player.itemsWoodChest.add(itemGold); // Thêm vàng vào phần thưởng
-                // Kiểm tra nếu cấp độ > 9
-                if (level >= 9) {
-                    // Tính số lượng item ID 77, bắt đầu từ 100 và tăng 20 mỗi cấp
-                    int quantity = 100 + (level - 9) * 20;
+                itemGold.quantity = (int) Math.min(goldReward, Integer.MAX_VALUE);
+                player.itemsWoodChest.add(itemGold);
 
-                    // Tạo item với ID 77
+                // ============ NGỌC (MỚI) ============
+                int gemReward;
+                if (level <= 3) gemReward = level * 2;
+                else if (level <= 6) gemReward = level * 3;
+                else if (level <= 9) gemReward = level * 5;
+                else if (level <= 11) gemReward = level * 6;
+                else gemReward = 100; // Level 12
+                player.inventory.gem += gemReward;
+
+                // ============ XU NRO (MỚI) ============
+                int xuReward;
+                if (level <= 3) xuReward = level + 2;
+                else if (level <= 6) xuReward = level * 2;
+                else if (level <= 9) xuReward = level * 3;
+                else if (level <= 11) xuReward = level * 4;
+                else xuReward = 50; // Level 12
+                Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
+                player.itemsWoodChest.add(xuNro);
+
+                // ============ ĐẬU (level 9+) ============
+                if (level >= 9) {
+                    int quantity = 100 + (level - 9) * 20;
                     Item item77 = ItemService.gI().createNewItem((short) 77);
                     item77.quantity = quantity;
-
-                    // Thêm item vào danh sách phần thưởng
                     player.itemsWoodChest.add(item77);
                 }
 
-                // Phần thưởng đồ tại rương
+                // ============ TRANG BỊ (clothes) ============
                 int clothesCount = 1;
                 if (level >= 5 && level <= 8) {
-                    clothesCount = 2; // Nếu cấp độ từ 5 đến 8, thưởng 2 món đồ
+                    clothesCount = 2;
                 } else if (level >= 10 && level <= 12) {
-                    clothesCount = 3; // Nếu cấp độ từ 10 đến 12, thưởng 3 món đồ
+                    clothesCount = 3;
                 }
-
-                // Tạo đồ thưởng (clothes) và thêm vào phần thưởng
                 for (int i = 0; i < clothesCount; i++) {
-                    int randItemId = randClothes(level); // Lấy ID ngẫu nhiên của món đồ
+                    int randItemId = randClothes(level);
                     Item rewardItem = ItemService.gI().createNewItem((short) randItemId);
                     List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop((short) randItemId);
                     if (ops != null && !ops.isEmpty()) {
-                        rewardItem.itemOptions.addAll(ops); // Thêm thuộc tính item
+                        rewardItem.itemOptions.addAll(ops);
                     }
-                    rewardItem.quantity = 1; // Số lượng món đồ là 1
-                    player.itemsWoodChest.add(rewardItem); // Thêm món đồ vào phần thưởng
+                    rewardItem.quantity = 1;
+                    player.itemsWoodChest.add(rewardItem);
                 }
 
-                // Phần thưởng item ngẫu nhiên (từ rewardItems)
+                // ============ ITEM HỖ TRỢ (random) ============
                 int[] rewardItems = { 17, 18, 19, 20, 380, 381, 382, 383, 384, 385, 1229 };
-                int rewardCount = 2; // Số lượng item mặc định
-
-                // Thay đổi số lượng phần thưởng tùy theo cấp độ
+                int rewardCount = 2;
                 if (level >= 5 && level <= 8) {
-                    rewardCount = 3; // Nếu cấp độ từ 5 đến 8, thưởng 3 item ngẫu nhiên
+                    rewardCount = 3;
                 } else if (level >= 10 && level <= 12) {
-                    rewardCount = 4; // Nếu cấp độ từ 10 đến 12, thưởng 4 item ngẫu nhiên
+                    rewardCount = 4;
                 }
-
-                // Thêm item ngẫu nhiên vào phần thưởng
                 Set<Integer> selectedItems = new HashSet<>();
                 while (selectedItems.size() < rewardCount) {
                     int randItemId = rewardItems[Util.nextInt(0, rewardItems.length - 1)];
                     if (!selectedItems.contains(randItemId)) {
                         selectedItems.add(randItemId);
                         Item rewardItem = ItemService.gI().createNewItem((short) randItemId);
-                        rewardItem.quantity = Util.nextInt(1, level); // Số lượng item phụ thuộc vào cấp độ
-                        player.itemsWoodChest.add(rewardItem); // Thêm item vào phần thưởng
+                        rewardItem.quantity = Util.nextInt(1, level);
+                        player.itemsWoodChest.add(rewardItem);
                     }
                 }
 
-                // Phần thưởng sao pha lê (nâng cấp)
-                int saoPhaLeCount = (level > 9) ? 2 : 1; // Nếu cấp độ > 9, thêm 2 sao phá lệ
+                // ============ SAO PHA LÊ ============
+                int saoPhaLeCount = (level > 9) ? 2 : 1;
                 for (int i = 0; i < saoPhaLeCount; i++) {
                     int rand = Util.nextInt(0, 6);
                     Item level1 = ItemService.gI().createNewItem((short) (441 + rand));
                     level1.itemOptions.add(new Item.ItemOption(95 + rand, (rand == 3 || rand == 4) ? 3 : 5));
-                    level1.quantity = Util.nextInt(1, 3); // Số lượng sao phá lệ
-                    player.itemsWoodChest.add(level1); // Thêm sao phá lệ vào phần thưởng
+                    level1.quantity = Util.nextInt(1, Math.max(3, level / 3));
+                    player.itemsWoodChest.add(level1);
                 }
 
-                // Phần thưởng đá nâng cấp
-                int dncCount = (level > 9) ? 2 : 1; // Nếu cấp độ > 9, có 2 đá nâng cấp
+                // ============ ĐÁ NÂNG CẤP ============
+                int dncCount = (level > 9) ? 2 : 1;
                 for (int i = 0; i < dncCount; i++) {
                     int rand = Util.nextInt(0, 4);
                     Item dnc = ItemService.gI().createNewItem((short) (220 + rand));
                     dnc.itemOptions.add(new Item.ItemOption(71 - rand, 0));
-                    dnc.quantity = Util.nextInt(1, level * 2); // Số lượng đá nâng cấp phụ thuộc vào cấp độ
-                    player.itemsWoodChest.add(dnc); // Thêm đá nâng cấp vào phần thưởng
+                    dnc.quantity = Util.nextInt(1, level * 2);
+                    player.itemsWoodChest.add(dnc);
+                }
+
+                // ============ THƯỞNG ĐẶC BIỆT THEO LEVEL (MỚI) ============
+                // Level 4+: Capsule dây chuyền
+                if (level >= 4 && Util.nextInt(100) < 30) {
+                    Item cap = ItemService.gI().createNewItem((short) 192, 1);
+                    player.itemsWoodChest.add(cap);
+                }
+
+                // Level 7+: Thỏi vàng
+                if (level >= 7) {
+                    int slTV = Util.nextInt(1, Math.max(1, level / 4));
+                    Item tv = ItemService.gI().createNewItem((short) 457, slTV);
+                    player.itemsWoodChest.add(tv);
+                }
+
+                // Level 10+: Hộp SKH
+                if (level >= 10) {
+                    Item hop = ItemService.gI().createNewItem((short) 860, 1);
+                    player.itemsWoodChest.add(hop);
+                }
+
+                // Level 12 (VÔ ĐỊCH): Sách TK2 + Thỏi vàng bonus
+                if (level == 12) {
+                    Item stk = ItemService.gI().createNewItem((short) 456, 1);
+                    player.itemsWoodChest.add(stk);
+                    Item tvBonus = ItemService.gI().createNewItem((short) 457, 10);
+                    player.itemsWoodChest.add(tvBonus);
                 }
 
                 // Trừ 1 rương gỗ
@@ -2135,50 +2170,49 @@ public class UseItem {
     }
 
     public int calculateRequiredEmptySlots(int level) {
-        // Khởi tạo số ô trống cần thiết
         int requiredSlots = 0;
 
-        // Tính số lượng vàng
-        int baseGoldAmount = 100 * level;
-        int randomFactor = Util.nextInt(-15, 15);
-        int goldAmount = baseGoldAmount + (baseGoldAmount * randomFactor / 100);
+        // Vàng
+        requiredSlots++;
 
-        // Vàng có ID 190, không tính vào số ô trống yêu cầu
-        if (goldAmount > 0) {
-            requiredSlots++;
-        }
+        // Xu NRO (MỚI)
+        requiredSlots++;
 
-        // Tính phần thưởng quần áo
+        // Đậu (level 9+)
+        if (level >= 9) requiredSlots++;
+
+        // Trang bị
         int clothesCount = 1;
-        if (level >= 5 && level <= 8) {
-            clothesCount = 2;
-        } else if (level >= 10 && level <= 12) {
-            clothesCount = 3;
-        }
-        // Đếm số phần thưởng quần áo
+        if (level >= 5 && level <= 8) clothesCount = 2;
+        else if (level >= 10 && level <= 12) clothesCount = 3;
         requiredSlots += clothesCount;
 
-        // Tính phần thưởng item hỗ trợ
-        int[] rewardItems = { 17, 18, 19, 20, 380, 381, 382, 383, 384, 385, 1229 };
+        // Item hỗ trợ
         int rewardCount = 2;
-
-        if (level >= 5 && level <= 8) {
-            rewardCount = 3;
-        } else if (level >= 10 && level <= 12) {
-            rewardCount = 4;
-        }
-        // Đếm phần thưởng item hỗ trợ
+        if (level >= 5 && level <= 8) rewardCount = 3;
+        else if (level >= 10 && level <= 12) rewardCount = 4;
         requiredSlots += rewardCount;
 
-        // Tính sao pha lê (Số lượng 2 nếu level > 9)
+        // Sao pha lê
         int saoPhaLeCount = (level > 9) ? 2 : 1;
         requiredSlots += saoPhaLeCount;
 
-        // Tính đá nâng cấp (Số lượng 2 nếu level > 9)
+        // Đá nâng cấp
         int dncCount = (level > 9) ? 2 : 1;
         requiredSlots += dncCount;
 
-        // Trả về tổng số ô trống cần thiết
+        // Capsule (level 4+)
+        if (level >= 4) requiredSlots++;
+
+        // Thỏi vàng (level 7+)
+        if (level >= 7) requiredSlots++;
+
+        // Hộp SKH (level 10+)
+        if (level >= 10) requiredSlots++;
+
+        // Sách TK2 + TV bonus (level 12)
+        if (level == 12) requiredSlots += 2;
+
         return requiredSlots;
     }
 

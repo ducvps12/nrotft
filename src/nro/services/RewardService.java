@@ -928,6 +928,8 @@ public class RewardService {
                         it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(8, 15)));
                         it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(8, 15)));
                         it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(8, 15)));
+                    } else if (chosenId == 1751) { // Giáp tập luyện cấp 4 - cần option 9 để tích điểm
+                        it.itemOptions.add(new Item.ItemOption(9, 0)); // Điểm tập luyện ban đầu = 0
                     }
                     Service.gI().sendThongBaoAllPlayer("[RARE] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
                 }
@@ -966,12 +968,13 @@ public class RewardService {
                     it.quantity = 1;
                     Service.gI().sendThongBaoAllPlayer("[VIP] Chúc mừng " + player.name + " trúng CT " + it.template.name + " chỉ số khủng từ Vòng Quay!");
                 }
-                // --- UNCOMMON: Hộp SKH Thần Linh / Phụ kiện (1/50) ---
-                else if (Util.isTrue(1, 50)) {
+                // --- UNCOMMON: Hộp SKH Thần Linh / Phụ kiện (1/300) ---
+                else if (Util.isTrue(1, 300)) {
                     if (Util.isTrue(50, 100)) {
                         it = ItemService.gI().createNewItem((short) 1703); // Hộp SKH Thần Linh
                         it.quantity = 1;
                         Service.gI().sendThongBao(player, "🎁 Chúc mừng! Bạn trúng Hộp SKH Thần Linh!");
+                        Service.gI().sendThongBaoAllPlayer("[RARE] " + player.name + " trúng Hộp SKH Thần Linh từ Vòng Quay!");
                     } else {
                         it = ItemService.gI().createNewItem((short) 1855); // Mảnh vỡ bông tai cấp 3
                         it.quantity = Util.nextInt(1, 3);
