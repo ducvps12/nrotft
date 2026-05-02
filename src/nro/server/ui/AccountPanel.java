@@ -85,6 +85,15 @@ public class AccountPanel extends JPanel {
         txtSearch.setPreferredSize(new Dimension(300, 40));
         txtSearch.setFont(FONT_DATA);
         txtSearch.putClientProperty("JTextField.showClearButton", true);
+        // Enter key để tìm kiếm
+        txtSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    searchData(txtSearch.getText());
+                }
+            }
+        });
 
         JButton btnSearch = createButton("Tìm kiếm", COL_PRIMARY);
         JButton btnReload = createButton("Làm mới", new Color(40, 167, 69));
@@ -138,7 +147,7 @@ public class AccountPanel extends JPanel {
 
         // --- Table ---
         // Col 0 = checkbox, col 1 = head, col 2 = ID, ...
-        String[] columns = {"✓", "Head", "ID", "Tài khoản", "Tên NV", "Mật khẩu", "Trạng thái", "VIP", "VND", "Đã Nạp", "Ngày tạo"};
+        String[] columns = {"✓", "Head", "ID", "Tài khoản", "Tên NV", "Mật khẩu", "Trạng thái", "Sức mạnh", "VIP", "VND", "Đã Nạp", "Ngày tạo"};
         
         model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int col) { return col == 0; }
@@ -213,7 +222,9 @@ public class AccountPanel extends JPanel {
                     if (s.contains("BAN")) setForeground(Color.RED);
                     else if (s.contains("Active")) setForeground(new Color(0, 150, 0));
                     else setForeground(Color.GRAY);
-                } else if (column == 8 || column == 9) {
+                } else if (column == 7) { // Sức mạnh
+                    setFont(FONT_NUM); setForeground(new Color(0, 128, 0));
+                } else if (column == 9 || column == 10) {
                     setFont(FONT_NUM); setForeground(new Color(153, 0, 153));
                 } else {
                     setFont(FONT_DATA);
@@ -856,14 +867,18 @@ public class AccountPanel extends JPanel {
         // Cập nhật lấy vnd, danap (Mapping: vnd=số dư VNĐ thực, danap=tổng nạp)
         updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
                     "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
-                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name FROM account a ORDER BY a.id ASC");
+                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name, " +
+                    "(SELECT power FROM player WHERE account_id = a.id LIMIT 1) AS p_power " +
+                    "FROM account a ORDER BY a.id ASC");
     }
 
     private void searchData(String txt) {
         if(txt.isEmpty()) { loadData(); return; }
         updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
                     "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
-                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name FROM account a " +
+                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name, " +
+                    "(SELECT power FROM player WHERE account_id = a.id LIMIT 1) AS p_power " +
+                    "FROM account a " +
                     "WHERE a.username LIKE '%"+txt+"%' OR a.id='"+txt+"' OR (SELECT name FROM player WHERE account_id=a.id LIMIT 1) LIKE '%"+txt+"%'");
     }
 
@@ -886,6 +901,8 @@ public class AccountPanel extends JPanel {
                     int ban = rs.getInt("ban");
                     row.add(ban == 1 ? "ĐÃ BAN" : (active == 1 ? "Active" : "Chưa KH"));
                     
+                    long power = rs.getLong("p_power");
+                    row.add(power > 0 ? formatNum(power) : "0");
                     row.add(rs.getInt("vip"));
                     row.add(formatNum(rs.getLong("vnd"))); // VND (số dư VNĐ thực tế)
                     row.add(formatNum(rs.getLong("danap"))); // Đã nạp
