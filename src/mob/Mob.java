@@ -633,12 +633,12 @@ public class Mob {
             return list;
         }
         int mapid = player.zone.map.mapId;
-        // Map up hồng ngọc
+        // Map up hồng ngọc (map 174) - giảm từ 50 xuống 5 để tránh lạm phát
         if (mapid == 174) {
             list.add(new ItemMap(
                     zone,
                     861,
-                    50,
+                    5,
                     x,
                     yEnd,
                     player.id));
@@ -1540,7 +1540,8 @@ public class Mob {
                 && MapService.gI().isMapHanhTinhThucVat(mapid) && InventoryService.gI().findItemNTK(player)) {
             list.add(new ItemMap(zone, Util.nextInt(1066, 1070), 1, x, yEnd, player.id));
         }
-        if (Util.isTrue(1, 200) || (player.actived() && Util.isTrue(1, 100))) {
+        // Hồng ngọc drop toàn cục — giảm tỉ lệ để tránh lạm phát (1/2000 thường, 1/500 active)
+        if (Util.isTrue(1, 2000) || (player.actived() && Util.isTrue(1, 500))) {
             list.add(new ItemMap(zone, 861, 1, x, yEnd, player.id));
         }
 
