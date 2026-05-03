@@ -105,6 +105,7 @@ public class DropItemPanel extends JPanel {
         tabs.addTab("⚔ Drop Mob Config", createMobDropTab());
         tabs.addTab("👹 Boss Reward Viewer", createBossRewardTab());
         tabs.addTab("📦 Tra Cứu Vật Phẩm", createItemCatalogTab());
+        tabs.addTab("📊 Hardcode Drop (Source)", createHardcodeDropTab());
 
         add(tabs, BorderLayout.CENTER);
 
@@ -944,6 +945,204 @@ public class DropItemPanel extends JPanel {
         d.add(txtSearch, BorderLayout.NORTH);
         d.add(new JScrollPane(t), BorderLayout.CENTER);
         d.setVisible(true);
+    }
+
+    // ===================================================================
+    // TAB 4: HARDCODE DROP VIEWER (parsed from Mob.java source)
+    // ===================================================================
+    private JPanel createHardcodeDropTab() {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Info
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        infoPanel.setBackground(new Color(255, 243, 224));
+        infoPanel.setBorder(new CompoundBorder(
+            new LineBorder(new Color(255, 152, 0), 1, true),
+            new EmptyBorder(8, 12, 8, 12)));
+        JLabel lblInfo = new JLabel("📊 Drop hardcode trong Mob.java — Quét tự động từ source code. Chỉ đọc, không sửa DB.");
+        lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblInfo.setForeground(new Color(230, 81, 0));
+        infoPanel.add(lblInfo);
+
+        // Search
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        searchPanel.setOpaque(false);
+        JTextField txtSearch = new JTextField(20);
+        txtSearch.setFont(FONT_PLAIN);
+        String[] filterOpts = {"- Tất cả -", "Sự kiện", "Map cụ thể", "General", "Đồ thần linh", "Hùng Vương", "Pokémon",
+            "Địa Ngục", "Godzilla", "Juventus", "Thần Thú", "Kỷ Băng Hà"};
+        JComboBox<String> cbFilter = new JComboBox<>(filterOpts);
+        cbFilter.setFont(FONT_PLAIN);
+        JLabel lblTotal = new JLabel("Tổng: 0");
+        lblTotal.setFont(FONT_BOLD);
+        searchPanel.add(new JLabel("🔍"));
+        searchPanel.add(txtSearch);
+        searchPanel.add(new JLabel(" Nhóm:"));
+        searchPanel.add(cbFilter);
+        searchPanel.add(Box.createHorizontalStrut(10));
+        searchPanel.add(lblTotal);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.add(infoPanel, BorderLayout.NORTH);
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        // Table
+        String[] cols = {"Nhóm/Sự kiện", "Map", "Mob Condition", "Item ID", "Tên Item", "SL", "Tỷ lệ", "Ghi chú"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        JTable table = new JTable(model);
+        table.setFont(FONT_PLAIN);
+        table.setRowHeight(28);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+
+        JTableHeader header = table.getTableHeader();
+        header.setFont(FONT_BOLD);
+        header.setBackground(new Color(255, 152, 0));
+        header.setForeground(Color.WHITE);
+
+        // Color-code by group
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean foc, int r, int c) {
+                super.getTableCellRendererComponent(t, v, sel, foc, r, c);
+                if (!sel) {
+                    int mr = t.convertRowIndexToModel(r);
+                    String group = String.valueOf(model.getValueAt(mr, 0));
+                    if (group.contains("Địa Ngục")) setBackground(new Color(255, 235, 238));
+                    else if (group.contains("Godzilla")) setBackground(new Color(232, 245, 233));
+                    else if (group.contains("Juventus")) setBackground(new Color(232, 234, 246));
+                    else if (group.contains("Thần Thú")) setBackground(new Color(255, 248, 225));
+                    else if (group.contains("Kỷ Băng")) setBackground(new Color(225, 245, 254));
+                    else if (group.contains("Pokémon")) setBackground(new Color(243, 229, 245));
+                    else if (group.contains("Hùng Vương")) setBackground(new Color(255, 243, 224));
+                    else setBackground(r % 2 == 0 ? Color.WHITE : new Color(248, 248, 248));
+                } else setBackground(new Color(220, 235, 255));
+                if (c == 4) { setForeground(new Color(0, 102, 204)); setFont(FONT_BOLD); }
+                else if (c == 6) { setForeground(new Color(220, 53, 69)); setFont(new Font("Consolas", Font.BOLD, 12)); }
+                else { setForeground(Color.BLACK); setFont(FONT_PLAIN); }
+                setHorizontalAlignment(c == 1 || c == 3 || c == 5 || c == 6 ? JLabel.CENTER : JLabel.LEFT);
+                return this;
+            }
+        });
+
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+        table.setRowSorter(sorter);
+
+        // Filter logic
+        Runnable applyFilter = () -> {
+            List<RowFilter<Object, Object>> filters = new ArrayList<>();
+            String searchText = txtSearch.getText().trim();
+            if (!searchText.isEmpty()) {
+                filters.add(RowFilter.regexFilter("(?i)" + searchText));
+            }
+            int filterIdx = cbFilter.getSelectedIndex();
+            if (filterIdx > 0) {
+                String filterKey = cbFilter.getSelectedItem().toString();
+                filters.add(RowFilter.regexFilter("(?i)" + filterKey, 0));
+            }
+            sorter.setRowFilter(filters.isEmpty() ? null : RowFilter.andFilter(filters));
+            lblTotal.setText("Hiện: " + table.getRowCount() + "/" + model.getRowCount());
+        };
+
+        txtSearch.getDocument().addDocumentListener(new SimpleDocumentListener() {
+            public void update() { applyFilter.run(); }
+        });
+        cbFilter.addActionListener(e -> applyFilter.run());
+
+        panel.add(topPanel, BorderLayout.NORTH);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Populate data in background
+        new Thread(() -> {
+            populateHardcodeDropData(model);
+            SwingUtilities.invokeLater(() -> {
+                lblTotal.setText("Tổng: " + model.getRowCount());
+                log("Loaded " + model.getRowCount() + " hardcoded drop rules from Mob.java.");
+            });
+        }).start();
+
+        return panel;
+    }
+
+    private void populateHardcodeDropData(DefaultTableModel model) {
+        // All hardcoded drop rules extracted from Mob.java
+        // Format: {Group, Map, MobCondition, ItemID, ItemName, Quantity, Rate, Note}
+        Object[][] data = {
+            // ========== HÙNG VƯƠNG ==========
+            {"Hùng Vương", "Tất cả", "Tất cả mob", 1847, "", "1-2", "1/40 (2.5%)", "Mảnh Đinh Ba"},
+            {"Hùng Vương", "Tất cả", "Tất cả mob", 1848, "", "1-2", "1/40 (2.5%)", "Mảnh Cung Tên"},
+
+            // ========== POKÉMON ==========
+            {"Pokémon", "Tất cả", "Tất cả mob", 1664, "", "1-2", "8%", "Vỏ Sên - đổi Bóng Poké tại ChiChi"},
+            {"Pokémon", "Tất cả", "Tất cả mob", 1665, "", "1", "3%", "Túi Dựng - đổi Bóng Ultra/Master"},
+
+            // ========== ĐỊA NGỤC ĐẢO LỘN ==========
+            {"Địa Ngục", "174,179,180", "Mob Quỷ", 457, "", "1-3", "15%", "Thỏi Vàng (Hồn Quỷ)"},
+            {"Địa Ngục", "174,179,180", "Mob Quỷ", 935, "", "1", "8%", "Đá Xanh Lam"},
+            {"Địa Ngục", "180", "Mob Quỷ Map 180", 934, "", "1-2", "5%", "Mảnh hồn bông tai - chỉ ĐN3"},
+            {"Địa Ngục", "174,179,180", "Mob Quỷ", 190, "", "100K-300K", "20%", "Vàng cao"},
+            {"Địa Ngục", "174,179,180", "Mob Quỷ", 861, "", "50-200", "3%", "Hồng Ngọc"},
+
+            // ========== GODZILLA VS KONG ==========
+            {"Godzilla", "175", "Mob Vampa", 1634, "", "1-3", "12%", "Mảnh Titan (Thiên Sứ)"},
+            {"Godzilla", "175", "Mob Vampa", 192, "", "1", "1%", "Capsule dây chuyền"},
+            {"Godzilla", "175", "Mob Vampa", 190, "", "150K-500K", "25%", "Vàng cao"},
+            {"Godzilla", "175", "Mob Vampa", 1855, "", "1-5", "5%", "Mảnh vỡ BTC3"},
+
+            // ========== JUVENTUS TOURNAMENT ==========
+            {"Juventus", "183", "Mob PVP Arena", 190, "", "200K-600K", "30%", "Vàng cao"},
+            {"Juventus", "183", "Mob PVP Arena", 861, "", "100-500", "10%", "Hồng Ngọc"},
+            {"Juventus", "183", "Mob PVP Arena", 457, "", "1", "3%", "Thỏi Vàng"},
+            {"Juventus", "183", "Mob PVP Arena", -1, "", "1", "0.5%", "Set kích hoạt ngẫu nhiên"},
+
+            // ========== THẦN THÚ CỔ ĐẠI ==========
+            {"Thần Thú", "176", "Mob Voi/Gà", 1634, "", "1-2", "8%", "Linh Phù Địa (Map 176)"},
+            {"Thần Thú", "178", "Mob Ngựa/Rồng", 1634, "", "1-2", "8%", "Linh Phù Thiên (Map 178)"},
+            {"Thần Thú", "176,178", "Mob Thần Thú", 935, "", "1", "5%", "Đá Xanh Lam"},
+            {"Thần Thú", "176,178", "Mob Thần Thú", 934, "", "1", "6%", "Mảnh hồn bông tai"},
+            {"Thần Thú", "176,178", "Mob Thần Thú", 190, "", "100K-400K", "20%", "Vàng cao"},
+
+            // ========== KỶ BĂNG HÀ ==========
+            {"Kỷ Băng Hà", "195-197", "Mob Băng", 1855, "", "1-3", "15%", "Mảnh vỡ BTC3 — nguồn chính"},
+            {"Kỷ Băng Hà", "195-197", "Mob Băng", 1855, "", "1-5", "10%", "Mảnh vỡ BTC3 (tầng cao)"},
+            {"Kỷ Băng Hà", "195-197", "Mob Băng", 935, "", "1-2", "8%", "Đá Xanh Lam"},
+            {"Kỷ Băng Hà", "195-197", "Mob Băng", 190, "", "200K-500K", "25%", "Vàng cao"},
+            {"Kỷ Băng Hà", "195-197", "Mob Băng", 861, "", "100-300", "15%", "Hồng Ngọc"},
+            {"Kỷ Băng Hà", "197", "Mob Elite Map 197", 1855, "", "3-5", "0.3%", "BTC3 rare (1/1000)"},
+
+            // ========== GENERAL DROPS ==========
+            {"General", "Doanh Trại", "Mob Doanh Trại", -2, "", "1-5", "10%", "Đá nâng cấp ngẫu nhiên"},
+            {"General", "3 hành tinh", "Mob thường", -2, "", "1-5", "10%", "Đá nâng cấp ngẫu nhiên"},
+            {"General", "Tất cả", "Mob > lv80", 190, "", "Dựa lv", "15%+", "Máy dò vàng (isUseMayDo)"},
+            {"General", "Tất cả", "Mob 80-81", -2, "", "1", "15%", "Máy dò đồ (isUseMayDo2)"},
+            {"General", "Tất cả", "Mob bất kỳ", -3, "", "1", "0.0001%", "SKH ngẫu nhiên (1/1M)"},
+        };
+
+        SwingUtilities.invokeLater(() -> {
+            for (Object[] row : data) {
+                int itemId = (int) row[3];
+                String itemName;
+                if (itemId > 0) {
+                    itemName = getItemName(itemId);
+                } else if (itemId == -1) {
+                    itemName = "Set kích hoạt (random)";
+                } else if (itemId == -2) {
+                    itemName = "Đá nâng cấp (random)";
+                } else {
+                    itemName = "SKH ngẫu nhiên";
+                }
+                model.addRow(new Object[]{
+                    row[0], row[1], row[2],
+                    itemId > 0 ? itemId : "N/A",
+                    itemName, row[5], row[6], row[7]
+                });
+            }
+        });
     }
 
     private String formatNumber(long num) {

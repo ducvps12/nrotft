@@ -28,7 +28,7 @@ public class BunmaBunny extends Npc {
         if (player.iDMark.isBaseMenu() && this.mapId == 5) {
             switch (select) {
                 case 0 -> { // Đăng ký
-                    if (player.clan == null || player.clan.role != 0) {
+                    if (player.clan == null || !player.clan.isLeader(player)) {
                         Service.gI().sendThongBao(player, "Chỉ Bang chủ mới có thể đăng ký!");
                         return;
                     }
@@ -36,11 +36,21 @@ public class BunmaBunny extends Npc {
                     Service.gI().sendThongBao(player, "Đăng ký thành công bang " + player.clan.name);
                 }
                 case 1 -> { // Danh sách
-                    StringBuilder sb = new StringBuilder("|0|BANG ĐANG CHỜ:\n");
+                    StringBuilder sb = new StringBuilder();
+                    // Hiển thị danh sách bang đang chờ
                     var list = ClanBattleManager.gI().getWaitList();
-                    if (list.isEmpty()) sb.append("Trống");
-                    for (int i = 0; i < list.size(); i++) {
-                        sb.append(i + 1).append(". ").append(list.get(i).name).append("\n");
+                    sb.append("|2|BANG ĐANG CHỜ: (").append(list.size()).append(")\n");
+                    if (list.isEmpty()) {
+                        sb.append("|7|Chưa có bang nào đăng ký\n");
+                    } else {
+                        for (int i = 0; i < list.size(); i++) {
+                            sb.append("|1|").append(i + 1).append(". ").append(list.get(i).name).append("\n");
+                        }
+                    }
+                    // Hiển thị trạng thái đăng ký của bang mình
+                    if (player.clan != null) {
+                        boolean registered = list.contains(player.clan);
+                        sb.append("\n|0|Bang của bạn: ").append(registered ? "|1|Đã đăng ký ✓" : "|7|Chưa đăng ký");
                     }
                     Service.gI().sendThongBaoOK(player, sb.toString());
                 }

@@ -243,4 +243,18 @@ public class BossID {
     // ======================BA CON SÓI RƠI ĐÁ Sao Thiên Tử + CHÂN MỆNH CẤP
     // 1========================
     public static final int BA_CON_SOI = -402;
+
+    // ======================== EVENT: ĐỊA NGỤC ĐẢO LỘN ========================
+    public static final int JANEMBA_BOSS = -420;           // Boss chính Địa Ngục
+
+    // ======================== EVENT: GODZILLA VS KONG ========================
+    public static final int GODZILLA_BOSS = -430;          // World Boss Godzilla
+    public static final int KONG_BOSS = -431;              // World Boss Kong
+    public static final int MECHA_GODZILLA_BOSS = -432;    // Super Boss ẩn
+
+    // ======================== EVENT: THẦN THÚ CỔ ĐẠI ========================
+    public static final int THAN_LONG_CO_DAI = -440;       // Boss ẩn Thần Long
+
+    // ======================== EVENT: KỶ BĂNG HÀ ========================
+    public static final int ICE_SHENRON_BOSS = -450;       // Boss Ice Shenron
 }

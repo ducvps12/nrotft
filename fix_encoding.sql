@@ -1,0 +1,12 @@
+﻿SET NAMES utf8mb4;
+UPDATE item_template SET name = 'Hạt Dưa Hấu' WHERE id = 2080;
+UPDATE item_template SET name = 'Mảnh Đinh Ba' WHERE id = 2081;
+UPDATE item_template SET name = 'Mảnh Cung Tên' WHERE id = 2082;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 1 Sao' WHERE id = 2980;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 2 Sao' WHERE id = 2981;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 3 Sao' WHERE id = 2982;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 4 Sao' WHERE id = 2983;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 5 Sao' WHERE id = 2984;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 6 Sao' WHERE id = 2985;
+UPDATE item_template SET name = 'Ngọc Rồng Vô Cực 7 Sao' WHERE id = 2986;
+SELECT id, name, HEX(name) FROM item_template WHERE id IN (2080, 2081, 2082, 2980, 2981, 2982, 2983, 2984, 2985, 2986);

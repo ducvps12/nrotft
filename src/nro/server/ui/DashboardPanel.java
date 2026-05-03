@@ -2363,6 +2363,9 @@ public class DashboardPanel extends JPanel {
             props.load(fr);
         } catch (Exception e) {
             addLog("DB Backup: Không đọc được config.properties - " + e.getMessage());
+            if (!scheduled) {
+                showBackupResult(false, "Không đọc được config.properties\n" + e.getMessage(), null);
+            }
             return;
         }
 
@@ -2375,10 +2378,14 @@ public class DashboardPanel extends JPanel {
         File dir = new File(DB_BACKUP_DIR);
         if (!dir.exists() && !dir.mkdirs()) {
             addLog("DB Backup: Không tạo được thư mục " + dir.getAbsolutePath());
+            if (!scheduled) {
+                showBackupResult(false, "Không tạo được thư mục backup:\n" + dir.getAbsolutePath(), null);
+            }
             return;
         }
 
-        String fileName = db + "_backup_" + java.time.LocalDateTime.now().format(DB_BACKUP_FILE_TIME) + ".sql";
+        java.time.LocalDateTime backupTime = java.time.LocalDateTime.now();
+        String fileName = db + "_backup_" + backupTime.format(DB_BACKUP_FILE_TIME) + ".sql";
         File out = new File(dir, fileName);
         File mysqldump = findMysqlDump();
 
@@ -2406,17 +2413,74 @@ public class DashboardPanel extends JPanel {
             if (!finished) {
                 process.destroyForcibly();
                 addLog("DB Backup: Timeout, đã hủy tiến trình mysqldump.");
+                if (!scheduled) {
+                    showBackupResult(false, "Timeout! Tiến trình mysqldump đã bị hủy sau 5 phút.", null);
+                }
                 return;
             }
             if (process.exitValue() == 0 && out.exists() && out.length() > 0) {
-                addLog("DB Backup: Thành công " + out.getPath() + " (" + (out.length() / 1024) + " KB)");
+                long sizeKB = out.length() / 1024;
+                addLog("DB Backup: Thành công " + out.getPath() + " (" + sizeKB + " KB)");
                 cleanupOldBackups(dir, db, 14);
+                if (!scheduled) {
+                    String dateStr = backupTime.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                    showBackupResult(true,
+                            "✅ BACKUP THÀNH CÔNG!\n\n"
+                            + "📁 Database: " + db + "\n"
+                            + "📄 File: " + out.getName() + "\n"
+                            + "📂 Đường dẫn: " + out.getAbsolutePath() + "\n"
+                            + "💾 Dung lượng: " + sizeKB + " KB (" + String.format("%.2f", sizeKB / 1024.0) + " MB)\n"
+                            + "📅 Ngày backup: " + dateStr,
+                            out);
+                }
             } else {
                 addLog("DB Backup: Thất bại, kiểm tra mysqldump/quyền DB. File: " + out.getPath());
+                if (!scheduled) {
+                    showBackupResult(false,
+                            "❌ BACKUP THẤT BẠI!\n\n"
+                            + "Kiểm tra lại quyền truy cập DB hoặc mysqldump.\n"
+                            + "File: " + out.getPath(), null);
+                }
             }
         } catch (Exception e) {
             addLog("DB Backup: Lỗi - " + e.getMessage());
+            if (!scheduled) {
+                showBackupResult(false, "❌ BACKUP LỖI!\n\n" + e.getMessage(), null);
+            }
         }
+    }
+
+    /**
+     * Hiển thị popup thông báo kết quả backup cho admin.
+     * @param success true nếu backup thành công
+     * @param message nội dung thông báo
+     * @param backupFile file backup (nếu thành công), dùng để mở thư mục chứa
+     */
+    private void showBackupResult(boolean success, String message, File backupFile) {
+        SwingUtilities.invokeLater(() -> {
+            if (success && backupFile != null) {
+                int choice = JOptionPane.showOptionDialog(this,
+                        message,
+                        "Kết quả Backup Database",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        new String[]{"OK", "📂 Mở thư mục"},
+                        "OK");
+                if (choice == 1) {
+                    try {
+                        java.awt.Desktop.getDesktop().open(backupFile.getParentFile());
+                    } catch (Exception ex) {
+                        addLog("DB Backup: Không mở được thư mục - " + ex.getMessage());
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        message,
+                        "Kết quả Backup Database",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 
     private File findMysqlDump() {

@@ -88,8 +88,6 @@ public class QuaToriBot {
         PhuKien.itemOptions.add(new ItemOption(5, 20));
         PhuKien.itemOptions.add(new ItemOption(30,1));
 
-        TheTieuDoiTruongVang.itemOptions.add(new ItemOption(73, 1));
-
         InventoryService.gI().addItemBag(player, ThoiVang);
         InventoryService.gI().addItemBag(player, PhieuGiamGia);
         InventoryService.gI().addItemBag(player, DaBaoVe);
@@ -177,8 +175,6 @@ public class QuaToriBot {
         CaiTrang.itemOptions.add(new ItemOption(204, 50));
         CaiTrang.itemOptions.add(new ItemOption(5, 20));
         CaiTrang.itemOptions.add(new ItemOption(30, 1));
-
-        TheTieuDoiTruongVang.itemOptions.add(new ItemOption(73, 1));
 
         TheRongThanNamek.itemOptions.add(new ItemOption(73, 1));
 

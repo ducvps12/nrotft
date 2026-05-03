@@ -41,6 +41,18 @@ public class BlackGoku extends Boss {
         if (TaskService.gI().getIdTask(plKill) == ConstTask.TASK_32_0) {
             Service.gI().dropItemMap(this.zone, new ItemMap(zone, 992, 1, this.location.x, this.location.y, plKill.id));
         }
+
+        // ====== DROP NHẪN THỜI KHÔNG (3%) - Không cần task ======
+        if (Util.isTrue(3, 100)) {
+            ItemMap nhanThoiKhong = new ItemMap(this.zone, 992, 1,
+                    this.location.x + Util.nextInt(-10, 10),
+                    this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24),
+                    plKill.id);
+            Service.gI().dropItemMap(this.zone, nhanThoiKhong);
+            Service.gI().sendThongBaoAllPlayer(
+                    "⚡ " + plKill.name + " vừa nhận được Nhẫn Thời Không từ Black Goku!");
+        }
+
         if (Util.isTrue(15, 100)) {
             ItemMap it = ItemService.gI().randDoTL(this.zone, 1, this.location.x,
                     this.zone.map.yPhysicInTop(this.location.x,

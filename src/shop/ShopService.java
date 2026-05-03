@@ -1193,11 +1193,9 @@ public class ShopService {
 
         // ======= BÁN BÌNH THƯỜNG =======
         if (item.template.id == 457) {
-            if (quantity > 1) {
-                Input.gI().createFormBanSLL(pl);
-                return;
-            }
-            quantity = 1;
+            // Thỏi vàng luôn redirect sang form bán số lượng (dùng giá thị trường)
+            Input.gI().createFormBanSLL(pl);
+            return;
         } else {
             cost /= 4;
         }
@@ -1341,13 +1339,15 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
 
     // ======= BÁN THƯỜNG =======
     int quantity = item.quantity;
-    int cost = item.template.gold;
 
+    // Thỏi vàng: redirect sang form bán (dùng giá thị trường)
     if (item.template.id == 457) {
-        quantity = 1;
-    } else {
-        cost /= 4;
+        Input.gI().createFormBanSLL(pl);
+        return;
     }
+
+    int cost = item.template.gold;
+    cost /= 4;
 
     if (cost == 0) cost = 1;
 
@@ -1365,9 +1365,7 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
             "Đã bán " + item.template.name
             + " thu được " + Util.numberToMoney(cost) + " vàng");
 
-    if (item.template.id != 457) {
-        VatPhamDaBan.gI().addItem(pl, item);
-    }
+    VatPhamDaBan.gI().addItem(pl, item);
 
     if (where == 0) {
         InventoryService.gI().subQuantityItemsBody(pl, item, quantity);

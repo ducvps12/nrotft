@@ -2,6 +2,8 @@ package nro.models.npc.npc_manifest;
 
 import consts.ConstNpc;
 import item.Item;
+import jdbc.DBConnecter;
+import jdbc.NDVResultSet;
 import jdbc.daos.PlayerDAO;
 import models.ClanBoss.ClanBoss;
 import nro.models.npc.Npc;
@@ -108,6 +110,8 @@ public class Santa extends Npc {
         menu.add("Cửa hàng");
         menu.add("Hướng dẫn\nchi tiết");
         menu.add("Thị trường\nVàng");
+        menu.add("Danh hiệu");
+        menu.add("Phụ kiện");
         menu.add("Shop xu");
         menu.add("Đổi VNĐ");
         menu.add("Ủng hộ\nAdmin\n+10k VNĐ");
@@ -166,6 +170,14 @@ public class Santa extends Npc {
         }
         if (chosen.contains("Thị trường")) {
             openMenuGoldMarket(player);
+            return;
+        }
+        if (chosen.contains("Danh hiệu")) {
+            ShopService.gI().opendShop(player, "SANTA_DANH_HIEU", false);
+            return;
+        }
+        if (chosen.contains("Phụ kiện")) {
+            ShopService.gI().opendShop(player, "SANTA_PHUKIEN", false);
             return;
         }
         if (chosen.equals("Shop xu")) {
@@ -246,8 +258,6 @@ public class Santa extends Npc {
                         + "|8|Cập nhật sau: " + getTimeToNextUpdate(),
                 "Mua\nThỏi vàng",
                 "Bán\nThỏi vàng",
-                "Danh hiệu",
-                "Phụ kiện",
                 "Đóng");
     }
 
@@ -255,8 +265,6 @@ public class Santa extends Npc {
         switch (select) {
             case 0 -> openMenuMuaThoiVang(player);
             case 1 -> Input.gI().createFormBanSLL(player);
-            case 2 -> ShopService.gI().opendShop(player, "SANTA_DANH_HIEU", false);
-            case 3 -> ShopService.gI().opendShop(player, "SANTA_PHUKIEN", false);
         }
     }
 
@@ -288,6 +296,54 @@ public class Santa extends Npc {
         executeMuaThoiVang(player, qty);
     }
 
+    // ====== CHỐNG RỬA TIỀN: Kiểm tra tài khoản đáng ngờ ======
+    private static final int ACCOUNT_AGE_THRESHOLD_DAYS = 7; // Tài khoản < 7 ngày = mới
+    private static final int MAX_ACCOUNTS_PER_IP = 2;        // >= 2 acc cùng IP = đáng ngờ
+
+    /**
+     * Kiểm tra xem player có nên bị khóa thỏi vàng khi mua không.
+     * - Tài khoản tạo < 7 ngày
+     * - IP hiện tại có >= 2 tài khoản khác cùng đăng nhập
+     */
+    private boolean shouldLockGoldBar(Player player) {
+        try {
+            String currentIP = (player.getSession() != null) ? player.getSession().ipAddress : null;
+            int userId = (player.getSession() != null) ? player.getSession().userId : -1;
+            if (userId < 0) return true; // Không xác định được tài khoản → khóa
+
+            // 1. Kiểm tra tài khoản mới (< 7 ngày)
+            NDVResultSet rsAge = DBConnecter.executeQuery(
+                    "SELECT DATEDIFF(NOW(), create_time) AS age_days FROM account WHERE id = ?", userId);
+            if (rsAge.next()) {
+                int ageDays = rsAge.getInt("age_days");
+                if (ageDays < ACCOUNT_AGE_THRESHOLD_DAYS) {
+                    System.out.println("[ANTI_LAUNDER] " + player.name + " → KHÓA TV: Tài khoản mới ("
+                            + ageDays + "/" + ACCOUNT_AGE_THRESHOLD_DAYS + " ngày)");
+                    return true;
+                }
+            }
+
+            // 2. Kiểm tra IP trùng (nhiều acc cùng IP)
+            if (currentIP != null && !currentIP.isEmpty()) {
+                NDVResultSet rs = DBConnecter.executeQuery(
+                        "SELECT COUNT(DISTINCT id) AS cnt FROM account WHERE ip_address = ? AND id != ?",
+                        currentIP, userId);
+                if (rs.next()) {
+                    int otherAccounts = rs.getInt("cnt");
+                    if (otherAccounts >= MAX_ACCOUNTS_PER_IP) {
+                        System.out.println("[ANTI_LAUNDER] " + player.name + " → KHÓA TV: IP "
+                                + currentIP + " có " + (otherAccounts + 1) + " tài khoản");
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[ANTI_LAUNDER] Lỗi kiểm tra: " + e.getMessage());
+        }
+
+        return false;
+    }
+
     private void executeMuaThoiVang(Player player, int qty) {
         updateGoldPrice();
         long totalCost = currentBuyPrice * qty;
@@ -309,18 +365,28 @@ public class Santa extends Npc {
 
         // Thêm thỏi vàng
         Item thoiVang = ItemService.gI().createNewItem((short) 457, qty);
+
+        // ====== CHỐNG RỬA TIỀN: Khóa thỏi vàng nếu tài khoản đáng ngờ ======
+        boolean locked = shouldLockGoldBar(player);
+        if (locked) {
+            thoiVang.itemOptions.add(new Item.ItemOption(30, 0)); // Không thể giao dịch
+        }
+
         InventoryService.gI().addItemBag(player, thoiVang);
         InventoryService.gI().sendItemBag(player);
         PlayerService.gI().sendInfoHpMpMoney(player);
         Service.gI().sendMoney(player);
 
+        String lockMsg = locked ? "\n|8|⚠ Thỏi vàng bị KHÓA (tài khoản chưa đủ điều kiện GD)" : "";
         Service.gI().sendThongBao(player,
                 "★ Mua thành công " + qty + " Thỏi vàng!\n"
                         + "Chi phí: " + Util.numberToMoney(totalCost) + "\n"
-                        + "Giá: " + Util.numberToMoney(currentBuyPrice) + "/thỏi");
+                        + "Giá: " + Util.numberToMoney(currentBuyPrice) + "/thỏi"
+                        + lockMsg);
 
         System.out.println("[GOLD_MARKET] " + player.name + " MUA " + qty
-                + " thỏi vàng, giá " + Util.numberToMoney(currentBuyPrice) + "/thỏi");
+                + " thỏi vàng, giá " + Util.numberToMoney(currentBuyPrice) + "/thỏi"
+                + (locked ? " [KHÓA]" : " [BÌNH THƯỜNG]"));
     }
 
     // ====== ĐỔI VNĐ ======

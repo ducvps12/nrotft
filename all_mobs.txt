@@ -1,0 +1,112 @@
+﻿id	name
+0	M?c nhân
+1	Kh?ng long
+2	L?n lòi
+3	Qu? ??t
+4	Kh?ng long m?
+5	L?n lòi m?
+6	Qu? ??t m?
+7	Th?n l?n bay
+8	Phi long
+9	Qu? bay
+10	Th?n l?n m?
+11	Phi long m?
+12	Qu? bay m?
+13	?c m??n h?n
+14	?c sên
+15	Heo Xayda m?
+16	Heo r?ng
+17	Heo da xanh
+18	Heo Xayda
+19	Heo r?ng m?
+20	Heo xanh m?
+21	Alien
+22	Bulon
+23	Ukulele
+24	Qu? m?p
+25	Tambourine
+26	Drum
+27	Akkuman
+28	Th?n l?n bay 2
+29	Phi long 2
+30	Qu? bay 2
+31	Không t?c
+32	Qu? ??u to
+33	Qu? ??a ng?c
+34	Lính ??c nh╞n
+35	Lính ??c nh╞n
+36	Sói xám
+37	Robot bay
+38	Robot thép
+39	Nappa
+40	Soldier
+41	Appule
+42	Raspberry
+43	Th?n l?n xanh
+44	Qu? ??u nh?n
+45	Qu? ??u vàng
+46	Qu? da tím
+47	Qu? già
+48	Cá s?u
+49	D?i da xanh
+50	Qu? chim
+51	Lính ??u tr?c
+52	Lính tai dài
+53	Lính v? tr?
+54	Kh? lông ?en
+55	Kh? giáp s?t
+56	Kh? lông ??
+57	Kh? lông vàng
+58	Xên con c?p 1
+59	Xên con c?p 2
+60	Xên con c?p 3
+61	Xên con c?p  4
+62	Xên con c?p  5
+63	Xên con c?p  6
+64	Xên con c?p  7
+65	Xên con c?p  8
+66	Tai tím
+67	Abo
+68	Kado
+69	Da xanh
+70	Hirudegarn
+71	Vua B?ch Tu?c
+72	Rôb?t b?o v?
+73	Kawazu
+74	Kinkarn
+75	Arbee
+76	C? máy h?y di?t
+77	G?u t??ng c??p
+78	Kh? lông xanh
+79	Taburine ??
+80	Cabira
+81	Tobi
+82	Voi Chín Ngà
+83	Gà Chín C?a
+84	Ng?a Chín Lmao
+85	Piano
+86	?ch m?t ??
+87	Jinai
+88	Qu? ??
+89	Qu? xanh
+90	Qu? xanh lá
+91	Qu? vàng
+92	Godzilla
+93	Kong
+94	Toppo
+95	Ca?íc M
+96	Janemba
+97	MEZ
+98	GOZ
+99	?á ??
+100	?á vàng
+101	?á xanh
+102	Thây ma
+103	Bù nhìn ma quái
+104	Phù th?y
+105	Frostbite
+106	Snowy Tangerine
+107	Deinonychus
+108	Snake
+109	Máy ?o s?c m?nh
+110	M?c nhân

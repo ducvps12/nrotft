@@ -25,7 +25,9 @@ public class EventPanel extends JPanel {
     private static final String[] EVENT_NAMES = {
             "Halloween", "8/3 Quốc Tế PN", "Giáng Sinh", "Tết Nguyên Đán",
             "Trung Thu", "Giỗ Tổ", "Top Up (Mặc định)", "Pokemon",
-            "20/11", "Phở Anh Hai", "Sự Kiện Hè"
+            "20/11", "Phở Anh Hai", "Sự Kiện Hè",
+            "Địa Ngục Đảo Lộn", "Godzilla vs Kong", "Juventus Tournament",
+            "Thần Thú Cổ Đại", "Kỷ Băng Hà"
     };
 
     // Mô tả chi tiết cho từng sự kiện
@@ -40,12 +42,18 @@ public class EventPanel extends JPanel {
             "Bắt Pokemon, tiến hóa, đấu trường Pokemon",
             "Ngày Nhà giáo VN, nhiệm vụ tri ân thầy cô",
             "Nấu phở đặc biệt, thu thập nguyên liệu hiếm",
-            "Thu thập vỏ sò, kem tươi, đổi quà mùa hè đặc biệt"
+            "Thu thập vỏ sò, kem tươi, đổi quà mùa hè đặc biệt",
+            "Farm Hồn Quỷ tại 3 tầng Địa Ngục, Boss Janemba mỗi 2h",
+            "World Boss Godzilla (12h) & Kong (20h), hạ cả 2 spawn MechaGodzilla",
+            "PVP Tournament hàng tuần, 16 người, Top 1 = 50 Thỏi Vàng",
+            "Thu thập 3 Linh Phù từ Thần Thú → triệu hồi Boss ẩn Thần Long",
+            "Map tuyết cấp 2 mở, farm BTC3 rate 10%, Boss Ice Shenron mỗi 4h"
     };
 
     // Emoji cho mỗi sự kiện
     private static final String[] EVENT_ICONS = {
-            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜", "🏖️"
+            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜", "🏖️",
+            "🔥", "🦎", "🏟️", "🐘", "❄️"
     };
 
     // Màu cho mỗi sự kiện
@@ -60,7 +68,12 @@ public class EventPanel extends JPanel {
             new Color(255, 230, 0),    // Pokemon - vàng
             new Color(142, 68, 173),   // 20/11 - tím
             new Color(210, 105, 30),   // Phở - nâu cam
-            new Color(0, 191, 255)     // Mùa Hè - xanh dương nhạt (DeepSkyBlue)
+            new Color(0, 191, 255),    // Mùa Hè - xanh dương nhạt
+            new Color(139, 0, 0),      // Địa Ngục - đỏ đậm
+            new Color(34, 139, 34),    // Godzilla - xanh lá
+            new Color(70, 130, 180),   // Juventus - steel blue
+            new Color(218, 165, 32),   // Thần Thú - vàng đậm
+            new Color(100, 149, 237)   // Kỷ Băng Hà - cornflower blue
     };
 
     public EventPanel() {
@@ -352,6 +365,11 @@ public class EventPanel extends JPanel {
             case 3 -> body = buildGenericDetail("Tết Nguyên Đán", new String[][]{
                     {"Lân con", "5M HP", "Tái Tạo NL Lv7", "Map ngẫu nhiên", "1 phút"},
                 }, "Lì xì may mắn, pháo hoa.\nĐánh boss Lân con nhận vật phẩm Tết.\nNhiệm vụ đặc biệt ngày Tết.");
+            case 11 -> body = buildDiaNgucDetail();
+            case 12 -> body = buildGodzillaVsKongDetail();
+            case 13 -> body = buildJuventusDetail();
+            case 14 -> body = buildThanThuDetail();
+            case 15 -> body = buildKyBangHaDetail();
             default -> body = buildSimpleDetail(index);
         }
 
@@ -571,5 +589,191 @@ public class EventPanel extends JPanel {
         t.getTableHeader().setForeground(Color.WHITE);
         t.setShowVerticalLines(false);
         return t;
+    }
+
+    // ======== CHI TIẾT 5 EVENT MỚI ========
+
+    private JPanel buildDiaNgucDetail() {
+        return buildFullDetail("🔥 Địa Ngục Đảo Lộn", new Color(139, 0, 0),
+            "━━━ CÁCH CHƠI ━━━\n"
+            + "1. Vào map Địa Ngục (174) qua NPC tại Thần Điện hoặc lệnh cm 174\n"
+            + "2. Giết mob Quỷ nguyên tố (đỏ/xanh/xanh lá/vàng) để farm vật phẩm\n"
+            + "3. Map 174 → 179 → 180 (Địa Ngục 3 = khó nhất, drop tốt nhất)\n"
+            + "4. Boss Janemba spawn mỗi 2h tại Địa Ngục 3 (map 180)\n"
+            + "5. Gom Thỏi vàng + Hồng Ngọc → đổi item VIP",
+            new String[]{"Mob/Boss", "Map", "HP", "Drop chính", "Tỉ lệ"},
+            new Object[][]{
+                {"🔴 Quỷ Đỏ (88)", "174/179/180", "Scale", "Thỏi Vàng (457)", "15%"},
+                {"🔵 Quỷ Xanh (89)", "174/179/180", "Scale", "Đá Xanh Lam (935)", "8%"},
+                {"🟢 Quỷ Xanh Lá (90)", "174/179/180", "Scale", "Vàng 100K-300K", "20%"},
+                {"🟡 Quỷ Vàng (91)", "174/179/180", "Scale", "Hồng Ngọc 50-200", "3%"},
+                {"👹 Janemba (Boss)", "180", "5 Tỉ", "Mảnh Hồn BT (934)", "5%"},
+            },
+            new String[]{"Vật Phẩm", "Nguồn", "Công Dụng"},
+            new Object[][]{
+                {"Thỏi Vàng (457)", "Mob Quỷ 15%", "Đổi item, giao dịch"},
+                {"Đá Xanh Lam (935)", "Mob Quỷ 8%", "Nâng cấp trang bị"},
+                {"Mảnh Hồn BT (934)", "Địa Ngục 3 chỉ 5%", "Nâng cấp Bông Tai"},
+                {"Hồng Ngọc (861)", "Mob Quỷ 3%", "Mua item shop HN"},
+            });
+    }
+
+    private JPanel buildGodzillaVsKongDetail() {
+        return buildFullDetail("🦎 Godzilla vs Kong", new Color(34, 139, 34),
+            "━━━ CÁCH CHƠI ━━━\n"
+            + "1. Đến Hành Tinh Vampa (map 175) qua Trạm tàu hoặc cm 175\n"
+            + "2. Farm mob thường → drop Mảnh Titan + BTC3 + Vàng\n"
+            + "3. Boss Godzilla spawn lúc 12h TRƯA — đánh xa, HP 5 Tỉ\n"
+            + "4. Boss Kong spawn lúc 20h TỐI — đánh gần, HP 5 Tỉ\n"
+            + "5. ★ HẠ CẢ 2 CÙNG NGÀY → spawn MechaGodzilla (HP 20 Tỉ)\n"
+            + "6. MechaGodzilla drop Ngọc Rồng 5-7★, Capsule VIP, 50 Thỏi Vàng",
+            new String[]{"Boss", "Spawn", "HP", "Drop đặc biệt", "Tỉ lệ"},
+            new Object[][]{
+                {"🦎 Godzilla", "12h Trưa", "5 Tỉ", "Set Godzilla (Cải trang)", "10%"},
+                {"🦍 Kong", "20h Tối", "5 Tỉ", "Set Kong (Cải trang)", "10%"},
+                {"🤖 MechaGodzilla", "Hạ cả 2", "20 Tỉ", "NR 5-7★ + 50 Thỏi Vàng", "100%"},
+                {"Mob thường", "Liên tục", "Scale", "Mảnh Titan (1634)", "12%"},
+                {"Mob thường", "Liên tục", "Scale", "BTC3 (1855)", "5%"},
+            },
+            new String[]{"Vật Phẩm", "Nguồn", "Công Dụng"},
+            new Object[][]{
+                {"Mảnh Titan (1634)", "Mob 12%", "Gom 50 → đổi Capsule VIP"},
+                {"Capsule DC (192)", "Mob 1%", "Mở ra Dây Chuyền ngẫu nhiên"},
+                {"BTC3 (1855)", "Mob 5%", "Farm nâng cấp Bông Tai cấp 3"},
+                {"Vàng 150K-500K", "Mob 25%", "Thu nhập chính"},
+            });
+    }
+
+    private JPanel buildJuventusDetail() {
+        return buildFullDetail("🏟️ Juventus Tournament", new Color(70, 130, 180),
+            "━━━ CÁCH CHƠI ━━━\n"
+            + "1. Đến map Juventus (183) qua NPC tại ĐHVT hoặc cm 183\n"
+            + "2. CHẾ ĐỘ 1 — FARM: Giết mob để farm vàng + HN + Thỏi vàng\n"
+            + "3. CHẾ ĐỘ 2 — PVP: Đăng ký giải đấu hàng tuần (16 người)\n"
+            + "4. Format: Single Elimination, Best of 1\n"
+            + "5. Phí tham gia: 1 Thỏi Vàng\n"
+            + "6. DB column 'juventus' tự đếm số lần tham gia\n"
+            + "━━━ PHẦN THƯỞNG PVP ━━━\n"
+            + "Top 1: 50 Thỏi Vàng + Danh hiệu 'Vô Địch Juventus'\n"
+            + "Top 2: 30 Thỏi Vàng\n"
+            + "Top 3-4: 15 Thỏi Vàng\n"
+            + "Top 5-8: 5 Thỏi Vàng",
+            new String[]{"Drop Mob", "Map", "Tỉ Lệ", "Số Lượng", "Ghi Chú"},
+            new Object[][]{
+                {"Vàng", "183", "30%", "200K-600K", "Thu nhập chính"},
+                {"Hồng Ngọc (861)", "183", "10%", "100-500", "Shop Hồng Ngọc"},
+                {"Thỏi Vàng (457)", "183", "3%", "1", "Giao dịch/Phí PVP"},
+                {"Sét Kích Hoạt", "183", "0.5%", "1", "Full option ngẫu nhiên"},
+            },
+            null, null);
+    }
+
+    private JPanel buildThanThuDetail() {
+        return buildFullDetail("🐘 Thần Thú Cổ Đại", new Color(218, 165, 32),
+            "━━━ CÁCH CHƠI ━━━\n"
+            + "1. Đến Cung Trăng (176) hoặc Vùng Đất Huyền Thoại (178)\n"
+            + "2. Giết mob → drop 3 loại Linh Phù (Voi/Gà/Ngựa)\n"
+            + "3. Gom mỗi loại x1 (3 cái khác nhau)\n"
+            + "4. Mang 3 Linh Phù đến NPC → Triệu hồi BOSS ẨN: Thần Long Cổ Đại\n"
+            + "5. Boss ẩn drop item cực hiếm!\n"
+            + "━━━ THÚ VỊ ━━━\n"
+            + "• Voi Chín Ngà, Gà Chín Cửa, Ngựa Chín Hồng Mao là 3 Thần Thú từ truyền thuyết\n"
+            + "• Mỗi Thần Thú chỉ drop Linh Phù riêng ở map riêng\n"
+            + "• Boss ẩn Thần Long chỉ xuất hiện khi ghép đủ 3 Linh Phù",
+            new String[]{"Thần Thú/Boss", "Map", "Drop", "Tỉ Lệ", "Ghi Chú"},
+            new Object[][]{
+                {"🐘 Voi Chín Ngà", "176", "Linh Phù Voi (663)", "8%", "Chỉ ở Cung Trăng"},
+                {"🐓 Gà Chín Cửa", "178", "Linh Phù Gà (664)", "8%", "Chỉ ở Vùng Đất HT"},
+                {"🐴 Ngựa Chín HM", "176+178", "Linh Phù Ngựa (665)", "5%", "Cả 2 map"},
+                {"🐉 Thần Long (Boss ẩn)", "176", "BTC3 + Capsule VIP", "Ghép 3 LP", "HP 10 Tỉ"},
+                {"Mob thường", "176/178", "Mảnh BT (934)", "6%", "Nâng cấp Bông Tai"},
+            },
+            new String[]{"Vật Phẩm", "Cách Lấy", "Công Dụng"},
+            new Object[][]{
+                {"Linh Phù Voi (663)", "Mob Cung Trăng 8%", "1/3 để triệu hồi Boss"},
+                {"Linh Phù Gà (664)", "Mob Vùng Đất HT 8%", "1/3 để triệu hồi Boss"},
+                {"Linh Phù Ngựa (665)", "Cả 2 map 5%", "1/3 để triệu hồi Boss"},
+                {"Mảnh BT (934)", "Mob 6%", "Nâng cấp Bông Tai Porata"},
+            });
+    }
+
+    private JPanel buildKyBangHaDetail() {
+        return buildFullDetail("❄️ Kỷ Băng Hà", new Color(100, 149, 237),
+            "━━━ CÁCH CHƠI ━━━\n"
+            + "1. Đến Cánh Đồng Tuyết 2 (195) qua NPC hoặc cm 195\n"
+            + "2. 3 map: 195 (Cánh đồng) → 196 (Rừng tuyết) → 197 (Hang băng)\n"
+            + "3. Mob mạnh hơn map tuyết gốc 5x — cần sức mạnh cao\n"
+            + "4. ★ FARM BTC3 RATE 10% — nguồn farm tốt nhất server!\n"
+            + "5. Boss Ice Shenron spawn mỗi 4h tại Hang Băng 2 (map 197)\n"
+            + "6. Gom 99 Tinh Thể Băng → đổi Vũ Khí Băng (cải trang)\n"
+            + "━━━ ĐẶC BIỆT ━━━\n"
+            + "• Map 197 (Hang Băng 2) có drop Capsule DC 0.5% + Sách TK 0.3%\n"
+            + "• Đây là nguồn farm BTC3 tốt nhất khi event mở",
+            new String[]{"Mob/Boss", "Map", "Drop", "Tỉ Lệ", "Số Lượng"},
+            new Object[][]{
+                {"❄ Frostbite (105)", "195/196/197", "Tinh Thể Băng", "15%", "1-3"},
+                {"🍊 Snowy (106)", "195/196/197", "BTC3 (1855)", "10%", "1-5"},
+                {"🦖 Deinonychus (107)", "195/196/197", "Đá Xanh Lam", "8%", "1"},
+                {"🐍 Snake (108)", "195/196/197", "Vàng 150K-350K", "25%", "-"},
+                {"🐲 Ice Shenron", "197", "Capsule DC + Sách TK", "Boss", "Mỗi 4h"},
+            },
+            new String[]{"Vật Phẩm", "Tỉ Lệ", "Công Dụng"},
+            new Object[][]{
+                {"Tinh Thể Băng (1530)", "15%", "Gom 99 → đổi Vũ Khí Băng"},
+                {"BTC3 (1855)", "10%", "Farm nâng cấp Bông Tai cấp 3"},
+                {"Đá Xanh Lam (935)", "8%", "Nâng cấp trang bị"},
+                {"Capsule DC (192)", "0.5% (map 197)", "Mở Dây Chuyền"},
+                {"Sách TK (456)", "0.3% (map 197)", "Học Tiềm Năng"},
+                {"Thức ăn", "15%", "Hồi HP/KI"},
+            });
+    }
+
+    /** Builder chung cho event detail có 2 bảng */
+    private JPanel buildFullDetail(String title, Color color, String desc,
+            String[] bossCols, Object[][] bossData,
+            String[] rewardCols, Object[][] rewardData) {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(Color.WHITE);
+
+        // Mô tả
+        JTextArea ta = new JTextArea(title + "\n" + desc);
+        ta.setEditable(false);
+        ta.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        ta.setBackground(new Color(248, 250, 255));
+        ta.setBorder(new CompoundBorder(
+            new TitledBorder(BorderFactory.createLineBorder(color),
+                " Hướng Dẫn Chơi ", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12), color),
+            new EmptyBorder(8, 8, 8, 8)));
+        ta.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        p.add(ta);
+        p.add(Box.createVerticalStrut(10));
+
+        // Bảng Boss/Mob
+        if (bossCols != null && bossData != null) {
+            JTable tbl = createStyledTable(bossCols, bossData);
+            JScrollPane sc = new JScrollPane(tbl);
+            sc.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(0, 102, 204)),
+                " Mob & Boss ", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12), new Color(0, 102, 204)));
+            sc.setPreferredSize(new Dimension(0, Math.min(bossData.length * 30 + 50, 200)));
+            sc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+            p.add(sc);
+            p.add(Box.createVerticalStrut(10));
+        }
+
+        // Bảng Reward
+        if (rewardCols != null && rewardData != null) {
+            JTable tbl2 = createStyledTable(rewardCols, rewardData);
+            JScrollPane sc2 = new JScrollPane(tbl2);
+            sc2.setBorder(new TitledBorder(BorderFactory.createLineBorder(new Color(40, 167, 69)),
+                " Phần Thưởng & Vật Phẩm ", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12), new Color(40, 167, 69)));
+            sc2.setPreferredSize(new Dimension(0, Math.min(rewardData.length * 30 + 50, 180)));
+            sc2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
+            p.add(sc2);
+        }
+        return p;
     }
 }

@@ -19,4 +19,11 @@ public class CatchpokemonEventManager extends BossManager {
         return instance;
     }
 
+    @Override
+    public void showListBoss(nro.player.Player player) {
+        player.iDMark.setMenuType(4); // 4 = Pokemon boss list
+        super.showListBoss(player);
+        player.iDMark.setMenuType(4); // re-set after super call
+    }
+
 }

@@ -1,0 +1,198 @@
+﻿id	name
+0	Làng Aru
+1	??i hoa cúc
+2	Thung l?ng tre
+3	R?ng n?m
+4	R?ng x??ng
+5	??o Kamê
+6	?ông Karin
+7	Làng Mori
+8	??i n?m tím
+9	Th? tr?n Moori
+10	Thung l?ng Nam?c
+11	Thung l?ng Maima
+12	V?c maima
+13	??o Guru
+14	Làng Kakarot
+15	??i hoang
+16	Làng Plant
+17	R?ng nguyên sinh
+18	R?ng thông Xayda
+19	Thành ph? Vegeta
+20	Vách núi ?en
+21	Nhà Gôhan
+22	Nhà Moori
+23	Nhà Broly
+24	Tr?m tàu v? tr?
+25	Tr?m tàu v? tr?
+26	Tr?m tàu v? tr?
+27	R?ng Bamboo
+28	R?ng d??ng x?
+29	Nam Kamê
+30	??o Bulông
+31	Núi hoa vàng
+32	Núi hoa tím
+33	Nam Guru
+34	?ông Nam Guru
+35	R?ng c?
+36	R?ng ?á
+37	Thung l?ng ?en
+38	B? v?c ?en
+39	Vách núi Aru
+40	Vách núi Moori
+41	V?c Plant
+42	Vách núi Aru
+43	Vách núi Moori
+44	Vách núi Kakarot
+45	Th?n ?i?n
+46	Tháp Karin
+47	R?ng Karin
+48	Hành tinh Kaio
+49	Phòng t?p th?i gian
+50	Thánh ??a Kaio
+51	??u tr??ng
+52	??i h?i vΣ thu?t
+53	T??ng thành 1
+54	T?ng 3
+55	T?ng 1
+56	T?ng 2
+57	T?ng 4
+58	T??ng thành 2
+59	T??ng thành 3
+60	Tr?i ??c nh╞n 1
+61	Tr?i ??c nh╞n 2
+62	Tr?i ??c nh╞n 3
+63	Tr?i lính Fide
+64	Núi dây leo
+65	Núi cây qu?
+66	Tr?i q?y già
+67	V?c ch?t
+68	Thung l?ng Nappa
+69	V?c c?m
+70	Núi Appule
+71	C?n c? Raspberry
+72	Thung l?ng Raspberry
+73	Thung l?ng ch?t
+74	??i cây Fide
+75	Khe núi t? th?n
+76	Núi ?á
+77	R?ng ?á
+78	L╞nh ??a Fize
+79	Núi kh? ??
+80	Núi kh? vàng
+81	Hang qu? chim
+82	Núi kh? ?en
+83	Hang kh? ?en
+84	Siêu Th?
+85	Hành tinh M-2
+86	Hành tinh Polaris
+87	Hành tinh Cretaceous
+88	Hành tinh Monmaasu
+89	Hành tinh Rudeeze
+90	Hành tinh Gelbo
+91	Hành tinh Tigere
+92	Thành ph? phía ?ông
+93	Thành ph? phía nam
+94	??o Balê
+95	95
+96	Cao nguyên
+97	Thành ph? phía b?c
+98	Ng?n núi phía b?c
+99	Thung l?ng phía b?c
+100	Th? tr?n Ginder
+101	101
+102	Nhà Bunma
+103	VΣ ?ài Xên b? hung
+104	Sân sau siêu th?
+105	Cánh ??ng tuy?t
+106	R?ng tuy?t
+107	Núi tuy?t
+108	Dòng sông b?ng
+109	R?ng b?ng
+110	Hang b?ng
+111	?ông Nam Karin
+112	VΣ ?ài H?t Mít
+113	??i h?i vΣ thu?t
+114	C?ng phi thuy?n
+115	Phòng ch?
+116	Thánh ??a Kaio
+117	C?a ?i 1
+118	C?a ?i 2
+119	C?a ?i 3
+120	Phòng ch? huy
+121	121
+122	Ng? Hành S?n
+123	Ng? Hành S?n
+124	Ng? Hành S?n
+125	125
+126	Thành ph? Santa
+127	C?ng phi thuy?n
+128	B?ng Mab?
+129	??i h?i vΣ thu?t
+130	130
+131	Hành Tinh Yardart
+132	Hành Tinh Yardart 2
+133	Hành Tinh Yardart 3
+134	134
+135	??ng h?i t?c
+136	Hang B?ch Tu?c
+137	??ng kho báu
+138	C?ng h?i t?c
+139	Hành tinh Potaufeu
+140	Hang ??ng Potaufeu
+141	Con ???ng r?n ??c
+142	Con ???ng r?n ??c
+143	Con ???ng r?n ??c
+144	Hoang m?c
+145	VΣ ?ài Siêu C?p
+146	Tây Karin
+147	Sa m?c
+148	Lâu ?ài Lychee
+149	Thành ph? Santa
+151	Hành tinh bóng t?i
+152	Vùng ??t b?ng giá
+153	L╞nh ??a Bang H?i
+154	Hành tinh Bill
+155	Hành tinh ng?c tù
+156	Tây thánh ??a
+157	?ông thánh ??a
+158	B?c thánh ??a
+159	Nam thánh ??a
+160	Khu hang ??ng
+161	Bìa r?ng nguyên th?y
+162	R?ng nguyên th?y
+163	Làng Plant nguyên th?y
+164	Tranh ng?c Nam?c
+165	Hành tinh ng?c tù 2
+166	Hành Tinh ??c C?u
+167	Hành tinh ng?c tù 3
+168	?áy X╞ H?i
+169	Vùng ??t H?y Di?t
+170	Thung L?ng H?y Di?t
+171	Ng?n ??i H?y Di?t
+172	R?ng x??ng 2
+173	Siêu th? Huy?n Bí
+174	??a Ng?c
+175	Hành Tinh Vampa
+176	Cung Tr?ng
+177	R?ng Cây
+178	Vùng ??t Huy?n Tho?i
+179	??a Ng?c 2
+180	??a Ng?c 3
+181	Ngh?a ??a
+182	Pseudo Universe
+183	Juventus
+184	L╞nh ??a Bang H?i
+185	Phòng thí nghi?m Myuu
+186	Khu riêng t?
+187	Sa m?c hoang vu
+188	Tr?m tàu H?y Di?t Trái ??t
+189	Tr?m tàu H?y Di?t Namek
+190	Tr?m tàu H?y Di?t Xayda
+191	Khu V?c Luy?n T?p
+192	Khu V?c Luy?n T?p
+193	Khu V?c Luy?n T?p
+194	New Nam Kamê
+195	Cánh ??ng tuy?t 2
+196	R?ng tuy?t 2
+197	Hang b?ng 2

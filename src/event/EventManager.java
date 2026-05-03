@@ -21,6 +21,13 @@ public class EventManager {
     public static boolean PHO_ANH_HAI = false;
     public static boolean EVENT_RANKING_REWARD = false;
 
+    // ======================== 5 EVENT MỚI ========================
+    public static boolean DIA_NGUC = false;              // 11 - Địa Ngục Đảo Lộn
+    public static boolean GODZILLA_VS_KONG = false;      // 12 - Godzilla vs Kong
+    public static boolean JUVENTUS_TOURNAMENT = false;   // 13 - Juventus Tournament
+    public static boolean THAN_THU_CO_DAI = false;       // 14 - Thần Thú Cổ Đại
+    public static boolean KY_BANG_HA = false;             // 15 - Kỷ Băng Hà
+
     public static EventManager gI() {
         if (instance == null) {
             instance = new EventManager();
@@ -48,6 +55,11 @@ public class EventManager {
                 case 8 -> EVENT_POKEMON = true;
                 case 9 -> TEACHERS_DAY = true;
                 case 10 -> PHO_ANH_HAI = true;
+                case 11 -> DIA_NGUC = true;
+                case 12 -> GODZILLA_VS_KONG = true;
+                case 13 -> JUVENTUS_TOURNAMENT = true;
+                case 14 -> THAN_THU_CO_DAI = true;
+                case 15 -> KY_BANG_HA = true;
             }
         }
 
@@ -93,6 +105,26 @@ public class EventManager {
             System.out.println("[EventManager] PHO_ANH_HAI");
             new Pho_Anh_Hai().init();
         }
+        if (DIA_NGUC) {
+            System.out.println("[EventManager] DIA_NGUC");
+            new DiaNgucDaoLon().init();
+        }
+        if (GODZILLA_VS_KONG) {
+            System.out.println("[EventManager] GODZILLA_VS_KONG");
+            new GodzillaVsKong().init();
+        }
+        if (JUVENTUS_TOURNAMENT) {
+            System.out.println("[EventManager] JUVENTUS_TOURNAMENT");
+            new JuventusTournament().init();
+        }
+        if (THAN_THU_CO_DAI) {
+            System.out.println("[EventManager] THAN_THU_CO_DAI");
+            new ThanThuCoDai().init();
+        }
+        if (KY_BANG_HA) {
+            System.out.println("[EventManager] KY_BANG_HA");
+            new KyBangHa().init();
+        }
     }
 
     private void resetAllEventFlags() {
@@ -106,6 +138,11 @@ public class EventManager {
         EVENT_POKEMON = false;
         TEACHERS_DAY = false;
         PHO_ANH_HAI = false;
+        DIA_NGUC = false;
+        GODZILLA_VS_KONG = false;
+        JUVENTUS_TOURNAMENT = false;
+        THAN_THU_CO_DAI = false;
+        KY_BANG_HA = false;
     }
 
     private List<Integer> loadActiveEventsFromFile() {

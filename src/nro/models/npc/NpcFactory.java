@@ -860,9 +860,39 @@ public class NpcFactory {
                             case 1 ->
                                 Command.gI().giveDragonBalls(player, 2);
                             case 2 ->
-                                NgocRongNamecService.gI().initNgocRongNamec((byte) 0);
+                                Command.gI().giveDragonBallsNamek(player);
                             case 3 ->
+                                Command.gI().giveDragonBallsVoCuc(player);
+                            case 4 ->
                                 Command.gI().showAdminMenu(player);
+                        }
+                    }
+                    // ===== NGỌC RỒNG VÔ CỰC MENUS =====
+                    case ConstNpc.MENU_GHEP_NRO_VO_CUC -> {
+                        switch (select) {
+                            case 0 -> // Gọi Rồng Thần 1 Sao (bình thường)
+                                SummonDragon.gI().openMenuSummonShenron(player, (byte) 1);
+                            case 1 -> // Ghép NRO Vô Cực
+                                SummonDragon.gI().combineNroToVoCuc(player);
+                        }
+                    }
+                    case ConstNpc.SUMMON_SHENRON_VO_CUC -> {
+                        if (select == 0) {
+                            SummonDragon.gI().summonShenronVoCuc(player);
+                        }
+                    }
+                    case ConstNpc.SHENRON_VO_CUC -> {
+                        SummonDragon.gI().showConfirmShenronVoCuc(player, (byte) select);
+                    }
+                    case ConstNpc.SHENRON_VO_CUC_CONFIRM -> {
+                        if (select == 0) {
+                            SummonDragon.gI().confirmWishVoCuc();
+                        } else {
+                            // Từ chối → mở lại menu ước
+                            NpcService.gI().createMenuRongThieng(player,
+                                    ConstNpc.SHENRON_VO_CUC,
+                                    SummonDragon.SHENRON_SAY,
+                                    SummonDragon.SHENRON_VC_WISHES);
                         }
                     }
                     case ConstNpc.MENU_ADMIN_EXTEND -> {

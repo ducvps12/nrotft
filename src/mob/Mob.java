@@ -159,7 +159,9 @@ public class Mob {
                     }
                 }
             }
-            if (!dieWhenHpFull && !isBigBoss() && !MapService.gI().isMapPhoBan(this.zone.map.mapId) && this.lvMob > 0
+            if (!dieWhenHpFull && !isBigBoss() && !MapService.gI().isMapPhoBan(this.zone.map.mapId)
+                    && !MapService.gI().isMapKhiGasHuyDiet(this.zone.map.mapId)
+                    && this.lvMob > 0
                     && plAtt != null && plAtt.charms.tdOaiHung < System.currentTimeMillis()) {
                 damage = (int) ((this.point.maxHp <= 20000000 ? this.point.maxHp * 10 : 2000000000) * (10.0 / 100));
                 this.mobAttackPlayer(plAtt);
@@ -904,6 +906,169 @@ public class Mob {
             // Túi Dựng (1665) - item phụ để đổi Bóng Ultra/Master
             if (Util.isTrue(3, 100)) {
                 list.add(new ItemMap(zone, 1665, 1, x, yEnd, plPK.id));
+            }
+        }
+
+        // ======================== 🔥 ĐỊA NGỤC ĐẢO LỘN ========================
+        if (EventManager.DIA_NGUC) {
+            if (mapid == 174 || mapid == 179 || mapid == 180) {
+                Player plDN = player;
+                if (plDN.isPet) plDN = ((Pet) plDN).master;
+
+                // Hồn Quỷ (ID 457 tạm dùng Thỏi vàng) — 15% mọi mob Địa Ngục
+                if (Util.isTrue(15, 100)) {
+                    list.add(new ItemMap(zone, 457, Util.nextInt(1, 3), x, yEnd, plDN.id));
+                }
+                // Đá Xanh Lam (ID 935) — 8%
+                if (Util.isTrue(8, 100)) {
+                    list.add(new ItemMap(zone, 935, 1, x, yEnd, plDN.id));
+                }
+                // Mảnh hồn bông tai (ID 934) — 5% ở Địa Ngục 3 
+                if (mapid == 180 && Util.isTrue(5, 100)) {
+                    list.add(new ItemMap(zone, 934, Util.nextInt(1, 2), x, yEnd, plDN.id));
+                }
+                // Vàng cao — 20%
+                if (Util.isTrue(20, 100)) {
+                    int vang = Util.nextInt(100000, 300000);
+                    list.add(new ItemMap(zone, 190, vang, x, yEnd, plDN.id));
+                }
+                // Hồng Ngọc (ID 861) — 3%
+                if (Util.isTrue(3, 100)) {
+                    list.add(new ItemMap(zone, 861, Util.nextInt(50, 200), x, yEnd, plDN.id));
+                }
+            }
+        }
+
+        // ======================== 🦎 GODZILLA VS KONG ========================
+        if (EventManager.GODZILLA_VS_KONG) {
+            if (mapid == 175) {
+                Player plGK = player;
+                if (plGK.isPet) plGK = ((Pet) plGK).master;
+
+                // Mảnh Titan (dùng ID 1634 Mảnh Thiên Sứ) — 12%
+                if (Util.isTrue(12, 100)) {
+                    list.add(new ItemMap(zone, 1634, Util.nextInt(1, 3), x, yEnd, plGK.id));
+                }
+                // Capsule dây chuyền (192) — 1%
+                if (Util.isTrue(1, 100)) {
+                    list.add(new ItemMap(zone, 192, 1, x, yEnd, plGK.id));
+                }
+                // Vàng cao — 25%
+                if (Util.isTrue(25, 100)) {
+                    int vang = Util.nextInt(150000, 500000);
+                    list.add(new ItemMap(zone, 190, vang, x, yEnd, plGK.id));
+                }
+                // Mảnh vỡ bông tai cấp 3 (1855) — 5%
+                if (Util.isTrue(5, 100)) {
+                    list.add(new ItemMap(zone, 1855, Util.nextInt(1, 5), x, yEnd, plGK.id));
+                }
+            }
+        }
+
+        // ======================== 🏟️ JUVENTUS TOURNAMENT ========================
+        if (EventManager.JUVENTUS_TOURNAMENT) {
+            if (mapid == 183) {
+                Player plJV = player;
+                if (plJV.isPet) plJV = ((Pet) plJV).master;
+
+                // Vàng cao — 30%
+                if (Util.isTrue(30, 100)) {
+                    int vang = Util.nextInt(200000, 600000);
+                    list.add(new ItemMap(zone, 190, vang, x, yEnd, plJV.id));
+                }
+                // Hồng Ngọc (861) — 10%
+                if (Util.isTrue(10, 100)) {
+                    list.add(new ItemMap(zone, 861, Util.nextInt(100, 500), x, yEnd, plJV.id));
+                }
+                // Thỏi vàng (457) — 3%
+                if (Util.isTrue(3, 100)) {
+                    list.add(new ItemMap(zone, 457, 1, x, yEnd, plJV.id));
+                }
+                // Sét kích hoạt — 0.5%
+                if (Util.isTrue(1, 200)) {
+                    short itTemp = (short) ItemService.gI().randTempItemKichHoat(plJV.gender);
+                    ItemMap it = new ItemMap(zone, itTemp, 1, x, yEnd, plJV.id);
+                    List<Item.ItemOption> ops = ItemService.gI().getListOptionItemShop(itTemp);
+                    if (!ops.isEmpty()) it.options = ops;
+                    int[] opsrand = ItemService.gI().randOptionItemKichHoat(plJV.gender);
+                    it.options.add(new Item.ItemOption(opsrand[0], 0));
+                    it.options.add(new Item.ItemOption(opsrand[1], 0));
+                    it.options.add(new Item.ItemOption(30, 0));
+                    list.add(it);
+                }
+            }
+        }
+
+        // ======================== 🐘 THẦN THÚ CỔ ĐẠI ========================
+        if (EventManager.THAN_THU_CO_DAI) {
+            if (mapid == 176 || mapid == 178) {
+                Player plTT = player;
+                if (plTT.isPet) plTT = ((Pet) plTT).master;
+
+                // Linh Phù Voi (dùng ID 663) — 8% ở map 176
+                if (mapid == 176 && Util.isTrue(8, 100)) {
+                    list.add(new ItemMap(zone, 663, 1, x, yEnd, plTT.id));
+                }
+                // Linh Phù Gà (dùng ID 664) — 8% ở map 178
+                if (mapid == 178 && Util.isTrue(8, 100)) {
+                    list.add(new ItemMap(zone, 664, 1, x, yEnd, plTT.id));
+                }
+                // Linh Phù Ngựa (dùng ID 665) — 5% cả 2 map
+                if (Util.isTrue(5, 100)) {
+                    list.add(new ItemMap(zone, 665, 1, x, yEnd, plTT.id));
+                }
+                // Mảnh vỡ bông tai (934) — 6%
+                if (Util.isTrue(6, 100)) {
+                    list.add(new ItemMap(zone, 934, Util.nextInt(1, 3), x, yEnd, plTT.id));
+                }
+                // Vàng cao — 20%
+                if (Util.isTrue(20, 100)) {
+                    int vang = Util.nextInt(100000, 400000);
+                    list.add(new ItemMap(zone, 190, vang, x, yEnd, plTT.id));
+                }
+            }
+        }
+
+        // ======================== ❄️ KỶ BĂNG HÀ ========================
+        if (EventManager.KY_BANG_HA) {
+            if (mapid == 195 || mapid == 196 || mapid == 197) {
+                Player plBH = player;
+                if (plBH.isPet) plBH = ((Pet) plBH).master;
+
+                // Tinh Thể Băng (dùng ID 1530) — 15%
+                if (Util.isTrue(15, 100)) {
+                    ItemMap it = new ItemMap(zone, 1530, Util.nextInt(1, 3), x, yEnd, plBH.id);
+                    it.options.add(new Item.ItemOption(30, 0));
+                    list.add(it);
+                }
+                // Mảnh vỡ BTC3 (1855) — 10% — nguồn farm chính!
+                if (Util.isTrue(10, 100)) {
+                    list.add(new ItemMap(zone, 1855, Util.nextInt(1, 5), x, yEnd, plBH.id));
+                }
+                // Đá Xanh Lam (935) — 8%
+                if (Util.isTrue(8, 100)) {
+                    list.add(new ItemMap(zone, 935, 1, x, yEnd, plBH.id));
+                }
+                // Vàng map tuyết — 25%
+                if (Util.isTrue(25, 100)) {
+                    int vang = Util.nextInt(150000, 350000);
+                    list.add(new ItemMap(zone, 190, vang, x, yEnd, plBH.id));
+                }
+                // Thức ăn — 15%
+                if (Util.isTrue(15, 100)) {
+                    int rand = Util.nextInt(0, 4);
+                    ItemMap it = new ItemMap(zone, 220 + rand, 1, x, yEnd, plBH.id);
+                    it.options.add(new ItemOption(71 - rand, 0));
+                    list.add(it);
+                }
+                // Capsule dây chuyền (192) — 0.5% ở Hang Băng 2
+                if (mapid == 197 && Util.isTrue(1, 200)) {
+                    list.add(new ItemMap(zone, 192, 1, x, yEnd, plBH.id));
+                }
+                // Sách TK (456) — 0.3% ở Hang Băng 2
+                if (mapid == 197 && Util.isTrue(3, 1000)) {
+                    list.add(new ItemMap(zone, 456, 1, x, yEnd, plBH.id));
+                }
             }
         }
 

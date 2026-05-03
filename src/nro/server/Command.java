@@ -9,6 +9,7 @@ import EMTI.SystemMetrics;
 import boss.AnTromManager;
 import boss.BabyManager;
 import boss.BossManager;
+import boss.BossID;
 import boss.BrolyManager;
 import boss.GasDestroyManager;
 import boss.HalloweenEventManager;
@@ -22,6 +23,7 @@ import boss.SoiHecQuynManager;
 import boss.TreasureUnderSeaManager;
 import boss.TrungThuEventManager;
 import boss.XinBaToManager;
+import boss.CatchpokemonEventManager;
 import consts.ConstNpc;
 import item.Item;
 import java.util.HashMap;
@@ -92,6 +94,8 @@ public class Command {
                         Map.entry("kghd", () -> GasDestroyManager.gI().showListBoss(player)),
                         Map.entry("trungthu", () -> TrungThuEventManager.gI().showListBoss(player)),
                         Map.entry("halowen", () -> HalloweenEventManager.gI().showListBoss(player)),
+                        Map.entry("pokemon", () -> CatchpokemonEventManager.gI().showListBoss(player)),
+                        Map.entry("spawnpoke", () -> spawnPokemonBosses(player)),
                         // Buff / hỗ trợ
                         Map.entry("hsk", () -> Service.gI().releaseCooldownSkill(player)),
                         Map.entry("battu", () -> toggleBattu(player)),
@@ -314,9 +318,9 @@ public class Command {
     public void showAdminDragonMenu(Player player) {
         NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_DRAGON, -1,
                 "|0|--- NGỌC RỒNG ADMIN ---\n"
-                        + "Fix lỗi cũ: bấm Ngọc Rồng không còn add thẳng vào túi.\n"
-                        + "Chọn loại set cần cấp để tránh thao tác nhầm.",
-                "Set NR\n1-7 Sao", "Set NR\n2-7 Sao", "Rồng\nNamek", "Quay Lại", "Đóng");
+                        + "Chọn loại set cần cấp để tránh thao tác nhầm.\n"
+                        + "NRO Vô Cực: ghép từ bộ NRO 1-7 sao thường.",
+                "Set NR\n1-7 Sao", "Set NR\n2-7 Sao", "Rồng\nNamek", "Set NR\nVô Cực", "Quay Lại", "Đóng");
     }
 
     public void showAdminExtendMenu(Player player) {
@@ -334,6 +338,36 @@ public class Command {
         }
         InventoryService.gI().sendItemBag(player);
         Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng " + startStar + "-7 sao vào hành trang.");
+    }
+
+    public void giveDragonBallsNamek(Player player) {
+        for (int itemId = 353; itemId <= 359; itemId++) {
+            Item item = ItemService.gI().createNewItem((short) itemId);
+            InventoryService.gI().addItemBag(player, item);
+        }
+        InventoryService.gI().sendItemBag(player);
+        Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng Namek 1-7 sao vào hành trang.");
+    }
+
+    public void giveDragonBallsVoCuc(Player player) {
+        for (int itemId = 2980; itemId <= 2986; itemId++) {
+            Item item = ItemService.gI().createNewItem((short) itemId);
+            InventoryService.gI().addItemBag(player, item);
+        }
+        InventoryService.gI().sendItemBag(player);
+        Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng Vô Cực 1-7 sao vào hành trang.");
+    }
+
+    private void spawnPokemonBosses(Player player) {
+        try {
+            BossManager.gI().createBoss(BossID.PIKACHU_BOSS);
+            BossManager.gI().createBoss(BossID.CHARMANDER_BOSS);
+            BossManager.gI().createBoss(BossID.SQUIRTLE_BOSS);
+            Service.gI().sendThongBao(player, "Đã spawn 3 boss Pokemon: Pikachu, Charmander, Squirtle!");
+            ServerNotify.gI().notify("Boss Pokemon vừa xuất hiện!");
+        } catch (Exception e) {
+            Service.gI().sendThongBao(player, "Lỗi spawn Pokemon: " + e.getMessage());
+        }
     }
 
     private void repeatNotify(String message, int times) {

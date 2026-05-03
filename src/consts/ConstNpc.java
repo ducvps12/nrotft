@@ -277,6 +277,12 @@ public class ConstNpc {
         public static final int SHOW_SHENRON_EVENT_CONFIRM = 31720023;
         public static final int SHENRON_EVENT_CONFIRM = 31720024;
 
+        // Ngọc Rồng Vô Cực
+        public static final int MENU_GHEP_NRO_VO_CUC = 251030;
+        public static final int SUMMON_SHENRON_VO_CUC = 251031;
+        public static final int SHENRON_VO_CUC = 251032;
+        public static final int SHENRON_VO_CUC_CONFIRM = 251033;
+
         public static final int SUB_MENU = 31720025;
         public static final int TAP_TU_DONG_CONFIRM = 31720026;
         public static final int MENU_CLAN_UP = 4;

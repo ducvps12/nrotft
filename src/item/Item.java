@@ -296,6 +296,7 @@ public class Item {
         // Cho phép theo ID cụ thể: mảnh thiên sứ, mảnh rồng thần, mảnh oozaru, mảnh bông tai
         if (template.id >= 1066 && template.id <= 1070) return true; // Mảnh Thiên Sứ
         if (template.id == 1204) return true; // Mảnh Rồng thần Namếc
+        if (template.id == 956) return true; // Mảnh Đội trưởng Vàng
         if (template.id == 1173) return true; // Mảnh Quỷ
         if (template.id == 1901) return true; // Mảnh Khí Oozaru
         if (template.id == 1855) return true; // Mảnh vỡ bông tai cấp 3

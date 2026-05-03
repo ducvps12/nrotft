@@ -99,10 +99,12 @@ public class ServerManagerUI extends JFrame {
                 new NavItem("Dữ Liệu Bản Đồ", "/icon/map.png", "MapData"),
                 new NavItem("Quản Lý Drop", "/icon/drop.png", "DropManager"),
                 new NavItem("Dữ Liệu Vật Phẩm", "/icon/item.png", "ItemData"),
+                new NavItem("📋 Audit Vật Phẩm", "/icon/item.png", "ItemAudit"),
                 new NavItem("🌍 Vũ Trụ MTDGame", "/icon/map.png", "Universe"),
                 new NavItem("💰 Tài Chính Vũ Trụ", "/icon/transaction.png", "Economy"),
                 new NavItem("Quản Lý Radar", "/icon/radar.png", "Radar"),
                 new NavItem("Cấu Hình Boss", "/icon/monster.png", "BossConfig"),
+                new NavItem("🔍 Duyệt Tài Nguyên", "/icon/item.png", "ResourceBrowser"),
                 new NavItem("Bảo Mật & Firewall", "/icon/shield.png", "Security"),
                 new NavItem("🛡 Anti-DDoS", "/icon/shield.png", "AntiDDoS"),
                 new NavItem("Quản Lý Database", "/icon/database.png", "Database"),
@@ -207,10 +209,12 @@ public class ServerManagerUI extends JFrame {
         contentPanel.add(new MapPanel(), "MapData");
         contentPanel.add(new DropItemPanel(), "DropManager");
         contentPanel.add(new ItemPanel(), "ItemData");
+        contentPanel.add(new ItemAuditPanel(), "ItemAudit");
         contentPanel.add(new UniverseMonitorPanel(), "Universe");
         contentPanel.add(new EconomyMonitorPanel(), "Economy");
         contentPanel.add(new RadarPanel(), "Radar");
         contentPanel.add(new BossEditorPanel(), "BossConfig");
+        contentPanel.add(new ResourceBrowserPanel(), "ResourceBrowser");
         contentPanel.add(new SecurityPanel(), "Security");
         contentPanel.add(new AntiDDoSPanel(), "AntiDDoS");
         contentPanel.add(new DatabasePanel(), "Database");

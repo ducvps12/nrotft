@@ -2104,7 +2104,7 @@ public class NPoint {
                 if (((Pet) this.player).master.charms.tdDeTu > System.currentTimeMillis()) {
                     tiemNang += tn * 2;
                 }
-                if (((Pet) this.player).itemTime.lastTimeBuax2DeTu > System.currentTimeMillis()) {
+                if (((Pet) this.player).master.itemTime != null && ((Pet) this.player).master.itemTime.lastTimeBuax2DeTu > System.currentTimeMillis()) {
                     tiemNang += tn * 2;
                 }
                 if (((Pet) this.player).master.nPoint != null && ((Pet) this.player).master.nPoint.tlTNSMPet > 0) {

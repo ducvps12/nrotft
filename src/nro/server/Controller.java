@@ -9,6 +9,7 @@ package nro.server;
  */
 import boss.Boss;
 import boss.BossManager;
+import boss.CatchpokemonEventManager;
 import consts.*;
 import player.dailyGift.DailyGiftService;
 import nro.services.ClanService;
@@ -730,10 +731,19 @@ public class Controller implements IMessageHandler {
                             }
                             default -> {
                                 if (player.isAdmin()) {
-                                    Boss boss = BossManager.gI().getBoss(_id);
-                                    if (boss != null) {
+                                    // Determine which boss manager to use
+                                    BossManager mgr;
+                                    if (menuType == 4) {
+                                        mgr = CatchpokemonEventManager.gI();
+                                    } else {
+                                        mgr = BossManager.gI();
+                                    }
+                                    Boss boss = mgr.getBoss(_id);
+                                    if (boss != null && boss.zone != null) {
                                         ChangeMapService.gI().changeMapYardrat(player, boss.zone, boss.location.x,
                                                 boss.location.y);
+                                    } else {
+                                        Service.gI().sendThongBao(player, "Boss chưa xuất hiện hoặc đã chết!");
                                     }
                                 } else {
                                     Service.gI().sendThongBao(player, "Không thể thực hiện");

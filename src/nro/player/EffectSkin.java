@@ -833,16 +833,25 @@ public class EffectSkin {
 
     // giáp tập luyện
     private void updateTrainArmor() {
-        if (Util.canDoWithTime(lastTimeAddTimeTrainArmor, 60000) && !Util.canDoWithTime(lastTimeAttack, 30000)) {
-            if (this.player.nPoint.wearingTrainArmor) {
+        // Tích điểm khi mặc giáp: chỉ cần mặc giáp + online, mỗi 60s tăng 1 điểm
+        if (Util.canDoWithTime(lastTimeAddTimeTrainArmor, 60000)) {
+            if (this.player.nPoint.wearingTrainArmor && this.player.inventory.trainArmor != null) {
+                // Đảm bảo giáp có option 9 (fix cho giáp cấp 4 hoặc item cũ thiếu option)
+                boolean hasOpt9 = false;
                 for (Item.ItemOption io : this.player.inventory.trainArmor.itemOptions) {
                     if (io.optionTemplate.id == 9) {
+                        hasOpt9 = true;
                         if (io.param < 1000) {
                             io.param++;
                             InventoryService.gI().sendItemBody(player);
                         }
                         break;
                     }
+                }
+                // Nếu thiếu option 9 (giáp mới tạo / giáp cũ bị mất), tự thêm và tăng 1
+                if (!hasOpt9 && ItemService.gI().isTrainArmor(this.player.inventory.trainArmor)) {
+                    this.player.inventory.trainArmor.itemOptions.add(new Item.ItemOption(9, 1));
+                    InventoryService.gI().sendItemBody(player);
                 }
             }
             this.lastTimeAddTimeTrainArmor = System.currentTimeMillis();
