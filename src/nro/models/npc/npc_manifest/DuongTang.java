@@ -423,24 +423,24 @@ public class DuongTang extends Npc {
     // HƯỚNG DẪN
     // ====================================================================
     private void showGuide(Player player) {
-        npcChat(player,
-                "|7|━━━ HƯỚNG DẪN HỘ TỐNG ━━━\n\n"
-                + "|8|Chọn tuyến → Dịch chuyển đến map đích\n"
-                + "|8|→ Tiêu diệt quái vật để bảo vệ sư phụ\n"
-                + "|8|→ Hoàn thành = Nhận điểm công đức!\n\n"
-                + "|1|Tây Đô: +5đ (diệt 5 quái)\n"
-                + "|1|Đảo Kame: +10đ (diệt 10 quái)\n"
-                + "|1|Namek: +15đ (diệt 15 quái)\n"
-                + "|2|Xayda: +20đ (diệt 20 quái)\n\n"
-                + "|8|Cooldown: 3 phút giữa mỗi lần\n\n"
-                + "|8|Nhận Thưởng tại đây:\n"
-                + "|1|50đ = Đậu Thần + 5M Vàng\n"
-                + "|1|150đ = 3 Thỏi Vàng + Đá BV\n"
-                + "|1|300đ = 10 Thỏi Vàng + 5k Ngọc\n"
-                + "|1|500đ = 50 Thỏi Vàng + Mảnh Oozaru\n\n"
-                + "|8|Shop đổi điểm tại Ngũ Hành Sơn:\n"
-                + "|1|Ngọc Rồng 7s=30đ, 6s=80đ\n"
-                + "|1|5s=200đ, 4s=500đ, 3s=1000đ");
+        nro.services.NpcService.gI().createTutorial(player, this.tempId, this.avartar,
+                "HUONG DAN HO TONG DUONG TANG\n"
+                + "Chon tuyen -> Di chuyen den map dich\b"
+                + "Tieu diet quai vat de bao ve su phu\b"
+                + "Hoan thanh = Nhan diem cong duc!\n"
+                + "Tay Do: +5d (diet 5 quai)\b"
+                + "Dao Kame: +10d (diet 10 quai)\b"
+                + "Namek: +15d (diet 15 quai)\b"
+                + "Xayda: +20d (diet 20 quai)\n"
+                + "Cooldown: 3 phut giua moi lan\n"
+                + "Nhan Thuong tai day:\b"
+                + "50d = Dau Than + 5M Vang\b"
+                + "150d = 3 Thoi Vang + Da BV\b"
+                + "300d = 10 Thoi Vang + 5k Ngoc\b"
+                + "500d = 50 Thoi Vang + Manh Oozaru\n"
+                + "Shop doi diem tai Ngu Hanh Son:\b"
+                + "Ngoc Rong 7s=30d, 6s=80d\b"
+                + "5s=200d, 4s=500d, 3s=1000d");
     }
 
     // ====================================================================
