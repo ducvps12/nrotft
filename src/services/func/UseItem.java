@@ -364,6 +364,7 @@ public class UseItem {
                                 // ⭐ thông báo
                                 Service.gI().sendThongBao(pl, "Đệ tử của bạn đã tiến hóa thành Jiren!");
                                 break;
+                            case 1208: // Mảnh Rồng thần Namếc (ConstItem.MANH_RONG_THAN_NAMEC)
                             case 1204: // Mảnh Rồng thần Namếc - ghép 7 mảnh = 1 Ngọc Rồng Namếc ngẫu nhiên
                             {
                                 if (item.quantity < 7) {
@@ -803,6 +804,10 @@ public class UseItem {
                             case 1184: // Gói quà đặc biệt (DB)
                             case 1982: // Gói quà đặc biệt (Event)
                                 openGoiQuaDacBiet(pl, item);
+                                break;
+                            // ===== NGỌC RỒNG SIÊU CẤP =====
+                            case 1015: // Ngọc Rồng Siêu Cấp → Gọi Rồng Thần Siêu Cấp
+                                SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
                                 break;
                             default:
                                 // Item chưa có chức năng — thông báo user liên hệ Admin
@@ -2016,66 +2021,230 @@ public class UseItem {
 
     }
 
+    // ===================================================================
+    // KHO BÁU HẢI TẶC (item 1570) — Đổi từ Phiếu Ăn tại NPC Bill
+    // Mở trực tiếp, không cần item 1569 (rương kho báu) nữa
+    // 5 tầng thưởng: Huyền Thoại (1%), Sử Thi (4%), Hiếm (15%),
+    //                 Không Phổ Biến (35%), Phổ Thông (45%)
+    // ===================================================================
     private void opkhoabac(Player pl, Item item) {
-        if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
-            Item ruongkhobau = InventoryService.gI().findItemBag(pl, 1569);
-            if (ruongkhobau != null) {
-                RandomCollection<Integer> rd = new RandomCollection<>();
-                rd.add(40, 5);
-                rd.add(35, 4);
-                rd.add(25, 3);
-                int color = rd.next();
-                if (color == 4) {
-                    short[] temp = { 441, 442, 447, 381, 382, 383, 384 };
-                    byte index = (byte) Util.nextInt(0, temp.length - 1);
-                    Item it = ItemService.gI().createNewItem(temp[index]);
-                    if (temp[index] == 441) {
-                        it.itemOptions.add(new ItemOption(95, 5));
-                        it.quantity = 2;
-                    } else if (temp[index] == 442) {
-                        it.itemOptions.add(new ItemOption(96, 5));
-                        it.quantity = 2;
-                    } else if (temp[index] == 447) {
-                        it.itemOptions.add(new ItemOption(101, 5));
-                        it.quantity = 2;
-                    } else {
-                        it.quantity = 1;
-                    }
-                    InventoryService.gI().subQuantityItemsBag(pl, item, 1);
-                    InventoryService.gI().subQuantityItemsBag(pl, ruongkhobau, 1);
-                    InventoryService.gI().addItemBag(pl, it);
-                    InventoryService.gI().sendItemBag(pl);
-                    Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được " + it.template.name);
-                } else if (color == 3) {
-                    int[] ngocrong = new int[] { 18, 17, 18 };
-                    int randomtrungpet = new Random().nextInt(ngocrong.length);
-                    Item pet = ItemService.gI().createNewItem((short) ngocrong[randomtrungpet]);
-                    InventoryService.gI().subQuantityItemsBag(pl, item, 1);
-                    InventoryService.gI().subQuantityItemsBag(pl, ruongkhobau, 1);
-                    InventoryService.gI().addItemBag(pl, pet);
-                    InventoryService.gI().sendItemBag(pl);
-                    Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được " + pet.template.name);
-                } else {
-                    int[] itdeolung = new int[] { 1554, 1555 };
-                    int randomIMDEOLUNG = new Random().nextInt(itdeolung.length);
-                    InventoryService.gI().subQuantityItemsBag(pl, item, 1);
-                    InventoryService.gI().subQuantityItemsBag(pl, ruongkhobau, 1);
-                    Item Itdeolung = ItemService.gI().createNewItem((short) itdeolung[randomIMDEOLUNG]);
-                    Itdeolung.itemOptions.add(new ItemOption(50, Util.nextInt(2, 8)));
-                    Itdeolung.itemOptions.add(new ItemOption(77, Util.nextInt(3, 6)));
-                    Itdeolung.itemOptions.add(new ItemOption(103, Util.nextInt(3, 6)));
-                    if (Util.isTrue(95, 100)) {
-                        Itdeolung.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
-                    }
-                    InventoryService.gI().addItemBag(pl, Itdeolung);
-                    InventoryService.gI().sendItemBag(pl);
-                    Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được " + Itdeolung.template.name);
-                }
-            }
-
-        } else {
-            Service.gI().sendThongBao(pl, "Hãy chừa 1 ô trống để mở.");
+        if (InventoryService.gI().getCountEmptyBag(pl) < 2) {
+            Service.gI().sendThongBao(pl, "Can it nhat 2 o trong de mo Kho Bau Hai Tac!");
+            return;
         }
+
+        StringBuilder reward = new StringBuilder();
+        reward.append("KHO BAU HAI TAC\n");
+
+        RandomCollection<Integer> rd = new RandomCollection<>();
+        rd.add(1, 1);   // Huyền Thoại  — 1%
+        rd.add(4, 2);   // Sử Thi       — 4%
+        rd.add(15, 3);  // Hiếm         — 15%
+        rd.add(35, 4);  // Không phổ biến — 35%
+        rd.add(45, 5);  // Phổ Thông    — 45%
+        int tier = rd.next();
+
+        switch (tier) {
+            case 1: {
+                // ===== HUYỀN THOẠI (1%) =====
+                // Trang bị Thần Linh random chủng tộc + vàng lớn
+                reward.append("[HUYEN THOAI]\n");
+                int[][] trangBiThanLinh = {
+                    { 555, 556, 562, 563, 561 }, // Trái Đất
+                    { 557, 558, 564, 565, 561 }, // Namek
+                    { 559, 560, 566, 567, 561 }  // Xayda
+                };
+                int genderIdx = pl.gender >= 3 ? 2 : pl.gender;
+                int partIdx = Util.nextInt(0, 4);
+                short tbId = (short) trangBiThanLinh[genderIdx][partIdx];
+                Item tbTL = ItemService.gI().createNewItem(tbId);
+                RewardService.gI().initBaseOptionClothes(tbTL.template.id, tbTL.template.type, tbTL.itemOptions);
+                // Thêm chỉ số % mạnh
+                tbTL.itemOptions.add(new ItemOption(50, Util.nextInt(10, 20)));
+                tbTL.itemOptions.add(new ItemOption(77, Util.nextInt(10, 20)));
+                tbTL.itemOptions.add(new ItemOption(103, Util.nextInt(10, 20)));
+                tbTL.itemOptions.add(new ItemOption(30, 1)); // Không thể giao dịch
+                InventoryService.gI().addItemBag(pl, tbTL);
+                reward.append("x1 ").append(tbTL.template.name).append(" Than Linh!\n");
+
+                // Bonus vàng
+                long goldBonus = Util.nextInt(500_000_000, 1_000_000_000);
+                pl.inventory.gold += goldBonus;
+                if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                    pl.inventory.gold = Inventory.LIMIT_GOLD;
+                }
+                reward.append("+").append(goldBonus / 1_000_000).append("M Vang\n");
+
+                // Thông báo server
+                nro.server.ServerNotify.gI().notify(
+                    pl.name + " mo Kho Bau Hai Tac nhan duoc " + tbTL.template.name + " Than Linh!");
+                break;
+            }
+            case 2: {
+                // ===== SỬ THI (4%) =====
+                // Set Hủy Diệt hoặc Ngọc rồng 1-2 sao + thỏi vàng
+                reward.append("[SU THI]\n");
+                int epicRoll = Util.nextInt(1, 100);
+                if (epicRoll <= 40) {
+                    // 40%: Ngọc rồng 1 sao
+                    Item nr = ItemService.gI().createNewItem((short) 16);
+                    nr.itemOptions.add(new ItemOption(30, 0));
+                    InventoryService.gI().addItemBag(pl, nr);
+                    reward.append("x1 Ngoc Rong 1 Sao!\n");
+                } else if (epicRoll <= 70) {
+                    // 30%: Ngọc rồng 2 sao
+                    Item nr = ItemService.gI().createNewItem((short) 17);
+                    nr.itemOptions.add(new ItemOption(30, 0));
+                    InventoryService.gI().addItemBag(pl, nr);
+                    reward.append("x1 Ngoc Rong 2 Sao!\n");
+                } else {
+                    // 30%: Trang bị Hủy Diệt random
+                    int gIdx = pl.gender >= 3 ? 2 : pl.gender;
+                    int[][] huyDiet = {
+                        { 555, 556, 562, 563 }, // Trái Đất
+                        { 557, 558, 564, 565 }, // Namek
+                        { 559, 560, 566, 567 }  // Xayda
+                    };
+                    int pIdx = Util.nextInt(0, 3);
+                    Item tbHD = ItemService.gI().createNewItem((short) huyDiet[gIdx][pIdx]);
+                    RewardService.gI().initBaseOptionClothes(tbHD.template.id, tbHD.template.type, tbHD.itemOptions);
+                    tbHD.itemOptions.add(new ItemOption(50, Util.nextInt(5, 12)));
+                    tbHD.itemOptions.add(new ItemOption(77, Util.nextInt(5, 12)));
+                    tbHD.itemOptions.add(new ItemOption(103, Util.nextInt(5, 12)));
+                    InventoryService.gI().addItemBag(pl, tbHD);
+                    reward.append("x1 ").append(tbHD.template.name).append("\n");
+                }
+                // Bonus thỏi vàng
+                Item tv = ItemService.gI().createNewItem((short) 457, Util.nextInt(3, 7));
+                InventoryService.gI().addItemBag(pl, tv);
+                reward.append("+").append(tv.quantity).append(" Thoi Vang\n");
+
+                nro.server.ServerNotify.gI().notify(
+                    pl.name + " mo Kho Bau Hai Tac nhan thuong Su Thi!");
+                break;
+            }
+            case 3: {
+                // ===== HIẾM (15%) =====
+                // Pet / Đá nâng cấp quý / Sao pha lê + vàng
+                reward.append("[HIEM]\n");
+                int rareRoll = Util.nextInt(1, 100);
+                if (rareRoll <= 30) {
+                    // 30%: Pet ngọc rồng 3-4 sao
+                    int[] pets = { 18, 19, 20 };
+                    Item pet = ItemService.gI().createNewItem((short) pets[Util.nextInt(0, pets.length - 1)]);
+                    pet.itemOptions.add(new ItemOption(30, 0));
+                    InventoryService.gI().addItemBag(pl, pet);
+                    reward.append("x1 ").append(pet.template.name).append("\n");
+                } else if (rareRoll <= 60) {
+                    // 30%: Đá nâng cấp cao (2-5 viên)
+                    int[] daNangCap = { 220, 221, 222, 223, 224 };
+                    int dncIdx = Util.nextInt(0, daNangCap.length - 1);
+                    Item dnc = ItemService.gI().createNewItem((short) daNangCap[dncIdx]);
+                    dnc.quantity = Util.nextInt(2, 5);
+                    dnc.itemOptions.add(new ItemOption(71 - dncIdx, 0));
+                    InventoryService.gI().addItemBag(pl, dnc);
+                    reward.append("x").append(dnc.quantity).append(" ").append(dnc.template.name).append("\n");
+                } else {
+                    // 40%: Sao pha lê x3-5
+                    int[] saoPhaLe = { 441, 442, 443, 444, 445, 446, 447 };
+                    int splIdx = Util.nextInt(0, saoPhaLe.length - 1);
+                    Item spl = ItemService.gI().createNewItem((short) saoPhaLe[splIdx]);
+                    spl.quantity = Util.nextInt(3, 5);
+                    int[] splOpts = { 95, 96, 97, 98, 99, 100, 101 };
+                    spl.itemOptions.add(new ItemOption(splOpts[splIdx], (splIdx == 3 || splIdx == 4) ? 3 : 5));
+                    InventoryService.gI().addItemBag(pl, spl);
+                    reward.append("x").append(spl.quantity).append(" ").append(spl.template.name).append("\n");
+                }
+                // Bonus vàng
+                long goldRare = Util.nextInt(50_000_000, 200_000_000);
+                pl.inventory.gold += goldRare;
+                if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                    pl.inventory.gold = Inventory.LIMIT_GOLD;
+                }
+                reward.append("+").append(goldRare / 1_000_000).append("M Vang\n");
+                break;
+            }
+            case 4: {
+                // ===== KHÔNG PHỔ BIẾN (35%) =====
+                // Capsule, đậu thần, đồ hỗ trợ + vàng vừa
+                reward.append("[KHONG PHO BIEN]\n");
+                int uncommonRoll = Util.nextInt(1, 100);
+                if (uncommonRoll <= 35) {
+                    // 35%: Capsule dây chuyền
+                    Item cap = ItemService.gI().createNewItem((short) 192, 1);
+                    InventoryService.gI().addItemBag(pl, cap);
+                    reward.append("x1 ").append(cap.template.name).append("\n");
+                } else if (uncommonRoll <= 65) {
+                    // 30%: Đậu thần x5-15
+                    Item dau = ItemService.gI().createNewItem((short) 77);
+                    dau.quantity = Util.nextInt(5, 15);
+                    InventoryService.gI().addItemBag(pl, dau);
+                    reward.append("x").append(dau.quantity).append(" Dau Than\n");
+                } else if (uncommonRoll <= 85) {
+                    // 20%: Hồng ngọc 50-200
+                    int ruby = Util.nextInt(50, 200);
+                    pl.inventory.ruby += ruby;
+                    reward.append("+").append(ruby).append(" Hong Ngoc\n");
+                } else {
+                    // 15%: Xu NRO 5-15
+                    Item xu = ItemService.gI().createNewItem((short) 1705, Util.nextInt(5, 15));
+                    InventoryService.gI().addItemBag(pl, xu);
+                    reward.append("+").append(xu.quantity).append(" Xu NRO\n");
+                }
+                // Bonus vàng
+                long goldUncommon = Util.nextInt(10_000_000, 50_000_000);
+                pl.inventory.gold += goldUncommon;
+                if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                    pl.inventory.gold = Inventory.LIMIT_GOLD;
+                }
+                reward.append("+").append(goldUncommon / 1_000_000).append("M Vang\n");
+                break;
+            }
+            default: {
+                // ===== PHỔ THÔNG (45%) =====
+                // Vàng + item hỗ trợ nhỏ
+                reward.append("[PHO THONG]\n");
+                int commonRoll = Util.nextInt(1, 100);
+                if (commonRoll <= 40) {
+                    // 40%: Đậu thần x2-5
+                    Item dau = ItemService.gI().createNewItem((short) 77);
+                    dau.quantity = Util.nextInt(2, 5);
+                    InventoryService.gI().addItemBag(pl, dau);
+                    reward.append("x").append(dau.quantity).append(" Dau Than\n");
+                } else if (commonRoll <= 70) {
+                    // 30%: Sao pha lê x1-2
+                    int splIdx2 = Util.nextInt(0, 6);
+                    Item spl2 = ItemService.gI().createNewItem((short) (441 + splIdx2));
+                    spl2.quantity = Util.nextInt(1, 2);
+                    int[] splOpts2 = { 95, 96, 97, 98, 99, 100, 101 };
+                    spl2.itemOptions.add(new ItemOption(splOpts2[splIdx2], (splIdx2 == 3 || splIdx2 == 4) ? 3 : 5));
+                    InventoryService.gI().addItemBag(pl, spl2);
+                    reward.append("x").append(spl2.quantity).append(" ").append(spl2.template.name).append("\n");
+                } else {
+                    // 30%: Đá nâng cấp x1-2
+                    int dncIdx2 = Util.nextInt(0, 4);
+                    Item dnc2 = ItemService.gI().createNewItem((short) (220 + dncIdx2));
+                    dnc2.quantity = Util.nextInt(1, 2);
+                    dnc2.itemOptions.add(new ItemOption(71 - dncIdx2, 0));
+                    InventoryService.gI().addItemBag(pl, dnc2);
+                    reward.append("x").append(dnc2.quantity).append(" ").append(dnc2.template.name).append("\n");
+                }
+                // Bonus vàng nhỏ
+                long goldCommon = Util.nextInt(1_000_000, 10_000_000);
+                pl.inventory.gold += goldCommon;
+                if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
+                    pl.inventory.gold = Inventory.LIMIT_GOLD;
+                }
+                reward.append("+").append(goldCommon / 1_000_000).append("M Vang\n");
+                break;
+            }
+        }
+
+        // Trừ 1 Kho Báu Hải Tặc
+        InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+        PlayerService.gI().sendInfoHpMpMoney(pl);
+        InventoryService.gI().sendItemBag(pl);
+        Service.gI().sendThongBao(pl, reward.toString());
     }
 
     private void opkhoavang(Player pl, Item item) {
@@ -2943,10 +3112,13 @@ public class UseItem {
         if (tempId >= SummonDragon.NGOC_RONG_1_SAO && tempId <= SummonDragon.NGOC_RONG_7_SAO) {
             switch (tempId) {
                 case SummonDragon.NGOC_RONG_1_SAO:
-                    // NRO 1 sao: có thể gọi rồng HOẶC ghép Vô Cực
-                    NpcService.gI().createMenuConMeo(pl, ConstNpc.MENU_GHEP_NRO_VO_CUC, -1,
-                            "Bạn muốn làm gì với Ngọc Rồng?",
-                            "Gọi\nRồng Thần\n1 Sao", "Ghép\nNRO\nVô Cực");
+                    // NRO 1 sao: có thể gọi rồng HOẶC ép Siêu Cấp
+                    NpcService.gI().createMenuConMeo(pl, ConstNpc.MENU_GHEP_NRO_SIEU_CAP, -1,
+                            "Bạn muốn làm gì với Ngọc Rồng?\n"
+                            + "1. Gọi Rồng Thần 1 Sao (cần đủ 1-7 sao)\n"
+                            + "2. Ép Siêu Cấp: cần 2 viên NRO 1 sao\n"
+                            + "   Tỉ lệ 50% - thất bại mất hết 2 viên",
+                            "Gọi\nRồng Thần\n1 Sao", "Ép\nNgọc Rồng\nSiêu Cấp");
                     break;
                 case SummonDragon.NGOC_RONG_2_SAO:
                 case SummonDragon.NGOC_RONG_3_SAO:
@@ -2959,20 +3131,9 @@ public class UseItem {
             }
         } else if (tempId >= ShenronEventService.NGOC_RONG_1_SAO && tempId <= ShenronEventService.NGOC_RONG_7_SAO) {
             ShenronEventService.gI().openMenuSummonShenron(pl, 0);
-        } else if (tempId >= SummonDragon.NGOC_RONG_VC_1_SAO && tempId <= SummonDragon.NGOC_RONG_VC_7_SAO) {
-            // Ngọc Rồng Vô Cực
-            switch (tempId) {
-                case 2980: // Vô Cực 1 sao
-                case 2981: // Vô Cực 2 sao
-                case 2982: // Vô Cực 3 sao
-                    SummonDragon.gI().openMenuSummonShenronVoCuc(pl);
-                    break;
-                default:
-                    NpcService.gI().createMenuConMeo(pl, ConstNpc.TUTORIAL_SUMMON_DRAGON,
-                            -1, "Bạn chỉ có thể gọi Rồng Thần Vô Cực từ ngọc Vô Cực 3 sao, 2 sao, 1 sao",
-                            "OK");
-                    break;
-            }
+        } else if (tempId == SummonDragon.NGOC_RONG_SIEU_CAP) {
+            // Item 1015: Ngọc rồng Siêu Cấp → Gọi Rồng Thần Siêu Cấp luôn
+            SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
         }
     }
 
