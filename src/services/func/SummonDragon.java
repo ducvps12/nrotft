@@ -46,14 +46,14 @@ public class SummonDragon {
     public static final short NGOC_RONG_6_SAO = 19;
     public static final short NGOC_RONG_7_SAO = 20;
 
-    // Ngọc Rồng Vô Cực (ghép từ bộ NRO 1-7 sao thường)
-    public static final short NGOC_RONG_VC_1_SAO = 2980;
-    public static final short NGOC_RONG_VC_2_SAO = 2981;
-    public static final short NGOC_RONG_VC_3_SAO = 2982;
-    public static final short NGOC_RONG_VC_4_SAO = 2983;
-    public static final short NGOC_RONG_VC_5_SAO = 2984;
-    public static final short NGOC_RONG_VC_6_SAO = 2985;
-    public static final short NGOC_RONG_VC_7_SAO = 2986;
+    // Ngọc Rồng Siêu Cấp (ép từ 7 viên NRO 1 sao, tỉ lệ 50/50)
+    public static final short NGOC_RONG_SC_1_SAO = 2980;
+    public static final short NGOC_RONG_SC_2_SAO = 2981;
+    public static final short NGOC_RONG_SC_3_SAO = 2982;
+    public static final short NGOC_RONG_SC_4_SAO = 2983;
+    public static final short NGOC_RONG_SC_5_SAO = 2984;
+    public static final short NGOC_RONG_SC_6_SAO = 2985;
+    public static final short NGOC_RONG_SC_7_SAO = 2986;
 
     public static final String SUMMON_SHENRON_TUTORIAL = "Có 3 cách gọi rồng thần. Gọi từ ngọc 1 sao, gọi từ ngọc 2 sao, hoặc gọi từ ngọc 3 sao\n"
             + "Các ngọc 4 sao đến 7 sao không thể gọi rồng thần được\n"
@@ -80,12 +80,12 @@ public class SummonDragon {
     public static final String[] SHENRON_3_STARS_WHISHES = new String[] { "Giàu có\n+200\nNgọc xanh",
             "+2 Tr\nSức mạnh\nvà tiềm năng", "Giàu có\n+20 Tr\nVàng" };
 
-    // Điều ước Rồng Thần Vô Cực (siêu mạnh)
-    public static final String[] SHENRON_VC_WISHES = new String[] {
-            "Giàu có\n+500K Ngọc\n+500 Thỏi Vàng",
-            "+50 Tỷ\nSức mạnh\nvà Tiềm năng",
-            "Chí mạng\nGốc +5%",
-            "Găng tay\nđang mang\nlên +3" };
+    // Điều ước Rồng Thần Siêu Cấp (mạnh hơn rồng 1 sao ~3-5 lần)
+    public static final String[] SHENRON_SC_WISHES = new String[] {
+            "Giàu có\n+200K Ngọc\n+200 Thỏi Vàng",
+            "+10 Tỷ\nSức mạnh\nvà Tiềm năng",
+            "Chí mạng\nGốc +3%",
+            "Găng tay\nđang mang\nlên 2 cấp" };
     // --------------------------------------------------------------------------
     private static SummonDragon instance;
     private final Map pl_dragonStar;
@@ -604,6 +604,10 @@ public class SummonDragon {
             case ConstNpc.SHENRON_3:
                 NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_3, SHENRON_SAY, SHENRON_3_STARS_WHISHES);
                 break;
+            case ConstNpc.SHENRON_SIEU_CAP:
+                NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_SIEU_CAP,
+                        "Hãy chọn lại điều ước của ngươi!", SHENRON_SC_WISHES);
+                break;
         }
     }
 
@@ -625,102 +629,120 @@ public class SummonDragon {
         this.mapShenronAppear = null;
         lastTimeShenronAppeared = System.currentTimeMillis();
     }
-    // ======================== NGỌC RỒNG VÔ CỰC ========================
+    // ======================== NGỌC RỒNG SIÊU CẤP ========================
+    // Item 1015 = "Ngọc rồng Siêu Cấp" (1 viên duy nhất, dùng để gọi rồng)
+    public static final short NGOC_RONG_SIEU_CAP = 1015;
 
-    public void openMenuSummonShenronVoCuc(Player pl) {
-        this.pl_dragonStar.put(pl, (byte) 99); // 99 = Vô Cực marker
-        NpcService.gI().createMenuConMeo(pl, ConstNpc.SUMMON_SHENRON_VO_CUC, -1,
-                "Bạn muốn triệu hồi Rồng Thần Vô Cực?\n"
-                + "Cần đủ 7 viên Ngọc Rồng Vô Cực (1-7 sao).\n"
-                + "Điều ước sẽ mạnh hơn rất nhiều so với Rồng Thần thường!",
-                "Gọi\nRồng Thần\nVô Cực", "Hủy");
+    public void openMenuSummonShenronSieuCap(Player pl) {
+        this.pl_dragonStar.put(pl, (byte) 99); // 99 = Siêu Cấp marker
+        NpcService.gI().createMenuConMeo(pl, ConstNpc.SUMMON_SHENRON_SIEU_CAP, -1,
+                "Bạn đang sở hữu Ngọc Rồng Siêu Cấp!\n"
+                + "Triệu hồi Rồng Thần Siêu Cấp để nhận\n"
+                + "điều ước mạnh gấp nhiều lần rồng thường.\n"
+                + "Lưu ý: Viên ngọc sẽ bị tiêu hao khi gọi rồng.",
+                "Triệu hồi\nRồng Thần\nSiêu Cấp", "Huỷ");
     }
 
-    public void summonShenronVoCuc(Player pl) {
+    public void summonShenronSieuCap(Player pl) {
         if (pl.zone.map.mapId == 0 || pl.zone.map.mapId == 7 || pl.zone.map.mapId == 14) {
-            if (checkVoCucBall(pl)) {
-                if (isShenronAppear) {
-                    Service.gI().sendThongBao(pl, "Không thể thực hiện, rồng thần đang xuất hiện");
-                    return;
-                }
-                if (Util.canDoWithTime(lastTimeShenronAppeared, timeResummonShenron)) {
-                    playerSummonShenron = pl;
-                    playerSummonShenronId = (int) pl.id;
-                    mapShenronAppear = pl.zone;
-                    // Thu tất cả 7 viên Vô Cực
-                    for (int i = NGOC_RONG_VC_1_SAO; i <= NGOC_RONG_VC_7_SAO; i++) {
-                        try {
-                            InventoryService.gI().subQuantityItemsBag(pl,
-                                    InventoryService.gI().findItemBag(pl, i), 1);
-                        } catch (Exception ignored) {}
-                    }
-                    InventoryService.gI().sendItemBag(pl);
-                    // Thông báo toàn server
-                    sendNotifyShenronVoCucAppear();
-                    activeShenron(pl, true, SummonDragon.DRAGON_SHENRON);
-                    // Hiện menu ước
-                    NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_VO_CUC,
-                            "Ta là Rồng Thần Vô Cực! Điều ước của ngươi sẽ vượt xa giới hạn thông thường.\n"
-                            + "Hãy lựa chọn thật kỹ, ngươi chỉ có 5 phút!",
-                            SHENRON_VC_WISHES);
-                } else {
-                    int timeLeft = (int) ((timeResummonShenron - (System.currentTimeMillis() - lastTimeShenronAppeared)) / 1000);
-                    Service.gI().sendThongBao(pl, "Vui lòng đợi "
-                            + (timeLeft < 7200 ? timeLeft + " giây" : timeLeft / 60 + " phút") + " nữa");
-                }
-            }
-        } else {
-            Service.gI().sendThongBao(pl, "Chỉ được gọi Rồng Thần Vô Cực ở ngôi làng trước nhà");
-        }
-    }
-
-    private boolean checkVoCucBall(Player pl) {
-        for (int i = NGOC_RONG_VC_1_SAO; i <= NGOC_RONG_VC_7_SAO; i++) {
-            if (!InventoryService.gI().isExistItemBag(pl, i)) {
-                int star = i - NGOC_RONG_VC_1_SAO + 1;
-                Service.gI().sendThongBao(pl, "Bạn còn thiếu Ngọc Rồng Vô Cực " + star + " sao");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** Ghép bộ NRO 1-7 sao thường thành 1 viên Ngọc Rồng Vô Cực ngẫu nhiên */
-    public void combineNroToVoCuc(Player pl) {
-        // Kiểm tra đủ 7 viên thường
-        for (int i = NGOC_RONG_1_SAO; i <= NGOC_RONG_7_SAO; i++) {
-            if (!InventoryService.gI().isExistItemBag(pl, i)) {
-                int star = i - NGOC_RONG_1_SAO + 1;
-                Service.gI().sendThongBao(pl, "Bạn còn thiếu Ngọc Rồng " + star + " sao!");
+            // Kiểm tra có viên 1015 không
+            if (!InventoryService.gI().isExistItemBag(pl, NGOC_RONG_SIEU_CAP)) {
+                Service.gI().sendThongBao(pl, "Bạn chưa có Ngọc Rồng Siêu Cấp!\n"
+                        + "Ép 2 viên Ngọc Rồng 1 sao để nhận 1 viên (tỉ lệ 50/50).");
                 return;
             }
+            if (isShenronAppear) {
+                Service.gI().sendThongBao(pl, "Không thể thực hiện, Rồng Thần đang xuất hiện!");
+                return;
+            }
+            if (Util.canDoWithTime(lastTimeShenronAppeared, timeResummonShenron)) {
+                playerSummonShenron = pl;
+                playerSummonShenronId = (int) pl.id;
+                mapShenronAppear = pl.zone;
+                // Thu 1 viên Siêu Cấp (item 1015)
+                try {
+                    InventoryService.gI().subQuantityItemsBag(pl,
+                            InventoryService.gI().findItemBag(pl, NGOC_RONG_SIEU_CAP), 1);
+                } catch (Exception ignored) {}
+                InventoryService.gI().sendItemBag(pl);
+                // Thông báo toàn server
+                sendNotifyShenronSieuCapAppear();
+                activeShenron(pl, true, SummonDragon.DRAGON_PORUNGA);
+                // Hiện menu ước
+                NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_SIEU_CAP,
+                        "Ta là Rồng Thần Siêu Cấp!\n"
+                        + "Điều ước của ngươi sẽ vượt xa giới hạn thông thường.\n"
+                        + "Hãy lựa chọn thật kỹ, ngươi chỉ có 5 phút!",
+                        SHENRON_SC_WISHES);
+            } else {
+                int timeLeft = (int) ((timeResummonShenron - (System.currentTimeMillis() - lastTimeShenronAppeared)) / 1000);
+                Service.gI().sendThongBao(pl, "Vui lòng đợi "
+                        + (timeLeft < 7200 ? timeLeft + " giây" : timeLeft / 60 + " phút") + " nữa");
+            }
+        } else {
+            Service.gI().sendThongBao(pl, "Chỉ được gọi Rồng Thần Siêu Cấp ở ngôi làng trước nhà!");
+        }
+    }
+
+    /**
+     * Ép 2 viên Ngọc Rồng 1 sao thành 1 viên Ngọc Rồng Siêu Cấp (item 1015).
+     * Tỉ lệ thành công: 50% — thất bại sẽ mất hết 2 viên.
+     */
+    public void combineNroToSieuCap(Player pl) {
+        // Kiểm tra đủ 2 viên NRO 1 sao
+        int count1Sao = InventoryService.gI().countItemBag(pl, NGOC_RONG_1_SAO);
+        if (count1Sao < 2) {
+            Service.gI().sendThongBao(pl,
+                    "Cần 2 viên Ngọc Rồng 1 sao để ép!\n"
+                    + "Hiện có: " + count1Sao + "/2 viên.\n"
+                    + "Tỉ lệ thành công 50%, thất bại sẽ MẤT hết 2 viên!");
+            return;
         }
         if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
             Service.gI().sendThongBao(pl, "Hành trang đã đầy, cần ít nhất 1 ô trống!");
             return;
         }
-        // Thu 7 viên thường
-        for (int i = NGOC_RONG_1_SAO; i <= NGOC_RONG_7_SAO; i++) {
+        // Thu 2 viên NRO 1 sao
+        for (int i = 0; i < 2; i++) {
             try {
                 InventoryService.gI().subQuantityItemsBag(pl,
-                        InventoryService.gI().findItemBag(pl, i), 1);
+                        InventoryService.gI().findItemBag(pl, NGOC_RONG_1_SAO), 1);
             } catch (Exception ignored) {}
         }
-        // Random 1 viên Vô Cực (0-6 → 2980-2986)
-        int randomStar = Util.nextInt(0, 6);
-        short vcId = (short) (NGOC_RONG_VC_1_SAO + randomStar);
-        Item vcBall = ItemService.gI().createNewItem(vcId);
-        InventoryService.gI().addItemBag(pl, vcBall);
-        InventoryService.gI().sendItemBag(pl);
-        Service.gI().sendThongBao(pl, "Ghép thành công! Nhận được Ngọc Rồng Vô Cực " + (randomStar + 1) + " sao!");
+        // Tỉ lệ 50/50
+        boolean success = Util.nextInt(0, 1) == 1;
+        if (success) {
+            // Tạo 1 viên Ngọc Rồng Siêu Cấp (item 1015)
+            Item scBall = ItemService.gI().createNewItem(NGOC_RONG_SIEU_CAP);
+            InventoryService.gI().addItemBag(pl, scBall);
+            InventoryService.gI().sendItemBag(pl);
+            Service.gI().sendThongBao(pl,
+                    "Ép thành công! Nhận được Ngọc Rồng Siêu Cấp!\n"
+                    + "Dùng viên này để triệu hồi Rồng Thần Siêu Cấp!");
+            // Thông báo toàn server
+            Message msg = null;
+            try {
+                msg = new Message(-25);
+                msg.writer().writeUTF(pl.name + " vừa ép thành công Ngọc Rồng Siêu Cấp!");
+                Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
+            } catch (Exception ignored) {
+            } finally {
+                if (msg != null) msg.cleanup();
+            }
+        } else {
+            InventoryService.gI().sendItemBag(pl);
+            Service.gI().sendThongBao(pl,
+                    "Ép thất bại! 2 viên Ngọc Rồng 1 sao đã bị tiêu huỷ.\n"
+                    + "Chúc bạn may mắn lần sau!");
+        }
     }
 
-    private void sendNotifyShenronVoCucAppear() {
+    private void sendNotifyShenronSieuCapAppear() {
         Message msg = null;
         try {
             msg = new Message(-25);
             msg.writer().writeUTF(playerSummonShenron.name
-                    + " vừa triệu hồi RỒNG THẦN VÔ CỰC tại "
+                    + " vừa triệu hồi RỒNG THẦN SIÊU CẤP tại "
                     + playerSummonShenron.zone.map.mapName
                     + " khu vực " + playerSummonShenron.zone.zoneId + "!");
             Service.gI().sendMessAllPlayerIgnoreMe(playerSummonShenron, msg);
@@ -730,20 +752,20 @@ public class SummonDragon {
         }
     }
 
-    public void showConfirmShenronVoCuc(Player pl, byte select) {
-        this.menuShenron = ConstNpc.SHENRON_VO_CUC;
+    public void showConfirmShenronSieuCap(Player pl, byte select) {
+        this.menuShenron = ConstNpc.SHENRON_SIEU_CAP;
         this.select = select;
-        String wish = SHENRON_VC_WISHES[select];
-        NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_VO_CUC_CONFIRM,
+        String wish = SHENRON_SC_WISHES[select];
+        NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_SIEU_CAP_CONFIRM,
                 "Ngươi có chắc muốn ước điều này?", wish, "Từ chối");
     }
 
-    public void confirmWishVoCuc() {
+    public void confirmWishSieuCap() {
         try {
             switch (this.select) {
-                case 0: // +500K ngọc + 500 thỏi vàng
-                    this.playerSummonShenron.inventory.gem += 500000;
-                    for (int i = 0; i < 50; i++) {
+                case 0: // +200K ngọc + 200 thỏi vàng
+                    this.playerSummonShenron.inventory.gem += 200000;
+                    for (int i = 0; i < 20; i++) {
                         if (InventoryService.gI().getCountEmptyBag(playerSummonShenron) > 0) {
                             Item thoiVang = ItemService.gI().createNewItem((short) 457, 10);
                             InventoryService.gI().addItemBag(playerSummonShenron, thoiVang);
@@ -752,16 +774,19 @@ public class SummonDragon {
                     InventoryService.gI().sendItemBag(playerSummonShenron);
                     PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                     Service.gI().sendThongBao(playerSummonShenron,
-                            "Bạn nhận được 500.000 Ngọc xanh + 500 Thỏi vàng!");
+                            "Bạn nhận được 200.000 Ngọc xanh + 200 Thỏi vàng!");
                     break;
-                case 1: // +50 tỷ SM+TN
-                    Service.gI().addSMTN(this.playerSummonShenron, (byte) 2, 50_000_000_000L, false);
+                case 1: // +10 tỷ SM+TN (bỏ qua giới hạn sức mạnh)
+                    this.playerSummonShenron.nPoint.powerUp(10_000_000_000L);
+                    this.playerSummonShenron.nPoint.tiemNangUp(10_000_000_000L);
+                    PlayerService.gI().sendTNSM(this.playerSummonShenron, (byte) 2, 10_000_000_000L);
+                    Service.gI().point(this.playerSummonShenron);
                     Service.gI().sendThongBao(playerSummonShenron,
-                            "Bạn nhận được +50 Tỷ Sức mạnh & Tiềm năng!");
+                            "Bạn nhận được +10 Tỷ Sức mạnh & Tiềm năng!");
                     break;
-                case 2: // chí mạng +5%
+                case 2: // chí mạng +3%
                     if (this.playerSummonShenron.nPoint.critg < 15) {
-                        int addCrit = Math.min(5, 15 - this.playerSummonShenron.nPoint.critg);
+                        int addCrit = Math.min(3, 15 - this.playerSummonShenron.nPoint.critg);
                         this.playerSummonShenron.nPoint.critg += addCrit;
                         Service.gI().point(playerSummonShenron);
                         Service.gI().sendThongBao(playerSummonShenron,
@@ -770,62 +795,65 @@ public class SummonDragon {
                         Service.gI().sendThongBao(playerSummonShenron,
                                 "Chí mạng đã đạt giới hạn, chọn ước khác!");
                         NpcService.gI().createMenuRongThieng(playerSummonShenron,
-                                ConstNpc.SHENRON_VO_CUC,
-                                "Hãy chọn điều ước khác!", SHENRON_VC_WISHES);
+                                ConstNpc.SHENRON_SIEU_CAP,
+                                "Hãy chọn điều ước khác!", SHENRON_SC_WISHES);
                         return;
                     }
                     break;
-                case 3: // Găng tay lên +3
+                case 3: // Găng tay lên +2 cấp (giới hạn +3)
                     Item glove = this.playerSummonShenron.inventory.itemsBody.get(2);
                     if (glove.isNotNullItem()) {
                         ItemOption upgradeOpt = null;
+                        int currentLevel = 0;
                         for (ItemOption io : glove.itemOptions) {
                             if (io.optionTemplate.id == 72) {
                                 upgradeOpt = io;
+                                currentLevel = io.param;
                                 break;
                             }
                         }
-                        if (upgradeOpt != null && upgradeOpt.param >= 3) {
+                        if (currentLevel >= 3) {
                             Service.gI().sendThongBao(playerSummonShenron,
                                     "Găng tay đã đạt cấp +3, chọn ước khác!");
                             NpcService.gI().createMenuRongThieng(playerSummonShenron,
-                                    ConstNpc.SHENRON_VO_CUC,
-                                    "Hãy chọn điều ước khác!", SHENRON_VC_WISHES);
+                                    ConstNpc.SHENRON_SIEU_CAP,
+                                    "Hãy chọn điều ước khác!", SHENRON_SC_WISHES);
                             return;
                         }
+                        int addLevel = Math.min(2, 3 - currentLevel);
                         if (upgradeOpt != null) {
-                            upgradeOpt.param = 3;
+                            upgradeOpt.param += addLevel;
                         } else {
-                            glove.itemOptions.add(new ItemOption(72, 3));
+                            glove.itemOptions.add(new ItemOption(72, addLevel));
                         }
-                        // Tăng 50% sức đánh cho găng
+                        // Tăng 30% sức đánh cho găng
                         for (ItemOption io : glove.itemOptions) {
                             if (io.optionTemplate.id == 0 || io.optionTemplate.id == 23 || io.optionTemplate.id == 50) {
-                                io.param += Math.max(1, io.param * 50 / 100);
+                                io.param += Math.max(1, io.param * 30 / 100);
                                 break;
                             }
                         }
                         InventoryService.gI().sendItemBody(playerSummonShenron);
                         Service.gI().sendThongBao(playerSummonShenron,
-                                "Găng tay đã được nâng lên +3 (tối đa) + 50% sức đánh!");
+                                "Găng tay đã được nâng lên +" + (currentLevel + addLevel) + " + 30% sức đánh!");
                     } else {
                         Service.gI().sendThongBao(playerSummonShenron, "Ngươi chưa đeo găng tay!");
                         NpcService.gI().createMenuRongThieng(playerSummonShenron,
-                                ConstNpc.SHENRON_VO_CUC,
-                                "Hãy chọn điều ước khác!", SHENRON_VC_WISHES);
+                                ConstNpc.SHENRON_SIEU_CAP,
+                                "Hãy chọn điều ước khác!", SHENRON_SC_WISHES);
                         return;
                     }
                     break;
             }
             shenronLeave(this.playerSummonShenron, WISHED);
         } catch (Exception e) {
-            Logger.logException(SummonDragon.class, e, "Lỗi ước Rồng Thần Vô Cực");
+            Logger.logException(SummonDragon.class, e, "Lỗi ước Rồng Thần Siêu Cấp");
             try {
                 if (this.playerSummonShenron != null) {
                     Service.gI().sendThongBao(playerSummonShenron, "Có lỗi xảy ra, hãy chọn lại!");
                     NpcService.gI().createMenuRongThieng(playerSummonShenron,
-                            ConstNpc.SHENRON_VO_CUC,
-                            "Hãy chọn lại điều ước!", SHENRON_VC_WISHES);
+                            ConstNpc.SHENRON_SIEU_CAP,
+                            "Hãy chọn lại điều ước!", SHENRON_SC_WISHES);
                 }
             } catch (Exception ignored) {}
         }

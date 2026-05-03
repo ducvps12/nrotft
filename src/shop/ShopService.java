@@ -462,6 +462,9 @@ public class ShopService {
         } else if (tagName.equals("BILL")) {
             buyItemHD(player, tempId);
             return;
+        } else if (tagName.equals("SHOP_SU_KIEN_VL")) {
+            buyItemSuKienVL(player, tempId);
+            return;
         }
 
         if (player.iDMark.getShopOpen() == null) {
@@ -1637,6 +1640,54 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
         InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
         Service.gI().sendThongBao(player, "Mua thành công " + is.temp.name);
+    }
+
+    /**
+     * Xử lý mua đồ từ shop sự kiện Vĩnh Lưu (SHOP_SU_KIEN_VL)
+     * Dùng Phiếu Ăn (item 1946) làm tiền tệ, cost = số phiếu cần
+     */
+    private void buyItemSuKienVL(Player player, int itemTempId) {
+        Shop shop = player.iDMark.getShopOpen();
+        if (shop == null) {
+            Service.gI().sendThongBao(player, "Không thể thực hiện");
+            return;
+        }
+        ItemShop is = shop.getItemShop(itemTempId);
+        if (is == null) {
+            Service.gI().sendThongBao(player, "Vật phẩm không tồn tại trong shop");
+            return;
+        }
+
+        // Kiểm tra túi đồ
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+            Service.gI().sendThongBao(player, "Hành trang đã đầy, không thể chứa thêm.");
+            return;
+        }
+
+        int phieuAnRequired = is.cost;
+        if (phieuAnRequired <= 0) {
+            phieuAnRequired = 1;
+        }
+
+        // Tìm Phiếu Ăn (ID 1946) trong túi
+        Item phieuAn = InventoryService.gI().findItemBag(player, (short) 1946);
+        if (phieuAn == null || !phieuAn.isNotNullItem()) {
+            Service.gI().sendThongBao(player, "Bạn không có Phiếu Ăn! Hãy đổi thức ăn lấy phiếu ăn trước.");
+            return;
+        }
+        if (phieuAn.quantity < phieuAnRequired) {
+            Service.gI().sendThongBao(player, "Bạn cần " + phieuAnRequired + " Phiếu Ăn để đổi vật phẩm này.\nHiện có: " + phieuAn.quantity + " phiếu.");
+            return;
+        }
+
+        // Trừ Phiếu Ăn
+        InventoryService.gI().subQuantityItemsBag(player, phieuAn, phieuAnRequired);
+
+        // Tạo item và thêm vào túi
+        Item item = ItemService.gI().createItemFromItemShop(is);
+        InventoryService.gI().addItemBag(player, item);
+        InventoryService.gI().sendItemBag(player);
+        Service.gI().sendThongBao(player, "Đổi thành công " + is.temp.name + "\n(Đã dùng " + phieuAnRequired + " Phiếu Ăn)");
     }
 
     private void buyItemGuild(Player player, int itemTempId) {
