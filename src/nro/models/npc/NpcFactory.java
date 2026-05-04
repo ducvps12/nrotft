@@ -936,6 +936,17 @@ public class NpcFactory {
                     case 671 -> {
                         switch (select) {
                             case 0 -> {
+                                // Validate TNSM đủ trước khi trừ
+                                if (player.nPoint.tiemNang < player.LearnSkill.Potential) {
+                                    Service.gI().sendThongBao(player, "Tiềm năng không đủ! Cần "
+                                        + player.LearnSkill.Potential + " tiềm năng, hiện có "
+                                        + player.nPoint.tiemNang);
+                                    break;
+                                }
+                                if (player.LearnSkill.ItemTemplateSkillId <= 0) {
+                                    Service.gI().sendThongBao(player, "Lỗi kỹ năng, vui lòng thử lại!");
+                                    break;
+                                }
                                 long[] time = new long[] { 900000, 1800000, 3600000, 86400000, 259200000, 604800000,
                                         1296000000 };
                                 var bb = ItemService.gI().getTemplate(player.LearnSkill.ItemTemplateSkillId);
@@ -943,6 +954,10 @@ public class NpcFactory {
                                 byte level = Byte.parseByte(subName[subName.length - 1]);
                                 player.LearnSkill.Time = time[level - 1] + System.currentTimeMillis();
                                 player.nPoint.tiemNang -= player.LearnSkill.Potential;
+                                // Track đã mua skill này
+                                if (!player.BoughtSkill.contains(player.LearnSkill.ItemTemplateSkillId)) {
+                                    player.BoughtSkill.add((int) player.LearnSkill.ItemTemplateSkillId);
+                                }
                                 Service.gI().point(player);
                                 Service.gI().ClosePanel(player);
                                 NpcService.gI().createTutorial(player, NpcService.gI().getAvatar(13 + player.gender),

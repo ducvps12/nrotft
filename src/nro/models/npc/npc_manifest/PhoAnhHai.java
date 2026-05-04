@@ -68,12 +68,12 @@ public class PhoAnhHai extends Npc {
                 case 1: // Sờ cậu vàng
                     createOtherMenu(player, MENU_SO_CAU_VANG,
                             "Sờ Cậu Vàng\n\n"
-                            + "Chi phí: 50.000.000 vàng\n"
-                            + "Tỷ lệ trúng: 30%\n\n"
+                            + "Chi phí: 100.000.000 vàng\n"
+                            + "Tỷ lệ trúng: 15%\n\n"
                             + "Phần thưởng khi trúng:\n"
-                            + "x3 Gói Quà Đặc Biệt\n"
-                            + "(Mở ra: Thỏi Vàng, Cải Trang,\n"
-                            + "Hồng Ngọc, Ngọc Rồng...)\n\n"
+                            + "x1 Gói Quà Đặc Biệt\n"
+                            + "(Mở ra: Vàng, Hồng Ngọc,\n"
+                            + "Thỏi Vàng, Đá Xanh...)\n\n"
                             + "Bạn có muốn thử vận may?",
                             "Sờ ngay!", "Để sau");
                     break;
@@ -95,11 +95,11 @@ public class PhoAnhHai extends Npc {
                             + "Hà Nội nổi tiếng khắp vũ trụ!\n\n"
                             + "Cách chơi:\n"
                             + "1. Mua đồ tại Cửa Hàng\n"
-                            + "2. Sờ Cậu Vàng (50M vàng)\n"
-                            + "   → 30% trúng 3 Gói Quà!\n"
+                            + "2. Sờ Cậu Vàng (100M vàng)\n"
+                            + "   → 15% trúng 1 Gói Quà!\n"
                             + "3. Hốt Cậu Vàng bằng Thống Long\n"
                             + "4. Mở Gói Quà Đặc Biệt\n"
-                            + "   → nhận phần thưởng CỰC PHẨM!\n\n"
+                            + "   → nhận phần thưởng!\n\n"
                             + "Nhanh tay kẻo hết event!",
                             "Xem Bảng Thưởng", "Đóng");
                     break;
@@ -143,18 +143,18 @@ public class PhoAnhHai extends Npc {
         }
     }
 
-    // ===== SỜ CẬU VÀNG =====
+    // ===== SỜ CẬU VÀNG (NERFED) =====
     private void soCauVang(Player player) {
-        long cost = 50_000_000;
+        long cost = 100_000_000;
 
         if (player.inventory.gold < cost) {
-            Service.gI().sendThongBao(player, "Bạn cần 50.000.000 vàng!\nHiện có: "
+            Service.gI().sendThongBao(player, "Bạn cần 100.000.000 vàng!\nHiện có: "
                 + String.format("%,d", player.inventory.gold) + " vàng");
             return;
         }
 
-        if (InventoryService.gI().getCountEmptyBag(player) < 3) {
-            Service.gI().sendThongBao(player, "Cần ít nhất 3 ô trống trong hành trang!");
+        if (InventoryService.gI().getCountEmptyBag(player) < 2) {
+            Service.gI().sendThongBao(player, "Cần ít nhất 2 ô trống trong hành trang!");
             return;
         }
 
@@ -162,40 +162,26 @@ public class PhoAnhHai extends Npc {
         player.inventory.gold -= cost;
         Service.gI().sendMoney(player);
 
-        // 30% trúng
+        // 15% trúng (giảm từ 30%)
         int rand = Util.nextInt(1, 100);
 
-        if (rand <= 30) {
-            // TRÚNG! Tặng 3 Gói Quà Đặc Biệt
-            for (int i = 0; i < 3; i++) {
-                Item goiQua = ItemService.gI().createNewItem((short) 1184);
-                goiQua.itemOptions.add(new ItemOption(93, 30)); // HSD 30 ngày
-                goiQua.itemOptions.add(new ItemOption(30, 0));  // Khóa
-                InventoryService.gI().addItemBag(player, goiQua);
-            }
+        if (rand <= 15) {
+            // TRÚNG! Tặng 1 Gói Quà Đặc Biệt (giảm từ 3)
+            Item goiQua = ItemService.gI().createNewItem((short) 1184);
+            goiQua.itemOptions.add(new ItemOption(93, 30)); // HSD 30 ngày
+            goiQua.itemOptions.add(new ItemOption(30, 0));  // Khóa
+            InventoryService.gI().addItemBag(player, goiQua);
             InventoryService.gI().sendItemBag(player);
 
             Service.gI().sendThongBao(player,
                     "CẬU VÀNG THÍCH BẠN!\n\n"
-                    + "Nhận được x3 Gói Quà Đặc Biệt!\n\n"
-                    + "Mở gói quà để nhận:\n"
-                    + "Thỏi Vàng, Cải Trang VIP,\n"
-                    + "Hồng Ngọc, Ngọc Rồng...\n\n"
+                    + "Nhận được x1 Gói Quà Đặc Biệt!\n\n"
+                    + "Mở gói quà để nhận phần thưởng!\n\n"
                     + "Chúc mừng bạn!");
-
-            // Bonus: 10% chance thêm Thỏi Vàng trực tiếp
-            if (Util.isTrue(10, 100) && InventoryService.gI().getCountEmptyBag(player) > 0) {
-                Item thoiVang = ItemService.gI().createNewItem((short) 457);
-                thoiVang.itemOptions.add(new ItemOption(30, 0));
-                InventoryService.gI().addItemBag(player, thoiVang);
-                InventoryService.gI().sendItemBag(player);
-                Service.gI().sendThongBao(player, "BONUS! Cậu Vàng tặng thêm 1 Thỏi Vàng!");
-                nro.server.ServerNotify.gI().notify(
-                    player.name + " sờ Cậu Vàng trúng JACKPOT Thỏi Vàng!");
-            }
-        } else if (rand <= 50) {
-            // 20%: An ủi - tặng vàng lại 1 phần
-            long refund = Util.nextInt(5_000_000, 20_000_000);
+            // Bỏ bonus Thỏi Vàng
+        } else if (rand <= 30) {
+            // 15%: An ủi - tặng vàng lại 1 phần
+            long refund = Util.nextInt(5_000_000, 10_000_000);
             player.inventory.gold += refund;
             Service.gI().sendMoney(player);
             Service.gI().sendThongBao(player,
@@ -203,12 +189,10 @@ public class PhoAnhHai extends Npc {
                     + "Nhưng rơi ra " + String.format("%,d", refund) + " vàng!\n"
                     + "Thử lại lần nữa nhé!");
         } else {
-            // 50%: Trượt
+            // 70%: Trượt
             Service.gI().sendThongBao(player,
                     "Cậu Vàng không thèm nhìn bạn...\n\n"
-                    + "Chúc may mắn lần sau!\n"
-                    + "Tip: Thử sờ vào lúc đêm khuya\n"
-                    + "tỷ lệ cao hơn đấy (đùa thôi)");
+                    + "Chúc may mắn lần sau!");
         }
     }
 
@@ -217,17 +201,17 @@ public class PhoAnhHai extends Npc {
         createOtherMenu(player, MENU_BANG_THUONG,
                 "BẢNG THƯỞNG PHỞ ANH HAI\n\n"
                 + "Gói Quà Đặc Biệt khi mở:\n"
-                + "25% Vàng 200K-1M\n"
-                + "20% Hồng Ngọc 100-300\n"
-                + "15% Thỏi Vàng 1-2 cái\n"
-                + "15% Đá Xanh Lam\n"
-                + "13% Cải Trang VIP (30 ngày)\n"
-                + "8%  Ngọc Rồng\n"
-                + "4%  Capsule CT VIP (JACKPOT)\n"
-                + "+40% bonus Thống Long!\n\n"
-                + "Sờ Cậu Vàng (50M vàng):\n"
-                + "30% x3 Gói Quà + bonus!\n"
-                + "20% hoàn vàng 5-20M",
+                + "35% Vàng 100K-500K\n"
+                + "25% Hồng Ngọc 30-100\n"
+                + "15% Thỏi Vàng 1 cái\n"
+                + "12% Đá Xanh Lam\n"
+                + "8%  Cải Trang (7 ngày)\n"
+                + "3%  Ngọc Rồng\n"
+                + "2%  Đá Quý\n"
+                + "+15% bonus Thống Long\n\n"
+                + "Sờ Cậu Vàng (100M vàng):\n"
+                + "15% x1 Gói Quà\n"
+                + "15% hoàn vàng 5-10M",
                 "Quay lại", "Đóng");
     }
 }

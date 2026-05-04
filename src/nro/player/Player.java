@@ -181,6 +181,9 @@ public class Player implements Runnable {
     public long lastTimeUpdateTopCDRD;
     public int point_maydam;
     public long total_damage_maydam;
+    // Bitmask: bit 0=mốc 100, bit 1=mốc 500, bit 2=mốc 1000, bit 3=mốc 5000, bit 4=mốc 10000
+    public int claimedMaydamMilestone;
+    public long lastTimeClaimMaydam;
     public int thachdauwhis = 0;
     public long mbvtime;
     public int timeGohome;

@@ -172,6 +172,7 @@ public class NDVSqlFetcher {
                                 player.thachdauwhis = rs.getInt("thachdauwhis");
                                 player.point_maydam = rs.getInt("point_maydam");
                                 player.total_damage_maydam = rs.getLong("total_damage_maydam");
+                                try { player.claimedMaydamMilestone = rs.getInt("claimed_maydam"); } catch (Exception e) { player.claimedMaydamMilestone = 0; }
                                 player.isNewMember = !Util.isTimeDifferenceGreaterThanNDays(createTime, 45);
                                 DBConnecter.executeUpdate("update account set last_time_login = '"
                                         + new Timestamp(System.currentTimeMillis()) + "', ip_address = '"

@@ -1067,66 +1067,66 @@ public class UseItem {
             boolean isPhoEvent = EventManager.PHO_ANH_HAI;
 
             if (isPhoEvent) {
-                // ===== PHỞ ANH HAI EDITION =====
+                // ===== PHỞ ANH HAI EDITION (NERFED) =====
                 reward.append("GOI QUA PHO ANH HAI\n");
 
                 int rd = Util.nextInt(1, 100);
 
-                if (rd <= 25) {
-                    // 25%: Vàng 200K-1M
-                    long gold = Util.nextInt(200000, 1000000);
+                if (rd <= 35) {
+                    // 35%: Vàng 100K-500K (giảm từ 200K-1M)
+                    long gold = Util.nextInt(100000, 500000);
                     pl.inventory.gold += gold;
                     reward.append("+").append(gold / 1000).append("K Vang\n");
-                } else if (rd <= 45) {
-                    // 20%: Hồng Ngọc 100-300
+                } else if (rd <= 60) {
+                    // 25%: Hồng Ngọc 30-100 (giảm từ 100-300)
                     Item hn = ItemService.gI().createNewItem((short) 861);
-                    hn.quantity = Util.nextInt(100, 300);
+                    hn.quantity = Util.nextInt(30, 100);
                     InventoryService.gI().addItemBag(pl, hn);
                     reward.append("+").append(hn.quantity).append(" Hong Ngoc\n");
-                } else if (rd <= 60) {
-                    // 15%: Thỏi Vàng
+                } else if (rd <= 75) {
+                    // 15%: Thỏi Vàng 1 cái (giảm từ 1-2)
                     Item thoiVang = ItemService.gI().createNewItem((short) 457);
-                    thoiVang.quantity = Util.nextInt(1, 2);
+                    thoiVang.quantity = 1;
                     thoiVang.itemOptions.add(new Item.ItemOption(30, 0));
                     InventoryService.gI().addItemBag(pl, thoiVang);
-                    reward.append("+").append(thoiVang.quantity).append(" Thoi Vang!\n");
-                } else if (rd <= 75) {
-                    // 15%: Đá Xanh Lam (935)
+                    reward.append("+1 Thoi Vang\n");
+                } else if (rd <= 87) {
+                    // 12%: Đá Xanh Lam (935) 1-2 cái (giảm từ 1-3)
                     Item daXanh = ItemService.gI().createNewItem((short) 935);
-                    daXanh.quantity = Util.nextInt(1, 3);
+                    daXanh.quantity = Util.nextInt(1, 2);
                     InventoryService.gI().addItemBag(pl, daXanh);
                     reward.append("+").append(daXanh.quantity).append(" Da Xanh Lam\n");
-                } else if (rd <= 88) {
-                    // 13%: Cải trang random VIP (HSD 30 ngày)
-                    short[] ctIds = {1553, 1593, 1590, 1587, 1759, 1856, 884, 898, 860, 1700};
+                } else if (rd <= 95) {
+                    // 8%: Cải trang random (HSD 7 ngày, stat thấp) - giảm từ 30 ngày + stat 20%
+                    short[] ctIds = {1553, 1593, 1590, 1587, 1759, 1856, 884, 898, 1700};
                     short ctId = ctIds[Util.nextInt(0, ctIds.length - 1)];
                     Item ct = ItemService.gI().createNewItem(ctId);
                     ct.itemOptions.clear();
-                    ct.itemOptions.add(new Item.ItemOption(50, 20));  // SD +20%
-                    ct.itemOptions.add(new Item.ItemOption(77, 20));  // HP +20%
-                    ct.itemOptions.add(new Item.ItemOption(93, 30));  // HSD 30 ngày
+                    ct.itemOptions.add(new Item.ItemOption(50, 8));   // SD +8% (giảm từ 20%)
+                    ct.itemOptions.add(new Item.ItemOption(77, 8));   // HP +8% (giảm từ 20%)
+                    ct.itemOptions.add(new Item.ItemOption(93, 7));   // HSD 7 ngày (giảm từ 30)
                     ct.itemOptions.add(new Item.ItemOption(30, 0));   // Khóa
                     InventoryService.gI().addItemBag(pl, ct);
-                    reward.append("Cai trang: ").append(ct.template.name).append(" (30 ngay)\n");
-                } else if (rd <= 96) {
-                    // 8%: Ngọc Rồng (16-17)
+                    reward.append("Cai trang: ").append(ct.template.name).append(" (7 ngay)\n");
+                } else if (rd <= 98) {
+                    // 3%: Ngọc Rồng (giảm từ 8%)
                     short ngocId = (short) (Util.isTrue(50, 100) ? 16 : 17);
                     Item ngoc = ItemService.gI().createNewItem(ngocId);
                     ngoc.itemOptions.add(new Item.ItemOption(30, 0));
                     InventoryService.gI().addItemBag(pl, ngoc);
                     reward.append("").append(ngoc.template.name).append("!\n");
                 } else {
-                    // 4%: JACKPOT — Capsule CT VIP
-                    Item capsule = ItemService.gI().createNewItem((short) 2006);
-                    capsule.itemOptions.add(new Item.ItemOption(30, 0));
-                    InventoryService.gI().addItemBag(pl, capsule);
-                    reward.append("JACKPOT! Capsule Cai Trang VIP!!!\n");
-                    nro.server.ServerNotify.gI().notify(
-                        pl.name + " mở Gói Quà Phở Anh Hai trúng Capsule CT VIP!");
+                    // 2%: Đá Quý (thay thế Capsule CT VIP 4%)
+                    short[] daQuyIds = {828, 829, 830, 831, 832};
+                    short daId = daQuyIds[Util.nextInt(0, daQuyIds.length - 1)];
+                    Item daQuy = ItemService.gI().createNewItem(daId);
+                    daQuy.quantity = Util.nextInt(1, 2);
+                    InventoryService.gI().addItemBag(pl, daQuy);
+                    reward.append("Da Quy: ").append(daQuy.template.name).append("!\n");
                 }
 
-                // Bonus Phở event: thêm 1 Thống Long (1981) free
-                if (Util.isTrue(40, 100)) {
+                // Bonus Phở event: 15% Thống Long (giảm từ 40%)
+                if (Util.isTrue(15, 100)) {
                     if (InventoryService.gI().getCountEmptyBag(pl) > 0) {
                         Item thongLong = ItemService.gI().createNewItem((short) 1981);
                         thongLong.quantity = 1;
