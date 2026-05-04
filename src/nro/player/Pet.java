@@ -897,6 +897,7 @@ public class Pet extends Player {
 
     // ====================================================
     private long lastTimeIncreasePoint;
+    private boolean vipPetStateRestored = false;
 
     private void increasePoint() {
         if (this.nPoint != null && Util.canDoWithTime(lastTimeIncreasePoint, 500)) {
@@ -905,6 +906,17 @@ public class Pet extends Player {
                 if (!this.nPoint.isPowerLimitInitialized()) {
                     this.nPoint.initPowerLimit();
                 }
+
+                // Lazy restore VIP Đệ state từ DB (chỉ 1 lần sau login)
+                if (!vipPetStateRestored && this.master != null) {
+                    vipPetStateRestored = true;
+                    try {
+                        nro.services.VipPackageService.gI().restoreVipPetState(this.master);
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                }
+
                 int tn = 2;
                 if (this.master.itemTime != null && this.master.itemTime.isUseLoX2) {
                     tn = 4;
@@ -922,10 +934,48 @@ public class Pet extends Player {
                     tn = 30;
                 }
 
+                // ===== BÙA ĐỆ TỬ: x3 chỉ số =====
+                if (this.master.charms != null && this.master.charms.tdDeTu > System.currentTimeMillis()) {
+                    tn = tn * 3;
+                }
+
+                // ===== BÙA x2 ĐỆ TỬ (item): x2 chỉ số =====
+                if (this.master.itemTime != null && this.master.itemTime.lastTimeBuax2DeTu > System.currentTimeMillis()) {
+                    tn = tn * 2;
+                }
+
+                // ===== BÙA TRÍ TUỆ: cộng thêm chỉ số =====
+                if (this.master.charms != null) {
+                    if (this.master.charms.tdTriTue > System.currentTimeMillis()) {
+                        tn = (int) (tn * 1.5);
+                    }
+                    if (this.master.charms.tdTriTue3 > System.currentTimeMillis()) {
+                        tn = tn * 2;
+                    }
+                    if (this.master.charms.tdTriTue4 > System.currentTimeMillis()) {
+                        tn = tn * 3;
+                    }
+                }
+
+                // ===== % TNSM PET từ đồ master =====
+                if (this.master.nPoint != null && this.master.nPoint.tlTNSMPet > 0) {
+                    tn = tn + (tn * this.master.nPoint.tlTNSMPet / 100);
+                }
+
                 // Nhân thêm hệ số VIP Đệ (x2/x3/x5 TNSM)
                 if (this.master.petVipTier > 0) {
                     int multiplier = nro.services.VipPackageService.getVipPetTnsmMultiplier(this.master.petVipTier);
                     tn = tn * multiplier;
+                }
+
+                // ===== BONUS MAP NGŨ HÀNH SƠN: x5 chỉ số đặc biệt =====
+                boolean isNHS = false;
+                if (this.master.zone != null && this.master.zone.map != null) {
+                    int currentMapId = this.master.zone.map.mapId;
+                    if (currentMapId >= 122 && currentMapId <= 124) {
+                        tn = tn * 5;
+                        isNHS = true;
+                    }
                 }
 
                 // Chọn chế độ phân bổ CS
@@ -955,6 +1005,22 @@ public class Pet extends Player {
                         type = 4; // CRIT (10%)
                     }
                 }
+
+                // ===== VIP CAO THỦ: block DEF/CRIT nếu admin chưa cho phép =====
+                if (this.master.petVipCaoThuMode == 1) {
+                    if (type == 3 && !this.master.petCaoThuAllowDef) {
+                        // Không cho cộng Giáp → chuyển sang HP
+                        type = 0;
+                    }
+                    if (type == 4 && !this.master.petCaoThuAllowCrit) {
+                        // Không cho cộng Chí Mạng → chuyển sang DAME
+                        type = 2;
+                    }
+                }
+
+                // Đảm bảo tn tối thiểu >= 2 để tránh random(1,1)
+                if (tn < 2) tn = 2;
+
                 this.nPoint.increasePoint(type, (short) Util.nextInt(1, tn), false);
                 lastTimeIncreasePoint = System.currentTimeMillis();
             }

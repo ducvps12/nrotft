@@ -380,9 +380,18 @@ public class DaiThienSu extends Npc {
     }
 
     private void showTopNapMenu(Player player) {
+        String cd = getWeeklyCooldownText(player.lastClaimTopNap);
         createOtherMenu(player, 1116,
-                "|8|BẢNG XẾP HẠNG NẠP TIỀN",
-                "Xem Top", "Phần Thưởng");
+                "|8|BẢNG XẾP HẠNG NẠP TIỀN\n"
+                + cd + "\n"
+                + "|1|Nhận thưởng: 1 lần / tuần\n"
+                + "|5|Reset vào 00:00 Thứ 2 hàng tuần\n\n"
+                + "|7|GHI CHÚ:\n"
+                + "|5|• Top 1-3: CT VIP + Thỏi Vàng + SKH\n"
+                + "|5|• Top 4-5: Thỏi Vàng + SKH\n"
+                + "|5|• Top 6-10: Thỏi Vàng\n"
+                + "|5|• Càng nạp nhiều, thưởng càng VIP!",
+                "Xem Top", "Phần Thưởng\nTop", "Nhận Thưởng\nTop Tuần");
     }
 
     private void showTopNVMenu(Player player) {
@@ -424,10 +433,138 @@ public class DaiThienSu extends Npc {
     }
 
     private void handleTopNapOptions(Player player, int select) {
-        if (select == 0)
+        if (select == 0) {
             TopService.gI().showListTopVnd(player);
-        if (select == 1)
-            showRewardList(player, "moc_nap_top");
+        }
+        if (select == 1) {
+            showTopNapRewardInfo(player);
+        }
+        if (select == 2) {
+            handleNhanThuongTopNap(player);
+        }
+    }
+
+    /**
+     * Hiển thị bảng phần thưởng Top Nạp chi tiết
+     */
+    private void showTopNapRewardInfo(Player player) {
+        String info = "|8|=== PHẦN THƯỞNG TOP NẠP ===\n\n"
+            + "|1|TOP 1:\n"
+            + "  • x50 Thỏi Vàng\n"
+            + "  • x1 Hộp SKH Thần Linh\n"
+            + "  • x1 CT Himmel\n"
+            + "  • x500 Hồng Ngọc\n\n"
+            + "|1|TOP 2:\n"
+            + "  • x40 Thỏi Vàng\n"
+            + "  • x1 Hộp SKH Thần Linh\n"
+            + "  • x1 CT Himmel\n"
+            + "  • x300 Hồng Ngọc\n\n"
+            + "|1|TOP 3:\n"
+            + "  • x30 Thỏi Vàng\n"
+            + "  • x1 Hộp SKH Thần Linh\n"
+            + "  • x200 Hồng Ngọc\n\n"
+            + "|1|TOP 4-5:\n"
+            + "  • x25 Thỏi Vàng\n"
+            + "  • x1 Hộp SKH Thần Linh\n"
+            + "  • x100 Hồng Ngọc\n\n"
+            + "|1|TOP 6-10:\n"
+            + "  • x15 Thỏi Vàng\n"
+            + "  • x50 Hồng Ngọc\n\n"
+            + "|7|GHI CHÚ:\n"
+            + "|5|• Reset vào 00:00 thứ 2 hàng tuần\n"
+            + "|5|• Nhận thưởng 1 lần/tuần\n"
+            + "|5|• Phần thưởng khóa giao dịch\n"
+            + "|5|• Nạp càng nhiều, top càng cao!";
+        Service.gI().sendThongBaoFromAdmin(player, info);
+    }
+
+    /**
+     * Nhận thưởng Top Nạp hàng tuần
+     */
+    private void handleNhanThuongTopNap(Player player) {
+        // Kiểm tra cooldown 7 ngày
+        if (player.lastClaimTopNap > 0 && (System.currentTimeMillis() - player.lastClaimTopNap) < WEEKLY_COOLDOWN) {
+            long remaining = WEEKLY_COOLDOWN - (System.currentTimeMillis() - player.lastClaimTopNap);
+            long hours = remaining / (60 * 60 * 1000);
+            long days = hours / 24;
+            hours = hours % 24;
+            Service.gI().sendThongBao(player, "Ban da nhan thuong Top Nap tuan nay roi!\nCon " + days + " ngay " + hours + " gio nua.");
+            return;
+        }
+
+        int rank = getPlayerNapRank(player);
+        if (rank <= 0 || rank > 10) {
+            Service.gI().sendThongBao(player, "Ban khong nam trong Top 10 Nap!\nNap them de leo hang nha!");
+            return;
+        }
+
+        if (InventoryService.gI().getCountEmptyBag(player) < 3) {
+            Service.gI().sendThongBao(player, "Can it nhat 3 o trong hanh trang!");
+            return;
+        }
+
+        int thoiVang = 0, ruby = 0;
+        boolean hasSKH = false, hasCT = false;
+
+        if (rank == 1) {
+            thoiVang = 50; ruby = 500; hasSKH = true; hasCT = true;
+        } else if (rank == 2) {
+            thoiVang = 40; ruby = 300; hasSKH = true; hasCT = true;
+        } else if (rank == 3) {
+            thoiVang = 30; ruby = 200; hasSKH = true;
+        } else if (rank <= 5) {
+            thoiVang = 25; ruby = 100; hasSKH = true;
+        } else {
+            thoiVang = 15; ruby = 50;
+        }
+
+        Item tv = ItemService.gI().createNewItem((short) 457, thoiVang);
+        tv.itemOptions.add(new Item.ItemOption(30, 1));
+        InventoryService.gI().addItemBag(player, tv);
+
+        player.inventory.ruby += ruby;
+
+        if (hasSKH) {
+            Item skh = ItemService.gI().createNewItem((short) 1857, 1);
+            skh.itemOptions.add(new Item.ItemOption(30, 1));
+            InventoryService.gI().addItemBag(player, skh);
+        }
+
+        if (hasCT) {
+            Item ct = ItemService.gI().createNewItem((short) 1879, 1);
+            ct.itemOptions.add(new Item.ItemOption(30, 1));
+            InventoryService.gI().addItemBag(player, ct);
+        }
+
+        player.lastClaimTopNap = System.currentTimeMillis();
+
+        InventoryService.gI().sendItemBag(player);
+        PlayerService.gI().sendInfoHpMpMoney(player);
+        Service.gI().sendMoney(player);
+
+        StringBuilder sb = new StringBuilder("Phan thuong Top " + rank + " Nap:\n");
+        sb.append("• x").append(thoiVang).append(" Thoi Vang (khoa)\n");
+        sb.append("• +").append(ruby).append(" Hong Ngoc\n");
+        if (hasSKH) sb.append("• x1 Hop SKH Than Linh\n");
+        if (hasCT) sb.append("• x1 CT Himmel\n");
+        Service.gI().sendThongBaoFromAdmin(player, sb.toString());
+    }
+
+    /**
+     * Tìm rank player trong Top Nạp (theo cash)
+     */
+    private int getPlayerNapRank(Player player) {
+        try (Connection con = DBConnecter.getConnectionServer();
+             PreparedStatement ps = con.prepareStatement(ConstSQL.TOP_NAP)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                int rank = 1;
+                while (rs.next() && rank <= 10) {
+                    if (rs.getString("name").equals(player.name)) return rank;
+                    rank++;
+                }
+            }
+        } catch (SQLException e) { logError(e); }
+        return -1;
     }
 
     // ==========================================

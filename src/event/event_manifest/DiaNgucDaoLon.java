@@ -17,9 +17,8 @@ public class DiaNgucDaoLon extends Event {
 
     @Override
     public void npc() {
-        // NPC Dẫn Đường Địa Ngục tại Thần Điện (map 45)
-        createNpc(45, ConstNpc.NPC_DIA_NGUC, 340, 408);
         // NPC Đổi Thưởng tại Địa Ngục (map 174)
+        // Luồng vào Địa Ngục đã có sẵn qua Bà Hạt Mít ở Đảo Kamè (map 5)
         createNpc(174, ConstNpc.NPC_DIA_NGUC, 300, 336);
     }
 

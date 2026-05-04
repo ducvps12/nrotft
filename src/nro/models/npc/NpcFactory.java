@@ -218,6 +218,10 @@ public class NpcFactory {
                     new HungVuong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BANG_DANH_VONG ->
                     new BangDanhVong(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.CHAMPA ->
+                    new Champa(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.HAC_MI_NUONG ->
+                    new HacMiNuong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.NPC_DIA_NGUC ->
                     new NpcDiaNguc(mapId, status, cx, cy, tempId, avatar);
                 default ->

@@ -1245,7 +1245,7 @@ public class PlayerDAO {
                         + "rank = ?, data_super_rank = ?, data_achievement = ?, giftcode = ?, firstTimeLogin = ?, dataBadges = ?, dataTaskBadges = ?, dailyGift = ?, "
                         + "event_point = ?, event_point_boss = ?, event_point_nhs = ?, event_point_quai = ?, diem_quy_lao = ?, diem_su_kien = ?, "
                         + "hp_point_fusion = ?, mp_point_fusion = ?, dame_point_fusion = ?, phaobong = ?, BoughtSkill = ?, LearnSkill = ?, thachdauwhis = ?, point_maydam = ?, total_damage_maydam = ?, claimed_maydam = ?, nhiem_vu_kol = ?, "
-                        + " checkNhanQua = ?, data_pea_bonus = ?, lastClaimTopSM = ?, lastClaimTopNV = ?, totalManhVoBought = ? where id = ?";
+                        + " checkNhanQua = ?, data_pea_bonus = ?, lastClaimTopSM = ?, lastClaimTopNV = ?, lastClaimTopNap = ?, totalManhVoBought = ? where id = ?";
 
                 boolean isAdmin = player.getSession() != null && player.getSession().isAdmin;
 
@@ -1346,6 +1346,7 @@ public class PlayerDAO {
                         dataPeaBonus,
                         player.lastClaimTopSM,
                         player.lastClaimTopNV,
+                        player.lastClaimTopNap,
                         player.totalManhVoBought,
                         player.id);
                 if (player.isOffline) {

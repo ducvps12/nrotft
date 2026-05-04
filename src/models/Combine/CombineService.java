@@ -5,6 +5,7 @@ import item.Item;
 
 import java.io.IOException;
 
+import models.Combine.manifest.ChampaBanDoRac;
 import models.Combine.manifest.CheTaoManhThienSu;
 import models.Combine.manifest.CheTaoTrangBiThanhQuang;
 import models.Combine.manifest.CheTaoTrangBiThienSu;
@@ -121,6 +122,7 @@ public class CombineService {
       public static final int CHE_TAO_TRANG_BI_THANH_QUANG = 998;
       public static final int KICH_HOAT_TRANG_BI_THANH_QUANG = 999;
       public static final int PHAN_RA_DO_THAN_LINH = 536;
+      public static final int CHAMPA_BAN_DO_RAC = 600;  // Champa — Panel bán đồ rác
 
     private static CombineService instance;
 
@@ -252,6 +254,8 @@ public class CombineService {
                 KichHoatTrangBiThanhQuang.showInfoCombine(player);
             case PHAN_RA_DO_THAN_LINH ->
                 PhanRaDoThanLinh.showInfoCombine(player);
+            case CHAMPA_BAN_DO_RAC ->
+                ChampaBanDoRac.showInfoCombine(player);
 
         }
     }
@@ -361,6 +365,8 @@ public class CombineService {
                 KichHoatTrangBiThanhQuang.kichHoat(player);
             case PHAN_RA_DO_THAN_LINH ->
                 PhanRaDoThanLinh.startCombine(player);
+            case CHAMPA_BAN_DO_RAC ->
+                ChampaBanDoRac.startCombine(player);
         }
 
         player.iDMark.setIndexMenu(ConstNpc.IGNORE_MENU);
@@ -734,6 +740,8 @@ public class CombineService {
             }
             case PHAN_RA_DO_THAN_LINH ->
                 "Ta sẽ phù phép\nphân rã trang bị Thần Linh\nthành Đá Ngũ Sắc";
+            case CHAMPA_BAN_DO_RAC ->
+                "Ta là Champa!\nĐặt đồ rác vào đây\nta sẽ định giá cho ngươi";
             default -> {
                 yield "";
             }
@@ -919,6 +927,9 @@ public class CombineService {
             }
             case PHAN_RA_DO_THAN_LINH -> {
                 yield "Vào hành trang\nChọn trang bị Thần Linh cần phân rã\nCó thể chọn nhiều món\nSau đó chọn 'Phân rã'";
+            }
+            case CHAMPA_BAN_DO_RAC -> {
+                yield "Vào hành trang\nChọn đồ rác muốn bán\n(TB cấp 1-12, thức ăn, đá thường)\nSau đó chọn 'Bán'";
             }
             default -> {
                 yield "";

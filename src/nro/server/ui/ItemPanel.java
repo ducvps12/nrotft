@@ -18,6 +18,9 @@ import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
+import nro.server.ui.GiftBoxRegistry;
+import nro.server.ui.GiftBoxRegistry.GiftBoxInfo;
+import nro.server.ui.GiftBoxRegistry.RewardEntry;
 
 public class ItemPanel extends JPanel {
 
@@ -26,6 +29,9 @@ public class ItemPanel extends JPanel {
     private TableRowSorter<DefaultTableModel> sorter;
     private JTextField txtSearch;
     private JComboBox<String> cbType;
+    private JPanel detailPanel;
+    private JLabel lblDetailTitle;
+    private JPanel detailContent;
 
     private final Map<Integer, ImageIcon> iconCache = new HashMap<>();
     private final Map<Integer, Boolean> noIconCache = new HashMap<>();
@@ -174,13 +180,25 @@ public class ItemPanel extends JPanel {
         sorter = new TableRowSorter<>(model);
         table.setRowSorter(sorter);
 
+        // Single click = show detail; Double click = open editor
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int row = table.getSelectedRow();
-                    if (row != -1)
-                        openEditor(table.convertRowIndexToModel(row));
+                int row = table.getSelectedRow();
+                if (row != -1) {
+                    int modelRow = table.convertRowIndexToModel(row);
+                    showItemDetail(modelRow);
+                    if (e.getClickCount() == 2) {
+                        openEditor(modelRow);
+                    }
                 }
+            }
+        });
+
+        // Keyboard selection
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = table.getSelectedRow();
+                if (row != -1) showItemDetail(table.convertRowIndexToModel(row));
             }
         });
 
@@ -192,10 +210,44 @@ public class ItemPanel extends JPanel {
         tableWrapper.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220)),
                 new EmptyBorder(10, 10, 10, 10)));
-
         tableWrapper.add(scroll, BorderLayout.CENTER);
 
-        add(tableWrapper, BorderLayout.CENTER);
+        // === Detail Panel (Right Side) ===
+        detailPanel = new JPanel(new BorderLayout(0, 10));
+        detailPanel.setBackground(Color.WHITE);
+        detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 1, 0, 0, new Color(220, 220, 220)),
+                new EmptyBorder(15, 15, 15, 15)));
+        detailPanel.setPreferredSize(new Dimension(380, 0));
+
+        lblDetailTitle = new JLabel("Chọn vật phẩm để xem chi tiết");
+        lblDetailTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblDetailTitle.setForeground(new Color(0, 102, 204));
+        lblDetailTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
+        detailPanel.add(lblDetailTitle, BorderLayout.NORTH);
+
+        detailContent = new JPanel();
+        detailContent.setLayout(new BoxLayout(detailContent, BoxLayout.Y_AXIS));
+        detailContent.setBackground(Color.WHITE);
+        JScrollPane detailScroll = new JScrollPane(detailContent);
+        detailScroll.setBorder(null);
+        detailScroll.getVerticalScrollBar().setUnitIncrement(12);
+        detailPanel.add(detailScroll, BorderLayout.CENTER);
+
+        // placeholder text
+        JLabel placeholder = new JLabel("<html><center>👈 Click vật phẩm bên trái<br>để xem thông tin chi tiết<br><br>Double-click để chỉnh sửa</center></html>");
+        placeholder.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        placeholder.setForeground(new Color(150, 150, 150));
+        placeholder.setHorizontalAlignment(SwingConstants.CENTER);
+        detailContent.add(placeholder);
+
+        // Split Pane
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableWrapper, detailPanel);
+        splitPane.setResizeWeight(0.65);
+        splitPane.setDividerSize(5);
+        splitPane.setBorder(null);
+
+        add(splitPane, BorderLayout.CENTER);
     }
 
     private JButton createButton(String text, Color bg) {
@@ -528,6 +580,261 @@ public class ItemPanel extends JPanel {
         d.setSize(600, 450);
         d.setLocationRelativeTo(this);
         d.setVisible(true);
+    }
+
+    // ============================================================
+    //  DETAIL PANEL — hiển thị chi tiết item khi click
+    // ============================================================
+    private void showItemDetail(int modelRow) {
+        detailContent.removeAll();
+
+        int itemId = (int) model.getValueAt(modelRow, 0);
+        String itemName = String.valueOf(model.getValueAt(modelRow, 2));
+        String itemType = String.valueOf(model.getValueAt(modelRow, 3));
+        String gender = String.valueOf(model.getValueAt(modelRow, 4));
+        String level = String.valueOf(model.getValueAt(modelRow, 5));
+        String part = String.valueOf(model.getValueAt(modelRow, 6));
+        String desc = String.valueOf(model.getValueAt(modelRow, 7));
+        ImageIcon icon = (model.getValueAt(modelRow, 1) instanceof ImageIcon)
+                ? (ImageIcon) model.getValueAt(modelRow, 1) : null;
+
+        lblDetailTitle.setText("ID #" + itemId + " — " + itemName);
+
+        // === Header with icon ===
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        header.setBackground(new Color(245, 248, 255));
+        header.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 215, 240)),
+                new EmptyBorder(8, 12, 8, 12)));
+        header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        if (icon != null) {
+            Image scaled = icon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            header.add(new JLabel(new ImageIcon(scaled)));
+        }
+        JLabel nameLabel = new JLabel(itemName);
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        nameLabel.setForeground(new Color(30, 60, 120));
+        header.add(nameLabel);
+        detailContent.add(header);
+        detailContent.add(Box.createVerticalStrut(8));
+
+        // === Thông tin cơ bản ===
+        addSectionTitle("📋 Thông Tin Cơ Bản");
+        addDetailRow("ID:", String.valueOf(itemId));
+        addDetailRow("Loại (Type):", itemType + " — " + getTypeName(Integer.parseInt(itemType)));
+        addDetailRow("Giới Tính:", gender);
+        addDetailRow("Level:", level);
+        addDetailRow("Part:", part);
+        detailContent.add(Box.createVerticalStrut(6));
+
+        // === Mô tả ===
+        if (desc != null && !desc.isEmpty() && !desc.equals("null")) {
+            addSectionTitle("📝 Mô Tả");
+            JTextArea descArea = new JTextArea(desc);
+            descArea.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            descArea.setLineWrap(true);
+            descArea.setWrapStyleWord(true);
+            descArea.setEditable(false);
+            descArea.setBackground(new Color(250, 250, 250));
+            descArea.setBorder(new EmptyBorder(8, 10, 8, 10));
+            descArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+            detailContent.add(descArea);
+            detailContent.add(Box.createVerticalStrut(6));
+        }
+
+        // === Chỉ số từ DB ===
+        loadItemStatsFromDB(itemId);
+
+        // === HỘP QUÀ — REWARD TABLE ===
+        GiftBoxInfo giftInfo = GiftBoxRegistry.getInfo(itemId);
+        if (giftInfo != null) {
+            addSectionTitle("🎁 NỘI DUNG HỘP QUÀ");
+
+            // Ghi chú hộp quà
+            JLabel giftDesc = new JLabel("<html><i>" + giftInfo.description + "</i></html>");
+            giftDesc.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+            giftDesc.setForeground(new Color(100, 100, 100));
+            giftDesc.setBorder(new EmptyBorder(2, 10, 6, 10));
+            giftDesc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            detailContent.add(giftDesc);
+
+            // Bảng reward
+            String[] rewardCols = {"Nhóm", "Vật phẩm", "SL", "Tỉ lệ %", "Chỉ số bonus"};
+            DefaultTableModel rewardModel = new DefaultTableModel(rewardCols, 0) {
+                public boolean isCellEditable(int r, int c) { return false; }
+            };
+
+            for (RewardEntry re : giftInfo.rewards) {
+                rewardModel.addRow(new Object[]{
+                    re.group,
+                    re.itemNames,
+                    re.minQty == re.maxQty ? String.valueOf(re.minQty) : re.minQty + "~" + re.maxQty,
+                    String.format("%.1f%%", re.rate),
+                    re.options
+                });
+            }
+
+            JTable rewardTable = new JTable(rewardModel);
+            rewardTable.setRowHeight(32);
+            rewardTable.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            rewardTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+            rewardTable.getTableHeader().setBackground(new Color(255, 243, 224));
+            rewardTable.getTableHeader().setForeground(new Color(180, 100, 0));
+            rewardTable.setShowGrid(true);
+            rewardTable.setGridColor(new Color(235, 235, 235));
+            rewardTable.setSelectionBackground(new Color(255, 248, 235));
+
+            // Column widths
+            rewardTable.getColumnModel().getColumn(0).setPreferredWidth(90);
+            rewardTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+            rewardTable.getColumnModel().getColumn(2).setPreferredWidth(40);
+            rewardTable.getColumnModel().getColumn(3).setPreferredWidth(50);
+            rewardTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+
+            // Color render cho tỉ lệ
+            rewardTable.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable t, Object val,
+                        boolean sel, boolean focus, int row, int col) {
+                    JLabel l = (JLabel) super.getTableCellRendererComponent(t, val, sel, focus, row, col);
+                    l.setHorizontalAlignment(SwingConstants.CENTER);
+                    String s = val.toString().replace("%", "");
+                    try {
+                        double rate = Double.parseDouble(s);
+                        if (rate <= 5) l.setForeground(new Color(220, 20, 60));
+                        else if (rate <= 15) l.setForeground(new Color(200, 120, 0));
+                        else l.setForeground(new Color(0, 130, 0));
+                    } catch (Exception ignored) {}
+                    l.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                    return l;
+                }
+            });
+
+            int tableH = Math.min(200, 34 + rewardModel.getRowCount() * 32);
+            JScrollPane rewardScroll = new JScrollPane(rewardTable);
+            rewardScroll.setPreferredSize(new Dimension(350, tableH));
+            rewardScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, tableH));
+            rewardScroll.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+            detailContent.add(rewardScroll);
+            detailContent.add(Box.createVerticalStrut(6));
+
+            // Tổng tỉ lệ
+            double total = giftInfo.rewards.stream().mapToDouble(r -> r.rate).sum();
+            JLabel totalLabel = new JLabel("  Tổng tỉ lệ: " + String.format("%.1f%%", total));
+            totalLabel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            totalLabel.setForeground(new Color(0, 100, 180));
+            totalLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+            detailContent.add(totalLabel);
+
+            // Item IDs nhóm
+            addSectionTitle("🔢 Item IDs Liên Quan");
+            StringBuilder idsText = new StringBuilder();
+            for (RewardEntry re : giftInfo.rewards) {
+                if (re.itemIds != null && re.itemIds.length > 0) {
+                    idsText.append(re.group).append(": ");
+                    idsText.append(Arrays.toString(re.itemIds)).append("\n");
+                }
+            }
+            if (idsText.length() > 0) {
+                JTextArea idsArea = new JTextArea(idsText.toString().trim());
+                idsArea.setFont(new Font("Consolas", Font.PLAIN, 11));
+                idsArea.setEditable(false);
+                idsArea.setBackground(new Color(248, 248, 248));
+                idsArea.setBorder(new EmptyBorder(6, 10, 6, 10));
+                idsArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+                detailContent.add(idsArea);
+            }
+        } else {
+            // Không phải hộp quà
+            addSectionTitle("ℹ️ Ghi Chú");
+            JLabel note = new JLabel("<html>Vật phẩm này không phải hộp quà.<br>Double-click để chỉnh sửa.</html>");
+            note.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            note.setForeground(new Color(130, 130, 130));
+            note.setBorder(new EmptyBorder(5, 10, 5, 10));
+            note.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+            detailContent.add(note);
+        }
+
+        detailContent.add(Box.createVerticalGlue());
+        detailContent.revalidate();
+        detailContent.repaint();
+    }
+
+    private void addSectionTitle(String title) {
+        JLabel lbl = new JLabel(title);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lbl.setForeground(new Color(50, 50, 50));
+        lbl.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 230, 230)),
+                new EmptyBorder(8, 4, 4, 4)));
+        lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        detailContent.add(lbl);
+    }
+
+    private void addDetailRow(String label, String value) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setBackground(Color.WHITE);
+        row.setBorder(new EmptyBorder(2, 10, 2, 10));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
+
+        JLabel l = new JLabel(label);
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        l.setForeground(new Color(100, 100, 100));
+        l.setPreferredSize(new Dimension(100, 18));
+
+        JLabel v = new JLabel(value);
+        v.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        v.setForeground(new Color(30, 30, 30));
+
+        row.add(l, BorderLayout.WEST);
+        row.add(v, BorderLayout.CENTER);
+        detailContent.add(row);
+    }
+
+    private void loadItemStatsFromDB(int itemId) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                "SELECT icon_id, power_require, gold, gem, head, body, leg, " +
+                "is_up_to_up, can_trade, is_up_to_up_over_99 FROM item_template WHERE id=?")) {
+            ps.setInt(1, itemId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                addSectionTitle("⚙️ Thuộc Tính");
+                addDetailRow("Icon ID:", String.valueOf(rs.getInt("icon_id")));
+                int power = rs.getInt("power_require");
+                if (power > 0) addDetailRow("SM yêu cầu:", String.valueOf(power));
+                int gold = rs.getInt("gold");
+                if (gold > 0) addDetailRow("Giá vàng:", String.valueOf(gold));
+                int gem = rs.getInt("gem");
+                if (gem > 0) addDetailRow("Giá ngọc:", String.valueOf(gem));
+                addDetailRow("Cộng dồn:", rs.getInt("is_up_to_up") == 1 ? "✅ Có" : "❌ Không");
+                addDetailRow("Giao dịch:", rs.getInt("can_trade") == 1 ? "✅ Có" : "❌ Không");
+                if (rs.getInt("is_up_to_up_over_99") == 1)
+                    addDetailRow("Up >99:", "✅ Có");
+                detailContent.add(Box.createVerticalStrut(6));
+            }
+        } catch (Exception e) {
+            // Bỏ qua lỗi DB
+        }
+    }
+
+    private String getTypeName(int type) {
+        switch (type) {
+            case 0: return "Áo";
+            case 1: return "Quần";
+            case 2: return "Giày";
+            case 3: return "Phụ kiện";
+            case 5: return "Vật phẩm";
+            case 7: return "Rada/Công cụ";
+            case 12: return "Trang sức";
+            case 14: return "Bùa";
+            case 24: return "Nguyên liệu";
+            case 27: return "Hộp quà";
+            case 32: return "Cải trang";
+            case 33: return "SKH/Đặc biệt";
+            default: return "Loại " + type;
+        }
     }
 
     private void openEditor(Integer rowIndex) {

@@ -368,9 +368,16 @@ public class UseItem {
                             case 1204: // Mảnh Rồng thần Namếc - ghép 7 mảnh = 1 Ngọc Rồng Namếc ngẫu nhiên
                             {
                                 if (item.quantity < 7) {
+                                    // Hiển thị thông tin bonus hiện tại + yêu cầu ghép
+                                    int totalInCollection = countCollectionItem(pl, item.template.id);
+                                    int totalAll = totalInCollection + item.quantity;
+                                    String tierInfo = getCollectionTierInfo(totalAll, "KI");
                                     Service.gI().sendThongBao(pl,
                                             "Cần 7 Mảnh Rồng thần Namếc để ghép!\n"
-                                            + "Hiện có: " + item.quantity + "/7 mảnh");
+                                            + "Hiện có: " + item.quantity + "/7 mảnh\n"
+                                            + "Sổ sưu tầm: " + totalInCollection + " mảnh\n"
+                                            + tierInfo
+                                            + "\n\nDùng nút 'Thêm vào AutoItem' để bỏ vào sổ sưu tầm");
                                     break;
                                 }
                                 if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
@@ -390,6 +397,34 @@ public class UseItem {
                                         "Ghép thành công!\nNhận được: Ngọc Rồng Namếc " + sao + " sao!");
                                 Service.gI().sendThongBaoAllPlayer(
                                         pl.name + " vừa ghép được Ngọc Rồng Namếc " + sao + " sao từ mảnh!");
+                                break;
+                            }
+                            case 1901: // Mảnh Khí Oozaru → Sổ sưu tầm +HP%
+                            {
+                                useCollectionFragment(pl, item, "HP",
+                                        "Mảnh Khí Oozaru chứa sức mạnh của khỉ đột khổng lồ Oozaru.\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus HP.");
+                                break;
+                            }
+                            case 956: // Mảnh Đội trưởng Vàng → Sổ sưu tầm +Dame%
+                            {
+                                useCollectionFragment(pl, item, "Sức đánh",
+                                        "Mảnh Đội Trưởng Vàng mang sức mạnh của Đội trưởng Ginyu.\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Sức đánh.");
+                                break;
+                            }
+                            case 1173: // Mảnh Quỷ → Sổ sưu tầm +Def%
+                            {
+                                useCollectionFragment(pl, item, "Giáp",
+                                        "Mảnh Quỷ chứa năng lượng tà ác từ Địa Ngục.\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Giáp.");
+                                break;
+                            }
+                            case 1855: // Mảnh vỡ Bông tai cấp 3 → Sổ sưu tầm +Crit
+                            {
+                                useCollectionFragment(pl, item, "Chí mạng",
+                                        "Mảnh vỡ Bông Tai cấp 3 quý hiếm.\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Chí mạng.");
                                 break;
                             }
                             case 211: // nho tím
@@ -460,6 +495,23 @@ public class UseItem {
                                     UseItem.gI().openRuongNgocRong(pl, item);
                                 } else {
                                     Service.gI().sendThongBao(pl, "Bạn không có chía khoá vàng!");
+                                }
+                                break;
+                            case 459: // Phiếu Giảm Giá — kích hoạt 24h, giảm 30% mua 1 lần
+                                if (pl.itemTime.isUsePhieuGiamGia) {
+                                    Service.gI().sendThongBao(pl, "Bạn đang có Phiếu Giảm Giá đang hoạt động!");
+                                } else {
+                                    // Kích hoạt phiếu
+                                    pl.itemTime.isUsePhieuGiamGia = true;
+                                    pl.itemTime.lastTimePhieuGiamGia = System.currentTimeMillis();
+                                    pl.itemTime.usedPhieuGiamGia = false;
+                                    // Trừ 1 phiếu
+                                    InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                    InventoryService.gI().sendItemBag(pl);
+                                    // Gửi icon lên client (24h = 86400 giây)
+                                    ItemTimeService.gI().sendItemTime(pl, 459, 86400);
+                                    Service.gI().sendThongBao(pl,
+                                        "Kích hoạt Phiếu Giảm Giá 30%!\nHiệu lực 24 giờ, dùng 1 lần mua.");
                                 }
                                 break;
                             case 460:
@@ -809,6 +861,48 @@ public class UseItem {
                             case 1015: // Ngọc Rồng Siêu Cấp → Gọi Rồng Thần Siêu Cấp
                                 SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
                                 break;
+                            case 1883: // Vé nhiệm vụ tháng VIP → Đổi phần thưởng
+                            {
+                                if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
+                                    Service.gI().sendThongBao(pl, "Can 1 o trong hanh trang!");
+                                    break;
+                                }
+                                // Random phần thưởng
+                                int rd = Util.nextInt(1, 100);
+                                Item reward;
+                                String rewardName;
+                                if (rd <= 30) {
+                                    // 30%: 500 Thỏi Vàng khóa
+                                    reward = ItemService.gI().createNewItem((short) 457, 500);
+                                    reward.itemOptions.add(new Item.ItemOption(30, 1));
+                                    rewardName = "500 Thoi Vang (khoa)";
+                                } else if (rd <= 55) {
+                                    // 25%: 20 Đá Bảo Vệ
+                                    reward = ItemService.gI().createNewItem((short) 987, 20);
+                                    reward.itemOptions.add(new Item.ItemOption(30, 1));
+                                    rewardName = "20 Da Bao Ve (khoa)";
+                                } else if (rd <= 80) {
+                                    // 25%: 5 Bình TNSM random
+                                    reward = ItemService.gI().createNewItem((short) Util.nextInt(441, 447), 5);
+                                    reward.itemOptions.add(new Item.ItemOption(30, 1));
+                                    rewardName = "5 Binh TNSM (khoa)";
+                                } else if (rd <= 95) {
+                                    // 15%: 3 Phiếu Giảm Giá
+                                    reward = ItemService.gI().createNewItem((short) 459, 3);
+                                    rewardName = "3 Phieu Giam Gia";
+                                } else {
+                                    // 5%: 1 Ngọc Rồng 1 sao khóa
+                                    reward = ItemService.gI().createNewItem((short) 14, 1);
+                                    reward.itemOptions.add(new Item.ItemOption(30, 1));
+                                    rewardName = "1 Ngoc Rong 1 Sao (khoa)";
+                                }
+                                InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                InventoryService.gI().addItemBag(pl, reward);
+                                InventoryService.gI().sendItemBag(pl);
+                                Service.gI().sendThongBao(pl,
+                                        "Su dung Ve Nhiem Vu Thang VIP thanh cong!\nNhan duoc: " + rewardName);
+                                break;
+                            }
                             default:
                                 // Item chưa có chức năng — thông báo user liên hệ Admin
                                 Service.gI().sendThongBao(pl,
@@ -2865,6 +2959,11 @@ public class UseItem {
             case 1809 -> {
                 pl.itemTime.lastTimevevang = System.currentTimeMillis();
                 pl.itemTime.isUsevevang = true;
+                pl.itemTime.timevevang = 86400000; // 24 hours
+                nro.services.InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                nro.services.InventoryService.gI().sendItemBag(pl);
+                services.func.ChangeMapService.gI().changeMapInYard(pl, 123, -1, -1);
+                nro.services.Service.gI().sendThongBao(pl, "Bạn đã dùng Vé Vàng và được đưa đến Ngũ Hành Sơn 1 (24h)");
             }
 
             // ==== LỌ NƯỚC THÁNH (X2 - X15) — CHO DÙNG CHUNG CỘNG DỒN ====
@@ -5120,5 +5219,116 @@ public class UseItem {
             Logger.error("Lỗi hopQuaThang9VIP: " + e.getMessage());
         }
     }
-}
 
+    // ==================== SỔ SƯU TẦM - MẢNH SƯU TẬP ====================
+
+    /**
+     * Đếm tổng số lượng mảnh trong sổ sưu tầm (itemsBoxCollection)
+     */
+    private int countCollectionItem(Player pl, int itemId) {
+        int total = 0;
+        if (pl.inventory.itemsBoxCollection != null) {
+            for (Item it : pl.inventory.itemsBoxCollection) {
+                if (it != null && it.isNotNullItem() && it.template.id == itemId) {
+                    total += it.quantity;
+                }
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Lấy thông tin tier bonus cho mảnh sưu tầm
+     * Mốc: 10 → +1%, 50 → +3%, 150 → +5%, 300 → +8%, 500 → +12%
+     */
+    private String getCollectionTierInfo(int totalQty, String statName) {
+        int[][] tiers = {
+            {10, 1}, {50, 3}, {150, 5}, {300, 8}, {500, 12}
+        };
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Bonus ").append(statName).append(" ---\n");
+        for (int[] tier : tiers) {
+            String check = totalQty >= tier[0] ? "[v]" : "[ ]";
+            String unit = statName.equals("Chi mang") ? "" : "%";
+            sb.append(check).append(" ").append(tier[0]).append(" manh: +")
+              .append(tier[1]).append(unit).append(" ").append(statName).append("\n");
+        }
+        int currentBonus = 0;
+        for (int[] tier : tiers) {
+            if (totalQty >= tier[0]) currentBonus = tier[1];
+        }
+        String unit = statName.equals("Chi mang") ? "" : "%";
+        sb.append("Hien tai: +").append(currentBonus).append(unit).append(" ").append(statName);
+        return sb.toString();
+    }
+
+    /**
+     * Xử lý sử dụng mảnh sưu tầm - tự động bỏ vào sổ sưu tầm + hiển thị bonus
+     */
+    private void useCollectionFragment(Player pl, Item item, String statName, String description) {
+        int totalInCollection = countCollectionItem(pl, item.template.id);
+        int totalAll = totalInCollection + item.quantity;
+        String tierInfo = getCollectionTierInfo(totalAll, statName);
+
+        boolean hasSpace = false;
+        if (pl.inventory.itemsBoxCollection != null) {
+            // Tự động tạo 10 slot mặc định nếu sổ sưu tầm chưa có slot nào
+            if (pl.inventory.itemsBoxCollection.isEmpty()) {
+                for (int s = 0; s < 10; s++) {
+                    pl.inventory.itemsBoxCollection.add(ItemService.gI().createItemNull());
+                }
+            }
+            // Gộp vào mảnh đã có trong sổ
+            for (Item it : pl.inventory.itemsBoxCollection) {
+                if (it != null && it.isNotNullItem() && it.template.id == item.template.id) {
+                    it.quantity += item.quantity;
+                    InventoryService.gI().subQuantityItemsBag(pl, item, item.quantity);
+                    InventoryService.gI().sendItemBag(pl);
+                    InventoryService.gI().sendItemBox(pl);
+                    hasSpace = true;
+
+                    int newTotal = countCollectionItem(pl, item.template.id);
+                    String newTierInfo = getCollectionTierInfo(newTotal, statName);
+                    Service.gI().sendThongBao(pl,
+                            "Da them vao So Suu Tam!\n"
+                            + "Tong: " + newTotal + " manh\n\n"
+                            + newTierInfo);
+                    pl.nPoint.calPoint();
+                    Service.gI().point(pl);
+                    return;
+                }
+            }
+            // Tìm ô trống
+            for (int i = 0; i < pl.inventory.itemsBoxCollection.size(); i++) {
+                Item slot = pl.inventory.itemsBoxCollection.get(i);
+                if (slot == null || !slot.isNotNullItem()) {
+                    Item newItem = ItemService.gI().copyItem(item);
+                    pl.inventory.itemsBoxCollection.set(i, newItem);
+                    InventoryService.gI().subQuantityItemsBag(pl, item, item.quantity);
+                    InventoryService.gI().sendItemBag(pl);
+                    InventoryService.gI().sendItemBox(pl);
+                    hasSpace = true;
+
+                    int newTotal = countCollectionItem(pl, item.template.id);
+                    String newTierInfo = getCollectionTierInfo(newTotal, statName);
+                    Service.gI().sendThongBao(pl,
+                            "Da them vao So Suu Tam!\n"
+                            + "Tong: " + newTotal + " manh\n\n"
+                            + newTierInfo);
+                    pl.nPoint.calPoint();
+                    Service.gI().point(pl);
+                    return;
+                }
+            }
+        }
+
+        if (!hasSpace) {
+            Service.gI().sendThongBao(pl,
+                    description + "\n\n"
+                    + "Hanh trang: " + item.quantity + " manh\n"
+                    + "So suu tam: " + totalInCollection + " manh\n\n"
+                    + tierInfo
+                    + "\n\nSo suu tam da day!");
+        }
+    }
+}

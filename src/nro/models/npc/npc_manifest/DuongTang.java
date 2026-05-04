@@ -424,7 +424,11 @@ public class DuongTang extends Npc {
     // ====================================================================
     private void showGuide(Player player) {
         nro.services.NpcService.gI().createTutorial(player, this.tempId, this.avartar,
-                "HUONG DAN HO TONG DUONG TANG\n"
+                "HUONG DAN NGU HANH SON\n"
+                + "De vao Ngu Hanh Son, thi chu can phai tieu hao:\b"
+                + "- 50 Thoi Vang cho moi lan vao (tinh theo turn, vao roi ra se mat).\b"
+                + "- HOAC su dung Ve Vang (Item 1809) de duoc mien phi vao map trong 24 gio, di ra vao thoai mai!\n"
+                + "\nHUONG DAN HO TONG DUONG TANG\n"
                 + "Chon tuyen -> Di chuyen den map dich\b"
                 + "Tieu diet quai vat de bao ve su phu\b"
                 + "Hoan thanh = Nhan diem cong duc!\n"

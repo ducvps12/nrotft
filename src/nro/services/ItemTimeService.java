@@ -227,6 +227,14 @@ public class ItemTimeService {
                 sendItemTime(player, 15359, (int) (remainingTime / 1000));
             }
         }
+        // Phiếu Giảm Giá icon — dùng iconID 459 (iconID của item template)
+        if (player.itemTime.isUsePhieuGiamGia && !player.itemTime.usedPhieuGiamGia) {
+            int remaining = (int) ((ItemTime.TIME_PHIEU_GIAM_GIA
+                    - (System.currentTimeMillis() - player.itemTime.lastTimePhieuGiamGia)) / 1000);
+            if (remaining > 0) {
+                sendItemTime(player, 459, remaining);
+            }
+        }
     }
 
     public void turnOnTDLT(Player player, Item item) {

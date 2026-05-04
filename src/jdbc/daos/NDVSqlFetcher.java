@@ -1512,10 +1512,12 @@ public class NDVSqlFetcher {
             try {
                 player.lastClaimTopSM = rs.getLong("lastClaimTopSM");
                 player.lastClaimTopNV = rs.getLong("lastClaimTopNV");
+                player.lastClaimTopNap = rs.getLong("lastClaimTopNap");
                 player.totalManhVoBought = rs.getInt("totalManhVoBought");
             } catch (Exception e) {
                 player.lastClaimTopSM = 0;
                 player.lastClaimTopNV = 0;
+                player.lastClaimTopNap = 0;
                 player.totalManhVoBought = 0;
             }
 

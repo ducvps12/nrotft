@@ -9,6 +9,7 @@ import player.badges.BadgesData;
 import jdbc.daos.PlayerDAO;
 import utils.Logger;
 import utils.Util;
+import nro.services.ItemTimeService;
 
 /**
  * Hệ thống GÓI VIP TUẦN & GÓI ĐỆ TỬ NGÀY
@@ -26,21 +27,21 @@ public class VipPackageService {
     }
 
     // ===================== GIÁ GÓI VIP TUẦN =====================
-    public static final int VIP1_PRICE = 40_000;
-    public static final int VIP2_PRICE = 80_000;      // Gốc 100K, sale 20%
-    public static final int VIP3_PRICE = 400_000;     // Gốc 500K, sale 20%
+    public static final int VIP1_PRICE = 100_000;
+    public static final int VIP2_PRICE = 240_000;      // Gốc 300K, sale 20%
+    public static final int VIP3_PRICE = 800_000;     // Gốc 1000K, sale 20%
 
-    public static final int VIP2_PRICE_ORIGINAL = 100_000;
-    public static final int VIP3_PRICE_ORIGINAL = 500_000;
+    public static final int VIP2_PRICE_ORIGINAL = 300_000;
+    public static final int VIP3_PRICE_ORIGINAL = 1_000_000;
 
     // Thời hạn gói VIP = 7 ngày
     public static final long VIP_DURATION_MS = 7L * 24 * 60 * 60 * 1000;
 
     // ===================== GIÁ GÓI ĐỆ TỬ NGÀY =====================
-    public static final int DETU1_PRICE = 16_000;
-    public static final int DETU2_PRICE = 40_000;
-    public static final int DETU3_PRICE = 80_000;
-    public static final int DETU4_PRICE = 160_000;
+    public static final int DETU1_PRICE = 50_000;
+    public static final int DETU2_PRICE = 100_000;
+    public static final int DETU3_PRICE = 250_000;
+    public static final int DETU4_PRICE = 500_000;
 
     // Thời hạn gói đệ tử = 1 ngày
     public static final long DETU_DURATION_MS = 24L * 60 * 60 * 1000;
@@ -526,9 +527,10 @@ public class VipPackageService {
     }
 
     // ===================== GIÁ GÓI VIP ĐỆ TỬ =====================
-    public static final int VIP_PET1_PRICE = 30_000;   // x2 TNSM + phân bổ HP/DAME 24h
-    public static final int VIP_PET2_PRICE = 60_000;   // x3 TNSM + phân bổ HP/DAME 24h + buff dame đệ
-    public static final int VIP_PET3_PRICE = 120_000;  // x5 TNSM + phân bổ HP/DAME 24h + buff dame + crit
+    public static final int VIP_PET1_PRICE = 100_000;   // x2 TNSM + phân bổ HP/DAME 24h
+    public static final int VIP_PET2_PRICE = 250_000;   // x3 TNSM + phân bổ HP/DAME 24h + buff dame đệ
+    public static final int VIP_PET3_PRICE = 500_000;  // x5 TNSM + phân bổ HP/DAME 24h + buff dame + crit
+    public static final int VIP_PET4_PRICE = 1_000_000;  // VIP CAO THỦ: x7 TNSM + admin custom chỉ số đệ
 
     // Thời hạn gói VIP Đệ = 24 giờ
     public static final long VIP_PET_DURATION_MS = 24L * 60 * 60 * 1000;
@@ -643,6 +645,7 @@ public class VipPackageService {
             case 1 -> "BẠC (x2 TNSM)";
             case 2 -> "VÀNG (x3 TNSM)";
             case 3 -> "KIM CƯƠNG (x5 TNSM)";
+            case 4 -> "CAO THỦ (x7 TNSM)";
             default -> "";
         };
 
@@ -652,7 +655,8 @@ public class VipPackageService {
                 + "\n✅ TNSM đệ x" + getVipPetTnsmMultiplier(tier)
                 + "\n✅ Phân bổ ưu tiên HP + DAME"
                 + (tier >= 2 ? "\n✅ Buff dame đệ x2" : "")
-                + (tier >= 3 ? "\n✅ Buff crit đệ +5" : ""));
+                + (tier >= 3 ? "\n✅ Buff crit đệ +5" : "")
+                + (tier >= 4 ? "\n✅ Admin custom chỉ số đệ\n✅ Đệ không tự cộng Giáp/Chí Mạng" : ""));
         return true;
     }
 
@@ -678,6 +682,13 @@ public class VipPackageService {
                 // Buff crit: thêm 5 crit gốc cho đệ
                 player.pet.nPoint.critg += 5;
             }
+            if (tier >= 4) {
+                // VIP CAO THỦ: bật chế độ admin custom chỉ số
+                player.petVipCaoThuMode = 1;
+                // Block đệ tự cộng DEF/CRIT cho đến khi admin cho phép
+                player.petCaoThuAllowDef = false;
+                player.petCaoThuAllowCrit = false;
+            }
             // Tính lại chỉ số
             player.pet.nPoint.calPoint();
             Service.gI().point(player.pet);
@@ -694,8 +705,42 @@ public class VipPackageService {
             case 1 -> 2;
             case 2 -> 3;
             case 3 -> 5;
+            case 4 -> 7;
             default -> 1;
         };
+    }
+
+    /**
+     * Khôi phục trạng thái VIP Đệ từ DB khi player login hoặc khi cần.
+     * Fix bug: petVipDistMode/petVipTier chỉ lưu trong memory, mất khi relog.
+     */
+    public void restoreVipPetState(Player player) {
+        try (Connection con = DBConnecter.getConnectionServer()) {
+            String sql = "SELECT tier FROM history_vip_purchase "
+                    + "WHERE account_id = ? AND package_type = 'VIP_PET' AND expires_at > NOW() "
+                    + "ORDER BY tier DESC LIMIT 1";
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, player.getSession().userId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    int tier = rs.getInt("tier");
+                    player.petVipDistMode = PET_DIST_HP_DAME;
+                    player.petVipTier = (byte) tier;
+                    if (tier >= 4) {
+                        player.petVipCaoThuMode = 1;
+                        // Giữ nguyên trạng thái allow DEF/CRIT từ admin
+                    }
+                } else {
+                    // Hết hạn hoặc chưa mua → reset về mặc định
+                    player.petVipDistMode = PET_DIST_DEFAULT;
+                    player.petVipTier = 0;
+                    player.petVipCaoThuMode = 0;
+                }
+            }
+        } catch (SQLException e) {
+            // Nếu lỗi DB, giữ nguyên giá trị hiện tại
+            Logger.error("VipPackageService: Lỗi restore VIP Pet state: " + e.getMessage());
+        }
     }
 
     // ===================== HELPER VIP ĐỆ =====================
@@ -704,6 +749,7 @@ public class VipPackageService {
             case 1 -> VIP_PET1_PRICE;
             case 2 -> VIP_PET2_PRICE;
             case 3 -> VIP_PET3_PRICE;
+            case 4 -> VIP_PET4_PRICE;
             default -> 0;
         };
         return getFinalPrice(base);
@@ -738,7 +784,161 @@ public class VipPackageService {
                     + "|2|• +500 dame gốc cho đệ\n"
                     + "|2|• +5 crit gốc cho đệ\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
+            case 4 -> "|7|━━━ VIP ĐỆ CAO THỦ ━━━\n"
+                    + "|1|Giá: " + Util.mumberToLouis(getVipPetPrice(4)) + " VNĐ\n"
+                    + "|3|Thời hạn: 24 giờ\n"
+                    + "|8|• TNSM đệ tử x7\n"
+                    + "|8|• Phân bổ ưu tiên HP + DAME\n"
+                    + "|8|  (HP 50%, DAME 50% - CHI HP + DAME)\n"
+                    + "|8|• Bùa Đệ Tử 24h (dame đệ x2, TNSM đệ x2)\n"
+                    + "|2|• +500 dame gốc cho đệ\n"
+                    + "|2|• +5 crit gốc cho đệ\n"
+                    + "|1|• ⭐ Admin custom chỉ số đệ tử\n"
+                    + "|1|• ⭐ Đệ KHÔNG tự cộng Giáp + Chí Mạng\n"
+                    + "|8|  (chờ Admin cho phép mới được cộng)\n"
+                    + "|7|━━━━━━━━━━━━━━━━━━";
             default -> "";
         };
+    }
+
+    // ===================== PHIẾU GIẢM GIÁ 30% CHO VIP ĐỆ =====================
+    /**
+     * Tính giá VIP Đệ sau khi áp dụng phiếu giảm giá 30%.
+     * Trả về giá đã giảm nếu player có phiếu, ngược lại trả về giá gốc.
+     */
+    public int getVipPetPriceWithCoupon(Player player, int tier) {
+        int basePrice = getVipPetPrice(tier);
+        if (hasDiscountCoupon(player)) {
+            return basePrice - (basePrice * 30 / 100); // Giảm 30%
+        }
+        return basePrice;
+    }
+
+    /**
+     * Kiểm tra player đã kích hoạt phiếu giảm giá (24h) và chưa dùng lần mua nào
+     */
+    public boolean hasDiscountCoupon(Player player) {
+        return player.itemTime != null
+            && player.itemTime.isUsePhieuGiamGia
+            && !player.itemTime.usedPhieuGiamGia;
+    }
+
+    /**
+     * Sử dụng phiếu giảm giá — đánh dấu đã dùng 1 lần mua, phiếu hết hiệu lực
+     */
+    public void useDiscountCoupon(Player player) {
+        if (player.itemTime != null && player.itemTime.isUsePhieuGiamGia) {
+            player.itemTime.usedPhieuGiamGia = true;
+            // Xóa icon ngay lập tức
+            ItemTimeService.gI().removeItemTime(player, 459);
+            Service.gI().sendThongBao(player, "Đã sử dụng Phiếu Giảm Giá 30%!\nPhiếu hết hiệu lực.");
+        }
+    }
+
+    /**
+     * Mua VIP Đệ có sử dụng phiếu giảm giá 30%.
+     * Tự động trừ phiếu nếu có.
+     */
+    public boolean purchaseVipPetWithCoupon(Player player, int tier) {
+        if (player.pet == null) {
+            Service.gI().sendThongBao(player, "Bạn chưa có đệ tử!\nHãy mua Gói Đệ Tử trước.");
+            return false;
+        }
+
+        int currentTier = getActiveVipPetTier(player);
+        if (currentTier >= tier) {
+            String expire = getVipPetExpireInfo(player);
+            Service.gI().sendThongBao(player,
+                    "Đang có gói VIP Đệ " + currentTier + " rồi!"
+                    + "\nHết hạn: " + (expire != null ? expire : "đang tính...")
+                    + (currentTier < 4 ? "\nBạn có thể nâng cấp lên gói cao hơn." : ""));
+            return false;
+        }
+
+        boolean hasCoupon = hasDiscountCoupon(player);
+        int price = hasCoupon ? getVipPetPriceWithCoupon(player, tier) : getVipPetPrice(tier);
+
+        if (player.getSession().cash < price) {
+            Service.gI().sendThongBao(player,
+                    "Không đủ VNĐ! Cần " + Util.mumberToLouis(price) + " VNĐ\nSố dư: "
+                            + Util.mumberToLouis(player.getSession().cash) + " VNĐ");
+            return false;
+        }
+
+        // Trừ phiếu giảm giá nếu có
+        if (hasCoupon) {
+            useDiscountCoupon(player);
+        }
+
+        // Trừ tiền
+        jdbc.daos.PlayerDAO.subcash(player, price, "VIP_PET_" + tier,
+                "Mua gói VIP Đệ Tử " + tier + " giá " + price + (hasCoupon ? " (giảm 30%)" : ""));
+
+        // Kích hoạt buff
+        activateVipPetBuff(player, tier);
+
+        // Ghi lịch sử
+        recordPurchase(player, "VIP_PET", tier, price, VIP_PET_DURATION_MS);
+
+        String tierName = switch (tier) {
+            case 1 -> "BẠC (x2 TNSM)";
+            case 2 -> "VÀNG (x3 TNSM)";
+            case 3 -> "KIM CƯƠNG (x5 TNSM)";
+            case 4 -> "CAO THỦ (x7 TNSM)";
+            default -> "";
+        };
+
+        Service.gI().sendThongBao(player,
+                "🎉 Mua GÓI VIP ĐỆ " + tierName + " thành công!"
+                + (hasCoupon ? "\n🎫 Đã sử dụng Phiếu Giảm Giá 30%!" : "")
+                + "\nGiá: " + Util.mumberToLouis(price) + " VNĐ"
+                + "\nHiệu lực 24 giờ."
+                + "\n✅ TNSM đệ x" + getVipPetTnsmMultiplier(tier)
+                + (tier >= 4 ? "\n✅ Admin custom chỉ số đệ" : ""));
+        return true;
+    }
+
+    // ===================== ADMIN CUSTOM CHỈ SỐ ĐỆ (VIP CAO THỦ) =====================
+    /**
+     * Admin set chỉ số bonus cho đệ tử (VIP CAO THỦ).
+     * Đệ sẽ nhận thêm các chỉ số này khi tính toán.
+     */
+    public static void adminSetPetCaoThuStats(Player player, int hp, int mp, int dame, int def, int crit) {
+        player.petCaoThuBonusHp = hp;
+        player.petCaoThuBonusMp = mp;
+        player.petCaoThuBonusDame = dame;
+        player.petCaoThuBonusDef = def;
+        player.petCaoThuBonusCrit = crit;
+
+        // Apply vào đệ tử ngay
+        if (player.pet != null) {
+            player.pet.nPoint.calPoint();
+            Service.gI().point(player.pet);
+            Service.gI().sendChiSoPetGoc(player);
+            Service.gI().showInfoPet(player);
+        }
+
+        Service.gI().sendThongBao(player,
+                "⭐ Admin đã cập nhật chỉ số đệ tử!\n"
+                + "HP+" + hp + ", MP+" + mp + ", DAME+" + dame
+                + "\nDEF+" + def + ", CRIT+" + crit);
+    }
+
+    /**
+     * Admin cho phép/cấm đệ tự cộng DEF
+     */
+    public static void adminTogglePetDef(Player player, boolean allow) {
+        player.petCaoThuAllowDef = allow;
+        Service.gI().sendThongBao(player,
+                allow ? "✅ Đệ tử đã được phép tự cộng Giáp" : "❌ Đệ tử KHÔNG được tự cộng Giáp");
+    }
+
+    /**
+     * Admin cho phép/cấm đệ tự cộng CRIT
+     */
+    public static void adminTogglePetCrit(Player player, boolean allow) {
+        player.petCaoThuAllowCrit = allow;
+        Service.gI().sendThongBao(player,
+                allow ? "✅ Đệ tử đã được phép tự cộng Chí Mạng" : "❌ Đệ tử KHÔNG được tự cộng Chí Mạng");
     }
 }

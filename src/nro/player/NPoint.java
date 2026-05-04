@@ -1513,18 +1513,18 @@ public class NPoint {
         // this.dame /= 1.5;
         // }
 
-        if (this.player.pet != null && this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
+        if (!this.player.isPet && this.player.pet != null && this.player.fusion.typeFusion != ConstPlayer.NON_FUSION) {
             if (this.player.pet.typePet >= 5) {
                 dame += this.player.pet.nPoint.dame * this.player.getPointfusion().getDameFusion() / 100L;
             }
         }
         // Xử lý set tinh ấn
-        if (this.isTinhAn) {
+        if (!this.player.isPet && this.isTinhAn) {
             dame += (dame * 15L / 100L);
         }
 
         // ========== Xử lý buff generic (event items - đọc options từ item) ==========
-        if (this.player.itemTime != null && !this.player.itemTime.activeBuffs.isEmpty()) {
+        if (!this.player.isPet && this.player.itemTime != null && !this.player.itemTime.activeBuffs.isEmpty()) {
             int buffTlDame = this.player.itemTime.getBuffOptionParam(50); // Sức đánh+#%
             buffTlDame += this.player.itemTime.getBuffOptionParam(49); // Tấn công+#%
             if (buffTlDame > 0) {
@@ -1557,18 +1557,18 @@ public class NPoint {
         // dame -= (dame * 25 / 100L);
         // }
         // Xử lý thức ăn 2
-        if (this.player.itemTime != null && this.player.itemTime.isEatMeal2 && this.player.itemTime.iconMeal2 == 8060) {
+        if (!this.player.isPet && this.player.itemTime != null && this.player.itemTime.isEatMeal2 && this.player.itemTime.iconMeal2 == 8060) {
             dame += (dame * 5 / 100L);
         }
 
         // Xử lý thức ăn 2
-        if (this.player.itemTime != null && this.player.itemTime.isEatMeal2 && this.player.itemTime.iconMeal2 == 8061) {
+        if (!this.player.isPet && this.player.itemTime != null && this.player.itemTime.isEatMeal2 && this.player.itemTime.iconMeal2 == 8061) {
             this.tlDameCrit.add(5);
             this.tlSDCM += 5;
         }
 
-        // Xử lý cuồng nộ
-        if (this.player.itemTime != null) {
+        // Xử lý cuồng nộ (chỉ áp dụng cho player, KHÔNG cho pet)
+        if (!this.player.isPet && this.player.itemTime != null) {
 
             if (this.player.itemTime.isUseCuongNo) {
                 dame *= 2;
@@ -1579,49 +1579,49 @@ public class NPoint {
             }
         }
 
-        if (this.player.itemTime != null && this.player.itemTime.isUseKhauTrang) {
+        if (!this.player.isPet && this.player.itemTime != null && this.player.itemTime.isUseKhauTrang) {
             this.tlDameAttMob.add(10);
         }
 
-        if (this.player.itemTime != null && this.player.itemTime.isEatMeal3 && this.player.itemTime.iconMeal3 == 8247) {
+        if (!this.player.isPet && this.player.itemTime != null && this.player.itemTime.isEatMeal3 && this.player.itemTime.iconMeal3 == 8247) {
             dame += (dame * 10 / 100L);
         }
 
-        // Xử lý ngọc rồng đen 1 sao
-        if (this.player.rewardBlackBall.timeOutOfDateReward[0] > System.currentTimeMillis()) {
+        // Xử lý ngọc rồng đen 1 sao (chỉ player)
+        if (!this.player.isPet && this.player.rewardBlackBall.timeOutOfDateReward[0] > System.currentTimeMillis()) {
             dame += (dame * RewardBlackBall.R1S_2 / 100L);
         }
 
-        // Xử lý set worldcup
-        if (this.player.setClothes.worldcup == 2) {
+        // Xử lý set worldcup (chỉ player)
+        if (!this.player.isPet && this.player.setClothes.worldcup == 2) {
             dame += (dame * 10 / 100L);
         }
-        // Xử lý set nail
-        if (this.player.setClothes.nail >= 2) {
+        // Xử lý set nail (chỉ player)
+        if (!this.player.isPet && this.player.setClothes.nail >= 2) {
             this.tlDameCrit.add(20);
         }
-        // Xử lý gogeta
-        if (this.isGogeta) {
+        // Xử lý gogeta (chỉ player)
+        if (!this.player.isPet && this.isGogeta) {
             dame += (dame * 10 / 100L);
         }
 
-        // Phù map mabu
-        if (this.player.isPhuHoMapMabu) {
+        // Phù map mabu (chỉ player)
+        if (!this.player.isPet && this.player.isPhuHoMapMabu) {
             dame += 10_000;
         }
 
-        // Xử lý rồng xương
-        if (player.itemTime != null && player.itemTime.isUseRX) {
+        // Xử lý rồng xương (chỉ player)
+        if (!this.player.isPet && player.itemTime != null && player.itemTime.isUseRX) {
             dame += (dame * 10L / 100L);
         }
 
-        // Xử lý phù
-        if (this.player.zone != null && MapService.gI().isMapBlackBallWar(this.player.zone.map.mapId)) {
+        // Xử lý phù (chỉ player)
+        if (!this.player.isPet && this.player.zone != null && MapService.gI().isMapBlackBallWar(this.player.zone.map.mapId)) {
             dame = (long)(dame * this.player.effectSkin.xDame);
         }
 
-        // Xử lý hợp thể
-        if (this.player.fusion.typeFusion != 0) {
+        // Xử lý hợp thể (chỉ player, không phải pet)
+        if (!this.player.isPet && this.player.fusion.typeFusion != 0) {
             dame += this.player.pet.nPoint.dame;
         }
 
@@ -1644,7 +1644,7 @@ public class NPoint {
             dame /= 2;
         }
 
-        if (!this.player.isBoss && !this.player.isNewPet
+        if (!this.player.isBoss && !this.player.isPet && !this.player.isNewPet
                 && TimeUtil.checkTime(EventDAO.getRemainingTimeToIncreaseDame())) {
             dame += dame / 10;
         }
@@ -1990,9 +1990,8 @@ public class NPoint {
             for (Integer tl : this.tlDameAttMob) {
                 dameAttack += (dameAttack * tl / 100);
             }
-            if (this.player.isPet && ((Pet) this.player).master.charms.tdDeTu > System.currentTimeMillis()) {
-                dameAttack *= 2;
-            }
+            // x2 dame đệ khi có bùa đã xử lý trong SkillService.playerAttackMob
+            // Không nhân lại ở đây để tránh x4 dame
         }
 
         dameAfter = 0;
@@ -2130,7 +2129,15 @@ public class NPoint {
                 tiemNang += ((long) tiemNang * this.intrinsic.param1 / 100);
             }
             if (this.power >= 60000000000L) {
-                tiemNang -= ((long) tiemNang * 80 / 100);
+                // Pet ở map NHS giảm nhẹ hơn (50% thay vì 80%)
+                boolean isPetAtNHS = this.player.isPet
+                        && this.player.zone != null && this.player.zone.map != null
+                        && nro.services.MapService.gI().isMapNguHanhSon(this.player.zone.map.mapId);
+                if (isPetAtNHS) {
+                    tiemNang -= ((long) tiemNang * 40 / 100); // giảm 40% thay vì 80%
+                } else {
+                    tiemNang -= ((long) tiemNang * 80 / 100);
+                }
             }
             if (this.player.isPet) {
                 if (((Pet) this.player).master.charms.tdDeTu > System.currentTimeMillis()) {
@@ -2172,22 +2179,49 @@ public class NPoint {
     }
 
     public long calSubTNSM(long tiemNang) {
-        tiemNang = (long) (tiemNang * 0.3);
-        if (player.nPoint.power >= 80_000_000_000L) {
-            tiemNang = tiemNang / 70;
-        } else if (player.nPoint.power >= 60_000_000_000L) {
-            tiemNang = tiemNang / 60;
-        } else if (player.nPoint.power >= 40_000_000_000L) {
-            tiemNang = tiemNang / 50;
-        }
-        if (player.nPoint.power >= 100_000_000_000L) {
-            tiemNang = tiemNang / 90;
-        }
-        if (player.nPoint.power >= 130_000_000_000L) {
-            tiemNang = tiemNang / 90;
-        }
-        if (player.nPoint.power >= 150_000_000_000L) {
-            tiemNang = tiemNang / 95;
+        // ===== PET ở map NGŨ HÀNH SƠN: giảm penalty để up đệ có ý nghĩa =====
+        boolean isPetAtNHS = player != null && player.isPet
+                && player.zone != null && player.zone.map != null
+                && nro.services.MapService.gI().isMapNguHanhSon(player.zone.map.mapId);
+
+        if (isPetAtNHS) {
+            // NHS mode: giảm nhẹ hơn nhiều — 50% thay vì 70%
+            tiemNang = (long) (tiemNang * 0.5);
+            if (player.nPoint.power >= 80_000_000_000L) {
+                tiemNang = tiemNang / 8;
+            } else if (player.nPoint.power >= 60_000_000_000L) {
+                tiemNang = tiemNang / 5;
+            } else if (player.nPoint.power >= 40_000_000_000L) {
+                tiemNang = tiemNang / 3;
+            }
+            if (player.nPoint.power >= 100_000_000_000L) {
+                tiemNang = tiemNang / 10;
+            }
+            if (player.nPoint.power >= 130_000_000_000L) {
+                tiemNang = tiemNang / 12;
+            }
+            if (player.nPoint.power >= 150_000_000_000L) {
+                tiemNang = tiemNang / 15;
+            }
+        } else {
+            // Công thức gốc cho map thường
+            tiemNang = (long) (tiemNang * 0.3);
+            if (player.nPoint.power >= 80_000_000_000L) {
+                tiemNang = tiemNang / 70;
+            } else if (player.nPoint.power >= 60_000_000_000L) {
+                tiemNang = tiemNang / 60;
+            } else if (player.nPoint.power >= 40_000_000_000L) {
+                tiemNang = tiemNang / 50;
+            }
+            if (player.nPoint.power >= 100_000_000_000L) {
+                tiemNang = tiemNang / 90;
+            }
+            if (player.nPoint.power >= 130_000_000_000L) {
+                tiemNang = tiemNang / 90;
+            }
+            if (player.nPoint.power >= 150_000_000_000L) {
+                tiemNang = tiemNang / 95;
+            }
         }
         return tiemNang;
     }
@@ -2452,10 +2486,10 @@ public class NPoint {
     /**
      * Tinh bonus chi so tu cac manh suu tam cu the trong so suu tam.
      * Tra ve mang 5 phan tu: [hpBonus%, kiBonus%, dameBonus%, defBonus%, critBonus]
-     * Moi loai manh tang bonus theo so luong:
-     *   >= 500: +5%
-     *   >= 200: +3%
-     *   >= 50:  +1%
+     * Moi loai manh tang bonus theo so luong (5 moc):
+     *   >= 10:  +1%    |  >= 50:  +3%
+     *   >= 150: +5%    |  >= 300: +8%
+     *   >= 500: +12%
      */
     private int[] getCollectionItemBonus() {
         int[] bonus = new int[5]; // [hp, ki, dame, def, crit]
@@ -2501,9 +2535,11 @@ public class NPoint {
     }
 
     private int calcTierBonus(int qty) {
-        if (qty >= 500) return 5;
-        if (qty >= 200) return 3;
-        if (qty >= 50)  return 1;
+        if (qty >= 500) return 12;
+        if (qty >= 300) return 8;
+        if (qty >= 150) return 5;
+        if (qty >= 50)  return 3;
+        if (qty >= 10)  return 1;
         return 0;
     }
 

@@ -887,7 +887,15 @@ public class Service {
             if (master == null || master.nPoint == null) {
                 return;
             }
-            param = master.nPoint.calSubTNSM(param);
+            // Pet ở NHS: giảm penalty cho master để TNSM đệ có giá trị
+            boolean isPetAtNHS = player.zone != null && player.zone.map != null
+                    && MapService.gI().isMapNguHanhSon(player.zone.map.mapId);
+            if (isPetAtNHS) {
+                // NHS: master nhận 60% TNSM của pet (thay vì bị calSubTNSM nghiền nát)
+                param = (long) (param * 0.6);
+            } else {
+                param = master.nPoint.calSubTNSM(param);
+            }
             if (master.nPoint.power < master.nPoint.getPowerLimit()) {
                 master.nPoint.powerUp(param);
             }
@@ -1628,8 +1636,8 @@ public class Service {
             msg.writeLongByEmti(Util.maxIntValue(pl.pet.nPoint.hpg), ConstNpcConfig.readInt);
             msg.writeLongByEmti(Util.maxIntValue(pl.pet.nPoint.mpg), ConstNpcConfig.readInt);
             msg.writeLongByEmti(Util.maxIntValue(pl.pet.nPoint.dameg), ConstNpcConfig.readInt);
-            msg.writer().writeInt(pl.pet.nPoint.defg);
-            msg.writer().writeInt(pl.pet.nPoint.critg);
+            msg.writer().writeShort(pl.pet.nPoint.defg);
+            msg.writer().writeByte(pl.pet.nPoint.critg);
 
             pl.sendMessage(msg);
             msg.cleanup();

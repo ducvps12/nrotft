@@ -82,17 +82,17 @@ public class Bill extends Npc {
                                     Item phieu = InventoryService.gI().findItem(player.inventory.itemsBag, 459);
                                     int soPhieu = (phieu != null) ? phieu.quantity : 0;
                                     if (soPhieu > 0) {
-                                        Service.gI().sendThongBao(player, "Ban co " + soPhieu + " Phieu Giam Gia. Mua hang o shop nay se tru 1 phieu/mon!");
+                                        Service.gI().sendThongBao(player, "Ban co " + soPhieu + " Phieu Giam Gia. Dung de doi do tai Shop Su Kien!");
                                     } else {
-                                        Service.gI().sendThongBao(player, "Ban chua co Phieu Giam Gia! Nhan tu goi VIP, Boss Odo, hoac su kien.");
+                                        Service.gI().sendThongBao(player, "Ban chua co Phieu Giam Gia! Nhan tu goi VIP, Boss, hoac su kien.");
                                     }
-                                    ShopService.gI().opendShop(player, "SHOP_PHIEU_GIAM_GIA", false);
+                                    ShopService.gI().opendShop(player, "SHOP_SU_KIEN_VL", true);
                                 }
                             }
                         }
                         case 2 -> {
                             if (select == 0 && InventoryService.gI().canOpenBillShop(player)) {
-                                ShopService.gI().opendShop(player, "BILL", false);
+                                ShopService.gI().opendShop(player, "BILL", true);
                                 break;
                             }
                         }

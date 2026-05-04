@@ -148,6 +148,7 @@ public class ItemTime {
     public static final int TIME_30P = 1800000;
     public static final int TIME_KILIS = 3600000;
     public static final int TIME_CO_BON_LA = 1800000;
+    public static final int TIME_PHIEU_GIAM_GIA = 86400000; // 24 giờ
 
     private Player player;
 
@@ -258,6 +259,11 @@ public class ItemTime {
     public long lastTimeMaTroi;
     public boolean isBiMa;
     public long lastTimeBiMa;
+
+    // Phiếu giảm giá 30% — hiệu lực 24h, dùng 1 lần mua rồi hết
+    public boolean isUsePhieuGiamGia;
+    public long lastTimePhieuGiamGia;
+    public boolean usedPhieuGiamGia; // true = đã dùng 1 lần mua, phiếu hết hiệu lực
 
     public long lastTimeBanhTrungThu1Trung;
     public long lastTimepho1;
@@ -528,6 +534,14 @@ public class ItemTime {
         if (ispho3) {
             if (Util.canDoWithTime(lastTimepho3, TIME_EAT_MEAL3)) {
                 ispho3 = false;
+            }
+        }
+        // Phiếu giảm giá hết hạn sau 24h hoặc đã dùng 1 lần
+        if (isUsePhieuGiamGia) {
+            if (usedPhieuGiamGia || Util.canDoWithTime(lastTimePhieuGiamGia, TIME_PHIEU_GIAM_GIA)) {
+                isUsePhieuGiamGia = false;
+                usedPhieuGiamGia = false;
+                Service.gI().sendThongBao(player, "Phiếu Giảm Giá đã hết hiệu lực!");
             }
         }
     }

@@ -317,6 +317,17 @@ public final class Manager {
 
             // NPC Hùng Vương được spawn trong HungVuong.java (event) — không spawn ở đây vì EventManager chưa init
 
+            // Spawn NPC Champa (Thu gom rác) tại Siêu thị Huyền Bí (map 173)
+            if (map.mapId == 173) {
+                short xChampa = 534;
+                short yChampa = 336;
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, xChampa, yChampa, ConstNpc.CHAMPA));
+                // Spawn NPC Hắc Mị Nương (Hiến tế Cải trang) bên phải Champa
+                short xHMN = 600;
+                short yHMN = 336;
+                map.npcs.add(NpcFactory.createNPC(map.mapId, 1, xHMN, yHMN, ConstNpc.HAC_MI_NUONG));
+            }
+
             // Dùng Virtual Thread để update map
             Thread.startVirtualThread(() -> map.run());
         }

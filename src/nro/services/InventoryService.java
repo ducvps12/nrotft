@@ -983,9 +983,14 @@ public class InventoryService {
         if (itemAdd.template.isUpToUp) {
             for (Item it : items) {
                 if (!it.isNotNullItem() || it.template.id != itemAdd.template.id
-                        || (!checkListsEqual(it.itemOptions, itemAdd.itemOptions) && itemAdd.template.id != 2074
-                                && !itemAdd.isDaNangCap())
                         || it.quantity >= 100_000_000) {
+                    continue;
+                }
+                // Cho phép gộp bỏ qua check options: mảnh sưu tầm, đá nâng cấp, item 2074
+                boolean skipOptionsCheck = isCollectionFragment(itemAdd.template.id)
+                        || itemAdd.template.id == 2074
+                        || itemAdd.isDaNangCap();
+                if (!skipOptionsCheck && !checkListsEqual(it.itemOptions, itemAdd.itemOptions)) {
                     continue;
                 }
 
@@ -1040,6 +1045,20 @@ public class InventoryService {
 
     private void __________________Kiểm_tra_điều_kiện_vật_phẩm______________() {
         // **********************************************************************
+    }
+
+    /**
+     * Kiểm tra item có phải mảnh sưu tầm không - luôn gộp quantity bất kể options
+     */
+    private static boolean isCollectionFragment(int itemId) {
+        return itemId == 1204  // Mảnh Rồng thần Namếc
+            || itemId == 1208  // Mảnh Rồng thần Namếc (variant)
+            || itemId == 1901  // Mảnh Khí Oozaru
+            || itemId == 956   // Mảnh Đội trưởng Vàng
+            || itemId == 1173  // Mảnh Quỷ
+            || itemId == 1855  // Mảnh vỡ Bông tai cấp 3
+            || itemId == 1847  // Mảnh Đinh Ba
+            || itemId == 1848; // Mảnh Cung Tên
     }
 
     /**

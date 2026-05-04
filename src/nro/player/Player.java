@@ -262,6 +262,17 @@ public class Player implements Runnable {
     // VIP Đệ Tử: chế độ phân bổ chỉ số (0=default, 1=HP/DAME focus)
     public byte petVipDistMode = 0;
     public byte petVipTier = 0;
+    // VIP CAO THỦ: admin custom chỉ số đệ tử (0=off, 1=on)
+    public byte petVipCaoThuMode = 0;
+    // Admin custom stat values cho đệ (VIP CAO THỦ)
+    public int petCaoThuBonusHp = 0;
+    public int petCaoThuBonusMp = 0;
+    public int petCaoThuBonusDame = 0;
+    public int petCaoThuBonusDef = 0;
+    public int petCaoThuBonusCrit = 0;
+    // Admin cho phép đệ tự cộng DEF/CRIT hay chưa (VIP CAO THỦ)
+    public boolean petCaoThuAllowDef = false;
+    public boolean petCaoThuAllowCrit = false;
     public EffectSkin effectSkin;
     public NPoint nPoint;
     public RewardBlackBall rewardBlackBall;
@@ -326,6 +337,7 @@ public class Player implements Runnable {
     // --- Top Rewards Weekly Claim ---
     public long lastClaimTopSM;  // Timestamp lần cuối nhận thưởng top SM
     public long lastClaimTopNV;  // Timestamp lần cuối nhận thưởng top NV
+    public long lastClaimTopNap; // Timestamp lần cuối nhận thưởng top Nạp
     public int totalManhVoBought; // Tổng mảnh vỡ đã mua (cho tiered pricing)
     public int tnsmLuyenTap;
     public boolean dangKyTapTuDong;

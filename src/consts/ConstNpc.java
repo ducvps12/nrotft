@@ -174,6 +174,7 @@ public class ConstNpc {
         public static final byte GOKU_SSJ_2 = 61;
         public static final byte POTAGE = 62;
         public static final byte JACO = 63;
+        public static final byte HAC_MI_NUONG = 64;
         public static final byte YARIROBE = 65;
         public static final byte NOI_BANH = 66;
         public static final byte MR_POPO = 67;
@@ -523,4 +524,23 @@ public class ConstNpc {
         public static final int MENU_LTN_VIP_PET_CONFIRM_1 = 2111; // Xác nhận VIP Đệ 1
         public static final int MENU_LTN_VIP_PET_CONFIRM_2 = 2112; // Xác nhận VIP Đệ 2
         public static final int MENU_LTN_VIP_PET_CONFIRM_3 = 2113; // Xác nhận VIP Đệ 3
+        public static final int MENU_LTN_VIP_PET_CONFIRM_4 = 2114; // Xác nhận VIP Đệ CAO THỦ (tier 4)
+        public static final int MENU_LTN_VIP_PET_CONFIG = 2115; // Cấu hình VIP Đệ CAO THỦ
+
+        // ===================== MENU CHAMPA (Thu Gom Rác) =====================
+        public static final int MENU_CHAMPA_MAIN = 2300;
+        public static final int MENU_CHAMPA_BAN_RAC = 2301;
+        public static final int MENU_CHAMPA_BAN_NL = 2302;
+        public static final int MENU_CHAMPA_DOI_DBV = 2303;
+        public static final int MENU_CHAMPA_BAN_ALL = 2304;
+        public static final int MENU_CHAMPA_CONFIRM_ALL = 2305;
+        public static final int MENU_CHAMPA_DOI_DBV_CONFIRM = 2306;
+        public static final int MENU_CHAMPA_GOM_MANH = 2307;       // Gom mảnh Rồng thần Namếc
+        public static final int MENU_CHAMPA_GOM_CONFIRM = 2308;    // Xác nhận gom mảnh
+
+        // ===================== MENU HẮC MỊ NƯƠNG (Hiến tế Cải trang) =====================
+        public static final int MENU_HMN_MAIN = 2400;
+        public static final int MENU_HMN_CHON_CT = 2401;   // Chọn cải trang từ túi
+        public static final int MENU_HMN_CHON_PHI = 2402;  // Chọn phương thức thanh toán
+        public static final int MENU_HMN_CONFIRM = 2403;   // Xác nhận hiến tế
 }
