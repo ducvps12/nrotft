@@ -938,6 +938,16 @@ public class NPoint {
         } else if (itemCount >= 30) {
             hpMax += (hpMax * 1L / 100L); // +1% HP khi có 30 món
         }
+        // === BONUS THEO LOẠI MẢNH CỤ THỂ TRONG SỔ SƯU TẦM ===
+        int[] collectionBonus = getCollectionItemBonus();
+        // collectionBonus[0] = Oozaru (1901): +HP%
+        // collectionBonus[1] = Rồng Namếc (1204): +KI%
+        // collectionBonus[2] = Đội trưởng vàng (956): +Dame%
+        // collectionBonus[3] = Quỷ (1173): +Def%
+        // collectionBonus[4] = Bông tai C3 (1855): +Crit
+        if (collectionBonus[0] > 0) {
+            hpMax += (hpMax * collectionBonus[0] / 100L); // Oozaru → +HP
+        }
 
         // if (this.player.itemTime != null && this.player.itemTime.isMaTroi) {
         // this.hpMax /= 1.5;
@@ -1172,11 +1182,16 @@ public class NPoint {
             mpMax += (mpMax * tl / 100L);
         }
 
-        int itemCount = this.player.inventory.itemsBoxCollection.size();
-        if (itemCount >= 20) {
-            mpMax += (mpMax * 4L / 100L); // +3% HP khi có 40 món
-        } else if (itemCount >= 10) {
-            mpMax += (mpMax * 2L / 100L); // +1% HP khi có 30 món
+        int itemCount2 = this.player.inventory.itemsBoxCollection.size();
+        if (itemCount2 >= 20) {
+            mpMax += (mpMax * 4L / 100L); // +4% KI khi có 20 món
+        } else if (itemCount2 >= 10) {
+            mpMax += (mpMax * 2L / 100L); // +2% KI khi có 10 món
+        }
+        // === BONUS RỒNG NAMẾC TRONG SỔ SƯU TẦM → +KI% ===
+        int[] collectionBonus2 = getCollectionItemBonus();
+        if (collectionBonus2[1] > 0) {
+            mpMax += (mpMax * collectionBonus2[1] / 100L);
         }
 
         if (this.player.isClone) {
@@ -1649,6 +1664,12 @@ public class NPoint {
         // if (dame > 2_000_000_000) {
         // dame = 2_000_000_000;
         // }
+        // === BONUS ĐỘI TRƯỞ̀NG VÀNG (956) TRONG SỔ SƯU TẦM → +DAME% ===
+        int[] collectionBonus3 = getCollectionItemBonus();
+        if (collectionBonus3[2] > 0) {
+            dame += (dame * collectionBonus3[2] / 100L);
+        }
+
         this.dame = dame;
     }
 
@@ -1667,6 +1688,11 @@ public class NPoint {
             if (buffTlGiap > 0) {
                 this.def += (this.def * buffTlGiap / 100L);
             }
+        }
+        // === BONUS QUỶ (1173) TRONG SỔ SƯU TẦM → +DEF% ===
+        int[] collectionBonus4 = getCollectionItemBonus();
+        if (collectionBonus4[3] > 0) {
+            this.def += (this.def * collectionBonus4[3] / 100L);
         }
     }
 
@@ -1687,6 +1713,12 @@ public class NPoint {
         // ========== Xử lý buff generic (event items) ==========
         // Note: option 14 (chí mạng+#%) đã được xử lý ở setMpMax vì critAdd
         // Nếu cần thêm option khác liên quan crit, thêm ở đây
+
+        // === BONUS BONG TAI C3 (1855) TRONG SO SUU TAM -> +CRIT ===
+        int[] collectionBonus5 = getCollectionItemBonus();
+        if (collectionBonus5[4] > 0) {
+            this.crit += collectionBonus5[4]; // +1/3/5 crit flat
+        }
     }
 
     private void resetPoint() {
@@ -2193,6 +2225,10 @@ public class NPoint {
         return 0;
     }
 
+    public boolean isPowerLimitInitialized() {
+        return powerLimit != null;
+    }
+
     public long getPowerNextLimit() {
         PowerLimit powerLimit = PowerLimitManager.getInstance().get(limitPower + 1);
         if (powerLimit != null) {
@@ -2302,9 +2338,14 @@ public class NPoint {
             }
         }
         if (updatePoint) {
+            // BUGFIX: Phải calPoint() để tính lại hpMax/mpMax/dame từ hpg/mpg/dameg mới
+            // Nếu không, chỉ số gốc tăng nhưng chỉ số thực tế vẫn giữ nguyên (ảo!)
+            calPoint();
             Service.gI().point(player);
         }
         if (manualForPet) {
+            // Tính lại chỉ số cho cả master (vì calPoint của master cũng tính pet)
+            ((Pet) player).master.nPoint.calPoint();
             Service.gI().sendChiSoPetGoc(((Pet) player).master);
             Service.gI().showInfoPet(((Pet) player).master);
             Service.gI().point(((Pet) player).master);
@@ -2408,4 +2449,63 @@ public class NPoint {
         return param * percent / 100;
     }
 
+    /**
+     * Tinh bonus chi so tu cac manh suu tam cu the trong so suu tam.
+     * Tra ve mang 5 phan tu: [hpBonus%, kiBonus%, dameBonus%, defBonus%, critBonus]
+     * Moi loai manh tang bonus theo so luong:
+     *   >= 500: +5%
+     *   >= 200: +3%
+     *   >= 50:  +1%
+     */
+    private int[] getCollectionItemBonus() {
+        int[] bonus = new int[5]; // [hp, ki, dame, def, crit]
+        if (this.player == null || this.player.inventory == null
+                || this.player.inventory.itemsBoxCollection == null
+                || this.player.isPet || this.player.isBoss) {
+            return bonus;
+        }
+        int oozaruQty = 0;   // 1901 - Manh Khi Oozaru -> HP
+        int dragonQty = 0;   // 1204 - Manh Rong than Namec -> KI
+        int captainQty = 0;  // 956  - Manh Doi truong Vang -> Dame
+        int demonQty = 0;    // 1173 - Manh Quy -> Def
+        int earringQty = 0;  // 1855 - Manh vo Bong tai C3 -> Crit
+
+        for (Item it : this.player.inventory.itemsBoxCollection) {
+            if (it == null || !it.isNotNullItem()) continue;
+            switch (it.template.id) {
+                case 1901 -> oozaruQty += it.quantity;
+                case 1204 -> dragonQty += it.quantity;
+                case 956  -> captainQty += it.quantity;
+                case 1173 -> demonQty += it.quantity;
+                case 1855 -> earringQty += it.quantity;
+            }
+        }
+        // Cung xet trong bag (player co the chua bo vao so)
+        for (Item it : this.player.inventory.itemsBag) {
+            if (it == null || !it.isNotNullItem()) continue;
+            switch (it.template.id) {
+                case 1901 -> oozaruQty += it.quantity;
+                case 1204 -> dragonQty += it.quantity;
+                case 956  -> captainQty += it.quantity;
+                case 1173 -> demonQty += it.quantity;
+                case 1855 -> earringQty += it.quantity;
+            }
+        }
+
+        bonus[0] = calcTierBonus(oozaruQty);   // HP%
+        bonus[1] = calcTierBonus(dragonQty);   // KI%
+        bonus[2] = calcTierBonus(captainQty);  // Dame%
+        bonus[3] = calcTierBonus(demonQty);    // Def%
+        bonus[4] = calcTierBonus(earringQty);  // Crit flat
+        return bonus;
+    }
+
+    private int calcTierBonus(int qty) {
+        if (qty >= 500) return 5;
+        if (qty >= 200) return 3;
+        if (qty >= 50)  return 1;
+        return 0;
+    }
+
 }
+

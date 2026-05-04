@@ -54,10 +54,10 @@ public class BabyMonKeyYellow extends Boss {
             int[] rare1 = {1901, 1142};
             int chosenId = rare1[rnd.nextInt(rare1.length)];
 
-            // Rơi 50 mảnh, mỗi mảnh quantity 5, riêng lẻ
-            for (int i = 0; i < 50; i++) {
-                Service.gI().dropItemMap(zone, Util.ratiDTL(zone, chosenId, 5, x, y, plKill.id));
-            }
+            // Drop mảnh sưu tầm thuần (không dùng ratiDTL vì nó thêm option random gây không gộp được)
+            ItemMap it = new ItemMap(zone, chosenId, 250, x, y, plKill.id);
+            it.options.add(new Item.ItemOption(73, 1)); // option mặc định để gộp
+            Service.gI().dropItemMap(zone, it);
         } // 15% khả năng rơi item AWJ
         else if (Util.isTrue(15, 50)) {
             Service.gI().dropItemMap(zone, Util.ratiDTL(zone, Manager.itemIds_tl_AWJ[randomDoAWJ], 1, x, y, plKill.id));
@@ -74,31 +74,6 @@ public class BabyMonKeyYellow extends Boss {
             // Thả item ra map
             Service.gI().dropItemMap(zone, it);
         }
-                // --- Rơi thêm đồ từ Panel ---
-String customItems = Manager.BOSS_REWARD_PANEL.get((int) this.id);
-if (customItems != null && !customItems.isEmpty()) {
-    String[] entries = customItems.split(","); // Tách các phần tử
-    for (String entry : entries) {
-        try {
-            String[] parts = entry.trim().split("-");
-            int itemId = Integer.parseInt(parts[0]);
-            int quantity = 1; // Mặc định là 1 nếu không nhập số lượng
-            
-            if (parts.length > 1) {
-                quantity = Integer.parseInt(parts[1]);
-            }
-
-            if (Util.isTrue(30, 100)) {
-                ItemMap it = new ItemMap(this.zone, itemId, quantity, this.location.x + Util.nextInt(-10, 10),
-                        this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
-                Service.gI().dropItemMap(this.zone, it);
-            }
-        } catch (Exception e) {
-            // Tránh lỗi khi nhập sai định dạng trong Panel (ví dụ nhập chữ hoặc thiếu dấu -)
-            System.err.println("Lỗi cấu hình vật phẩm Boss ID " + this.id + ": " + entry);
-        }
-    }
-}
     }
 
     @Override

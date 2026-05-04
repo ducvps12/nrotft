@@ -33,20 +33,6 @@ public class XenBoHung extends Boss {
 
     @Override
     public void reward(Player plKill) {
-        // --- Rơi thêm đồ từ Panel ---
-        String customItems = Manager.BOSS_REWARD_PANEL.get((int) this.id);
-        if (customItems != null && !customItems.isEmpty()) {
-            String[] itemIds = customItems.split(",");
-            for (String idStr : itemIds) {
-                int itemId = Integer.parseInt(idStr.trim());
-                // Tỉ lệ rơi đồ từ panel bạn có thể chỉnh ở đây (ví dụ 30%)
-                if (Util.isTrue(40, 100)) {
-                    ItemMap it = new ItemMap(this.zone, itemId, 1, this.location.x,
-                            this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
-                    Service.gI().dropItemMap(this.zone, it);
-                }
-            }
-        }
         ItemMap it = new ItemMap(this.zone, 674, 2, this.location.x, this.location.y, plKill.id);
         Service.gI().dropItemMap(this.zone, it);
         TaskService.gI().checkDoneTaskKillBoss(plKill, this);

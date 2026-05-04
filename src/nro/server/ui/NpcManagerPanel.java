@@ -2,7 +2,10 @@ package nro.server.ui;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import consts.ConstNpc;
+import event.EventManager;
 import jdbc.DBConnecter;
+import nro.server.Manager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,6 +15,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -31,11 +36,79 @@ public class NpcManagerPanel extends JPanel {
     // Cache: partId -> {iconId, type}
     private final List<int[]> allParts = new ArrayList<>(); // [id, iconId, type]
 
+    // NPC handler mapping: npc_template.id -> ConstNpc field name
+    private final Map<Integer, String> npcHandlerMap = new HashMap<>();
+    // NPC map placement: npc_template.id -> list of map IDs
+    private final Map<Integer, List<Integer>> npcMapPlacement = new HashMap<>();
+
     public NpcManagerPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
         setBorder(new EmptyBorder(15, 15, 15, 15));
+        buildNpcHandlerMap();
         loadPartIcons();
+    }
+
+    /**
+     * Build mapping từ ConstNpc field names → NPC ID values
+     * và mapping NPC ID → maps (từ game data Manager.MAPS)
+     */
+    private void buildNpcHandlerMap() {
+        try {
+            for (Field f : ConstNpc.class.getDeclaredFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())
+                        && f.getType() == byte.class) {
+                    int val = f.getByte(null) & 0xFF;
+                    npcHandlerMap.put(val, f.getName());
+                }
+            }
+        } catch (Exception ignored) {}
+
+        // Load NPC placement from map data
+        try {
+            if (Manager.MAPS != null) {
+                for (map.Map m : Manager.MAPS) {
+                    if (m.npcs != null) {
+                        for (var npc : m.npcs) {
+                            npcMapPlacement.computeIfAbsent(npc.tempId, k -> new ArrayList<>()).add(m.mapId);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    /**
+     * Lấy tên event liên kết với NPC ID (nếu có)
+     */
+    private String getEventForNpc(int npcConstId) {
+        // Map ConstNpc ID -> Event name dựa trên logic trong EventManager
+        return switch (npcConstId) {
+            case ConstNpc.SANTA -> EventManager.CHRISTMAS ? "✅ Giáng Sinh" : "❌ Giáng Sinh";
+            case ConstNpc.HUNG_VUONG -> EventManager.HUNG_VUONG ? "✅ Giỗ Tổ" : "❌ Giỗ Tổ";
+            case ConstNpc.NPC_TRUNG_THU, ConstNpc.TRUNG_THU -> EventManager.TRUNG_THU ? "✅ Trung Thu" : "❌ Trung Thu";
+            case ConstNpc.PHO_ANH_HAI -> EventManager.PHO_ANH_HAI ? "✅ Phở Anh Hai" : "❌ Phở Anh Hai";
+            case ConstNpc.NPC_DIA_NGUC -> EventManager.DIA_NGUC ? "✅ Địa Ngục" : "❌ Địa Ngục";
+            case ConstNpc.CAY_THONG, ConstNpc.CAY_NEU -> "Trang trí";
+            case ConstNpc.HOA_HONG, ConstNpc.HAI_HOA_HONG -> "8/3";
+            case ConstNpc.QUA_TRUNG, ConstNpc.DUA_HAU -> "Sự kiện mùa";
+            case ConstNpc.NOI_BANH -> "Tết";
+            case ConstNpc.ONG_GOHAN, ConstNpc.ONG_PARAGUS, ConstNpc.ONG_MOORI -> "NPC Làng";
+            case ConstNpc.BUNMA, ConstNpc.DENDE, ConstNpc.APPULE -> "NPC Làng";
+            case ConstNpc.DR_DRIEF, ConstNpc.CARGO, ConstNpc.CUI -> "NPC Làng";
+            case ConstNpc.QUY_LAO_KAME -> "NPC Chính";
+            case ConstNpc.THUONG_DE -> "NPC Chính";
+            case ConstNpc.THAN_VU_TRU -> "NPC Chính";
+            case ConstNpc.BA_HAT_MIT -> "NPC Chính";
+            case ConstNpc.THAN_MEO_KARIN -> "NPC Chính";
+            case ConstNpc.URON -> "Shop";
+            case ConstNpc.RUONG_DO -> "Rương đồ";
+            case ConstNpc.DAU_THAN -> "Cây Đậu Thần";
+            case ConstNpc.CUA_HANG_KY_GUI -> "Ký gửi";
+            case ConstNpc.BANG_DANH_VONG -> "Danh vọng";
+            case ConstNpc.RUONG_SUU_TAP -> "Sưu tập";
+            default -> "";
+        };
     }
 
     private void loadPartIcons() {
@@ -119,8 +192,8 @@ public class NpcManagerPanel extends JPanel {
         top.add(searchPanel, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
-        // Table
-        String[] cols = {"Avatar", "ID", "Tên NPC", "Head", "Body", "Leg", "Avatar ID", "Shop"};
+        // Table - thêm cột Maps và Event/Handler
+        String[] cols = {"Avatar", "ID", "Tên NPC", "Head", "Body", "Leg", "Avatar ID", "Maps", "Handler", "Event/Loại", "Shop"};
         model = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
             @Override public Class<?> getColumnClass(int c) { return c == 0 ? ImageIcon.class : Object.class; }
@@ -144,20 +217,33 @@ public class NpcManagerPanel extends JPanel {
                 comp.setBackground(sel ? new Color(220, 235, 255) : (r % 2 == 0 ? Color.WHITE : new Color(248, 250, 252)));
                 setHorizontalAlignment(JLabel.CENTER);
                 if (c == 2) { setFont(FONT_BOLD); setForeground(new Color(0, 102, 204)); }
+                else if (c == 7) { setFont(FONT); setForeground(new Color(128, 0, 128)); } // Maps: tím
+                else if (c == 8) { setFont(new Font("Consolas", Font.PLAIN, 11)); setForeground(new Color(100, 100, 100)); } // Handler: xám
+                else if (c == 9) { // Event: color-coded
+                    String val = v != null ? v.toString() : "";
+                    if (val.startsWith("✅")) setForeground(new Color(40, 167, 69));
+                    else if (val.startsWith("❌")) setForeground(new Color(220, 53, 69));
+                    else if (val.contains("NPC")) setForeground(new Color(0, 102, 204));
+                    else setForeground(new Color(150, 150, 150));
+                    setFont(FONT_BOLD);
+                }
                 else { setFont(FONT); setForeground(Color.BLACK); }
                 return comp;
             }
         });
 
         TableColumnModel cm = table.getColumnModel();
-        cm.getColumn(0).setPreferredWidth(50);
-        cm.getColumn(1).setPreferredWidth(50);
-        cm.getColumn(2).setPreferredWidth(150);
-        cm.getColumn(3).setPreferredWidth(60);
-        cm.getColumn(4).setPreferredWidth(60);
-        cm.getColumn(5).setPreferredWidth(60);
-        cm.getColumn(6).setPreferredWidth(60);
-        cm.getColumn(7).setPreferredWidth(120);
+        cm.getColumn(0).setPreferredWidth(50);   // Avatar
+        cm.getColumn(1).setPreferredWidth(40);   // ID
+        cm.getColumn(2).setPreferredWidth(130);  // Tên NPC
+        cm.getColumn(3).setPreferredWidth(50);   // Head
+        cm.getColumn(4).setPreferredWidth(50);   // Body
+        cm.getColumn(5).setPreferredWidth(50);   // Leg
+        cm.getColumn(6).setPreferredWidth(50);   // Avatar ID
+        cm.getColumn(7).setPreferredWidth(100);  // Maps
+        cm.getColumn(8).setPreferredWidth(100);  // Handler
+        cm.getColumn(9).setPreferredWidth(100);  // Event/Loại
+        cm.getColumn(10).setPreferredWidth(100); // Shop
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -211,8 +297,19 @@ public class NpcManagerPanel extends JPanel {
         int avatar = rs.getInt("avatar");
         String shops = rs.getString("shops");
         ImageIcon icon = getPartIcon(head, 32);
+
+        // Maps placement
+        List<Integer> maps = npcMapPlacement.get(id);
+        String mapsStr = (maps != null && !maps.isEmpty()) ? maps.toString() : "-";
+
+        // Handler name from ConstNpc
+        String handler = npcHandlerMap.getOrDefault(id, "-");
+
+        // Event/Loại
+        String eventType = getEventForNpc(id);
+
         SwingUtilities.invokeLater(() -> model.addRow(new Object[]{
-            icon, id, name, head, body, leg, avatar, shops != null ? shops : "-"
+            icon, id, name, head, body, leg, avatar, mapsStr, handler, eventType, shops != null ? shops : "-"
         }));
     }
 

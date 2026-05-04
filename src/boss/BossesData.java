@@ -2132,12 +2132,7 @@ public class BossesData {
                         new short[] { 394, 395, 396, -1, 3, -1 }, // outfit unique - Bojack set
                         500000, // dame
                         new long[] { 50000000 }, // hp
-                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
-                                        26, 27, 28,
-                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
-                                        74, 75, 76, 77, 79,
-                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
-                                        107, 108, 109, 110 }, // map join
+                        new int[] { 176 }, // map join - Chỉ Cung Trăng
                         new int[][] {
                                         { Skill.DRAGON, 7, 3000 },
                                         { Skill.KAMEJOKO, 7, 5000 },
@@ -2154,12 +2149,7 @@ public class BossesData {
                         new short[] { 400, 401, 402, -1, 4, -1 }, // outfit unique - Cooler set
                         500000, // dame
                         new long[] { 50000000 }, // hp
-                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
-                                        26, 27, 28,
-                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
-                                        74, 75, 76, 77, 79,
-                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
-                                        107, 108, 109, 110 }, // map join
+                        new int[] { 178 }, // map join - Chỉ Vùng Đất Huyền Thoại
                         new int[][] {
                                         { Skill.DEMON, 7, 3000 },
                                         { Skill.MASENKO, 7, 5000 },
@@ -2176,12 +2166,7 @@ public class BossesData {
                         new short[] { 365, 366, 367, -1, 5, -1 }, // outfit unique - Janemba set
                         500000, // dame
                         new long[] { 50000000 }, // hp
-                        new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 25,
-                                        26, 27, 28,
-                                        29, 30, 31, 32, 33, 34, 35, 36, 37, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
-                                        74, 75, 76, 77, 79,
-                                        80, 81, 82, 83, 84, 92, 93, 94, 96, 97, 98, 99, 100, 102, 103, 104, 105, 106,
-                                        107, 108, 109, 110 }, // map join
+                        new int[] { 176, 178 }, // map join - Cả 2 map
                         new int[][] {
                                         { Skill.ANTOMIC, 7, 3000 },
                                         { Skill.KAMEJOKO, 7, 5000 },
@@ -2191,6 +2176,27 @@ public class BossesData {
                                         "|-1|Phi nước đại đây!" }, // text chat 2
                         new String[] { "|-1|Hồng mao... rụng hết..." }, // text chat 3
                         REST_5_M);
+
+        // Boss an Than Long Co Dai - trieu hoi bang 3 Linh Phu
+        public static final BossData THAN_LONG_CO_DAI = new BossData(
+                        "Than Long Co Dai", // name
+                        ConstPlayer.XAYDA, // gender
+                        new short[] { 311, 312, 313, -1, 6, -1 }, // outfit
+                        2000000, // dame
+                        new long[] { 200000000 }, // hp 200M
+                        new int[] { 176 }, // map join - Cung Trang
+                        new int[][] {
+                                        { Skill.DRAGON, 7, 2000 },
+                                        { Skill.KAMEJOKO, 7, 3000 },
+                                        { Skill.GALICK, 7, 4000 },
+                                        { Skill.ANTOMIC, 7, 5000 },
+                                        { Skill.MASENKO, 7, 3000 } },
+                        new String[] { "|-1|Ta la Than Long Co Dai! Ai dam day ta thuc giac!" }, // text chat 1
+                        new String[] { "|-1|Suc manh cua ta la vo han!",
+                                        "|-1|Cac nguoi khong the thang!",
+                                        "|-1|Nhan lay don nay!" }, // text chat 2
+                        new String[] { "|-1|Cac nguoi... that loi hai..." }, // text chat 3
+                        REST_30_M);
 
         public static final BossData KARIN = new BossData(
                         "Karin", // name

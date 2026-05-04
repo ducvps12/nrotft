@@ -34,32 +34,6 @@ public class Cumber extends Boss {
     @Override
     public void reward(Player plKill) {
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.TRUM_SAN_BOSS, 1);
-        // --- Rơi thêm đồ từ Panel ---
-        String customItems = Manager.BOSS_REWARD_PANEL.get((int) this.id);
-        if (customItems != null && !customItems.isEmpty()) {
-            String[] entries = customItems.split(","); // Tách các phần tử
-            for (String entry : entries) {
-                try {
-                    String[] parts = entry.trim().split("-");
-                    int itemId = Integer.parseInt(parts[0]);
-                    int quantity = 1; // Mặc định là 1 nếu không nhập số lượng
-
-                    if (parts.length > 1) {
-                        quantity = Integer.parseInt(parts[1]);
-                    }
-
-                    if (Util.isTrue(30, 100)) {
-                        ItemMap it = new ItemMap(this.zone, itemId, quantity, this.location.x + Util.nextInt(-10, 10),
-                                this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
-                        Service.gI().dropItemMap(this.zone, it);
-                    }
-                } catch (Exception e) {
-                    // Tránh lỗi khi nhập sai định dạng trong Panel (ví dụ nhập chữ hoặc thiếu dấu
-                    // -)
-                    System.err.println("Lỗi cấu hình vật phẩm Boss ID " + this.id + ": " + entry);
-                }
-            }
-        }
         if (Util.isTrue(15, 100)) {
             ItemMap it = ItemService.gI().randDoTL(this.zone, 1, this.location.x,
                     this.zone.map.yPhysicInTop(this.location.x,

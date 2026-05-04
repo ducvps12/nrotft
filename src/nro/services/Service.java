@@ -324,32 +324,97 @@ public class Service {
         msg.cleanup();
     }
 
+    // ============================================================
+    // ANTI-SPAM: Registration rate limiting
+    // ============================================================
+    private static final int MAX_REG_PER_IP_PER_HOUR = 3;
+    private static final long REG_COOLDOWN_MS = 30_000; // 30 seconds between registrations
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.List<Long>> regAttemptsByIp
+            = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private boolean checkRegRateLimit(String ip) {
+        long now = System.currentTimeMillis();
+        long oneHourAgo = now - 3_600_000;
+
+        java.util.List<Long> attempts = regAttemptsByIp.computeIfAbsent(ip,
+                k -> java.util.Collections.synchronizedList(new java.util.ArrayList<>()));
+
+        // Remove expired entries
+        synchronized (attempts) {
+            attempts.removeIf(t -> t < oneHourAgo);
+
+            // Check max per hour
+            if (attempts.size() >= MAX_REG_PER_IP_PER_HOUR) {
+                return false;
+            }
+
+            // Check cooldown
+            if (!attempts.isEmpty()) {
+                long lastAttempt = attempts.get(attempts.size() - 1);
+                if (now - lastAttempt < REG_COOLDOWN_MS) {
+                    return false;
+                }
+            }
+
+            attempts.add(now);
+        }
+        return true;
+    }
+
+    // Periodic cleanup of old rate limit entries (call from a timer if needed)
+    public static void cleanupRegRateLimit() {
+        long oneHourAgo = System.currentTimeMillis() - 3_600_000;
+        regAttemptsByIp.entrySet().removeIf(entry -> {
+            java.util.List<Long> list = entry.getValue();
+            synchronized (list) {
+                list.removeIf(t -> t < oneHourAgo);
+                return list.isEmpty();
+            }
+        });
+    }
+
     public void regisAccount(Session session, Message _msg) {
         try {
             String user = _msg.readUTF();
             String pass = _msg.readUTF();
 
+            MySession mySession = (MySession) session;
+            String ip = mySession.ipAddress;
+
             if (user == null || user.isEmpty()) {
-                sendThongBaoOK((MySession) session, "Vui lòng nhập tài khoản");
+                sendThongBaoOK(mySession, "Vui lòng nhập tài khoản");
                 return;
             }
             if (pass == null || pass.isEmpty()) {
-                sendThongBaoOK((MySession) session, "Vui lòng nhập mật khẩu");
+                sendThongBaoOK(mySession, "Vui lòng nhập mật khẩu");
                 return;
             }
 
             if (!(user.length() >= 4 && user.length() <= 18)) {
-                sendThongBaoOK((MySession) session, "Tài khoản phải có độ dài 4-18 ký tự");
+                sendThongBaoOK(mySession, "Tài khoản phải có độ dài 4-18 ký tự");
                 return;
             }
             if (!(pass.length() >= 6 && pass.length() <= 18)) {
-                sendThongBaoOK((MySession) session, "Mật khẩu phải có độ dài 6-18 ký tự");
+                sendThongBaoOK(mySession, "Mật khẩu phải có độ dài 6-18 ký tự");
+                return;
+            }
+
+            // Anti-spam: Block bot username patterns
+            if (user.matches("(?i)^(account_player|bot_|test_|spam_|auto_)\\d+$")) {
+                sendThongBaoOK(mySession, "Ten tai khoan khong hop le. Vui long chon ten khac.");
+                return;
+            }
+
+            // Anti-spam: IP rate limiting
+            if (!checkRegRateLimit(ip)) {
+                sendThongBaoOK(mySession, "Ban da tao qua nhieu tai khoan. Vui long thu lai sau 30 giay hoac 1 gio.");
+                Logger.log(Logger.YELLOW, "[ANTI-SPAM] Registration blocked for IP: " + ip + " user: " + user + "\n");
                 return;
             }
 
             NDVResultSet rs = DBConnecter.executeQuery("select * from account where username = ?", user);
             if (rs.next()) {
-                sendThongBaoOK((MySession) session, "Tài khoản đã tồn tại");
+                sendThongBaoOK(mySession, "Tài khoản đã tồn tại");
             } else {
                 DBConnecter.executeUpdate(
                         "insert into account (username, password, admin, cash, DiemDanh, danap) values(?, ?, 0, 0, 0, 0)",
@@ -359,7 +424,8 @@ public class Service {
                         + "Tài khoản: " + user + "\n"
                         + "Mật khẩu: " + pass + "\n"
                         + "Vui lòng lưu lại thông tin này để đăng nhập.";
-                sendThongBaoOK((MySession) session, message);
+                sendThongBaoOK(mySession, message);
+                Logger.log("[REGISTER] IP=" + ip + " User=" + user + "\n");
             }
             rs.dispose();
         } catch (Exception e) {

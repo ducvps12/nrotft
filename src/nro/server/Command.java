@@ -319,8 +319,8 @@ public class Command {
         NpcService.gI().createMenuConMeo(player, ConstNpc.MENU_ADMIN_DRAGON, -1,
                 "|0|--- NGỌC RỒNG ADMIN ---\n"
                         + "Chọn loại set cần cấp để tránh thao tác nhầm.\n"
-                        + "NRO Vô Cực: ghép từ bộ NRO 1-7 sao thường.",
-                "Set NR\n1-7 Sao", "Set NR\n2-7 Sao", "Rồng\nNamek", "Set NR\nVô Cực", "Quay Lại", "Đóng");
+                        + "NRO Siêu Cấp: ép từ 7 viên NRO 1 sao (50/50).",
+                "Set NR\n1-7 Sao", "Set NR\n2-7 Sao", "Rồng\nNamek", "Set NR\nSiêu Cấp", "Quay Lại", "Đóng");
     }
 
     public void showAdminExtendMenu(Player player) {
@@ -349,13 +349,15 @@ public class Command {
         Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng Namek 1-7 sao vào hành trang.");
     }
 
-    public void giveDragonBallsVoCuc(Player player) {
-        for (int itemId = 2980; itemId <= 2986; itemId++) {
-            Item item = ItemService.gI().createNewItem((short) itemId);
-            InventoryService.gI().addItemBag(player, item);
+    public void giveDragonBallsSieuCap(Player player) {
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+            Service.gI().sendThongBao(player, "Hanh trang can it nhat 1 o trong!");
+            return;
         }
+        Item item = ItemService.gI().createNewItem((short) 1015);
+        InventoryService.gI().addItemBag(player, item);
         InventoryService.gI().sendItemBag(player);
-        Service.gI().sendThongBao(player, "Đã cấp set Ngọc Rồng Vô Cực 1-7 sao vào hành trang.");
+        Service.gI().sendThongBao(player, "Da cap 1 vien Ngoc Rong Sieu Cap vao hanh trang.");
     }
 
     private void spawnPokemonBosses(Player player) {

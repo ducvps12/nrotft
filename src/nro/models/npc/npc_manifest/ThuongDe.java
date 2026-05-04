@@ -293,7 +293,7 @@ public class ThuongDe extends Npc {
                         + "|8|★ PHẦN THƯỞNG THỎI VÀNG:\n"
                         + "|2|» GOD: Goku Blue +60% ALL\n"
                         + "|2|» SSR: Hào quang God\n"
-                        + "|2|» Thú cưỡi Vô Cực / Pet Po\n"
+                        + "|2|» Thú cưỡi Siêu Cấp / Pet Po\n"
                         + "|2|» Set Thần Linh, Porata +2\n"
                         + "|2|» Chân Mệnh c9, Sách TK2\n"
                         + "|2|» CT VIP 35-50% chỉ số\n\n"
@@ -308,7 +308,7 @@ public class ThuongDe extends Npc {
     private void showLuckyRoundCountMenu(Player player, String name, String price) {
         String vipPreview = name.equals("Thỏi Vàng")
                 ? "|8|\n★ JACKPOT: Goku Blue GOD\n"
-                        + "|8|★ Thú cưỡi rồng Vô Cực\n"
+                        + "|8|★ Thú cưỡi rồng Siêu Cấp\n"
                         + "|8|★ Full set Thần Linh\n"
                         + "|8|★ CT VIP chỉ số 35-50%\n"
                 : "";
@@ -378,7 +378,7 @@ public class ThuongDe extends Npc {
                 "|7|━━ VẬT PHẨM ĐẶC BIỆT ━━\n\n"
                         + "|2|▶ Từ Vòng Quay Thỏi Vàng:\n"
                         + "|8|• Goku Blue GOD +60% ALL\n"
-                        + "|8|• Thú cưỡi rồng Vô Cực\n"
+                        + "|8|• Thú cưỡi rồng Siêu Cấp\n"
                         + "|8|• Pet Po siêu đáng yêu\n"
                         + "|8|• Set Thần Linh (5 món)\n"
                         + "|8|• Bông tai Porata +2\n\n"

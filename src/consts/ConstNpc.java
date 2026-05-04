@@ -199,6 +199,7 @@ public class ConstNpc {
         public static final byte HAI_HOA_HONG = 105;
         public static final byte BANG_DANH_VONG = 106;
         public static final byte BULMA_THO = 109;
+        public static final byte NPC_DIA_NGUC = 110; // NPC Dẫn Đường Địa Ngục
         // ----------------------index menu------------------------------------------
         // menu o len tang map mabu
         public static final int GO_UPSTAIRS_MENU = 10000;
@@ -277,11 +278,12 @@ public class ConstNpc {
         public static final int SHOW_SHENRON_EVENT_CONFIRM = 31720023;
         public static final int SHENRON_EVENT_CONFIRM = 31720024;
 
-        // Ngọc Rồng Vô Cực
-        public static final int MENU_GHEP_NRO_VO_CUC = 251030;
-        public static final int SUMMON_SHENRON_VO_CUC = 251031;
-        public static final int SHENRON_VO_CUC = 251032;
-        public static final int SHENRON_VO_CUC_CONFIRM = 251033;
+        // Ngọc Rồng Siêu Cấp
+        public static final int MENU_GHEP_NRO_SIEU_CAP = 251030;
+        public static final int SUMMON_SHENRON_SIEU_CAP = 251031;
+        public static final int SHENRON_SIEU_CAP = 251032;
+        public static final int SHENRON_SIEU_CAP_CONFIRM = 251033;
+        public static final int CONFIRM_GHEP_NRO_SIEU_CAP = 251034;
 
         public static final int SUB_MENU = 31720025;
         public static final int TAP_TU_DONG_CONFIRM = 31720026;
@@ -515,4 +517,10 @@ public class ConstNpc {
         public static final int MENU_LTN_PET_CONFIRM_2 = 2107; // Xác nhận Đệ Tử 2
         public static final int MENU_LTN_PET_CONFIRM_3 = 2108; // Xác nhận Đệ Tử 3
         public static final int MENU_LTN_PET_CONFIRM_4 = 2109; // Xác nhận Đệ Tử 4
+
+        // ===================== MENU GÓI VIP ĐỆ TỬ (Lý Tiểu Nương) =====================
+        public static final int MENU_LTN_VIP_PET = 2110;           // Chọn gói VIP Đệ
+        public static final int MENU_LTN_VIP_PET_CONFIRM_1 = 2111; // Xác nhận VIP Đệ 1
+        public static final int MENU_LTN_VIP_PET_CONFIRM_2 = 2112; // Xác nhận VIP Đệ 2
+        public static final int MENU_LTN_VIP_PET_CONFIRM_3 = 2113; // Xác nhận VIP Đệ 3
 }

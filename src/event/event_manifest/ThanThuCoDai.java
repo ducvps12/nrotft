@@ -17,10 +17,10 @@ public class ThanThuCoDai extends Event {
 
     @Override
     public void npc() {
-        // NPC dẫn đường tại Thánh Địa Kaio (map 50) → Cung Trăng
-        createNpc(50, 63, 350, 288);   // NPC hướng dẫn
-        // NPC đổi Linh Phù tại Cung Trăng (map 176)
-        createNpc(176, 63, 200, 336);
+        // NPC Jaco tại Cung Trăng (map 176) - tọa độ 289, 312
+        createNpc(176, 63, 289, 312);
+        // NPC Jaco tại Vùng Đất Huyền Thoại (map 178) - cho player quay về
+        createNpc(178, 63, 200, 288);
     }
 
     @Override

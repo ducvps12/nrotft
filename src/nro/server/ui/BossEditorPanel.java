@@ -16,6 +16,8 @@ import boss.BossesData;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import jdbc.DBConnecter;
+import models.Template.ItemTemplate;
+import nro.server.Manager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -87,6 +89,8 @@ public class BossEditorPanel extends JPanel {
     private JList<String> listBosses;
     private JTable tableSkills;
     private DefaultTableModel modelSkills;
+    private JTable tableDropItems;
+    private DefaultTableModel modelDropItems;
     private JLabel lblStatus;
 
     private BossData currentSelectedBossData;
@@ -488,6 +492,90 @@ public class BossEditorPanel extends JPanel {
         g.insets = new Insets(10, 5, 5, 5);
         miscPanel.add(scrollChat, g);
 
+        // 5. DROP ITEMS PANEL
+        JPanel dropPanel = new JPanel(new GridBagLayout());
+        dropPanel.setBorder(createSectionBorder("Vật Phẩm Rơi (Custom Drop)"));
+        dropPanel.setOpaque(false);
+
+        String[] dropCols = {"ID Item", "Tên Item", "Số lượng", "Tỉ lệ (%)"};
+        modelDropItems = new DefaultTableModel(dropCols, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return c == 2 || c == 3;
+            }
+        };
+        tableDropItems = new JTable(modelDropItems);
+        tableDropItems.setRowHeight(28);
+        tableDropItems.setFont(FONT_PLAIN);
+        tableDropItems.getTableHeader().setFont(FONT_BOLD);
+        tableDropItems.getTableHeader().setBackground(new Color(236, 240, 241));
+        tableDropItems.setSelectionBackground(new Color(52, 152, 219, 50));
+        tableDropItems.setShowGrid(true);
+        tableDropItems.setGridColor(new Color(235, 235, 235));
+        tableDropItems.getColumnModel().getColumn(0).setPreferredWidth(60);
+        tableDropItems.getColumnModel().getColumn(0).setMaxWidth(80);
+        tableDropItems.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tableDropItems.getColumnModel().getColumn(2).setPreferredWidth(70);
+        tableDropItems.getColumnModel().getColumn(2).setMaxWidth(90);
+        tableDropItems.getColumnModel().getColumn(3).setPreferredWidth(70);
+        tableDropItems.getColumnModel().getColumn(3).setMaxWidth(90);
+
+        // Color-coded drop rate column
+        tableDropItems.getColumnModel().getColumn(3).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                lbl.setHorizontalAlignment(JLabel.CENTER);
+                try {
+                    int rate = Integer.parseInt(value.toString());
+                    if (rate >= 50) lbl.setForeground(new Color(39, 174, 96));
+                    else if (rate >= 20) lbl.setForeground(new Color(243, 156, 18));
+                    else if (rate >= 5) lbl.setForeground(new Color(231, 76, 60));
+                    else lbl.setForeground(new Color(155, 89, 182));
+                    if (!isSelected) lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                } catch (Exception e) {}
+                return lbl;
+            }
+        });
+
+        JScrollPane scrollDropTable = new JScrollPane(tableDropItems);
+        scrollDropTable.setPreferredSize(new Dimension(0, 120));
+        scrollDropTable.setBorder(new LineBorder(Color.LIGHT_GRAY));
+
+        JPanel pDropBtns = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        pDropBtns.setOpaque(false);
+        JButton btnAddDrop = createStyledButton("+ Thêm Item", new Color(52, 152, 219), Color.WHITE);
+        JButton btnDelDrop = createStyledButton("- Xóa", new Color(220, 53, 69), Color.WHITE);
+        pDropBtns.add(btnAddDrop);
+        pDropBtns.add(btnDelDrop);
+
+        btnAddDrop.addActionListener(e -> openDropItemSearchDialog());
+        btnDelDrop.addActionListener(e -> {
+            int row = tableDropItems.getSelectedRow();
+            if (row >= 0) modelDropItems.removeRow(row);
+        });
+
+        JLabel lblDropHint = new JLabel("<html><small>" +
+                "<font color='#9b59b6'>1-4% Cực hiếm</font> | " +
+                "<font color='#e74c3c'>5-19% Hiếm</font> | " +
+                "<font color='#f39c12'>20-49% TB</font> | " +
+                "<font color='#27ae60'>50%+ Cao</font>" +
+                " | Lưu cùng Batch Save</small></html>");
+        lblDropHint.setBorder(new EmptyBorder(3, 0, 0, 0));
+
+        GridBagConstraints gd = new GridBagConstraints();
+        gd.insets = new Insets(2, 5, 2, 5);
+        gd.fill = GridBagConstraints.BOTH;
+        gd.weightx = 1;
+        gd.weighty = 1;
+        gd.gridx = 0; gd.gridy = 0; gd.gridwidth = 2;
+        dropPanel.add(scrollDropTable, gd);
+        gd.gridy = 1; gd.weighty = 0; gd.fill = GridBagConstraints.HORIZONTAL;
+        dropPanel.add(pDropBtns, gd);
+        gd.gridy = 2;
+        dropPanel.add(lblDropHint, gd);
+
         // Add all panels to form
         formPanel.add(infoPanel);
         formPanel.add(Box.createVerticalStrut(5));
@@ -496,6 +584,8 @@ public class BossEditorPanel extends JPanel {
         formPanel.add(locPanel);
         formPanel.add(Box.createVerticalStrut(5));
         formPanel.add(miscPanel);
+        formPanel.add(Box.createVerticalStrut(5));
+        formPanel.add(dropPanel);
 
         // --- BOTTOM BUTTON ---
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -937,6 +1027,7 @@ public class BossEditorPanel extends JPanel {
 
         if (previousBossKey != null && !previousBossKey.isEmpty()) {
             saveCurrentConfigToMemory(previousBossKey);
+            saveDropItemsForCurrentBoss(); // Auto-save drops khi chuyển boss
         }
 
         String selectedKey = listBosses.getSelectedValue();
@@ -1062,6 +1153,9 @@ public class BossEditorPanel extends JPanel {
                 }
             }
             txtBossChat.setText(sbChat.toString());
+
+            // LOAD DROP ITEMS
+            loadDropItemsForBoss();
         }
     }
 
@@ -1383,6 +1477,9 @@ public class BossEditorPanel extends JPanel {
             saveCurrentConfigToMemory(currentBossKey);
         }
 
+        // Lưu drop items cho boss hiện tại
+        saveDropItemsForCurrentBoss();
+
         if (pendingChanges.isEmpty()) {
             lblStatus.setText("Không có thay đổi nào để lưu!");
             lblStatus.setForeground(Color.ORANGE);
@@ -1436,7 +1533,7 @@ public class BossEditorPanel extends JPanel {
             // Refesh UI List để cập nhật Icon/Tên nếu có thay đổi
             listBosses.repaint();
 
-            lblStatus.setText("Đã Cập Nhật & Lưu File: " + countUpdated + " Boss!");
+            lblStatus.setText("Đã Cập Nhật & Lưu: " + countUpdated + " Boss + Drop Items!");
             lblStatus.setForeground(new Color(0, 150, 0));
 
             javax.swing.Timer t = new javax.swing.Timer(3000, evt -> lblStatus.setText(""));
@@ -1448,6 +1545,196 @@ public class BossEditorPanel extends JPanel {
             lblStatus.setText("Lỗi Exception: " + e.getMessage());
             lblStatus.setForeground(Color.RED);
         }
+    }
+
+    // ================================================================
+    // DROP ITEMS - Tích hợp cấu hình vật phẩm rơi
+    // ================================================================
+
+    /**
+     * Lấy BossID int từ tên key trong BossID class.
+     */
+    private int getBossIdFromKey(String key) {
+        try {
+            Field idField = BossID.class.getField(key);
+            return idField.getInt(null);
+        } catch (Exception e) {
+            return Integer.MIN_VALUE;
+        }
+    }
+
+    /**
+     * Lấy tên item từ Manager.ITEM_TEMPLATES theo ID.
+     */
+    private String getItemNameById(int itemId) {
+        if (Manager.ITEM_TEMPLATES != null) {
+            for (ItemTemplate t : Manager.ITEM_TEMPLATES) {
+                if (t.id == itemId) return t.name;
+            }
+        }
+        return "ID=" + itemId;
+    }
+
+    /**
+     * Load drop items cho boss đang chọn từ Manager.BOSS_REWARD_PANEL.
+     * Format: itemId-qty-rate,itemId-qty-rate,...
+     */
+    private void loadDropItemsForBoss() {
+        modelDropItems.setRowCount(0);
+        if (currentBossKey == null) return;
+
+        int bossId = getBossIdFromKey(currentBossKey);
+        if (bossId == Integer.MIN_VALUE) return;
+
+        String items = Manager.BOSS_REWARD_PANEL.get(bossId);
+        if (items == null || items.isEmpty()) return;
+
+        String[] entries = items.split(",");
+        for (String entry : entries) {
+            try {
+                String[] parts = entry.trim().split("-");
+                int itemId = Integer.parseInt(parts[0]);
+                int qty = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
+                int rate = parts.length > 2 ? Integer.parseInt(parts[2]) : 30;
+                modelDropItems.addRow(new Object[]{itemId, getItemNameById(itemId), qty, rate});
+            } catch (Exception e) {
+                System.err.println("Lỗi parse drop entry: " + entry);
+            }
+        }
+    }
+
+    /**
+     * Lưu drop items từ bảng UI vào Manager.BOSS_REWARD_PANEL + persist file.
+     */
+    private void saveDropItemsForCurrentBoss() {
+        if (currentBossKey == null) return;
+
+        int bossId = getBossIdFromKey(currentBossKey);
+        if (bossId == Integer.MIN_VALUE) return;
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < modelDropItems.getRowCount(); i++) {
+            try {
+                int itemId = Integer.parseInt(modelDropItems.getValueAt(i, 0).toString());
+                int qty = Integer.parseInt(modelDropItems.getValueAt(i, 2).toString());
+                int rate = Integer.parseInt(modelDropItems.getValueAt(i, 3).toString());
+                if (rate < 1) rate = 1;
+                if (rate > 100) rate = 100;
+                if (i > 0) sb.append(",");
+                sb.append(itemId).append("-").append(qty).append("-").append(rate);
+            } catch (Exception ignored) {}
+        }
+
+        String result = sb.toString();
+        if (result.isEmpty()) {
+            Manager.BOSS_REWARD_PANEL.remove(bossId);
+        } else {
+            Manager.BOSS_REWARD_PANEL.put(bossId, result);
+        }
+        Manager.saveBossRewardConfig();
+    }
+
+    /**
+     * Dialog tìm và thêm item vào bảng drop.
+     */
+    private void openDropItemSearchDialog() {
+        JDialog d = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thêm Vật Phẩm Rơi", true);
+        d.setSize(650, 700);
+        d.setLocationRelativeTo(this);
+        d.setLayout(new BorderLayout(0, 5));
+
+        DefaultTableModel m = new DefaultTableModel(new String[]{"ID", "Tên Item", "Icon"}, 0) {
+            @Override
+            public Class<?> getColumnClass(int c) {
+                return c == 2 ? ImageIcon.class : Object.class;
+            }
+            @Override
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        JTable t = new JTable(m);
+        t.setRowHeight(32);
+        t.setFont(FONT_PLAIN);
+        t.getTableHeader().setFont(FONT_BOLD);
+        t.getTableHeader().setBackground(new Color(236, 240, 241));
+        t.setSelectionBackground(new Color(52, 152, 219, 50));
+        t.getColumnModel().getColumn(0).setPreferredWidth(60);
+        t.getColumnModel().getColumn(0).setMaxWidth(80);
+        t.getColumnModel().getColumn(2).setPreferredWidth(40);
+        t.getColumnModel().getColumn(2).setMaxWidth(50);
+
+        // Load items from DB
+        if (Manager.ITEM_TEMPLATES != null) {
+            for (ItemTemplate it : Manager.ITEM_TEMPLATES) {
+                ImageIcon icon = getIconByIconId(it.iconID, 24);
+                m.addRow(new Object[]{it.id, it.name, icon});
+            }
+        }
+
+        JTextField fSearch = new JTextField();
+        fSearch.setBorder(BorderFactory.createTitledBorder("Tìm tên hoặc ID vật phẩm..."));
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(m);
+        t.setRowSorter(sorter);
+        fSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { doFilter(); }
+            public void removeUpdate(DocumentEvent e) { doFilter(); }
+            public void changedUpdate(DocumentEvent e) { doFilter(); }
+            void doFilter() {
+                String text = fSearch.getText().trim();
+                if (text.isEmpty()) sorter.setRowFilter(null);
+                else {
+                    var idF = RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text), 0);
+                    var nameF = RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text), 1);
+                    sorter.setRowFilter(RowFilter.orFilter(Arrays.asList(idF, nameF)));
+                }
+            }
+        });
+
+        // Double click to add item
+        t.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = t.convertRowIndexToModel(t.getSelectedRow());
+                    int id = (int) m.getValueAt(row, 0);
+                    String name = m.getValueAt(row, 1).toString();
+
+                    JTextField txtQty = new JTextField("1");
+                    JTextField txtRate = new JTextField("30");
+                    JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+                    inputPanel.add(new JLabel("Số lượng:"));
+                    inputPanel.add(txtQty);
+                    inputPanel.add(new JLabel("Tỉ lệ rơi (%):"));
+                    inputPanel.add(txtRate);
+
+                    int result = JOptionPane.showConfirmDialog(d, inputPanel,
+                            "Thêm: " + name, JOptionPane.OK_CANCEL_OPTION);
+
+                    if (result == JOptionPane.OK_OPTION) {
+                        try {
+                            int qty = Integer.parseInt(txtQty.getText().trim());
+                            int rate = Integer.parseInt(txtRate.getText().trim());
+                            if (qty < 1) qty = 1;
+                            if (rate < 1) rate = 1;
+                            if (rate > 100) rate = 100;
+                            modelDropItems.addRow(new Object[]{id, name, qty, rate});
+                            d.dispose();
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(d, "Vui lòng nhập số hợp lệ!");
+                        }
+                    }
+                }
+            }
+        });
+
+        d.add(fSearch, BorderLayout.NORTH);
+        d.add(new JScrollPane(t), BorderLayout.CENTER);
+
+        JLabel hint = new JLabel("  Double click vào item để thêm. Nhập số lượng + tỉ lệ rơi.");
+        hint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        hint.setForeground(Color.GRAY);
+        d.add(hint, BorderLayout.SOUTH);
+
+        d.setVisible(true);
     }
 
     private JTextField createStyledTextField(Color textColor) {

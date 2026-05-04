@@ -39,12 +39,14 @@ public class LyTieuNuong extends Npc {
                     + "|7|━━━━━━━━━━━━━━━━━━\n"
                     + "|2|Gói VIP Tuần: Nhận items buff mỗi tuần\n"
                     + "|2|Gói Đệ Tử: Nhận đệ VĨNH VIỄN + items\n"
+                    + "|1|VIP Đệ Tử: x2~x5 TNSM + phân bổ HP/DAME\n"
                     + "|2|Mini Games: Kéo Búa Bao, Số May Mắn,...\n"
                     + "Chọn dịch vụ bên dưới:";
 
             createOtherMenu(player, ConstNpc.MENU_LTN_MAIN, info,
                     "Gói VIP\nTuần",
                     "Gói Đệ Tử\n(Vĩnh Viễn)",
+                    "VIP Đệ\nTử",
                     "Mini\nGames",
                     "Hướng Dẫn",
                     "Đóng");
@@ -71,6 +73,12 @@ public class LyTieuNuong extends Npc {
                 case ConstNpc.MENU_LTN_PET_CONFIRM_2 -> handlePetConfirm(player, select, 2);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_3 -> handlePetConfirm(player, select, 3);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_4 -> handlePetConfirm(player, select, 4);
+
+                // ================== GÓI VIP ĐỆ TỬ ==================
+                case ConstNpc.MENU_LTN_VIP_PET -> handleVipPetMenu(player, select);
+                case ConstNpc.MENU_LTN_VIP_PET_CONFIRM_1 -> handleVipPetConfirm(player, select, 1);
+                case ConstNpc.MENU_LTN_VIP_PET_CONFIRM_2 -> handleVipPetConfirm(player, select, 2);
+                case ConstNpc.MENU_LTN_VIP_PET_CONFIRM_3 -> handleVipPetConfirm(player, select, 3);
 
                 // ================== MINI GAMES (GIỮ NGUYÊN) ==================
                 case ConstMiniGame.MENU_CHINH -> handleMiniGameMain(player, select);
@@ -144,9 +152,10 @@ public class LyTieuNuong extends Npc {
         switch (select) {
             case 0 -> showVipMenu(player);
             case 1 -> showPetMenu(player);
-            case 2 -> showMiniGameMenu(player);
-            case 3 -> showGuideMenu(player);
-            // case 4 = Đóng
+            case 2 -> showVipPetMenu(player);
+            case 3 -> showMiniGameMenu(player);
+            case 4 -> showGuideMenu(player);
+            // case 5 = Đóng
         }
     }
 
@@ -243,6 +252,50 @@ public class LyTieuNuong extends Npc {
         }
     }
 
+    // ===================== GÓI VIP ĐỆ TỬ =====================
+    private void showVipPetMenu(Player player) {
+        VipPackageService vps = VipPackageService.gI();
+        boolean hasActive = vps.hasActiveVipPetPackage(player);
+        int currentTier = vps.getActiveVipPetTier(player);
+        String expireInfo = hasActive ? vps.getVipPetExpireInfo(player) : null;
+
+        String info = "|7|━━━ VIP ĐỆ TỬ ━━━\n"
+                + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
+                + (hasActive
+                        ? "|2|✓ Đang có VIP Đệ tier " + currentTier + " (hết: " + expireInfo + ")\n"
+                        : "|8|Chưa có gói VIP Đệ nào\n")
+                + "|3|Tăng tốc đệ tử, ưu tiên HP + DAME!\n"
+                + "|8|Hiệu lực: 24 giờ, cho phép nâng tier\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_VIP_PET, info,
+                "VIP Bạc\nx2 TNSM\n" + Util.mumberToLouis(vps.getVipPetPrice(1)),
+                "VIP Vàng\nx3 TNSM\n" + Util.mumberToLouis(vps.getVipPetPrice(2)),
+                "VIP K.Cương\nx5 TNSM\n" + Util.mumberToLouis(vps.getVipPetPrice(3)),
+                "Quay Lại");
+    }
+
+    private void handleVipPetMenu(Player player, int select) {
+        VipPackageService vps = VipPackageService.gI();
+        switch (select) {
+            case 0 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_PET_CONFIRM_1,
+                    vps.getVipPetDescription(1), "Mua Ngay", "Quay Lại");
+            case 1 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_PET_CONFIRM_2,
+                    vps.getVipPetDescription(2), "Mua Ngay", "Quay Lại");
+            case 2 -> createOtherMenu(player, ConstNpc.MENU_LTN_VIP_PET_CONFIRM_3,
+                    vps.getVipPetDescription(3), "Mua Ngay", "Quay Lại");
+            case 3 -> openBaseMenu(player);
+        }
+    }
+
+    private void handleVipPetConfirm(Player player, int select, int tier) {
+        if (select == 0) {
+            VipPackageService.gI().purchaseVipPetPackage(player, tier);
+        } else {
+            showVipPetMenu(player);
+        }
+    }
+
     // ===================== MINI GAMES (GIỮ NGUYÊN) =====================
     private void showMiniGameMenu(Player player) {
         createOtherMenu(player, ConstMiniGame.MENU_CHINH, "Bạn muốn tham gia mini game nào?",
@@ -286,6 +339,14 @@ public class LyTieuNuong extends Npc {
                 + "|8|Gói 1-2: Đệ Thường + items buff\n"
                 + "|8|Gói 3: Đệ Mabu (mạnh) + items\n"
                 + "|8|Gói 4: Đệ Black Goku (siêu mạnh) + items\n"
+                + "\n"
+                + "|1|▶ VIP ĐỆ TỬ (MỚI!):\n"
+                + "|8|Kích hoạt buff 24h cho đệ tử:\n"
+                + "|8|• x2/x3/x5 tốc độ TNSM\n"
+                + "|8|• CHỈ phân bổ vào HP + DAME (50/50%)\n"
+                + "|8|• Bùa Đệ Tử 24h (dame x2, TNSM x2)\n"
+                + "|8|• Tier cao: +dame gốc, +crit gốc\n"
+                + "|8|Cho phép nâng tier trong khi còn hạn\n"
                 + "\n"
                 + "|2|▶ MINI GAMES:\n"
                 + "|8|Kéo Búa Bao: 6 mức cược vàng\n"

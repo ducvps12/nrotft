@@ -48,6 +48,7 @@ import event.Event;
 import event.EventManager;
 import java.io.IOException;
 import map.ItemMap;
+import nro.server.Manager;
 import nro.services.ChatGlobalService;
 import nro.services.RewardService;
 
@@ -700,11 +701,8 @@ public class Boss extends Player implements IBoss, IBossOutfit {
     public void die(Player plKill) {
         if (plKill != null) {
             reward(plKill);
+            dropCustomReward(plKill); // Drop vật phẩm custom từ Admin Panel cho TẤT CẢ boss
             ServerNotify.gI().notify(plKill.name + ": Đã tiêu diệt được " + this.name + " mọi người đều ngưỡng mộ.");
-            // String message = plKill.name + ": Đã tiêu diệt được " + this.name + " mọi
-            // người đều ngưỡng mộ.";
-            // ServerNotify.gI().notify(message);
-            // ChatGlobalService.gI().autoChatGlobal(plKill, "[Thông Báo] " + message);
         }
         this.changeStatus(BossStatus.DIE);
     }
@@ -976,6 +974,34 @@ public class Boss extends Player implements IBoss, IBossOutfit {
             if (itemMap != null) {
                 Service.gI().dropItemMap(zone, itemMap);
                 Service.gI().dropItemMap(zone, it3);
+            }
+        }
+    }
+
+    /**
+     * Drop vật phẩm custom từ Admin Panel.
+     * Format: itemId-quantity-dropRate (VD: 992-1-3,1229-50-10)
+     * Tương thích ngược: itemId-quantity (mặc định 30%)
+     */
+    protected void dropCustomReward(Player plKill) {
+        String customItems = Manager.BOSS_REWARD_PANEL.get((int) this.id);
+        if (customItems == null || customItems.isEmpty()) return;
+        String[] entries = customItems.split(",");
+        for (String entry : entries) {
+            try {
+                String[] parts = entry.trim().split("-");
+                int itemId = Integer.parseInt(parts[0]);
+                int quantity = parts.length > 1 ? Integer.parseInt(parts[1]) : 1;
+                int dropRate = parts.length > 2 ? Integer.parseInt(parts[2]) : 30;
+                if (Util.isTrue(dropRate, 100)) {
+                    ItemMap it = new ItemMap(this.zone, itemId, quantity,
+                            this.location.x + Util.nextInt(-10, 10),
+                            this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24),
+                            plKill.id);
+                    Service.gI().dropItemMap(this.zone, it);
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi cấu hình vật phẩm Boss ID " + this.id + ": " + entry);
             }
         }
     }

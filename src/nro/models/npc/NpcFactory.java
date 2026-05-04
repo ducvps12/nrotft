@@ -218,6 +218,8 @@ public class NpcFactory {
                     new HungVuong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.BANG_DANH_VONG ->
                     new BangDanhVong(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.NPC_DIA_NGUC ->
+                    new NpcDiaNguc(mapId, status, cx, cy, tempId, avatar);
                 default ->
                     new Npc(mapId, status, cx, cy, tempId, avatar) {
                         @Override
@@ -279,6 +281,22 @@ public class NpcFactory {
                             SummonDragon.gI().reOpenShenronWishes(player);
                         }
                         break;
+                    // ===== NGỌC RỒNG SIÊU CẤP =====
+                    case ConstNpc.SHENRON_SIEU_CAP:
+                        SummonDragon.gI().showConfirmShenronSieuCap(player, (byte) select);
+                        break;
+                    case ConstNpc.SHENRON_SIEU_CAP_CONFIRM:
+                        if (select == 0) {
+                            SummonDragon.gI().confirmWishSieuCap();
+                        } else {
+                            // Từ chối → mở lại menu ước
+                            NpcService.gI().createMenuRongThieng(player,
+                                    ConstNpc.SHENRON_SIEU_CAP,
+                                    SummonDragon.SHENRON_SAY,
+                                    SummonDragon.SHENRON_SC_WISHES);
+                        }
+                        break;
+                    // ===== RỒNG THƯỜNG (fallthrough có chủ đích) =====
                     case ConstNpc.SHENRON_1_1:
                         if (player.iDMark.getIndexMenu() == ConstNpc.SHENRON_1_1
                                 && select == SHENRON_1_STAR_WISHES_1.length - 1) {
@@ -862,38 +880,44 @@ public class NpcFactory {
                             case 2 ->
                                 Command.gI().giveDragonBallsNamek(player);
                             case 3 ->
-                                Command.gI().giveDragonBallsVoCuc(player);
+                                Command.gI().giveDragonBallsSieuCap(player);
                             case 4 ->
                                 Command.gI().showAdminMenu(player);
                         }
                     }
-                    // ===== NGỌC RỒNG VÔ CỰC MENUS =====
-                    case ConstNpc.MENU_GHEP_NRO_VO_CUC -> {
+                    // ===== NGỌC RỒNG SIÊU CẤP MENUS =====
+                    case ConstNpc.MENU_GHEP_NRO_SIEU_CAP -> {
                         switch (select) {
                             case 0 -> // Gọi Rồng Thần 1 Sao (bình thường)
                                 SummonDragon.gI().openMenuSummonShenron(player, (byte) 1);
-                            case 1 -> // Ghép NRO Vô Cực
-                                SummonDragon.gI().combineNroToVoCuc(player);
+                            case 1 -> // Ép NRO Siêu Cấp
+                                SummonDragon.gI().combineNroToSieuCap(player);
                         }
                     }
-                    case ConstNpc.SUMMON_SHENRON_VO_CUC -> {
+                    case ConstNpc.SUMMON_SHENRON_SIEU_CAP -> {
                         if (select == 0) {
-                            SummonDragon.gI().summonShenronVoCuc(player);
+                            SummonDragon.gI().summonShenronSieuCap(player);
                         }
                     }
-                    case ConstNpc.SHENRON_VO_CUC -> {
-                        SummonDragon.gI().showConfirmShenronVoCuc(player, (byte) select);
+                    case ConstNpc.SHENRON_SIEU_CAP -> {
+                        SummonDragon.gI().showConfirmShenronSieuCap(player, (byte) select);
                     }
-                    case ConstNpc.SHENRON_VO_CUC_CONFIRM -> {
+                    case ConstNpc.SHENRON_SIEU_CAP_CONFIRM -> {
                         if (select == 0) {
-                            SummonDragon.gI().confirmWishVoCuc();
+                            SummonDragon.gI().confirmWishSieuCap();
                         } else {
                             // Từ chối → mở lại menu ước
                             NpcService.gI().createMenuRongThieng(player,
-                                    ConstNpc.SHENRON_VO_CUC,
+                                    ConstNpc.SHENRON_SIEU_CAP,
                                     SummonDragon.SHENRON_SAY,
-                                    SummonDragon.SHENRON_VC_WISHES);
+                                    SummonDragon.SHENRON_SC_WISHES);
                         }
+                    }
+                    case ConstNpc.CONFIRM_GHEP_NRO_SIEU_CAP -> {
+                        if (select == 0) {
+                            SummonDragon.gI().confirmCombineNroToSieuCap(player);
+                        }
+                        // select == 1 = Hủy bỏ → không làm gì
                     }
                     case ConstNpc.MENU_ADMIN_EXTEND -> {
                         switch (select) {

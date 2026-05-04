@@ -842,9 +842,9 @@ public class TextServer {
     public static final String SAY_DAD_1 = "Rồng vô cực sẽ ban 1 điều ước cho toàn bộ vũ trụ của ngươi.\nHãy mau chọn, điều ước nào được chọn nhiều nhất sẽ được thực hiện\nLưu ý: điều ước chỉ tác dụng với ai đang online tại thời điểm thực hiện điều ước";
     public static final String WISH_PERCENT = "%s\n(%.1f %%)";
     public static final String X2_TEXT_RVC = "Rồng vô cực X2 TN,SM đánh quái";
-    public static final String CHAT_DAD_3 = "Ta sẽ gọi Rồng Vô Cực\nVào lúc 21h thứ 7 hàng tuần.";
+    public static final String CHAT_DAD_3 = "Ta sẽ gọi Rồng Siêu Cấp\nVào lúc 21h thứ 7 hàng tuần.";
     public static final String CHAT_DAD_2 = "Từ 21h-21h30 các ngươi có 30p để chọn điều ước.";
-    public static final String CHAT_DAD_1 = "Từ 21h Rồng Vô Cực sẽ xuất hiện tại làng trước nhà.";
+    public static final String CHAT_DAD_1 = "Từ 21h Rồng Siêu Cấp sẽ xuất hiện tại làng trước nhà.";
     public static final String BAN_NHAN_DUOC_7 = "Bạn nhận được %d %s, tại rương phụ của thượng đế";
     public static final String BAN_NHAN_DUOC_8 = "Bạn nhận được %s, tại rương phụ của thượng đế";
     public static final String SHORT_TEXT_CLAN_OK = "[%s] OK";

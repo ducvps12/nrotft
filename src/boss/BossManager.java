@@ -461,6 +461,8 @@ public class BossManager implements Runnable {
                     new boss.boss_manifest.HungVuongEvent.GaChinCua();
                 case BossID.NGUA_CHIN_HONG_MAO ->
                     new boss.boss_manifest.HungVuongEvent.NguaChinHongMao();
+                case BossID.THAN_LONG_CO_DAI ->
+                    new boss.boss_manifest.HungVuongEvent.ThanLongCoDai();
                 case BossID.BLACK_GOKU ->
                     new BlackGoku();
                 case BossID.SOI_HEC_QUYN_1 ->

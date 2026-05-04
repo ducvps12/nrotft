@@ -899,11 +899,12 @@ public class Pet extends Player {
     private long lastTimeIncreasePoint;
 
     private void increasePoint() {
-        if (this.nPoint != null && Util.canDoWithTime(lastTimeIncreasePoint, 100)) {
-            // for (int i = 0; i < 20; i++) {
-            // this.nPoint.increasePoint((byte) Util.nextInt(0, 4), (short) 1, false);
-            // }
+        if (this.nPoint != null && Util.canDoWithTime(lastTimeIncreasePoint, 500)) {
             if (status != FUSION) {
+                // Đảm bảo powerLimit đã được init
+                if (!this.nPoint.isPowerLimitInitialized()) {
+                    this.nPoint.initPowerLimit();
+                }
                 int tn = 2;
                 if (this.master.itemTime != null && this.master.itemTime.isUseLoX2) {
                     tn = 4;
@@ -920,16 +921,46 @@ public class Pet extends Player {
                 if (this.master.itemTime != null && this.master.itemTime.isUseLoX15) {
                     tn = 30;
                 }
-                if (Util.isTrue(10, 100)) {
-                    this.nPoint.increasePoint((byte) Util.nextInt(3, 4), (short) Util.nextInt(1, tn), false);
-                } else {
-                    this.nPoint.increasePoint((byte) Util.nextInt(0, 2), (short) Util.nextInt(1, tn), false);
+
+                // Nhân thêm hệ số VIP Đệ (x2/x3/x5 TNSM)
+                if (this.master.petVipTier > 0) {
+                    int multiplier = nro.services.VipPackageService.getVipPetTnsmMultiplier(this.master.petVipTier);
+                    tn = tn * multiplier;
                 }
+
+                // Chọn chế độ phân bổ CS
+                int rd = Util.nextInt(1, 100);
+                byte type;
+
+                if (this.master.petVipDistMode == 1) {
+                    // ===== CHẾ ĐỘ VIP: CHỈ HP + DAME =====
+                    // HP 50%, DAME 50% - không cộng MP/DEF/CRIT
+                    if (rd <= 50) {
+                        type = 0; // HP (50%)
+                    } else {
+                        type = 2; // DAME (50%)
+                    }
+                } else {
+                    // ===== CHẾ ĐỘ MẶC ĐỊNH: cân bằng =====
+                    // HP 30%, MP 25%, DAME 25%, DEF 10%, CRIT 10%
+                    if (rd <= 30) {
+                        type = 0; // HP (30%)
+                    } else if (rd <= 55) {
+                        type = 1; // MP (25%)
+                    } else if (rd <= 80) {
+                        type = 2; // DAME (25%)
+                    } else if (rd <= 90) {
+                        type = 3; // DEF (10%)
+                    } else {
+                        type = 4; // CRIT (10%)
+                    }
+                }
+                this.nPoint.increasePoint(type, (short) Util.nextInt(1, tn), false);
                 lastTimeIncreasePoint = System.currentTimeMillis();
             }
-            // lastTimeIncreasePoint = System.currentTimeMillis();
         }
     }
+
 
     public void followMaster() {
         if (this.isDie() || effectSkill.isHaveEffectSkill()) {

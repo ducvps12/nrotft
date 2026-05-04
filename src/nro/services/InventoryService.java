@@ -99,6 +99,19 @@ public class InventoryService {
         return this.isExistItem(player.inventory.itemsBox, tempId);
     }
 
+    /** Đếm tổng số lượng (quantity) của item có template ID trong hành trang */
+    public int countItemBag(Player player, int tempId) {
+        int total = 0;
+        try {
+            for (Item item : player.inventory.itemsBag) {
+                if (item.isNotNullItem() && item.template.id == tempId) {
+                    total += item.quantity;
+                }
+            }
+        } catch (Exception ignored) {}
+        return total;
+    }
+
     private void __________________Sao_chép_danh_sách_item__________________() {
         // **********************************************************************
     }
@@ -901,16 +914,28 @@ public class InventoryService {
 
         // mở rộng hành trang - rương đồ
         if (item.template.id == 1627) {
+            if (player.inventory.itemsBag.size() >= Inventory.MAX_ITEMS_BAG) {
+                Service.gI().sendThongBaoOK(player, "Hanh trang da dat toi da " + Inventory.MAX_ITEMS_BAG + " o!");
+                return false;
+            }
             player.inventory.itemsBag.add(ItemService.gI().createItemNull());
-            Service.gI().sendThongBaoOK(player, "Hành trang của bạn đã được mở rộng thêm 1 ô");
+            Service.gI().sendThongBaoOK(player, "Hanh trang cua ban da duoc mo rong them 1 o (" + player.inventory.itemsBag.size() + "/" + Inventory.MAX_ITEMS_BAG + ")");
             return true;
         } else if (item.template.id == 517) {
+            if (player.inventory.itemsBag.size() >= Inventory.MAX_ITEMS_BAG) {
+                Service.gI().sendThongBaoOK(player, "Hanh trang da dat toi da " + Inventory.MAX_ITEMS_BAG + " o!");
+                return false;
+            }
             player.inventory.itemsBag.add(ItemService.gI().createItemNull());
-            Service.gI().sendThongBaoOK(player, "Hành trang của bạn đã được mở rộng thêm 1 ô");
+            Service.gI().sendThongBaoOK(player, "Hanh trang cua ban da duoc mo rong them 1 o (" + player.inventory.itemsBag.size() + "/" + Inventory.MAX_ITEMS_BAG + ")");
             return true;
         } else if (item.template.id == 518) {
+            if (player.inventory.itemsBox.size() >= Inventory.MAX_ITEMS_BOX) {
+                Service.gI().sendThongBaoOK(player, "Ruong do da dat toi da " + Inventory.MAX_ITEMS_BOX + " o!");
+                return false;
+            }
             player.inventory.itemsBox.add(ItemService.gI().createItemNull());
-            Service.gI().sendThongBaoOK(player, "Rương đồ của bạn đã được mở rộng thêm 1 ô");
+            Service.gI().sendThongBaoOK(player, "Ruong do cua ban da duoc mo rong them 1 o (" + player.inventory.itemsBox.size() + "/" + Inventory.MAX_ITEMS_BOX + ")");
             return true;
         }
         return addItemList(player.inventory.itemsBag, item);

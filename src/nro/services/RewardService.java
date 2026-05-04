@@ -895,7 +895,7 @@ public class RewardService {
                 }
                 // --- LEGENDARY TIER: Thú cưỡi / Pet (1/2000) ---
                 else if (Util.isTrue(1, 2000)) {
-                    int[] legendaryItems = { 1904, 1564 }; // Thú cưỡi rồng Vô Cực, Pet Po
+                    int[] legendaryItems = { 1904, 1564 }; // Thú cưỡi rồng Siêu Cấp, Pet Po
                     int chosenId = legendaryItems[Util.nextInt(legendaryItems.length)];
                     it = ItemService.gI().createNewItem((short) chosenId);
                     it.quantity = 1;

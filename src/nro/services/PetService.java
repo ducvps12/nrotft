@@ -258,6 +258,7 @@ public class PetService {
         }
 
         pet.nPoint.setFullHpMp();
+        pet.nPoint.initPowerLimit(); // Đảm bảo powerLimit được init để auto cộng CS hoạt động
         player.pet = pet;
     }
 
@@ -320,6 +321,7 @@ public class PetService {
         pet.playerSkill.skills.add(SkillUtil.createEmptySkill());
 
         pet.nPoint.setFullHpMp();
+        pet.nPoint.initPowerLimit(); // Đảm bảo powerLimit được init để auto cộng CS hoạt động
         player.pet = pet;
     }
 

@@ -18,10 +18,9 @@ public class DiaNgucDaoLon extends Event {
     @Override
     public void npc() {
         // NPC Dẫn Đường Địa Ngục tại Thần Điện (map 45)
-        // Dùng NPC DauThan (ID có sẵn) để teleport vào map 174
-        createNpc(45, ConstNpc.DAU_THAN, 200, 288);
+        createNpc(45, ConstNpc.NPC_DIA_NGUC, 340, 408);
         // NPC Đổi Thưởng tại Địa Ngục (map 174)
-        createNpc(174, ConstNpc.DAU_THAN, 300, 336);
+        createNpc(174, ConstNpc.NPC_DIA_NGUC, 300, 336);
     }
 
     @Override

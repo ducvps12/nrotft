@@ -256,6 +256,9 @@ public class Player implements Runnable {
     public Combine combine;
     public IDMark iDMark;
     public Charms charms;
+    // VIP Đệ Tử: chế độ phân bổ chỉ số (0=default, 1=HP/DAME focus)
+    public byte petVipDistMode = 0;
+    public byte petVipTier = 0;
     public EffectSkin effectSkin;
     public NPoint nPoint;
     public RewardBlackBall rewardBlackBall;

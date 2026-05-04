@@ -22,8 +22,8 @@ public class Inventory {
 
     public static final byte TYPE_NORMAL_BOX = 0;
     public static final long LIMIT_GOLD = 100_000_000_000_000L; // day la vang trong tui
-    public static final int MAX_ITEMS_BAG = 100;
-    public static final int MAX_ITEMS_BOX = 100;
+    public static final int MAX_ITEMS_BAG = 200;
+    public static final int MAX_ITEMS_BOX = 200;
     public static final byte TYPE_COLLECTION_BOX = 1;
     public static final int PRICE_SLOT_COLLECTION_BOX = 1_500_000_000;
     public static final byte MAX_ITEM_BOX_COLLECTION = 40;

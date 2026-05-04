@@ -258,8 +258,12 @@ public class SummonDragon {
     private boolean checkShenronBall(Player pl) {
         byte dragonStar = (byte) this.pl_dragonStar.get(pl);
         if (dragonStar == 1) {
+            if (!InventoryService.gI().isExistItemBag(pl, NGOC_RONG_1_SAO)) {
+                Service.gI().sendThongBao(pl, "Ban con thieu 1 vien ngoc rong 1 sao");
+                return false;
+            }
             if (!InventoryService.gI().isExistItemBag(pl, NGOC_RONG_2_SAO)) {
-                Service.gI().sendThongBao(pl, "Bạn còn thiếu 1 viên ngọc rồng 2 sao");
+                Service.gI().sendThongBao(pl, "Ban con thieu 1 vien ngoc rong 2 sao");
                 return false;
             }
             if (!InventoryService.gI().isExistItemBag(pl, NGOC_RONG_3_SAO)) {
@@ -685,45 +689,69 @@ public class SummonDragon {
     }
 
     /**
-     * Ép 2 viên Ngọc Rồng 1 sao thành 1 viên Ngọc Rồng Siêu Cấp (item 1015).
-     * Tỉ lệ thành công: 50% — thất bại sẽ mất hết 2 viên.
+     * Hien dialog xac nhan truoc khi ep NRO Sieu Cap.
+     * Player phai bam "Dong y" truoc khi 2 vien NR 1 sao bi tieu hao.
      */
     public void combineNroToSieuCap(Player pl) {
-        // Kiểm tra đủ 2 viên NRO 1 sao
+        // Kiem tra du 2 vien NRO 1 sao truoc
         int count1Sao = InventoryService.gI().countItemBag(pl, NGOC_RONG_1_SAO);
         if (count1Sao < 2) {
             Service.gI().sendThongBao(pl,
-                    "Cần 2 viên Ngọc Rồng 1 sao để ép!\n"
-                    + "Hiện có: " + count1Sao + "/2 viên.\n"
-                    + "Tỉ lệ thành công 50%, thất bại sẽ MẤT hết 2 viên!");
+                    "Can 2 vien Ngoc Rong 1 sao de ep!\n"
+                    + "Hien co: " + count1Sao + "/2 vien.\n"
+                    + "Ti le thanh cong 50%, that bai se MAT het 2 vien!");
             return;
         }
         if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
-            Service.gI().sendThongBao(pl, "Hành trang đã đầy, cần ít nhất 1 ô trống!");
+            Service.gI().sendThongBao(pl, "Hanh trang da day, can it nhat 1 o trong!");
             return;
         }
-        // Thu 2 viên NRO 1 sao
+        // Hien dialog xac nhan thay vi ep ngay
+        NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_GHEP_NRO_SIEU_CAP, -1,
+                "BAN CO CHAC CHAN MUON EP?\n\n"
+                + "- Tieu hao: 2 vien Ngoc Rong 1 Sao\n"
+                + "- Ti le: 50% thanh cong\n"
+                + "- That bai: MAT HET 2 vien!\n\n"
+                + "Hien co: " + count1Sao + " vien NR 1 sao",
+                "Dong y\nEp ngay", "Huy bo");
+    }
+
+    /**
+     * Thuc hien ep NRO Sieu Cap sau khi player da xac nhan.
+     */
+    public void confirmCombineNroToSieuCap(Player pl) {
+        // Kiem tra lai lan nua (phong truong hop lag)
+        int count1Sao = InventoryService.gI().countItemBag(pl, NGOC_RONG_1_SAO);
+        if (count1Sao < 2) {
+            Service.gI().sendThongBao(pl, "Khong du 2 vien Ngoc Rong 1 sao!");
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
+            Service.gI().sendThongBao(pl, "Hanh trang da day!");
+            return;
+        }
+        // Thu 2 vien NRO 1 sao
         for (int i = 0; i < 2; i++) {
             try {
                 InventoryService.gI().subQuantityItemsBag(pl,
                         InventoryService.gI().findItemBag(pl, NGOC_RONG_1_SAO), 1);
             } catch (Exception ignored) {}
         }
-        // Tỉ lệ 50/50
+        // Ti le 50/50
         boolean success = Util.nextInt(0, 1) == 1;
         if (success) {
-            // Tạo 1 viên Ngọc Rồng Siêu Cấp (item 1015)
+            // Tao 1 vien Ngoc Rong Sieu Cap (item 1015)
             Item scBall = ItemService.gI().createNewItem(NGOC_RONG_SIEU_CAP);
             InventoryService.gI().addItemBag(pl, scBall);
             InventoryService.gI().sendItemBag(pl);
             Service.gI().sendThongBao(pl,
-                    "Ép thành công! Nhận được Ngọc Rồng Siêu Cấp!\n"
-                    + "Dùng viên này để triệu hồi Rồng Thần Siêu Cấp!");
-            // Thông báo toàn server
+                    "Ep thanh cong! Nhan duoc Ngoc Rong Sieu Cap!\n"
+                    + "Dung vien nay de trieu hoi Rong Than Sieu Cap!");
+            // Thong bao toan server
             Message msg = null;
             try {
                 msg = new Message(-25);
-                msg.writer().writeUTF(pl.name + " vừa ép thành công Ngọc Rồng Siêu Cấp!");
+                msg.writer().writeUTF(pl.name + " vua ep thanh cong Ngoc Rong Sieu Cap!");
                 Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
             } catch (Exception ignored) {
             } finally {
@@ -732,8 +760,8 @@ public class SummonDragon {
         } else {
             InventoryService.gI().sendItemBag(pl);
             Service.gI().sendThongBao(pl,
-                    "Ép thất bại! 2 viên Ngọc Rồng 1 sao đã bị tiêu huỷ.\n"
-                    + "Chúc bạn may mắn lần sau!");
+                    "Ep that bai! 2 vien Ngoc Rong 1 sao da bi tieu huy.\n"
+                    + "Chuc ban may man lan sau!");
         }
     }
 
