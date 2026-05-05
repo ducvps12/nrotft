@@ -654,6 +654,7 @@ public class DropItemPanel extends JPanel {
         bossRewardModel.setRowCount(0);
         new Thread(() -> {
             try {
+                // Build BossID lookup map for display purposes (optional column)
                 Field[] idFields = BossID.class.getFields();
                 Map<String, Integer> idMap = new HashMap<>();
                 for (Field f : idFields) {
@@ -666,70 +667,71 @@ public class DropItemPanel extends JPanel {
                 List<Object[]> rows = new ArrayList<>();
 
                 for (Field f : dataFields) {
-                    if (f.getType() == BossData.class && idMap.containsKey(f.getName())) {
-                        BossData data = (BossData) f.get(null);
-                        if (data == null) continue;
-                        int bossId = idMap.get(f.getName());
+                    if (f.getType() != BossData.class) continue;
+                    BossData data = (BossData) f.get(null);
+                    if (data == null) continue;
+                    
+                    String bossKey = f.getName();
+                    int bossId = idMap.getOrDefault(bossKey, 0);
 
-                        // Get reward items from Manager config
-                        String dropItems = "";
-                        String dropRate = "";
-                        if (Manager.BOSS_REWARD_PANEL != null) {
-                            String rewardStr = Manager.BOSS_REWARD_PANEL.get(bossId);
-                            if (rewardStr != null && !rewardStr.isEmpty()) {
-                                // Parse "itemId-qty,itemId-qty" format
-                                StringBuilder sb = new StringBuilder();
-                                for (String part : rewardStr.split(",")) {
-                                    String[] p = part.trim().split("-");
-                                    if (p.length >= 1) {
-                                        try {
-                                            int iid = Integer.parseInt(p[0].trim());
-                                            String qty = p.length > 1 ? p[1].trim() : "1";
-                                            sb.append(getItemName(iid)).append(" x").append(qty).append(", ");
-                                        } catch (Exception ex) {
-                                            sb.append(part).append(", ");
-                                        }
+                    // Get reward items from Manager config (now using String key)
+                    String dropItems = "";
+                    String dropRate = "";
+                    if (Manager.BOSS_REWARD_PANEL != null) {
+                        String rewardStr = Manager.BOSS_REWARD_PANEL.get(bossKey);
+                        if (rewardStr != null && !rewardStr.isEmpty()) {
+                            // Parse "itemId-qty-rate,itemId-qty-rate" format
+                            StringBuilder sb = new StringBuilder();
+                            for (String part : rewardStr.split(",")) {
+                                String[] p = part.trim().split("-");
+                                if (p.length >= 1) {
+                                    try {
+                                        int iid = Integer.parseInt(p[0].trim());
+                                        String qty = p.length > 1 ? p[1].trim() : "1";
+                                        sb.append(getItemName(iid)).append(" x").append(qty).append(", ");
+                                    } catch (Exception ex) {
+                                        sb.append(part).append(", ");
                                     }
                                 }
-                                dropItems = sb.length() > 2 ? sb.substring(0, sb.length() - 2) : sb.toString();
                             }
+                            dropItems = sb.length() > 2 ? sb.substring(0, sb.length() - 2) : sb.toString();
                         }
+                    }
 
-                        long bossHp = 0;
-                        try {
-                            Field hpField = BossData.class.getDeclaredField("hp");
-                            hpField.setAccessible(true);
-                            long[] hpArr = (long[]) hpField.get(data);
-                            if (hpArr != null && hpArr.length > 0) bossHp = hpArr[0];
+                    long bossHp = 0;
+                    try {
+                        Field hpField = BossData.class.getDeclaredField("hp");
+                        hpField.setAccessible(true);
+                        long[] hpArr = (long[]) hpField.get(data);
+                        if (hpArr != null && hpArr.length > 0) bossHp = hpArr[0];
 
-                            Field dameField = BossData.class.getDeclaredField("dame");
-                            dameField.setAccessible(true);
-                            long bossDame = dameField.getLong(data);
+                        Field dameField = BossData.class.getDeclaredField("dame");
+                        dameField.setAccessible(true);
+                        long bossDame = dameField.getLong(data);
 
-                            Field nameField = BossData.class.getDeclaredField("name");
-                            nameField.setAccessible(true);
-                            String bossName = (String) nameField.get(data);
+                        Field nameField = BossData.class.getDeclaredField("name");
+                        nameField.setAccessible(true);
+                        String bossName = (String) nameField.get(data);
 
-                            rows.add(new Object[]{
-                                bossId, f.getName(), bossName,
-                                formatNumber(bossHp),
-                                formatNumber(bossDame),
-                                dropItems.isEmpty() ? "(Chưa cấu hình)" : dropItems,
-                                dropRate.isEmpty() ? "-" : dropRate
-                            });
-                        } catch (Exception ex) {
-                            rows.add(new Object[]{
-                                bossId, f.getName(), f.getName(),
-                                "?", "?",
-                                dropItems.isEmpty() ? "(Chưa cấu hình)" : dropItems,
-                                "-"
-                            });
-                        }
+                        rows.add(new Object[]{
+                            bossId, bossKey, bossName,
+                            formatNumber(bossHp),
+                            formatNumber(bossDame),
+                            dropItems.isEmpty() ? "(Chưa cấu hình)" : dropItems,
+                            dropRate.isEmpty() ? "-" : dropRate
+                        });
+                    } catch (Exception ex) {
+                        rows.add(new Object[]{
+                            bossId, bossKey, bossKey,
+                            "?", "?",
+                            dropItems.isEmpty() ? "(Chưa cấu hình)" : dropItems,
+                            "-"
+                        });
                     }
                 }
 
-                // Sort by boss ID
-                rows.sort(Comparator.comparingInt(a -> (int) a[0]));
+                // Sort by key name
+                rows.sort(Comparator.comparing(a -> (String) a[1]));
 
                 SwingUtilities.invokeLater(() -> {
                     for (Object[] row : rows) bossRewardModel.addRow(row);

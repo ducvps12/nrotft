@@ -105,9 +105,9 @@ public final class Manager {
     public static boolean LOCAL = false;
     public static boolean TEST = false;
     public static boolean DAO_AUTO_UPDATER = false;
-    // Lưu trữ cấu hình phần thưởng Boss từ Panel: Key = BossID, Value = Chuỗi ID
-    // vật phẩm (vd: "457,1229")
-    public static final Map<Integer, String> BOSS_REWARD_PANEL = new HashMap<>();
+    // Lưu trữ cấu hình phần thưởng Boss từ Panel: Key = Boss key name (VD: BLACK_GOKU), Value = Chuỗi ID
+    // vật phẩm (vd: "457-1-30,1229-50-10")
+    public static final Map<String, String> BOSS_REWARD_PANEL = new HashMap<>();
     public static final List<KolTaskTemplate> KOL_TASKS_TEMPLATE = new ArrayList<>();
     public static MapTemplate[] MAP_TEMPLATES;
     public static final List<map.Map> MAPS = new ArrayList<>();
@@ -1511,13 +1511,8 @@ public final class Manager {
             try (FileInputStream fis = new FileInputStream(bossFile)) {
                 bossProps.load(fis);
                 for (String key : bossProps.stringPropertyNames()) {
-                    try {
-                        int bossId = Integer.parseInt(key);
-                        String items = bossProps.getProperty(key);
-                        BOSS_REWARD_PANEL.put(bossId, items);
-                    } catch (NumberFormatException e) {
-                        System.err.println("Lỗi định dạng BossID trong boss_reward.properties: " + key);
-                    }
+                    String items = bossProps.getProperty(key);
+                    BOSS_REWARD_PANEL.put(key, items);
                 }
                 System.out.println(">> Loaded Custom Boss Rewards: " + BOSS_REWARD_PANEL.size());
             } catch (IOException e) {
@@ -1530,8 +1525,8 @@ public final class Manager {
         try {
             Properties properties = new Properties();
             // Đưa toàn bộ dữ liệu từ Map vào Properties object
-            for (Map.Entry<Integer, String> entry : BOSS_REWARD_PANEL.entrySet()) {
-                properties.setProperty(String.valueOf(entry.getKey()), entry.getValue());
+            for (Map.Entry<String, String> entry : BOSS_REWARD_PANEL.entrySet()) {
+                properties.setProperty(entry.getKey(), entry.getValue());
             }
 
             // Tạo thư mục nếu chưa có

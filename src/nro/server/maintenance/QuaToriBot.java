@@ -63,7 +63,7 @@ public class QuaToriBot {
         }
 
         Item ThoiVang = ItemService.gI().createNewItem((short) 457, 10000);
-        Item PhieuGiamGia = ItemService.gI().createNewItem((short) 459, 10);
+        Item PhieuGiamGiaVIP = ItemService.gI().createNewItem((short) 721, 5);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 150);
         Item CaiTrang = ItemService.gI().createNewItem((short) 883, 1);
         Item PhuKien = ItemService.gI().createNewItem((short) 1452, 1);
@@ -72,7 +72,7 @@ public class QuaToriBot {
         ThoiVang.itemOptions.add(new ItemOption(100, 1));
         ThoiVang.itemOptions.add(new ItemOption(30, 1));
 
-        PhieuGiamGia.itemOptions.add(new ItemOption(73, 1));
+        PhieuGiamGiaVIP.itemOptions.add(new ItemOption(73, 1));
 
         DaBaoVe.itemOptions.add(new ItemOption(73, 1));
 
@@ -89,7 +89,7 @@ public class QuaToriBot {
         PhuKien.itemOptions.add(new ItemOption(30,1));
 
         InventoryService.gI().addItemBag(player, ThoiVang);
-        InventoryService.gI().addItemBag(player, PhieuGiamGia);
+        InventoryService.gI().addItemBag(player, PhieuGiamGiaVIP);
         InventoryService.gI().addItemBag(player, DaBaoVe);
         InventoryService.gI().addItemBag(player, CaiTrang);
         InventoryService.gI().addItemBag(player, PhuKien);
@@ -106,7 +106,7 @@ public class QuaToriBot {
         }
 
         Item ThoiVang = ItemService.gI().createNewItem((short) 457, 20000);
-        Item PhieuGiamGia = ItemService.gI().createNewItem((short) 459, 10);
+        Item PhieuGiamGiaVIP = ItemService.gI().createNewItem((short) 721, 10);
         Item DaBaoVe = ItemService.gI().createNewItem((short) 987, 500);
         Item CaiTrang = ItemService.gI().createNewItem((short) 1941, 1);
         Item PhuKien = ItemService.gI().createNewItem((short) 1912, 1);
@@ -116,7 +116,7 @@ public class QuaToriBot {
         ThoiVang.itemOptions.add(new ItemOption(100, 1));
         ThoiVang.itemOptions.add(new ItemOption(30, 1));
 
-        PhieuGiamGia.itemOptions.add(new ItemOption(73, 1));
+        PhieuGiamGiaVIP.itemOptions.add(new ItemOption(73, 1));
 
         DaBaoVe.itemOptions.add(new ItemOption(73, 1));
 
@@ -137,7 +137,7 @@ public class QuaToriBot {
         ManhVoBongTaiCap3.itemOptions.add(new ItemOption(73, 1));
 
         InventoryService.gI().addItemBag(player, ThoiVang);
-        InventoryService.gI().addItemBag(player, PhieuGiamGia);
+        InventoryService.gI().addItemBag(player, PhieuGiamGiaVIP);
         InventoryService.gI().addItemBag(player, DaBaoVe);
         InventoryService.gI().addItemBag(player, CaiTrang);
         InventoryService.gI().addItemBag(player, PhuKien);

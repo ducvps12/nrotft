@@ -45,8 +45,8 @@ public class OngGohan extends Npc {
     // Chi phí quy đổi
     private static final int COST_NAP_VANG = 1;
     private static final int COST_NAP_NGOC = 1;
-    private static final int FREE_GEM_AMOUNT = 20;
-    private static final int FREE_GEM_CAP = 100;
+    private static final int FREE_GEM_AMOUNT = 1000;
+    private static final int FREE_GEM_CAP = 10000;
 
     // Bảng nạp vàng (VNĐ -> Thỏi vàng)
     private static final int[][] NAP_VANG = {

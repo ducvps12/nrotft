@@ -410,25 +410,32 @@ public class VipPackageService {
 
     private void givePetCreation(Player player, int tier) {
         switch (tier) {
-            case 1, 2 -> {
-                if (player.pet == null) {
-                    PetService.gI().createNormalPet(player);
-                } else {
-                    Service.gI().sendThongBao(player, "Bạn đã có đệ tử, items buff đã vào túi!");
-                }
-            }
-            case 3 -> {
+            case 1 -> { // Đệ Mabu
                 if (player.pet == null) {
                     PetService.gI().createMabuPet(player);
                 } else {
                     PetService.gI().changeMabuPet(player);
                 }
             }
-            case 4 -> {
+            case 2 -> { // Đệ Black Goku
                 if (player.pet == null) {
                     PetService.gI().createBlackGokuPet(player, player.gender);
                 } else {
                     PetService.gI().changeBlackGokuPet(player);
+                }
+            }
+            case 3 -> { // Đệ Cell
+                if (player.pet == null) {
+                    PetService.gI().createCellPet(player, player.gender);
+                } else {
+                    PetService.gI().changeCellPet(player);
+                }
+            }
+            case 4 -> { // Đệ Berus
+                if (player.pet == null) {
+                    PetService.gI().createBerusPet(player, player.gender);
+                } else {
+                    PetService.gI().changeBerusPet(player);
                 }
             }
         }
@@ -490,37 +497,37 @@ public class VipPackageService {
 
     public String getPetDescription(int tier) {
         return switch (tier) {
-            case 1 -> "|7|━━━ GÓI ĐỆ TỬ 1 ━━━\n"
+            case 1 -> "|7|━━━ GÓI ĐỆ MABU ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(1)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Tử Mabu (VĨNH VIỄN)\n"
                     + "|8|• 200 Thỏi Vàng (khóa)\n"
                     + "|8|• 3 Bình TNSM (khóa)\n"
-                    + "|3|Đệ tử giữ mãi, không hết hạn!\n"
+                    + "|3|SM khởi điểm 1.5M, chỉ số cao!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 2 -> "|7|━━━ GÓI ĐỆ TỬ 2 ━━━\n"
+            case 2 -> "|7|━━━ GÓI ĐỆ B.GOKU ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(2)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Thường (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Black Goku (VĨNH VIỄN)\n"
                     + "|8|• 500 Thỏi Vàng (khóa)\n"
                     + "|8|• 5 Bình TNSM (khóa)\n"
                     + "|8|• 10 Đá Bảo Vệ (khóa)\n"
-                    + "|3|Đệ tử giữ mãi, không hết hạn!\n"
+                    + "|3|SM khởi điểm 1.5M, 9 ô trang bị!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 3 -> "|7|━━━ GÓI ĐỆ TỬ 3 ━━━\n"
+            case 3 -> "|7|━━━ GÓI ĐỆ CELL ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(3)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Mabu - mạnh (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Tử Cell (VĨNH VIỄN)\n"
                     + "|8|• 1000 Thỏi Vàng (khóa)\n"
                     + "|8|• 10 Bình TNSM (khóa)\n"
                     + "|8|• 20 Đá Bảo Vệ (khóa)\n"
-                    + "|3|Nếu đã có đệ → nâng cấp Mabu!\n"
+                    + "|3|SM 1.5M, 9 ô trang bị, chỉ số cao!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 4 -> "|7|━━━ GÓI ĐỆ TỬ 4 ━━━\n"
+            case 4 -> "|7|━━━ GÓI ĐỆ BERUS ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(4)) + " VNĐ\n"
-                    + "|2|• Đệ Black Goku - siêu mạnh (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Thần Hủy Diệt Berus (VĨNH VIỄN)\n"
                     + "|8|• 2000 Thỏi Vàng (khóa)\n"
                     + "|8|• 15 Bình TNSM (khóa)\n"
                     + "|8|• 30 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 5 Phiếu Giảm Giá\n"
-                    + "|3|Nếu đã có đệ → nâng cấp B.Goku!\n"
+                    + "|3|SM 1.5M, 9 ô, Thần Hủy Diệt!\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             default -> "";
         };
@@ -801,13 +808,17 @@ public class VipPackageService {
         };
     }
 
-    // ===================== PHIẾU GIẢM GIÁ 30% CHO VIP ĐỆ =====================
+    // ===================== PHIẾU GIẢM GIÁ CHO VIP ĐỆ =====================
     /**
-     * Tính giá VIP Đệ sau khi áp dụng phiếu giảm giá 30%.
-     * Trả về giá đã giảm nếu player có phiếu, ngược lại trả về giá gốc.
+     * Tính giá VIP Đệ sau khi áp dụng phiếu giảm giá.
+     * PGG VIP (721) = giảm 70%, PGG thường (459) = giảm 30%.
+     * Ưu tiên PGG VIP nếu có cả hai.
      */
     public int getVipPetPriceWithCoupon(Player player, int tier) {
         int basePrice = getVipPetPrice(tier);
+        if (hasVIPDiscountCoupon(player)) {
+            return basePrice - (basePrice * 70 / 100); // Giảm 70%
+        }
         if (hasDiscountCoupon(player)) {
             return basePrice - (basePrice * 30 / 100); // Giảm 30%
         }
@@ -815,7 +826,7 @@ public class VipPackageService {
     }
 
     /**
-     * Kiểm tra player đã kích hoạt phiếu giảm giá (24h) và chưa dùng lần mua nào
+     * Kiểm tra player có PGG thường (459) - giảm 30%
      */
     public boolean hasDiscountCoupon(Player player) {
         return player.itemTime != null
@@ -824,12 +835,24 @@ public class VipPackageService {
     }
 
     /**
-     * Sử dụng phiếu giảm giá — đánh dấu đã dùng 1 lần mua, phiếu hết hiệu lực
+     * Kiểm tra player có PGG VIP (721) - giảm 70%
+     */
+    public boolean hasVIPDiscountCoupon(Player player) {
+        return player.itemTime != null
+            && player.itemTime.isUsePhieuGiamGiaVIP
+            && !player.itemTime.usedPhieuGiamGiaVIP;
+    }
+
+    /**
+     * Sử dụng phiếu giảm giá — Ưu tiên PGG VIP (70%) trước, rồi PGG thường (30%)
      */
     public void useDiscountCoupon(Player player) {
-        if (player.itemTime != null && player.itemTime.isUsePhieuGiamGia) {
+        if (player.itemTime != null && player.itemTime.isUsePhieuGiamGiaVIP) {
+            player.itemTime.usedPhieuGiamGiaVIP = true;
+            ItemTimeService.gI().removeItemTime(player, 721);
+            Service.gI().sendThongBao(player, "Đã sử dụng Phiếu Giảm Giá VIP 70%!\nPhiếu hết hiệu lực.");
+        } else if (player.itemTime != null && player.itemTime.isUsePhieuGiamGia) {
             player.itemTime.usedPhieuGiamGia = true;
-            // Xóa icon ngay lập tức
             ItemTimeService.gI().removeItemTime(player, 459);
             Service.gI().sendThongBao(player, "Đã sử dụng Phiếu Giảm Giá 30%!\nPhiếu hết hiệu lực.");
         }
@@ -855,7 +878,8 @@ public class VipPackageService {
             return false;
         }
 
-        boolean hasCoupon = hasDiscountCoupon(player);
+        boolean hasCouponVIP = hasVIPDiscountCoupon(player);
+        boolean hasCoupon = hasCouponVIP || hasDiscountCoupon(player);
         int price = hasCoupon ? getVipPetPriceWithCoupon(player, tier) : getVipPetPrice(tier);
 
         if (player.getSession().cash < price) {
@@ -890,7 +914,7 @@ public class VipPackageService {
 
         Service.gI().sendThongBao(player,
                 "🎉 Mua GÓI VIP ĐỆ " + tierName + " thành công!"
-                + (hasCoupon ? "\n🎫 Đã sử dụng Phiếu Giảm Giá 30%!" : "")
+                + (hasCoupon ? "\n|1|🎫 Đã sử dụng Phiếu Giảm Giá" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!" : "")
                 + "\nGiá: " + Util.mumberToLouis(price) + " VNĐ"
                 + "\nHiệu lực 24 giờ."
                 + "\n✅ TNSM đệ x" + getVipPetTnsmMultiplier(tier)

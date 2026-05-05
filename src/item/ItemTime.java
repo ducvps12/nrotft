@@ -265,6 +265,11 @@ public class ItemTime {
     public long lastTimePhieuGiamGia;
     public boolean usedPhieuGiamGia; // true = đã dùng 1 lần mua, phiếu hết hiệu lực
 
+    // Phiếu giảm giá VIP 70% — hiệu lực 24h, dùng 1 lần mua rồi hết
+    public boolean isUsePhieuGiamGiaVIP;
+    public long lastTimePhieuGiamGiaVIP;
+    public boolean usedPhieuGiamGiaVIP;
+
     public long lastTimeBanhTrungThu1Trung;
     public long lastTimepho1;
     public long lastTimepho2;
@@ -542,6 +547,14 @@ public class ItemTime {
                 isUsePhieuGiamGia = false;
                 usedPhieuGiamGia = false;
                 Service.gI().sendThongBao(player, "Phiếu Giảm Giá đã hết hiệu lực!");
+            }
+        }
+        // Phiếu giảm giá VIP hết hạn sau 24h hoặc đã dùng 1 lần
+        if (isUsePhieuGiamGiaVIP) {
+            if (usedPhieuGiamGiaVIP || Util.canDoWithTime(lastTimePhieuGiamGiaVIP, TIME_PHIEU_GIAM_GIA)) {
+                isUsePhieuGiamGiaVIP = false;
+                usedPhieuGiamGiaVIP = false;
+                Service.gI().sendThongBao(player, "Phiếu Giảm Giá VIP đã hết hiệu lực!");
             }
         }
     }

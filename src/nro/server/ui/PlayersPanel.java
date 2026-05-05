@@ -1380,7 +1380,12 @@ public class PlayersPanel extends JPanel {
                                 JComboBox<String> cbPetType = new JComboBox<>(
                                         new String[] { "0 - Đệ tử (thường)", "1 - Mabư", "2 - Black Goku", "3 - Cell/Pic", "4 - Berus", "5 - Tuyệt Thế" });
                                 cbPetType.setEditable(true);
-                                cbPetType.setSelectedItem(infoArr.get(0).getAsString());
+                                int currentType = infoArr.get(0).getAsInt();
+                                if (currentType >= 0 && currentType <= 5) {
+                                    cbPetType.setSelectedIndex(currentType);
+                                } else {
+                                    cbPetType.setSelectedItem(infoArr.get(0).getAsString());
+                                }
                                 inputs.put("pet_type", cbPetType);
                                 pPetInfo.add(new JLabel("Loại Đệ:"));
                                 pPetInfo.add(cbPetType);
@@ -1406,7 +1411,56 @@ public class PlayersPanel extends JPanel {
                                 
                                 pPetContent.add(pPetInfo, gp);
 
+                                // === QUICK PET CHANGE BUTTONS ===
                                 gp.gridy = 1;
+                                JPanel pQuickChange = createSectionPanel("⚡ Đổi Loại Đệ Nhanh (Admin Test)");
+                                pQuickChange.setLayout(new GridLayout(1, 6, 8, 8));
+
+                                String[][] petPresets = {
+                                    {"Thường", "0", "$NormalPet", "2000", "1500", "1500", "30", "15", "3"},
+                                    {"Mabu", "1", "$MabuPet", "1500000", "80000", "80000", "80", "25", "8"},
+                                    {"B.Goku", "2", "$BlackGoku", "1500000", "90000", "90000", "100", "30", "10"},
+                                    {"Cell", "3", "$CellPet", "1500000", "90000", "90000", "100", "30", "10"},
+                                    {"Berus", "4", "$BerusPet", "1500000", "100000", "100000", "120", "40", "12"},
+                                    {"T.Thế", "5", "$TuyetThe", "100000000000", "900000", "900000", "40000", "100", "12"},
+                                };
+
+                                for (String[] preset : petPresets) {
+                                    JButton btnPreset = new JButton(preset[0]);
+                                    btnPreset.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                                    btnPreset.setFocusPainted(false);
+                                    btnPreset.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                                    int typeIdx = Integer.parseInt(preset[1]);
+                                    if (typeIdx == currentType) {
+                                        btnPreset.setBackground(new Color(46, 204, 113));
+                                        btnPreset.setForeground(Color.WHITE);
+                                    } else {
+                                        btnPreset.setBackground(new Color(52, 152, 219));
+                                        btnPreset.setForeground(Color.WHITE);
+                                    }
+                                    btnPreset.addActionListener(ev -> {
+                                        cbPetType.setSelectedIndex(typeIdx);
+                                        ((JTextField) inputs.get("pet_name")).setText(preset[2]);
+                                        ((JTextField) inputs.get("pet_power")).setText(preset[3]);
+                                        ((JTextField) inputs.get("pet_hpg")).setText(preset[4]);
+                                        ((JTextField) inputs.get("pet_mpg")).setText(preset[5]);
+                                        ((JTextField) inputs.get("pet_dameg")).setText(preset[6]);
+                                        ((JTextField) inputs.get("pet_defg")).setText(preset[7]);
+                                        ((JTextField) inputs.get("pet_critg")).setText(preset[8]);
+                                        JOptionPane.showMessageDialog(null,
+                                                "✅ Đã set nhanh → " + preset[0] + "\n"
+                                                + "• Type: " + preset[1] + "\n"
+                                                + "• SM: " + preset[3] + "\n"
+                                                + "Nhấn LƯU DỮ LIỆU để apply!\n"
+                                                + "⚠️ Player cần re-login.",
+                                                "Quick Set Pet", JOptionPane.INFORMATION_MESSAGE);
+                                    });
+                                    pQuickChange.add(btnPreset);
+                                }
+
+                                pPetContent.add(pQuickChange, gp);
+
+                                gp.gridy = 2;
                                 JPanel pPetStats = createSectionPanel("Chỉ số Sức Mạnh (Point)");
                                 pPetStats.setLayout(new GridLayout(0, 2, 10, 10));
 
@@ -2705,12 +2759,16 @@ public class PlayersPanel extends JPanel {
     private void loadItemsToModel(String jsonArrayStr, DefaultTableModel model) {
         try {
             JsonArray arr = new JsonParser().parse(jsonArrayStr).getAsJsonArray();
-            for (JsonElement e : arr) {
+            for (int idx = 0; idx < arr.size(); idx++) {
+                JsonElement e = arr.get(idx);
                 String innerStr = e.getAsString();
                 JsonArray itemData = new JsonParser().parse(innerStr).getAsJsonArray();
                 int id = itemData.get(0).getAsInt();
-                if (id == -1)
+                if (id == -1) {
+                    // GIỮ NGUYÊN VỊ TRÍ SLOT — không skip để tránh xô lệch index
+                    model.addRow(new Object[] { -1, null, "(Trống - Slot " + idx + ")", 0, "", "[]" });
                     continue;
+                }
                 int qty = itemData.get(1).getAsInt();
                 String rawOpt = (itemData.size() > 2) ? itemData.get(2).getAsString() : "[]";
                 model.addRow(new Object[] { id, getItemIcon(id), getItemName(id), qty, parseOptionReadable(rawOpt),

@@ -124,7 +124,7 @@ public class ToriBot extends Npc {
                 title = "⭐ PREMIUM 1";
                 items = "|8|━━ PHẦN THƯỞNG (VĨNH VIỄN) ━━\n"
                         + "|1|• 5.000 Thỏi Vàng\n"
-                        + "|1|• 10 Phiếu Giảm Giá 80%\n"
+                        + "|1|• 10 Phiếu Giảm Giá 30%\n"
                         + "|1|• 20 Đá Bảo Vệ\n"
                         + "|2|• Cải Trang Black Gohan VĨNH VIỄN\n"
                         + "|2|• Pet Chó 3 Đầu Địa Ngục VĨNH VIỄN\n"
@@ -137,7 +137,7 @@ public class ToriBot extends Npc {
                 title = "⭐⭐ PREMIUM 2";
                 items = "|8|━━ PHẦN THƯỞNG (VĨNH VIỄN) ━━\n"
                         + "|1|• 10.000 Thỏi Vàng\n"
-                        + "|1|• 10 Phiếu Giảm Giá\n"
+                        + "|1|• 5 Phiếu Giảm Giá VIP (giảm 70%)\n"
                         + "|1|• 150 Đá Bảo Vệ\n"
                         + "|2|• Cải Trang Black Gohan VĨNH VIỄN\n"
                         + "|2|• Pet Ông Già Noel VĨNH VIỄN\n"
@@ -149,7 +149,7 @@ public class ToriBot extends Npc {
                 title = "⭐⭐⭐ PREMIUM 3";
                 items = "|8|━━ PHẦN THƯỞNG (VĨNH VIỄN) ━━\n"
                         + "|1|• 20.000 Thỏi Vàng\n"
-                        + "|1|• 10 Phiếu Giảm Giá\n"
+                        + "|1|• 10 Phiếu Giảm Giá VIP (giảm 70%)\n"
                         + "|1|• 500 Đá Bảo Vệ\n"
                         + "|2|• Cải Trang Broly Hắc Vương VIP\n"
                         + "|2|• Phụ Kiện Tuần Lộc VIP\n"

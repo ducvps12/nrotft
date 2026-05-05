@@ -192,7 +192,7 @@ public class BossRewardPanel extends JPanel {
         topRight.add(lblOverview, BorderLayout.WEST);
         topRight.add(txtSearchOverview, BorderLayout.CENTER);
 
-        String[] overviewCols = {"ID", "Tên Boss", "Số Item", "Chi tiết Drop"};
+        String[] overviewCols = {"Key", "Tên Boss", "Số Item", "Chi tiết Drop"};
         overviewModel = new DefaultTableModel(overviewCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -210,9 +210,9 @@ public class BossRewardPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int row = overviewTable.convertRowIndexToModel(overviewTable.getSelectedRow());
-                    int bossId = (int) overviewModel.getValueAt(row, 0);
+                    String bossKey = overviewModel.getValueAt(row, 0).toString();
                     for (int i = 0; i < cbBossList.getItemCount(); i++) {
-                        if (cbBossList.getItemAt(i).id == bossId) {
+                        if (cbBossList.getItemAt(i).key.equals(bossKey)) {
                             cbBossList.setSelectedIndex(i);
                             break;
                         }
@@ -307,7 +307,7 @@ public class BossRewardPanel extends JPanel {
         BossComboItem selected = (BossComboItem) cbBossList.getSelectedItem();
         if (selected == null) return;
 
-        String items = Manager.BOSS_REWARD_PANEL.get(selected.id);
+        String items = Manager.BOSS_REWARD_PANEL.get(selected.key);
         if (items == null || items.isEmpty()) return;
 
         String[] entries = items.split(",");
@@ -341,9 +341,9 @@ public class BossRewardPanel extends JPanel {
 
         String result = sb.toString();
         if (result.isEmpty()) {
-            Manager.BOSS_REWARD_PANEL.remove(selected.id);
+            Manager.BOSS_REWARD_PANEL.remove(selected.key);
         } else {
-            Manager.BOSS_REWARD_PANEL.put(selected.id, result);
+            Manager.BOSS_REWARD_PANEL.put(selected.key, result);
         }
         Manager.saveBossRewardConfig();
         refreshOverview();
@@ -355,10 +355,11 @@ public class BossRewardPanel extends JPanel {
 
     private void refreshOverview() {
         overviewModel.setRowCount(0);
-        for (Map.Entry<Integer, String> entry : Manager.BOSS_REWARD_PANEL.entrySet()) {
+        for (Map.Entry<String, String> entry : Manager.BOSS_REWARD_PANEL.entrySet()) {
             String bossName = "?";
+            String bossKey = entry.getKey();
             for (int i = 0; i < cbBossList.getItemCount(); i++) {
-                if (cbBossList.getItemAt(i).id == entry.getKey()) {
+                if (cbBossList.getItemAt(i).key.equals(bossKey)) {
                     bossName = cbBossList.getItemAt(i).name;
                     break;
                 }
@@ -382,7 +383,7 @@ public class BossRewardPanel extends JPanel {
                 } catch (Exception e) {}
             }
 
-            overviewModel.addRow(new Object[]{entry.getKey(), bossName, count, detail.toString()});
+            overviewModel.addRow(new Object[]{bossKey, bossName, count, detail.toString()});
         }
     }
 

@@ -982,9 +982,14 @@ public class Boss extends Player implements IBoss, IBossOutfit {
      * Drop vật phẩm custom từ Admin Panel.
      * Format: itemId-quantity-dropRate (VD: 992-1-3,1229-50-10)
      * Tương thích ngược: itemId-quantity (mặc định 30%)
+     * Key lookup: Tìm theo tên field BossData trong BossesData (VD: BLACK_GOKU, SUPER_BLACK_GOKU)
      */
     protected void dropCustomReward(Player plKill) {
-        String customItems = Manager.BOSS_REWARD_PANEL.get((int) this.id);
+        // Tìm key name của boss data hiện tại trong BossesData
+        String bossKey = findBossDataKeyName();
+        if (bossKey == null) return;
+
+        String customItems = Manager.BOSS_REWARD_PANEL.get(bossKey);
         if (customItems == null || customItems.isEmpty()) return;
         String[] entries = customItems.split(",");
         for (String entry : entries) {
@@ -1001,8 +1006,30 @@ public class Boss extends Player implements IBoss, IBossOutfit {
                     Service.gI().dropItemMap(this.zone, it);
                 }
             } catch (Exception e) {
-                System.err.println("Lỗi cấu hình vật phẩm Boss ID " + this.id + ": " + entry);
+                System.err.println("Lỗi cấu hình vật phẩm Boss " + bossKey + ": " + entry);
             }
         }
+    }
+
+    /**
+     * Tìm tên field (key) của BossData hiện tại trong BossesData class.
+     * Ví dụ: nếu this.data[currentLevel] == BossesData.SUPER_BLACK_GOKU -> trả về "SUPER_BLACK_GOKU"
+     */
+    private String findBossDataKeyName() {
+        BossData currentData = this.data[this.currentLevel];
+        try {
+            java.lang.reflect.Field[] fields = BossesData.class.getFields();
+            for (java.lang.reflect.Field f : fields) {
+                if (f.getType() == BossData.class) {
+                    BossData fieldData = (BossData) f.get(null);
+                    if (fieldData == currentData) {
+                        return f.getName();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // fallback: không tìm thấy
+        }
+        return null;
     }
 }

@@ -1547,21 +1547,7 @@ public class BossEditorPanel extends JPanel {
         }
     }
 
-    // ================================================================
-    // DROP ITEMS - Tích hợp cấu hình vật phẩm rơi
-    // ================================================================
 
-    /**
-     * Lấy BossID int từ tên key trong BossID class.
-     */
-    private int getBossIdFromKey(String key) {
-        try {
-            Field idField = BossID.class.getField(key);
-            return idField.getInt(null);
-        } catch (Exception e) {
-            return Integer.MIN_VALUE;
-        }
-    }
 
     /**
      * Lấy tên item từ Manager.ITEM_TEMPLATES theo ID.
@@ -1583,10 +1569,7 @@ public class BossEditorPanel extends JPanel {
         modelDropItems.setRowCount(0);
         if (currentBossKey == null) return;
 
-        int bossId = getBossIdFromKey(currentBossKey);
-        if (bossId == Integer.MIN_VALUE) return;
-
-        String items = Manager.BOSS_REWARD_PANEL.get(bossId);
+        String items = Manager.BOSS_REWARD_PANEL.get(currentBossKey);
         if (items == null || items.isEmpty()) return;
 
         String[] entries = items.split(",");
@@ -1609,9 +1592,6 @@ public class BossEditorPanel extends JPanel {
     private void saveDropItemsForCurrentBoss() {
         if (currentBossKey == null) return;
 
-        int bossId = getBossIdFromKey(currentBossKey);
-        if (bossId == Integer.MIN_VALUE) return;
-
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < modelDropItems.getRowCount(); i++) {
             try {
@@ -1627,9 +1607,9 @@ public class BossEditorPanel extends JPanel {
 
         String result = sb.toString();
         if (result.isEmpty()) {
-            Manager.BOSS_REWARD_PANEL.remove(bossId);
+            Manager.BOSS_REWARD_PANEL.remove(currentBossKey);
         } else {
-            Manager.BOSS_REWARD_PANEL.put(bossId, result);
+            Manager.BOSS_REWARD_PANEL.put(currentBossKey, result);
         }
         Manager.saveBossRewardConfig();
     }

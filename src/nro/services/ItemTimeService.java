@@ -235,6 +235,14 @@ public class ItemTimeService {
                 sendItemTime(player, 459, remaining);
             }
         }
+        // Phiếu Giảm Giá VIP icon — dùng iconID 721
+        if (player.itemTime.isUsePhieuGiamGiaVIP && !player.itemTime.usedPhieuGiamGiaVIP) {
+            int remaining = (int) ((ItemTime.TIME_PHIEU_GIAM_GIA
+                    - (System.currentTimeMillis() - player.itemTime.lastTimePhieuGiamGiaVIP)) / 1000);
+            if (remaining > 0) {
+                sendItemTime(player, 721, remaining);
+            }
+        }
     }
 
     public void turnOnTDLT(Player player, Item item) {

@@ -576,19 +576,28 @@ public class NDVSqlFetcher {
             // data box hòm thư
             dataArray = (JSONArray) JSONValue.parse(rs.getString("item_mails_box"));
             for (int i = 0; i < dataArray.size(); i++) {
-                Item item = null;
-                JSONArray dataItem = (JSONArray) JSONValue.parse(dataArray.get(i).toString());
-                short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
-                if (tempId != -1) {
-                    item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
-                    JSONArray options = (JSONArray) JSONValue
-                            .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
-                    for (int j = 0; j < options.size(); j++) {
-                        JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
-                        item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
-                                Integer.parseInt(String.valueOf(opt.get(1)))));
+                try {
+                    Item item = null;
+                    Object parsedItem = JSONValue.parse(dataArray.get(i).toString());
+                    if (!(parsedItem instanceof JSONArray)) {
+                        Logger.error("Skipping malformed mailbox item at index " + i + ": " + dataArray.get(i));
+                        continue;
                     }
-                    player.inventory.itemsMailBox.add(item);
+                    JSONArray dataItem = (JSONArray) parsedItem;
+                    short tempId = Short.parseShort(String.valueOf(dataItem.get(0)));
+                    if (tempId != -1) {
+                        item = ItemService.gI().createNewItem(tempId, Integer.parseInt(String.valueOf(dataItem.get(1))));
+                        JSONArray options = (JSONArray) JSONValue
+                                .parse(String.valueOf(dataItem.get(2)).replaceAll("\"", ""));
+                        for (int j = 0; j < options.size(); j++) {
+                            JSONArray opt = (JSONArray) JSONValue.parse(String.valueOf(options.get(j)));
+                            item.itemOptions.add(new Item.ItemOption(Integer.parseInt(String.valueOf(opt.get(0))),
+                                    Integer.parseInt(String.valueOf(opt.get(1)))));
+                        }
+                        player.inventory.itemsMailBox.add(item);
+                    }
+                } catch (Exception e) {
+                    Logger.error("Error parsing mailbox item at index " + i + ": " + e.getMessage());
                 }
             }
             dataArray.clear();

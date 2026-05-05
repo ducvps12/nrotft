@@ -17,8 +17,10 @@ import java.util.List;
  * NPC Champa — Thu Gom Rác / Đổi Vật Phẩm
  * Đứng tại Siêu thị Huyền Bí (map 173)
  * Chức năng:
- * 1. Bán đồ rác (mở panel UI combine) → nhận Thỏi Vàng (khóa)
- * 2. Bán nguyên liệu event thừa → nhận Ngọc Xanh + Hồng Ngọc
+ * 1. Bán đồ rác (mở panel UI combine):
+ *    - Đồ rác thường (ngọc rồng, đá, thức ăn, TB lỗi) → Vàng + Ngọc Xanh
+ *    - Cải trang lỗi (không chỉ số / chỉ số thấp) → Thỏi Vàng (khóa)
+ * 2. Bán nguyên liệu event thừa → Ngọc Xanh + Hồng Ngọc
  * 3. Đổi 100 Đá Bảo Vệ → 2 Đá Ngũ Sắc (80% thành công)
  * 4. Gom 7 mảnh Rồng thần Namếc → random Ngọc Rồng Namếc (1-7 sao)
  */
@@ -387,19 +389,31 @@ public class Champa extends Npc {
     // ===================== BẢNG GIÁ =====================
     private void showBangGia(Player player) {
         String bangGia = "=== BẢNG GIÁ THU MUA ===\n\n"
-            + "[Đồ Rác → Thỏi Vàng (Panel)]\n"
-            + "TB cấp 1-4: 1 TV/món\n"
-            + "TB cấp 5-8: 3 TV/món\n"
-            + "TB cấp 9-11: 5 TV/món\n"
-            + "TB cấp 12: 10 TV/món\n"
-            + "Thức ăn, đá thường: 1 TV/cái\n\n"
-            + "[NL Event → Ngọc/Ruby]\n"
-            + "5 NL = 1 Ngọc Xanh\n"
+            + "|7|[Đồ Rác → Vàng + Ngọc]\n"
+            + "|2|Ngọc Rồng 7 sao: 5tr vàng + 500 ngọc\n"
+            + "Ngọc Rồng 6 sao: 3tr vàng + 300 ngọc\n"
+            + "Ngọc Rồng 5 sao: 2tr vàng + 200 ngọc\n"
+            + "Ngọc Rồng 4 sao: 1tr vàng + 100 ngọc\n"
+            + "Ngọc Rồng 3 sao: 500k vàng + 50 ngọc\n"
+            + "Ngọc Rồng 2 sao: 200k vàng + 20 ngọc\n"
+            + "Ngọc Rồng 1 sao: 100k vàng + 10 ngọc\n"
+            + "Đá nâng cấp: 1tr vàng + 100 ngọc/viên\n"
+            + "Thức ăn: 100k vàng/cái\n\n"
+            + "|7|[TB Lỗi (không option) → Vàng]\n"
+            + "|2|TB cấp 12+: 10tr vàng + 50 ngọc\n"
+            + "TB cấp 9-11: 5tr vàng + 50 ngọc\n"
+            + "TB cấp 5-8: 2tr vàng + 50 ngọc\n"
+            + "TB cấp 1-4: 500k vàng + 50 ngọc\n\n"
+            + "|3|[Cải Trang Lỗi → Thỏi Vàng]\n"
+            + "CT không chỉ số: 1 TV/món\n"
+            + "CT chỉ số thấp (<10): 1 TV/món\n\n"
+            + "|7|[NL Event → Ngọc/Ruby]\n"
+            + "|2|5 NL = 1 Ngọc Xanh\n"
             + "10 NL = 1 Hồng Ngọc\n\n"
-            + "[Đổi Đá BV]\n"
-            + "100 ĐBV → 2 Đá Ngũ Sắc (80%)\n\n"
-            + "[Gom Mảnh Rồng Namếc]\n"
-            + "7 Mảnh → 1 Ngọc Rồng Namếc\n"
+            + "|7|[Đổi Đá BV]\n"
+            + "|2|100 ĐBV → 2 Đá Ngũ Sắc (80%)\n\n"
+            + "|7|[Gom Mảnh Rồng Namếc]\n"
+            + "|2|7 Mảnh → 1 Ngọc Rồng Namếc\n"
             + "(random 1-7 sao)\n"
             + "Đủ 7 NR → Về Mori gọi Rồng!";
         Service.gI().sendThongBaoFromAdmin(player, bangGia);

@@ -612,6 +612,10 @@ public class SummonDragon {
                 NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_SIEU_CAP,
                         "Hãy chọn lại điều ước của ngươi!", SHENRON_SC_WISHES);
                 break;
+            case ConstNpc.SHENRON_DET_TU:
+                NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_DET_TU,
+                        "Hãy chọn lại điều ước cho đệ tử!", SHENRON_DET_TU_WISHES);
+                break;
         }
     }
 
@@ -882,6 +886,230 @@ public class SummonDragon {
                     NpcService.gI().createMenuRongThieng(playerSummonShenron,
                             ConstNpc.SHENRON_SIEU_CAP,
                             "Hãy chọn lại điều ước!", SHENRON_SC_WISHES);
+                }
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // ======================== RỒNG THẦN ĐỆ TỬ ========================
+    // Ghép NR Siêu Cấp (1015) + Túi NR Băng (2017) → Triệu hồi Rồng Thần Đệ Tử
+    public static final short TUI_NGOC_RONG_BANG = 2017;
+    
+    public static final String[] SHENRON_DET_TU_WISHES = new String[] {
+        "Reset &\nNâng cấp\nToàn diện\nĐệ tử",
+        "+20 Tỷ\nSM & TN\ncho Đệ tử",
+        "Thay chiêu\nĐệ + CM\nGốc +3",
+        "Set đồ\nHuyền thoại\ncho Đệ",
+        "Nâng giới\nhạn SM\nĐệ tử"
+    };
+
+    /**
+     * Ghép 7 viên NR Băng (925-931) → Túi NR Băng (2017)
+     */
+    public void confirmMergeNrBang(Player pl) {
+        // Kiểm tra lại đủ 7 viên
+        for (int i = 925; i <= 931; i++) {
+            if (!InventoryService.gI().isExistItemBag(pl, i)) {
+                Service.gI().sendThongBao(pl, "Không đủ Ngọc Rồng Băng " + (i - 924) + " sao!");
+                return;
+            }
+        }
+        if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
+            Service.gI().sendThongBao(pl, "Hành trang cần ít nhất 1 ô trống!");
+            return;
+        }
+        // Thu 7 viên NR Băng
+        for (int i = 925; i <= 931; i++) {
+            try {
+                InventoryService.gI().subQuantityItemsBag(pl,
+                        InventoryService.gI().findItemBag(pl, i), 1);
+            } catch (Exception ignored) {}
+        }
+        // Tạo Túi NR Băng (2017)
+        Item tuiNRBang = ItemService.gI().createNewItem(TUI_NGOC_RONG_BANG);
+        InventoryService.gI().addItemBag(pl, tuiNRBang);
+        InventoryService.gI().sendItemBag(pl);
+        Service.gI().sendThongBao(pl,
+                "Ghép thành công! Nhận được Túi Ngọc Rồng Băng!\n"
+                + "Kết hợp với NR Siêu Cấp để triệu hồi Rồng Thần Đệ Tử!");
+        // Thông báo server
+        Message msg = null;
+        try {
+            msg = new Message(-25);
+            msg.writer().writeUTF(pl.name + " vừa ghép thành công Túi Ngọc Rồng Băng!");
+            Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
+        } catch (Exception ignored) {
+        } finally {
+            if (msg != null) msg.cleanup();
+        }
+    }
+
+    /**
+     * Triệu hồi Rồng Thần Đệ Tử: cần NR Siêu Cấp + Túi NR Băng
+     */
+    public void summonShenronDetTu(Player pl) {
+        if (pl.zone.map.mapId != 0 && pl.zone.map.mapId != 7 && pl.zone.map.mapId != 14) {
+            Service.gI().sendThongBao(pl, "Chỉ được gọi Rồng Thần Đệ Tử ở ngôi làng trước nhà!");
+            return;
+        }
+        if (pl.pet == null) {
+            Service.gI().sendThongBao(pl, "Ngươi chưa có đệ tử! Không thể gọi Rồng Thần Đệ Tử!");
+            return;
+        }
+        if (!InventoryService.gI().isExistItemBag(pl, NGOC_RONG_SIEU_CAP)) {
+            Service.gI().sendThongBao(pl, "Cần Ngọc Rồng Siêu Cấp để triệu hồi!");
+            return;
+        }
+        if (!InventoryService.gI().isExistItemBag(pl, TUI_NGOC_RONG_BANG)) {
+            Service.gI().sendThongBao(pl, "Cần Túi Ngọc Rồng Băng để triệu hồi!");
+            return;
+        }
+        if (isShenronAppear) {
+            Service.gI().sendThongBao(pl, "Rồng Thần đang xuất hiện!");
+            return;
+        }
+        if (!Util.canDoWithTime(lastTimeShenronAppeared, timeResummonShenron)) {
+            int timeLeft = (int) ((timeResummonShenron - (System.currentTimeMillis() - lastTimeShenronAppeared)) / 1000);
+            Service.gI().sendThongBao(pl, "Vui lòng đợi " + (timeLeft < 7200 ? timeLeft + " giây" : timeLeft / 60 + " phút") + " nữa");
+            return;
+        }
+        // Thu NR Siêu Cấp + Túi NR Băng
+        playerSummonShenron = pl;
+        playerSummonShenronId = (int) pl.id;
+        mapShenronAppear = pl.zone;
+        try {
+            InventoryService.gI().subQuantityItemsBag(pl,
+                    InventoryService.gI().findItemBag(pl, NGOC_RONG_SIEU_CAP), 1);
+            InventoryService.gI().subQuantityItemsBag(pl,
+                    InventoryService.gI().findItemBag(pl, TUI_NGOC_RONG_BANG), 1);
+        } catch (Exception ignored) {}
+        InventoryService.gI().sendItemBag(pl);
+        // Thông báo server
+        Message msg = null;
+        try {
+            msg = new Message(-25);
+            msg.writer().writeUTF(pl.name + " vừa triệu hồi RỒNG THẦN ĐỆ TỬ tại "
+                    + pl.zone.map.mapName + " khu vực " + pl.zone.zoneId + "!");
+            Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
+        } catch (Exception ignored) {
+        } finally {
+            if (msg != null) msg.cleanup();
+        }
+        activeShenron(pl, true, SummonDragon.DRAGON_PORUNGA);
+        // Hiện menu ước Đệ Tử
+        NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_DET_TU,
+                "Ta là Rồng Thần Đệ Tử!\n"
+                + "Mọi điều ước của ta chỉ dành cho đệ tử của ngươi.\n"
+                + "Hãy lựa chọn thật kỹ, ngươi chỉ có 5 phút!",
+                SHENRON_DET_TU_WISHES);
+    }
+
+    public void showConfirmShenronDetTu(Player pl, byte select) {
+        this.menuShenron = ConstNpc.SHENRON_DET_TU;
+        this.select = select;
+        String wish = SHENRON_DET_TU_WISHES[select];
+        NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_DET_TU_CONFIRM,
+                "Ngươi có chắc muốn ước điều này cho đệ tử?", wish, "Từ chối");
+    }
+
+    public void confirmWishDetTu() {
+        try {
+            if (this.playerSummonShenron == null || this.playerSummonShenron.pet == null) {
+                return;
+            }
+            switch (this.select) {
+                case 0: // Reset & Nâng cấp Toàn diện Đệ Tử
+                    // Reset SM về 1.5M, giữ skill, random skill 2-3
+                    this.playerSummonShenron.pet.nPoint.power = 1500000;
+                    this.playerSummonShenron.pet.nPoint.tiemNang = 0;
+                    // Random lại skill 2-3
+                    if (this.playerSummonShenron.pet.playerSkill.skills.get(1).skillId != -1) {
+                        this.playerSummonShenron.pet.openSkill2();
+                    }
+                    if (this.playerSummonShenron.pet.playerSkill.skills.get(2).skillId != -1) {
+                        this.playerSummonShenron.pet.openSkill3();
+                    }
+                    Service.gI().point(playerSummonShenron);
+                    Service.gI().sendThongBao(playerSummonShenron,
+                            "Đệ tử đã được reset về 1.5M SM!\n"
+                            + "Skill 2-3 đã được thay đổi ngẫu nhiên!");
+                    break;
+                case 1: // +20 Tỷ SM & TN cho Đệ tử
+                    Service.gI().addSMTN(this.playerSummonShenron.pet, (byte) 2, 20_000_000_000L, false);
+                    Service.gI().sendThongBao(playerSummonShenron,
+                            "Đệ tử nhận được +20 Tỷ Sức mạnh & Tiềm năng!");
+                    break;
+                case 2: // Thay chiêu Đệ + CM Gốc +3
+                    if (this.playerSummonShenron.pet.playerSkill.skills.get(1).skillId != -1) {
+                        this.playerSummonShenron.pet.openSkill2();
+                    }
+                    if (this.playerSummonShenron.pet.playerSkill.skills.get(2).skillId != -1) {
+                        this.playerSummonShenron.pet.openSkill3();
+                    }
+                    this.playerSummonShenron.pet.nPoint.critg += 3;
+                    Service.gI().point(playerSummonShenron);
+                    Service.gI().sendThongBao(playerSummonShenron,
+                            "Đã thay chiêu 2-3 đệ tử + Chí mạng gốc +3!");
+                    break;
+                case 3: // Set đồ Huyền thoại cho Đệ
+                    if (InventoryService.gI().getCountEmptyBag(playerSummonShenron) < 4) {
+                        Service.gI().sendThongBao(playerSummonShenron,
+                                "Cần 4 ô trống trong hành trang sư phụ!");
+                        NpcService.gI().createMenuRongThieng(playerSummonShenron,
+                                ConstNpc.SHENRON_DET_TU,
+                                "Hãy chọn lại!", SHENRON_DET_TU_WISHES);
+                        return;
+                    }
+                    byte petGender = this.playerSummonShenron.pet.gender;
+                    // Áo
+                    short[] aoIds = {555, 557, 559};
+                    Item ao = ItemService.gI().createNewItem(aoIds[petGender]);
+                    ao.itemOptions.add(new ItemOption(47, 1200));
+                    ao.itemOptions.add(new ItemOption(77, 25));
+                    ao.itemOptions.add(new ItemOption(103, 25));
+                    InventoryService.gI().addItemBag(playerSummonShenron, ao);
+                    // Quần
+                    short[] quanIds = {556, 558, 560};
+                    Item quan = ItemService.gI().createNewItem(quanIds[petGender]);
+                    quan.itemOptions.add(new ItemOption(22, 55));
+                    quan.itemOptions.add(new ItemOption(77, 20));
+                    InventoryService.gI().addItemBag(playerSummonShenron, quan);
+                    // Găng
+                    short[] gangIds = {562, 564, 566};
+                    Item gang = ItemService.gI().createNewItem(gangIds[petGender]);
+                    gang.itemOptions.add(new ItemOption(0, 5000));
+                    gang.itemOptions.add(new ItemOption(50, 35));
+                    InventoryService.gI().addItemBag(playerSummonShenron, gang);
+                    // Giày
+                    short[] giayIds = {563, 565, 567};
+                    Item giay = ItemService.gI().createNewItem(giayIds[petGender]);
+                    giay.itemOptions.add(new ItemOption(23, 55));
+                    giay.itemOptions.add(new ItemOption(77, 15));
+                    InventoryService.gI().addItemBag(playerSummonShenron, giay);
+                    InventoryService.gI().sendItemBag(playerSummonShenron);
+                    Service.gI().sendThongBao(playerSummonShenron,
+                            "Nhận được Set Trang Bị Huyền Thoại cho đệ tử!\n"
+                            + "(Áo, Quần, Găng, Giày với stats cực mạnh)");
+                    break;
+                case 4: // Nâng giới hạn SM Đệ tử + 5 tỷ TNSM
+                    Service.gI().addSMTN(this.playerSummonShenron.pet, (byte) 2, 5_000_000_000L, false);
+                    // Tăng critg đệ tử +2 bonus thêm
+                    this.playerSummonShenron.pet.nPoint.critg += 2;
+                    Service.gI().point(playerSummonShenron);
+                    Service.gI().sendThongBao(playerSummonShenron,
+                            "Đệ tử nhận được +5 Tỷ SM & TN + Chí mạng gốc +2!\n"
+                            + "Giới hạn sức mạnh đệ tử đã được nâng!");
+                    break;
+            }
+            shenronLeave(this.playerSummonShenron, WISHED);
+        } catch (Exception e) {
+            Logger.logException(SummonDragon.class, e, "Lỗi ước Rồng Thần Đệ Tử");
+            try {
+                if (this.playerSummonShenron != null) {
+                    Service.gI().sendThongBao(playerSummonShenron, "Có lỗi xảy ra, hãy chọn lại!");
+                    NpcService.gI().createMenuRongThieng(playerSummonShenron,
+                            ConstNpc.SHENRON_DET_TU,
+                            "Hãy chọn lại điều ước!", SHENRON_DET_TU_WISHES);
                 }
             } catch (Exception ignored) {}
         }

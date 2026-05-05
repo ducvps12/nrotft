@@ -286,6 +286,13 @@ public class ConstNpc {
         public static final int SHENRON_SIEU_CAP_CONFIRM = 251033;
         public static final int CONFIRM_GHEP_NRO_SIEU_CAP = 251034;
 
+        // Ngọc Rồng Băng & Rồng Thần Đệ Tử
+        public static final int CONFIRM_GHEP_NR_BANG = 251035;
+        public static final int MENU_CHON_RONG_SIEU_CAP = 251036;
+        public static final int SUMMON_SHENRON_DET_TU = 251037;
+        public static final int SHENRON_DET_TU = 251038;
+        public static final int SHENRON_DET_TU_CONFIRM = 251039;
+
         public static final int SUB_MENU = 31720025;
         public static final int TAP_TU_DONG_CONFIRM = 31720026;
         public static final int MENU_CLAN_UP = 4;

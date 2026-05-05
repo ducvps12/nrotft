@@ -940,13 +940,9 @@ public class NPoint {
         }
         // === BONUS THEO LOẠI MẢNH CỤ THỂ TRONG SỔ SƯU TẦM ===
         int[] collectionBonus = getCollectionItemBonus();
-        // collectionBonus[0] = Oozaru (1901): +HP%
-        // collectionBonus[1] = Rồng Namếc (1204): +KI%
-        // collectionBonus[2] = Đội trưởng vàng (956): +Dame%
-        // collectionBonus[3] = Quỷ (1173): +Def%
-        // collectionBonus[4] = Bông tai C3 (1855): +Crit
+        // [0]=HP%, [1]=KI%(Rồng), [2]=Dame%, [3]=Def%, [4]=Crit, [5]=NéĐòn%, [6]=KI%(mảnh thường)
         if (collectionBonus[0] > 0) {
-            hpMax += (hpMax * collectionBonus[0] / 100L); // Oozaru → +HP
+            hpMax += (hpMax * collectionBonus[0] / 100L); // HP fragments
         }
 
         // if (this.player.itemTime != null && this.player.itemTime.isMaTroi) {
@@ -1188,10 +1184,13 @@ public class NPoint {
         } else if (itemCount2 >= 10) {
             mpMax += (mpMax * 2L / 100L); // +2% KI khi có 10 món
         }
-        // === BONUS RỒNG NAMẾC TRONG SỔ SƯU TẦM → +KI% ===
+        // === BONUS RỒNG NAMẾC + MẢNH KI TRONG SỔ SƯU TẦM → +KI% ===
         int[] collectionBonus2 = getCollectionItemBonus();
         if (collectionBonus2[1] > 0) {
-            mpMax += (mpMax * collectionBonus2[1] / 100L);
+            mpMax += (mpMax * collectionBonus2[1] / 100L); // Rồng Namếc → +KI%
+        }
+        if (collectionBonus2[6] > 0) {
+            mpMax += (mpMax * collectionBonus2[6] / 100L); // Lợn lòi fragments → +KI%
         }
 
         if (this.player.isClone) {
@@ -1538,6 +1537,11 @@ public class NPoint {
             dame += buffDameFlat;
             int buffNeDon = this.player.itemTime.getBuffOptionParam(108); // Né đòn+#%
             this.tlNeDon += buffNeDon;
+        }
+        // === BONUS NÉ ĐÒN TỪ SỔ SƯU TẦM (Quỷ đất fragments) ===
+        int[] collectionBonusNeDon = getCollectionItemBonus();
+        if (collectionBonusNeDon[5] > 0) {
+            this.tlNeDon += collectionBonusNeDon[5];
         }
 
         // Xử lý thức ăn
@@ -2479,61 +2483,112 @@ public class NPoint {
 
     /**
      * Tinh bonus chi so tu cac manh suu tam cu the trong so suu tam.
-     * Tra ve mang 5 phan tu: [hpBonus%, kiBonus%, dameBonus%, defBonus%, critBonus]
-     * Moi loai manh tang bonus theo so luong (5 moc):
-     *   >= 10:  +1%    |  >= 50:  +3%
-     *   >= 150: +5%    |  >= 300: +8%
-     *   >= 500: +12%
+     * Tra ve mang 7 phan tu: [hpBonus%, kiBonus%, dameBonus%, defBonus%, critBonus, neDonBonus%, kiFragBonus%]
+     * Moi loai manh tang bonus theo so luong (7 moc):
+     *   >= 5:   +1%    |  >= 20:  +2%    |  >= 50:  +4%
+     *   >= 100: +6%    |  >= 200: +9%    |  >= 500: +14%
+     *   >= 1000: +20%
      */
     private int[] getCollectionItemBonus() {
-        int[] bonus = new int[5]; // [hp, ki, dame, def, crit]
+        int[] bonus = new int[7]; // [hp, ki, dame, def, crit, neDon, kiFrag]
         if (this.player == null || this.player.inventory == null
                 || this.player.inventory.itemsBoxCollection == null
                 || this.player.isPet || this.player.isBoss) {
             return bonus;
         }
-        int oozaruQty = 0;   // 1901 - Manh Khi Oozaru -> HP
-        int dragonQty = 0;   // 1204 - Manh Rong than Namec -> KI
-        int captainQty = 0;  // 956  - Manh Doi truong Vang -> Dame
-        int demonQty = 0;    // 1173 - Manh Quy -> Def
-        int earringQty = 0;  // 1855 - Manh vo Bong tai C3 -> Crit
+        int hpQty = 0;      // 1901 Oozaru + 828 Khủng long + 831 Khủng long mẹ → HP
+        int kiQty = 0;       // 1204 Rồng Namếc → KI (chỉ Rồng thần)
+        int dameQty = 0;     // 956 Đội trưởng Vàng + 841 Ninja + 839 Sói xám → Dame
+        int defQty = 0;      // 834 Thằn lằn + 835 Phi long + 836 Quỷ bay + 1173 Mảnh Quỷ → Def
+        int critQty = 0;     // 837/838 Lính ĐN + 840 TU Trắng + 842 TU Xanh + 859 ĐN + 1855 BT C3 → Crit
+        int neDonQty = 0;    // 830 Quỷ đất + 833 Quỷ đất mẹ → Né đòn
+        int kiFragQty = 0;   // 829 Lợn lòi + 832 Lợn lòi mẹ → KI (mảnh thường)
 
         for (Item it : this.player.inventory.itemsBoxCollection) {
             if (it == null || !it.isNotNullItem()) continue;
             switch (it.template.id) {
-                case 1901 -> oozaruQty += it.quantity;
-                case 1204 -> dragonQty += it.quantity;
-                case 956  -> captainQty += it.quantity;
-                case 1173 -> demonQty += it.quantity;
-                case 1855 -> earringQty += it.quantity;
+                // HP fragments
+                case 1901 -> hpQty += it.quantity;
+                case 828  -> hpQty += it.quantity;
+                case 831  -> hpQty += it.quantity;
+                // KI (Rồng thần)
+                case 1204 -> kiQty += it.quantity;
+                // Dame fragments
+                case 956  -> dameQty += it.quantity;
+                case 841  -> dameQty += it.quantity;
+                case 839  -> dameQty += it.quantity;
+                // Def fragments
+                case 834  -> defQty += it.quantity;
+                case 835  -> defQty += it.quantity;
+                case 836  -> defQty += it.quantity;
+                case 1173 -> defQty += it.quantity;
+                // Crit fragments
+                case 837  -> critQty += it.quantity;
+                case 838  -> critQty += it.quantity;
+                case 840  -> critQty += it.quantity;
+                case 842  -> critQty += it.quantity;
+                case 859  -> critQty += it.quantity;
+                case 1855 -> critQty += it.quantity;
+                // Né đòn fragments
+                case 830  -> neDonQty += it.quantity;
+                case 833  -> neDonQty += it.quantity;
+                // KI (mảnh thường)
+                case 829  -> kiFragQty += it.quantity;
+                case 832  -> kiFragQty += it.quantity;
             }
         }
         // Cung xet trong bag (player co the chua bo vao so)
         for (Item it : this.player.inventory.itemsBag) {
             if (it == null || !it.isNotNullItem()) continue;
             switch (it.template.id) {
-                case 1901 -> oozaruQty += it.quantity;
-                case 1204 -> dragonQty += it.quantity;
-                case 956  -> captainQty += it.quantity;
-                case 1173 -> demonQty += it.quantity;
-                case 1855 -> earringQty += it.quantity;
+                case 1901 -> hpQty += it.quantity;
+                case 828  -> hpQty += it.quantity;
+                case 831  -> hpQty += it.quantity;
+                case 1204 -> kiQty += it.quantity;
+                case 956  -> dameQty += it.quantity;
+                case 841  -> dameQty += it.quantity;
+                case 839  -> dameQty += it.quantity;
+                case 834  -> defQty += it.quantity;
+                case 835  -> defQty += it.quantity;
+                case 836  -> defQty += it.quantity;
+                case 1173 -> defQty += it.quantity;
+                case 837  -> critQty += it.quantity;
+                case 838  -> critQty += it.quantity;
+                case 840  -> critQty += it.quantity;
+                case 842  -> critQty += it.quantity;
+                case 859  -> critQty += it.quantity;
+                case 1855 -> critQty += it.quantity;
+                case 830  -> neDonQty += it.quantity;
+                case 833  -> neDonQty += it.quantity;
+                case 829  -> kiFragQty += it.quantity;
+                case 832  -> kiFragQty += it.quantity;
             }
         }
 
-        bonus[0] = calcTierBonus(oozaruQty);   // HP%
-        bonus[1] = calcTierBonus(dragonQty);   // KI%
-        bonus[2] = calcTierBonus(captainQty);  // Dame%
-        bonus[3] = calcTierBonus(demonQty);    // Def%
-        bonus[4] = calcTierBonus(earringQty);  // Crit flat
+        bonus[0] = calcTierBonus(hpQty);       // HP%
+        bonus[1] = calcTierBonus(kiQty);        // KI% (Rồng thần)
+        bonus[2] = calcTierBonus(dameQty);      // Dame%
+        bonus[3] = calcTierBonus(defQty);       // Def%
+        bonus[4] = calcTierBonus(critQty);      // Crit flat
+        bonus[5] = calcTierBonus(neDonQty);     // Né đòn%
+        bonus[6] = calcTierBonus(kiFragQty);    // KI% (mảnh thường)
         return bonus;
     }
 
+    /**
+     * 7-tier bonus system:
+     *   5  → +1%  |  20  → +2%  |  50  → +4%
+     *  100 → +6%  | 200  → +9%  | 500  → +14%
+     * 1000 → +20%
+     */
     private int calcTierBonus(int qty) {
-        if (qty >= 500) return 12;
-        if (qty >= 300) return 8;
-        if (qty >= 150) return 5;
-        if (qty >= 50)  return 3;
-        if (qty >= 10)  return 1;
+        if (qty >= 1000) return 20;
+        if (qty >= 500)  return 14;
+        if (qty >= 200)  return 9;
+        if (qty >= 100)  return 6;
+        if (qty >= 50)   return 4;
+        if (qty >= 20)   return 2;
+        if (qty >= 5)    return 1;
         return 0;
     }
 

@@ -289,8 +289,100 @@ public class UseItem {
                         Service.gI().point(pl);
                         break;
                     }
-                    case 33: {// card
-                        UseCard(pl, item);
+                    case 33: {// card + collection fragments
+                        // Collection fragments — xử lý trước, không gọi UseCard
+                        switch (item.template.id) {
+                            // ===== HP FRAGMENTS =====
+                            case 1901: // Mảnh Khỉ Oozaru → +HP%
+                            case 828:  // Mảnh Khủng long → +HP%
+                            case 831:  // Mảnh Khủng long mẹ → +HP%
+                                useCollectionFragment(pl, item, "HP",
+                                        item.template.name + " — Sức mạnh hoang dã!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus HP.");
+                                break;
+
+                            // ===== SỨC ĐÁNH FRAGMENTS =====
+                            case 956:  // Mảnh Đội trưởng Vàng → +Dame%
+                            case 841:  // Mảnh Ninja Áo Tím → +Dame%
+                            case 839:  // Mảnh Sói xám → +Dame%
+                                useCollectionFragment(pl, item, "Sức đánh",
+                                        item.template.name + " — Bản năng chiến đấu!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Sức đánh.");
+                                break;
+
+                            // ===== GIÁP FRAGMENTS =====
+                            case 834:  // Mảnh Thằn lằn bay → +Def%
+                            case 835:  // Mảnh Phi long → +Def%
+                            case 836:  // Mảnh Quỷ bay → +Def%
+                                useCollectionFragment(pl, item, "Giáp",
+                                        item.template.name + " — Vảy rồng bất hoại!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Giáp.");
+                                break;
+
+                            // ===== KI FRAGMENTS =====
+                            case 1204: // Mảnh Rồng thần Namếc → ghép 7 mảnh hoặc +KI%
+                            case 1208:
+                            {
+                                if (item.quantity < 7) {
+                                    int totalInCollection = countCollectionItem(pl, item.template.id);
+                                    int totalAll = totalInCollection + item.quantity;
+                                    String tierInfo = getCollectionTierInfo(totalAll, "KI");
+                                    Service.gI().sendThongBao(pl,
+                                            "Cần 7 Mảnh Rồng thần Namếc để ghép!\n"
+                                            + "Hiện có: " + item.quantity + "/7 mảnh\n"
+                                            + "Sổ sưu tầm: " + totalInCollection + " mảnh\n"
+                                            + tierInfo
+                                            + "\n\nDùng nút 'Thêm vào AutoItem' để bỏ vào sổ sưu tầm");
+                                    break;
+                                }
+                                if (InventoryService.gI().getCountEmptyBag(pl) < 1) {
+                                    Service.gI().sendThongBao(pl, "Cần 1 ô trống hành trang!");
+                                    break;
+                                }
+                                InventoryService.gI().subQuantityItemsBag(pl, item, 7);
+                                int ngocSao = 353 + Util.nextInt(0, 6);
+                                Item ngocRong = ItemService.gI().createNewItem((short) ngocSao);
+                                ngocRong.quantity = 1;
+                                InventoryService.gI().addItemBag(pl, ngocRong);
+                                InventoryService.gI().sendItemBag(pl);
+                                int sao = ngocSao - 352;
+                                Service.gI().sendThongBao(pl,
+                                        "Ghép thành công!\nNhận được: Ngọc Rồng Namếc " + sao + " sao!");
+                                Service.gI().sendThongBaoAllPlayer(
+                                        pl.name + " vừa ghép được Ngọc Rồng Namếc " + sao + " sao từ mảnh!");
+                                break;
+                            }
+                            case 829:  // Mảnh Lợn lòi → +KI%
+                            case 832:  // Mảnh Lợn lòi mẹ → +KI%
+                                useCollectionFragment(pl, item, "KI",
+                                        item.template.name + " — Năng lượng nguyên thủy!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus KI.");
+                                break;
+
+                            // ===== CHÍ MẠNG FRAGMENTS =====
+                            case 837:  // Mảnh Lính độc nhãn → +Crit
+                            case 838:  // Mảnh Lính độc nhãn (2) → +Crit
+                            case 840:  // Mảnh Trung úy Trắng → +Crit
+                            case 842:  // Mảnh Trung úy Xanh Lơ → +Crit
+                            case 859:  // Mảnh Độc Nhãn → +Crit
+                                useCollectionFragment(pl, item, "Chí mạng",
+                                        item.template.name + " — Chiến thuật đặc biệt!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Chí mạng.");
+                                break;
+
+                            // ===== NÉ ĐÒN FRAGMENTS =====
+                            case 830:  // Mảnh Quỷ đất → +NéĐòn%
+                            case 833:  // Mảnh Quỷ đất mẹ → +NéĐòn%
+                                useCollectionFragment(pl, item, "Né đòn",
+                                        item.template.name + " — Kỹ năng ẩn thân!\n"
+                                        + "Bỏ vào Sổ Sưu Tầm để nhận bonus Né đòn.");
+                                break;
+
+                            default:
+                                // Các thẻ radar thông thường
+                                UseCard(pl, item);
+                                break;
+                        }
                         break;
                     }
                     case 7: {// sách học, nâng skill
@@ -510,6 +602,23 @@ public class UseItem {
                                     ItemTimeService.gI().sendItemTime(pl, 459, 86400);
                                     Service.gI().sendThongBao(pl,
                                         "Kích hoạt Phiếu Giảm Giá 30%!\nHiệu lực 24 giờ, dùng 1 lần mua.");
+                                }
+                                break;
+                            case 721: // Phiếu Giảm Giá VIP — kích hoạt 24h, giảm 70% mua 1 lần
+                                if (pl.itemTime.isUsePhieuGiamGiaVIP) {
+                                    Service.gI().sendThongBao(pl, "Bạn đang có Phiếu Giảm Giá VIP đang hoạt động!");
+                                } else {
+                                    // Kích hoạt phiếu VIP
+                                    pl.itemTime.isUsePhieuGiamGiaVIP = true;
+                                    pl.itemTime.lastTimePhieuGiamGiaVIP = System.currentTimeMillis();
+                                    pl.itemTime.usedPhieuGiamGiaVIP = false;
+                                    // Trừ 1 phiếu
+                                    InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+                                    InventoryService.gI().sendItemBag(pl);
+                                    // Gửi icon lên client (24h = 86400 giây)
+                                    ItemTimeService.gI().sendItemTime(pl, 721, 86400);
+                                    Service.gI().sendThongBao(pl,
+                                        "Kích hoạt Phiếu Giảm Giá VIP 70%!\nHiệu lực 24 giờ, dùng 1 lần mua.\nÁp dụng tại NPC Lý Tiểu Nương.");
                                 }
                                 break;
                             case 460:
@@ -855,9 +964,10 @@ public class UseItem {
                             case 1982: // Gói quà đặc biệt (Event)
                                 openGoiQuaDacBiet(pl, item);
                                 break;
-                            // ===== NGỌC RỒNG SIÊU CẤP =====
-                            case 1015: // Ngọc Rồng Siêu Cấp → Gọi Rồng Thần Siêu Cấp
-                                SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
+                            // ===== NGỌC RỒNG SIÊU CẤP & TÚI NR BĂNG =====
+                            case 1015: // Ngọc Rồng Siêu Cấp → route qua controllerCallRongThan
+                            case 2017: // Túi Ngọc Rồng Băng → route qua controllerCallRongThan
+                                controllerCallRongThan(pl, item);
                                 break;
                             case 1883: // Vé nhiệm vụ tháng VIP → Đổi phần thưởng
                             {
@@ -3229,8 +3339,56 @@ public class UseItem {
         } else if (tempId >= ShenronEventService.NGOC_RONG_1_SAO && tempId <= ShenronEventService.NGOC_RONG_7_SAO) {
             ShenronEventService.gI().openMenuSummonShenron(pl, 0);
         } else if (tempId == SummonDragon.NGOC_RONG_SIEU_CAP) {
-            // Item 1015: Ngọc rồng Siêu Cấp → Gọi Rồng Thần Siêu Cấp luôn
-            SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
+            // Item 1015: Ngọc rồng Siêu Cấp
+            // Check nếu có cả Túi NR Băng (2017) → mở menu ghép Rồng Thần Đệ Tử
+            if (InventoryService.gI().isExistItemBag(pl, SummonDragon.TUI_NGOC_RONG_BANG)) {
+                NpcService.gI().createMenuConMeo(pl, ConstNpc.MENU_CHON_RONG_SIEU_CAP, -1,
+                        "Bạn có cả Ngọc Rồng Siêu Cấp và Túi Ngọc Rồng Băng!\n"
+                        + "1. Triệu hồi Rồng Thần Siêu Cấp (ước thường)\n"
+                        + "2. Ghép NR Siêu Cấp + Túi NR Băng → Rồng Thần Đệ Tử\n"
+                        + "   (Điều ước chuyên nâng cấp đệ tử!)",
+                        "Rồng Thần\nSiêu Cấp", "Rồng Thần\nĐệ Tử");
+            } else {
+                SummonDragon.gI().openMenuSummonShenronSieuCap(pl);
+            }
+        } else if (tempId >= 925 && tempId <= 931) {
+            // Ngọc Rồng Băng 1-7 sao: ghép 7 viên → Túi NR Băng (2017)
+            boolean hasAll = true;
+            StringBuilder missing = new StringBuilder();
+            for (int i = 925; i <= 931; i++) {
+                if (!InventoryService.gI().isExistItemBag(pl, i)) {
+                    hasAll = false;
+                    int sao = i - 924;
+                    missing.append("- Thiếu: Ngọc rồng băng ").append(sao).append(" sao\n");
+                }
+            }
+            if (!hasAll) {
+                Service.gI().sendThongBao(pl,
+                        "Cần đủ 7 viên Ngọc Rồng Băng (1-7 sao) để ghép!\n\n" + missing
+                        + "\nGhép đủ 7 viên → nhận Túi Ngọc Rồng Băng");
+            } else {
+                NpcService.gI().createMenuConMeo(pl, ConstNpc.CONFIRM_GHEP_NR_BANG, -1,
+                        "Bạn đã có đủ 7 viên Ngọc Rồng Băng 1-7 sao!\n\n"
+                        + "Ghép thành: Túi Ngọc Rồng Băng\n"
+                        + "→ Kết hợp với NR Siêu Cấp để gọi Rồng Thần Đệ Tử!\n\n"
+                        + "⚠ 7 viên NR Băng sẽ bị tiêu hao.",
+                        "Ghép ngay!", "Huỷ");
+            }
+        } else if (tempId == SummonDragon.TUI_NGOC_RONG_BANG) {
+            // Túi NR Băng (2017): nếu có NR Siêu Cấp → gọi Rồng Thần Đệ Tử
+            if (InventoryService.gI().isExistItemBag(pl, SummonDragon.NGOC_RONG_SIEU_CAP)) {
+                NpcService.gI().createMenuConMeo(pl, ConstNpc.MENU_CHON_RONG_SIEU_CAP, -1,
+                        "Bạn có cả Túi Ngọc Rồng Băng và Ngọc Rồng Siêu Cấp!\n\n"
+                        + "Ghép 2 item này để triệu hồi Rồng Thần Đệ Tử!\n"
+                        + "Điều ước chuyên nâng cấp đệ tử!",
+                        "Rồng Thần\nSiêu Cấp", "Rồng Thần\nĐệ Tử");
+            } else {
+                Service.gI().sendThongBao(pl,
+                        "Bạn cần thêm 1 viên Ngọc Rồng Siêu Cấp!\n"
+                        + "Kết hợp Túi NR Băng + NR Siêu Cấp\n"
+                        + "→ Triệu hồi Rồng Thần Đệ Tử!\n\n"
+                        + "Cách lấy NR Siêu Cấp: Ép 2 viên NR 1 sao (tỉ lệ 50%)");
+            }
         }
     }
 

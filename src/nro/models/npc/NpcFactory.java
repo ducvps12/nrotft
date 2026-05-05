@@ -886,6 +886,8 @@ public class NpcFactory {
                             case 3 ->
                                 Command.gI().giveDragonBallsSieuCap(player);
                             case 4 ->
+                                Command.gI().giveDragonBallsBang(player);
+                            case 5 ->
                                 Command.gI().showAdminMenu(player);
                         }
                     }
@@ -922,6 +924,39 @@ public class NpcFactory {
                             SummonDragon.gI().confirmCombineNroToSieuCap(player);
                         }
                         // select == 1 = Hủy bỏ → không làm gì
+                    }
+                    // ===== NGỌC RỒNG BĂNG & RỒNG THẦN ĐỆ TỬ =====
+                    case ConstNpc.CONFIRM_GHEP_NR_BANG -> {
+                        if (select == 0) {
+                            SummonDragon.gI().confirmMergeNrBang(player);
+                        }
+                    }
+                    case ConstNpc.MENU_CHON_RONG_SIEU_CAP -> {
+                        switch (select) {
+                            case 0 -> // Rồng Thần Siêu Cấp (bình thường)
+                                SummonDragon.gI().openMenuSummonShenronSieuCap(player);
+                            case 1 -> // Rồng Thần Đệ Tử
+                                SummonDragon.gI().summonShenronDetTu(player);
+                        }
+                    }
+                    case ConstNpc.SUMMON_SHENRON_DET_TU -> {
+                        if (select == 0) {
+                            SummonDragon.gI().summonShenronDetTu(player);
+                        }
+                    }
+                    case ConstNpc.SHENRON_DET_TU -> {
+                        SummonDragon.gI().showConfirmShenronDetTu(player, (byte) select);
+                    }
+                    case ConstNpc.SHENRON_DET_TU_CONFIRM -> {
+                        if (select == 0) {
+                            SummonDragon.gI().confirmWishDetTu();
+                        } else {
+                            // Từ chối → mở lại menu ước
+                            NpcService.gI().createMenuRongThieng(player,
+                                    ConstNpc.SHENRON_DET_TU,
+                                    SummonDragon.SHENRON_SAY,
+                                    SummonDragon.SHENRON_DET_TU_WISHES);
+                        }
                     }
                     case ConstNpc.MENU_ADMIN_EXTEND -> {
                         switch (select) {

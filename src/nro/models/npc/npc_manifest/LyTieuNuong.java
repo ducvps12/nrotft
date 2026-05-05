@@ -224,10 +224,10 @@ public class LyTieuNuong extends Npc {
                 + "|7|━━━━━━━━━━━━━━━━━━";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_PET, info,
-                "Đệ Thường\n" + Util.mumberToLouis(vps.getPetPrice(1)),
-                "Đệ Thường+\n" + Util.mumberToLouis(vps.getPetPrice(2)),
-                "Đệ Mabu\n" + Util.mumberToLouis(vps.getPetPrice(3)),
-                "Đệ B.Goku\n" + Util.mumberToLouis(vps.getPetPrice(4)),
+                "Đệ Mabu\n" + Util.mumberToLouis(vps.getPetPrice(1)),
+                "Đệ B.Goku\n" + Util.mumberToLouis(vps.getPetPrice(2)),
+                "Đệ Cell\n" + Util.mumberToLouis(vps.getPetPrice(3)),
+                "Đệ Berus\n" + Util.mumberToLouis(vps.getPetPrice(4)),
                 "Quay Lại");
     }
 
@@ -260,14 +260,15 @@ public class LyTieuNuong extends Npc {
         boolean hasActive = vps.hasActiveVipPetPackage(player);
         int currentTier = vps.getActiveVipPetTier(player);
         String expireInfo = hasActive ? vps.getVipPetExpireInfo(player) : null;
-        boolean hasCoupon = vps.hasDiscountCoupon(player);
+        boolean hasCouponVIP = vps.hasVIPDiscountCoupon(player);
+        boolean hasCoupon = hasCouponVIP || vps.hasDiscountCoupon(player);
 
         String info = "|7|━━━ VIP ĐỆ TỬ ━━━\n"
                 + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
                 + (hasActive
                         ? "|2|✓ Đang có VIP Đệ tier " + currentTier + " (hết: " + expireInfo + ")\n"
                         : "|8|Chưa có gói VIP Đệ nào\n")
-                + (hasCoupon ? "|1|🎫 Có Phiếu Giảm Giá 30%!\n" : "")
+                + (hasCoupon ? "|1|🎫 Có Phiếu Giảm Giá" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!\n" : "")
                 + "|3|Tăng tốc đệ tử, ưu tiên HP + DAME!\n"
                 + "|8|Hiệu lực: 24 giờ, cho phép nâng tier\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
@@ -387,9 +388,10 @@ public class LyTieuNuong extends Npc {
                 + "|1|không mất, không hết hạn!\n"
                 + "|8|Giới hạn: mỗi ngày chỉ mua 1 gói.\n"
                 + "|8|Nếu đã có đệ tử, sẽ được nâng cấp.\n"
-                + "|8|Gói 1-2: Đệ Thường + items buff\n"
-                + "|8|Gói 3: Đệ Mabu (mạnh) + items\n"
-                + "|8|Gói 4: Đệ Black Goku (siêu mạnh) + items\n"
+                + "|8|Gói 1: Đệ Mabu + items buff\n"
+                + "|8|Gói 2: Đệ Black Goku + items\n"
+                + "|8|Gói 3: Đệ Cell + items\n"
+                + "|8|Gói 4: Đệ Berus (Thần Hủy Diệt) + items\n"
                 + "\n"
                 + "|1|▶ VIP ĐỆ TỬ (MỚI!):\n"
                 + "|8|Kích hoạt buff 24h cho đệ tử:\n"
@@ -401,6 +403,7 @@ public class LyTieuNuong extends Npc {
                 + "|1|  đệ không tự cộng Giáp/Chí Mạng\n"
                 + "|8|Cho phép nâng tier trong khi còn hạn\n"
                 + "|2|🎫 Phiếu Giảm Giá: giảm 30% VIP Đệ!\n"
+                + "|1|🎫 Phiếu Giảm Giá VIP: giảm 70% VIP Đệ!\n"
                 + "\n"
                 + "|2|▶ MINI GAMES:\n"
                 + "|8|Kéo Búa Bao: 6 mức cược vàng\n"
