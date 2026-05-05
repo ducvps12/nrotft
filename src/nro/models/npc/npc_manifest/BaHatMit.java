@@ -60,8 +60,8 @@ public class BaHatMit extends Npc {
                                 "Chuyển hóa\nTrang bị",
                                 "Nâng cấp\nChân mệnh",
                                 "Nâng cấp\nKích hoạt",
-                                // "Nâng Cấp\n Đệ Tử",
                                 "Phân rã\nThần Linh",
+                                "Chức năng\nkhác",
                                 "Di chuyển");
                     } else if (EventManager.HALLOWEEN) {
                         this.createOtherMenu(player, ConstNpc.BASE_MENU,
@@ -71,8 +71,8 @@ public class BaHatMit extends Npc {
                                 "Chuyển hóa\nTrang bị",
                                 "Nâng cấp\nChân mệnh",
                                 "Nâng cấp\nKích hoạt",
-                                // "Nâng Cấp\n Đệ Tử",
                                 "Phân rã\nThần Linh",
+                                "Chức năng\nkhác",
                                 "Di chuyển");
                     } else {
                         this.createOtherMenu(player, ConstNpc.BASE_MENU,
@@ -82,6 +82,7 @@ public class BaHatMit extends Npc {
                                 "Nâng cấp\nChân mệnh",
                                 "Nâng cấp\nKích hoạt",
                                 "Phân rã\nThần Linh",
+                                "Chức năng\nkhác",
                                 "Di chuyển");
                     }
                 }
@@ -329,50 +330,19 @@ public class BaHatMit extends Npc {
                                 case 5 -> { // Phân rã Thần Linh - mở tab combine để chọn item
                                     CombineService.gI().openTabCombine(player, CombineService.PHAN_RA_DO_THAN_LINH);
                                 }
-                                case 6 -> {// Di chuyển
+                                case 6 -> { // Chức năng khác (Đá Hoàng Kim, Đá Tẩy)
+                                    createOtherMenu(player, ConstMenu.CHUC_NANG_BHM_KHAC, "|7|\bChức năng khác:\n|0|"
+                                            + "\nMở Khóa GD: dùng Đá Hoàng Kim, tỉ lệ 30%"
+                                            + "\nGia hạn Vật Phẩm: dùng Đá Hoàng Kim, +3-7 ngày"
+                                            + "\nTẩy đồ: dùng Đá Tẩy, xóa chỉ số phụ/đặc biệt",
+                                            "Mở Khóa GD", "Gia hạn\n Vật Phẩm", "Tẩy Đồ");
+                                }
+                                case 7 -> {// Di chuyển
                                     createOtherMenu(player, ConstMenu.MRNU_DI_CHUYEN,
                                             "Ngươi muốn di chuyển đến đâu?\n",
                                             "Xuống\nĐịa Ngục",
                                             "Võ đài\nSinh Tử");
                                 }
-                                // case 4 ->
-                                // ChangeMapService.gI().changeMapNonSpaceship(player,
-                                // 174,
-                                // 110 + Util.nextInt(0, 100),
-                                // 408);
-                                // case 5 ->
-                                // ChangeMapService.gI().changeMapNonSpaceship(player, 112, 200 +
-                                // Util.nextInt(-100, 100), 408);
-                                // case 5 ->
-                                // CombineService.gI().openTabCombine(player,
-                                // CombineService.PHAN_RA_TRANG_BI_KH);
-                                // case 6 ->
-                                // CombineService.gI().openTabCombine(player,
-                                // CombineService.TAI_TAO_CAPSULE_KH);
-                                // case 3 ->
-                                // createOtherMenu(player, ConstMenu.CHUC_NANG_BHM_KHAC, "Ngươi tìm ta có việc
-                                // gì?\n",
-                                // "Đập đồ\nẢo Hóa",
-                                // "Build Đồ",
-                                // "Pháp sư hoá",
-                                // "Siêu hóa\n Cải trang",
-                                // "Tinh ấn\ntrang bị",
-                                // "Tinh thạch\ntrang bị",
-                                // "Nâng cấp\nGiáp LT");
-                                // case 4 ->
-                                // this.createOtherMenu(player, ConstMenu.SHOP_BHM, "|7|CHÂN MỆNH"
-                                // + "\n\n|1|Bạn đang có: " + (player.event.getEventPointBHM()) + " Điểm Săn
-                                // Boss"
-                                // + "\n|3| Lưu ý: Chỉ được nhận Chân mệnh 1 lần (Hành trang chỉ tồn tại 1 Chân
-                                // mệnh)"
-                                // + "\nNếu đã có Chân mệnh. Ta sẽ giúp ngươi nâng cấp bậc lên với các dòng chỉ
-                                // số cao hơn",
-                                // player.event.getEventPointBHM() >= 1000 ? "Nhận Chân mệnh" : "Cần 1000 điểm\n
-                                // để nhận", "Nâng cấp Chân mệnh", "Shop\nĐIỂM", "Shop\nBà Hạt Mít"
-                                // );
-                                // case 5->
-                                // CombineService.gI().openTabCombine(player,
-                                // CombineService.TAI_TAO_TRANG_BI_KICH_HOAT);
                             }
                         }
                         case 11233 -> {
@@ -1012,31 +982,15 @@ public class BaHatMit extends Npc {
                         // MENU_PHAN_RA_THAN_LINH đã chuyển sang dùng Tab Combine (CombineService.PHAN_RA_DO_THAN_LINH)
                         case ConstMenu.CHUC_NANG_BHM_KHAC -> {
                             switch (select) {
-                                case 0: // Đập đồ ảo hóa
-                                    CombineService.gI().openTabCombine(player, CombineService.DAP_DO_AO_HOA);
+                                case 0: // Mở khóa Item (dùng Đá Hoàng Kim)
+                                    CombineService.gI().openTabCombine(player, CombineService.MO_KHOA_ITEM);
                                     break;
-                                case 1: // Build Đồ
-                                    this.createOtherMenu(player, ConstMenu.BUILD_DO_BHM, "|7|\bChi Tiết:\n|0|"
-                                            + "\nMở Khóa GD: tỉ lệ thành công 30%"
-                                            + "\nGia hạn Vật Phẩm: tỉ lệ thành công 30% + 3 - 7 ngày, 70% + 1 ngày"
-                                            + "\nTẩy đồ: tẩy sao pha lê, chỉ số đặc biệt một số trang bị",
-                                            "Mở Khóa GD", "Gia hạn\n Vật Phẩm", "Tẩy Đồ");
-                                    break;// Zalo: 0358124452
-                                case 2: // Pháp sư hóa trang bị
-                                    CombineService.gI().openTabCombine(player, CombineService.PS_HOA_TRANG_BI);
+                                case 1: // Gia hạn vật phẩm (dùng Đá Hoàng Kim)
+                                    CombineService.gI().openTabCombine(player, CombineService.GIA_HAN_VAT_PHAM);
                                     break;
-                                case 3: // Siêu Hóa
-                                    CombineService.gI().openTabCombine(player, CombineService.SIEU_HOA);
+                                case 2: // Tẩy đồ (dùng Đá Tẩy)
+                                    CombineService.gI().openTabCombine(player, CombineService.TAY_PS_HOA_TRANG_BI);
                                     break;
-                                case 4:
-                                    CombineService.gI().openTabCombine(player, CombineService.AN_TRANG_BI);
-                                    break;// Name: EMTI
-                                case 5:
-                                    CombineService.gI().openTabCombine(player, CombineService.TINH_THACH_HOA);
-                                    break;// Name: EMTI
-                                case 6:
-                                    CombineService.gI().openTabCombine(player, CombineService.NANG_GIAP_LUYEN_TAP);
-                                    break;// Name: EMTI
                             }
                         }
                         case ConstMenu.BUILD_DO_BHM -> {

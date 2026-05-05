@@ -4,6 +4,7 @@ import consts.ConstNpc;
 import item.Item;
 import item.Item.ItemOption;
 import models.Combine.CombineService;
+import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.InventoryService;
 import nro.services.Service;
@@ -12,10 +13,18 @@ import utils.Util;
 /**
  * Hiến tế trang bị tại Champa
  * Tốn: 10 Thỏi Vàng
- * Tỉ lệ:
- * - 40% Tăng 10-20% chỉ số gốc (Thành công)
- * - 30% Giảm 10-20% chỉ số gốc (Hỏng chỉ số)
- * - 30% Mất trang bị (Gãy)
+ *
+ * === TỈ LỆ KHÔNG CÓ HỘP SKH THẦN LINH ===
+ * - 40% Thành công: Tăng 10-20% chỉ số gốc (SD, HP, KI, Giáp...)
+ * - 30% Hỏng: Giảm 10-20% chỉ số gốc (chỉ số không xuống dưới 1)
+ * - 30% Gãy: MẤT TRẮNG trang bị (item bị xóa khỏi hành trang)
+ *
+ * === TỈ LỆ CÓ HỘP SKH THẦN LINH (ID 1703) ===
+ * - 90% Thành công: Tăng 5-10% chỉ số gốc (thấp hơn nhưng an toàn)
+ * - 10% Hỏng: Giảm 5-10% chỉ số gốc
+ * -  0% Gãy: KHÔNG BAO GIỜ mất trang bị khi có Hộp SKH
+ *
+ * Lưu ý: Hộp SKH Thần Linh sẽ bị tiêu hao sau khi hiến tế (dù thành công hay thất bại)
  */
 public class ChampaHienTe {
 
@@ -50,6 +59,7 @@ public class ChampaHienTe {
             return;
         }
 
+        // Tìm thỏi vàng trong hành trang để hiển thị số lượng
         Item thoiVang = InventoryService.gI().findItemBag(player, ITEM_THOI_VANG);
         int slTV = thoiVang != null ? thoiVang.quantity : 0;
 
@@ -57,22 +67,34 @@ public class ChampaHienTe {
                 + "|7|Ngươi muốn hiến tế " + equip.template.name + "?\n\n";
 
         if (hopSkh != null) {
+            // Có Hộp SKH: tỉ lệ an toàn hơn, không mất đồ, nhưng chỉ số tăng ít hơn
             npcSay += "|1|Hỗ trợ từ Hộp SKH Thần Linh:\n"
                     + "|2|• 90% Thành công (Tăng 5-10% chỉ số)\n"
                     + "|7|• 10% Hỏng (Giảm 5-10% chỉ số)\n"
-                    + "|2|• Tỉ lệ Gãy: 0%\n";
+                    + "|2|• Tỉ lệ Gãy: 0% (Không mất trang bị)\n";
         } else {
+            // Không có Hộp SKH: rủi ro cao nhưng thưởng lớn hơn
             npcSay += "|1|Tỉ lệ rủi ro (Không hỗ trợ):\n"
                     + "|2|• 40% Thành công (Tăng 10-20% chỉ số)\n"
                     + "|7|• 30% Hỏng (Giảm 10-20% chỉ số)\n"
-                    + "|6|• 30% Gãy (MẤT TRẮNG TRANG BỊ)\n";
+                    + "|6|• 30% Gãy (MẤT TRẮNG TRANG BỊ)\n"
+                    + "\n|1|Mẹo: Thêm Hộp SKH Thần Linh để tăng tỉ lệ\n"
+                    + "|1|thành công từ 40%→90% và loại bỏ tỉ lệ gãy!\n";
         }
 
         npcSay += "\n|1|Phí hiến tế: |2|" + COST_THOI_VANG + " Thỏi Vàng\n"
                 + "|1|Hiện có: |" + (slTV >= COST_THOI_VANG ? "2|" : "6|") + slTV + " TV";
 
-        CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
-                "Hiến tế\n(10 TV)", "Không");
+        // Dùng NPC đang chọn (Champa) thay vì baHatMit để menu popup đúng NPC
+        Npc npcChose = player.iDMark.getNpcChose();
+        if (npcChose != null) {
+            npcChose.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
+                    "Hiến tế\n(" + COST_THOI_VANG + " TV)", "Không");
+        } else {
+            // Fallback nếu không tìm được NPC đang chọn
+            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
+                    "Hiến tế\n(" + COST_THOI_VANG + " TV)", "Không");
+        }
     }
 
     public static void startCombine(Player player) {

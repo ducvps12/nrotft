@@ -38,10 +38,11 @@ public class VipPackageService {
     public static final long VIP_DURATION_MS = 7L * 24 * 60 * 60 * 1000;
 
     // ===================== GIÁ GÓI ĐỆ TỬ NGÀY =====================
-    public static final int DETU1_PRICE = 50_000;
-    public static final int DETU2_PRICE = 100_000;
-    public static final int DETU3_PRICE = 250_000;
-    public static final int DETU4_PRICE = 500_000;
+    // Giá sắp xếp theo sức mạnh fusion: Mabu < Cell < Berus < B.Goku
+    public static final int DETU1_PRICE = 50_000;    // Mabu (bonus thấp nhất)
+    public static final int DETU2_PRICE = 100_000;   // Cell (25/30/30%)
+    public static final int DETU3_PRICE = 250_000;   // Berus (30/35/35%)
+    public static final int DETU4_PRICE = 500_000;   // B.Goku (35/40/40% - cao nhất)
 
     // Thời hạn gói đệ tử = 1 ngày
     public static final long DETU_DURATION_MS = 24L * 60 * 60 * 1000;
@@ -417,25 +418,25 @@ public class VipPackageService {
                     PetService.gI().changeMabuPet(player);
                 }
             }
-            case 2 -> { // Đệ Black Goku
-                if (player.pet == null) {
-                    PetService.gI().createBlackGokuPet(player, player.gender);
-                } else {
-                    PetService.gI().changeBlackGokuPet(player);
-                }
-            }
-            case 3 -> { // Đệ Cell
+            case 2 -> { // Đệ Cell (100K - bonus trung bình)
                 if (player.pet == null) {
                     PetService.gI().createCellPet(player, player.gender);
                 } else {
                     PetService.gI().changeCellPet(player);
                 }
             }
-            case 4 -> { // Đệ Berus
+            case 3 -> { // Đệ Berus (250K - bonus khá)
                 if (player.pet == null) {
                     PetService.gI().createBerusPet(player, player.gender);
                 } else {
                     PetService.gI().changeBerusPet(player);
+                }
+            }
+            case 4 -> { // Đệ Black Goku (500K - bonus cao nhất)
+                if (player.pet == null) {
+                    PetService.gI().createBlackGokuPet(player, player.gender);
+                } else {
+                    PetService.gI().changeBlackGokuPet(player);
                 }
             }
         }
@@ -502,32 +503,36 @@ public class VipPackageService {
                     + "|2|• Đệ Tử Mabu (VĨNH VIỄN)\n"
                     + "|8|• 200 Thỏi Vàng (khóa)\n"
                     + "|8|• 3 Bình TNSM (khóa)\n"
-                    + "|3|SM khởi điểm 1.5M, chỉ số cao!\n"
+                    + "|3|SM khởi điểm 1.5M\n"
+                    + "|8|Fusion Porata 4: HP 20% KI 35% Dame 25%\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 2 -> "|7|━━━ GÓI ĐỆ B.GOKU ━━━\n"
+            case 2 -> "|7|━━━ GÓI ĐỆ CELL ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(2)) + " VNĐ\n"
-                    + "|2|• Đệ Black Goku (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Tử Cell (VĨNH VIỄN)\n"
                     + "|8|• 500 Thỏi Vàng (khóa)\n"
                     + "|8|• 5 Bình TNSM (khóa)\n"
                     + "|8|• 10 Đá Bảo Vệ (khóa)\n"
-                    + "|3|SM khởi điểm 1.5M, 9 ô trang bị!\n"
+                    + "|3|SM 1.5M, 9 ô, mặc đồ xuyên hệ!\n"
+                    + "|8|Fusion Porata 4: HP 25% KI 30% Dame 30%\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 3 -> "|7|━━━ GÓI ĐỆ CELL ━━━\n"
+            case 3 -> "|7|━━━ GÓI ĐỆ BERUS ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(3)) + " VNĐ\n"
-                    + "|2|• Đệ Tử Cell (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Thần Hủy Diệt Berus (VĨNH VIỄN)\n"
                     + "|8|• 1000 Thỏi Vàng (khóa)\n"
                     + "|8|• 10 Bình TNSM (khóa)\n"
                     + "|8|• 20 Đá Bảo Vệ (khóa)\n"
-                    + "|3|SM 1.5M, 9 ô trang bị, chỉ số cao!\n"
+                    + "|3|SM 1.5M, 9 ô, Thần Hủy Diệt!\n"
+                    + "|8|Fusion Porata 4: HP 30% KI 35% Dame 35%\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
-            case 4 -> "|7|━━━ GÓI ĐỆ BERUS ━━━\n"
+            case 4 -> "|7|━━━ GÓI ĐỆ B.GOKU ━━━\n"
                     + "|1|Giá: " + Util.mumberToLouis(getPetPrice(4)) + " VNĐ\n"
-                    + "|2|• Đệ Thần Hủy Diệt Berus (VĨNH VIỄN)\n"
+                    + "|2|• Đệ Black Goku (VĨNH VIỄN)\n"
                     + "|8|• 2000 Thỏi Vàng (khóa)\n"
                     + "|8|• 15 Bình TNSM (khóa)\n"
                     + "|8|• 30 Đá Bảo Vệ (khóa)\n"
                     + "|8|• 5 Phiếu Giảm Giá\n"
-                    + "|3|SM 1.5M, 9 ô, Thần Hủy Diệt!\n"
+                    + "|3|SM 1.5M, 9 ô, FUSION CAO NHẤT!\n"
+                    + "|1|Fusion Porata 4: HP 35% KI 40% Dame 40%\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             default -> "";
         };

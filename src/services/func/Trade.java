@@ -25,7 +25,7 @@ import java.util.List;
 public class Trade {
 
     public static final int TIME_TRADE = 180000;
-    public static final int QUANLITY_MAX = 10_000;
+    public static final int QUANLITY_MAX = 99_999; // Giới hạn giao dịch tối đa mỗi lần add item
 
     private Player player1;
     private Player player2;
@@ -114,12 +114,12 @@ public class Trade {
                     if (isItemCannotTran(item)) {
                         removeItemTrade(pl, index);
                     } else {
-                        if (quantity > 99) {
-                            int n = quantity / 99;
-                            int left = quantity % 99;
+                        if (quantity > 9999) {
+                            int n = quantity / 9999;
+                            int left = quantity % 9999;
                             for (int i = 0; i < n; i++) {
                                 Item itemTrade = ItemService.gI().copyItem(item);
-                                itemTrade.quantity = 99;
+                                itemTrade.quantity = 9999;
                                 itemTrade.quantityGD = itemTrade.quantity;
                                 if (pl.equals(this.player1)) {
                                     InventoryService.gI().subQuantityItem(itemsBag1, item, itemTrade.quantity);

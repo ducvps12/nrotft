@@ -1,6 +1,7 @@
 package nro.models.npc.npc_manifest;
 
 import consts.ConstNpc;
+import consts.ConstMenu;
 import item.Item;
 import models.Combine.CombineService;
 import nro.models.npc.Npc;
@@ -88,6 +89,12 @@ public class Champa extends Npc {
                 case 2306 -> handleConfirmDoiDBV(player, select);
                 case 2307 -> handleGomManh(player, select);
                 case 2308 -> handleGomConfirm(player, select);
+                // Xử lý khi user nhấn nút trong popup "Hiến tế" hoặc "Bán đồ rác"
+                case ConstNpc.MENU_START_COMBINE -> {
+                    if (select == 0) {
+                        CombineService.gI().startCombine(player);
+                    }
+                }
                 default -> {}
             }
         }

@@ -533,6 +533,7 @@ public class ConstNpc {
         public static final int MENU_LTN_VIP_PET_CONFIRM_3 = 2113; // Xác nhận VIP Đệ 3
         public static final int MENU_LTN_VIP_PET_CONFIRM_4 = 2114; // Xác nhận VIP Đệ CAO THỦ (tier 4)
         public static final int MENU_LTN_VIP_PET_CONFIG = 2115; // Cấu hình VIP Đệ CAO THỦ
+        public static final int MENU_LTN_PET_GUIDE = 2116;     // Hướng dẫn hệ thống Đệ Tử
 
         // ===================== MENU CHAMPA (Thu Gom Rác) =====================
         public static final int MENU_CHAMPA_MAIN = 2300;

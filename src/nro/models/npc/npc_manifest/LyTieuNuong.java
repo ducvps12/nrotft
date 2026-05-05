@@ -73,6 +73,7 @@ public class LyTieuNuong extends Npc {
                 case ConstNpc.MENU_LTN_PET_CONFIRM_2 -> handlePetConfirm(player, select, 2);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_3 -> handlePetConfirm(player, select, 3);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_4 -> handlePetConfirm(player, select, 4);
+                case ConstNpc.MENU_LTN_PET_GUIDE -> { if (select == 0) showPetMenu(player); }
 
                 // ================== GÓI VIP ĐỆ TỬ ==================
                 case ConstNpc.MENU_LTN_VIP_PET -> handleVipPetMenu(player, select);
@@ -221,13 +222,15 @@ public class LyTieuNuong extends Npc {
                 + "|3|Đệ tử nhận được là VĨNH VIỄN!\n"
                 + "|8|Giới hạn: mua 1 gói/ngày\n"
                 + "|8|Đệ tử + Items buff kèm theo\n"
+                + "|1|★ Tuyệt Thế Đệ Tử: CHỈ CÀY FREE!\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_PET, info,
                 "Đệ Mabu\n" + Util.mumberToLouis(vps.getPetPrice(1)),
-                "Đệ B.Goku\n" + Util.mumberToLouis(vps.getPetPrice(2)),
-                "Đệ Cell\n" + Util.mumberToLouis(vps.getPetPrice(3)),
-                "Đệ Berus\n" + Util.mumberToLouis(vps.getPetPrice(4)),
+                "Đệ Cell\n" + Util.mumberToLouis(vps.getPetPrice(2)),
+                "Đệ Berus\n" + Util.mumberToLouis(vps.getPetPrice(3)),
+                "Đệ B.Goku\n" + Util.mumberToLouis(vps.getPetPrice(4)),
+                "Hướng Dẫn\nĐệ Tử",
                 "Quay Lại");
     }
 
@@ -242,7 +245,8 @@ public class LyTieuNuong extends Npc {
                     vps.getPetDescription(3), "Mua Ngay", "Quay Lại");
             case 3 -> createOtherMenu(player, ConstNpc.MENU_LTN_PET_CONFIRM_4,
                     vps.getPetDescription(4), "Mua Ngay", "Quay Lại");
-            case 4 -> openBaseMenu(player);
+            case 4 -> showPetGuide(player);
+            case 5 -> openBaseMenu(player);
         }
     }
 
@@ -375,44 +379,115 @@ public class LyTieuNuong extends Npc {
     }
     // ===================== HƯỚNG DẪN =====================
     private void showGuideMenu(Player player) {
-        String guide = "|7|━━━ HƯỚNG DẪN CHI TIẾT ━━━\n"
+        String guide = "|7|══════════════════\n"
+                + "|1|    📋 HƯỚNG DẪN DỊCH VỤ\n"
+                + "|7|══════════════════\n"
                 + "\n"
-                + "|2|▶ GÓI VIP TUẦN:\n"
-                + "|8|Mua 1 lần, nhận items buff dùng trong 7 ngày.\n"
-                + "|8|Hết hạn có thể mua lại gói mới.\n"
-                + "|8|Items bao gồm: Thỏi vàng, Bình TNSM,\n"
-                + "|8|Đá Bảo Vệ, Phiếu Giảm Giá,...\n"
+                + "|2|❶ GÓI VIP TUẦN\n"
+                + "|8|  ○ Mua 1 lần, buff 7 ngày\n"
+                + "|8|  ○ Items: Thỏi vàng, TNSM, Đá BV\n"
                 + "\n"
-                + "|2|▶ GÓI ĐỆ TỬ (VĨNH VIỄN):\n"
-                + "|1|Đệ tử nhận được là VĨNH VIỄN,\n"
-                + "|1|không mất, không hết hạn!\n"
-                + "|8|Giới hạn: mỗi ngày chỉ mua 1 gói.\n"
-                + "|8|Nếu đã có đệ tử, sẽ được nâng cấp.\n"
-                + "|8|Gói 1: Đệ Mabu + items buff\n"
-                + "|8|Gói 2: Đệ Black Goku + items\n"
-                + "|8|Gói 3: Đệ Cell + items\n"
-                + "|8|Gói 4: Đệ Berus (Thần Hủy Diệt) + items\n"
+                + "|2|❷ GÓI ĐỆ TỬ (VĨNH VIỄN)\n"
+                + "|8|  ○ Mua 1 gói/ngày\n"
+                + "|8|  ○ Mabu 50K → B.Goku 500K\n"
+                + "|8|  ○ Đệ + items buff kèm theo\n"
                 + "\n"
-                + "|1|▶ VIP ĐỆ TỬ (MỚI!):\n"
-                + "|8|Kích hoạt buff 24h cho đệ tử:\n"
-                + "|8|• x2/x3/x5/x7 tốc độ TNSM\n"
-                + "|8|• CHỈ phân bổ vào HP + DAME (50/50%)\n"
-                + "|8|• Bùa Đệ Tử 24h (dame x2, TNSM x2)\n"
-                + "|8|• Tier cao: +dame gốc, +crit gốc\n"
-                + "|1|• VIP CAO THỦ: Admin custom chỉ số,\n"
-                + "|1|  đệ không tự cộng Giáp/Chí Mạng\n"
-                + "|8|Cho phép nâng tier trong khi còn hạn\n"
-                + "|2|🎫 Phiếu Giảm Giá: giảm 30% VIP Đệ!\n"
-                + "|1|🎫 Phiếu Giảm Giá VIP: giảm 70% VIP Đệ!\n"
+                + "|1|❸ TUYỆT THẾ ĐỆ TỬ\n"
+                + "|1|  ○ CHỈ CÀY FREE, không bán!\n"
+                + "|8|  ○ Xem chi tiết: Menu Đệ Tử\n"
+                + "|8|    → Hướng Dẫn Đệ Tử\n"
                 + "\n"
-                + "|2|▶ MINI GAMES:\n"
-                + "|8|Kéo Búa Bao: 6 mức cược vàng\n"
-                + "|8|(500K → 2Tr → 5Tr → 10Tr → 25Tr → 50Tr)\n"
-                + "|8|Thắng x2, Hòa trả lại, Thua mất tiền cược.\n"
-                + "|8|Con số may mắn: Chọn số từ 0-99\n"
-                + "|8|Chọn ai đây: Đoán xu hướng giá\n"
-                + "|7|━━━━━━━━━━━━━━━━━━";
+                + "|2|❹ VIP ĐỆ TỬ (24h)\n"
+                + "|8|  ○ x2 ~ x7 TNSM cho đệ\n"
+                + "|8|  ○ Ưu tiên HP + DAME\n"
+                + "|2|  ○ 🎫 PGG: -30% | PGG VIP: -70%\n"
+                + "\n"
+                + "|2|❺ MINI GAMES\n"
+                + "|8|  ○ Kéo Búa Bao\n"
+                + "|8|  ○ Số May Mắn (Vàng/Ngọc)\n"
+                + "|8|  ○ Chọn Ai Đây\n"
+                + "|7|══════════════════";
 
         npcChat(player, guide);
+    }
+
+    // ===================== HƯỚNG DẪN ĐỆ TỬ =====================
+    private void showPetGuide(Player player) {
+        // --- Thông tin đệ hiện tại ---
+        String petInfo;
+        if (player.pet != null) {
+            String typeName = switch (player.pet.typePet) {
+                case 1 -> "Mabu";
+                case 2 -> "B.Goku";
+                case 3 -> "Cell";
+                case 4 -> "Berus";
+                case 5 -> "Tuyệt Thế";
+                default -> "???";
+            };
+            petInfo = "|2|🐉 Đệ: $" + player.pet.name
+                    + " (" + typeName + ")\n"
+                    + "|2|⚔ SM: " + Util.mumberToLouis(player.pet.nPoint.power) + "\n";
+        } else {
+            petInfo = "|8|❌ Chưa có đệ tử\n";
+        }
+
+        String guide = "|7|══════════════════\n"
+                + "|1|    📖 HỆ THỐNG ĐỆ TỬ\n"
+                + "|7|══════════════════\n"
+                + petInfo
+                + "\n"
+                + "|7|┌─── BẢNG SO SÁNH ĐỆ TỬ ───┐\n"
+                + "|8|│ Mabu    │ 7 ô │ Bonus thấp\n"
+                + "|8|│ Cell    │ 9 ô │ Đồ 3 hệ\n"
+                + "|8|│ Berus   │ 9 ô │ Đồ 3 hệ\n"
+                + "|1|│ B.Goku  │ 9 ô │ Fusion #1\n"
+                + "|1|│ T.Thế   │10 ô │ 5 skill sẵn\n"
+                + "|7|└────────────────────┘\n"
+                + "\n"
+                + "|7|┌── FUSION (Porata cấp 4) ──┐\n"
+                + "|8|│ Mabu  │ HP 20  KI 35  SD 25\n"
+                + "|8|│ Cell  │ HP 25  KI 30  SD 30\n"
+                + "|8|│ Berus │ HP 30  KI 35  SD 35\n"
+                + "|1|│ B.Goku│ HP 35  KI 40  SD 40\n"
+                + "|1|│ T.Thế │ +20% + cộng thẳng!\n"
+                + "|7|└────────────────────┘\n"
+                + "\n"
+                + "|7|══════════════════\n"
+                + "|1|    🏆 LỘ TRÌNH TUYỆT THẾ\n"
+                + "|7|══════════════════\n"
+                + "|1|⚠ KHÔNG MUA BẰNG TIỀN!\n"
+                + "|1|⚠ CHỈ CÀY FREE!\n"
+                + "\n"
+                + "|2|❶ Kiếm Bình Hút Năng Lượng\n"
+                + "|8|  ○ Boss Rồng Nhí: drop 1-3\n"
+                + "|8|  ○ Boss Hirudegarn: drop 1\n"
+                + "|8|  ○ NV Quỷ Lão Kame: 10-20\n"
+                + "\n"
+                + "|2|❷ Farm Kilis (Map Cadic)\n"
+                + "|8|  ○ Tỉ lệ: 1/333 mỗi quái\n"
+                + "|8|  ○ Buff Osin: 10/333 (x10)\n"
+                + "|8|  ○ Giá buff: 100 HN = 10 phút\n"
+                + "|8|  ○ Mỗi lần: +1 Kilis vào Bình\n"
+                + "\n"
+                + "|2|❸ Đệ 3K Kilis\n"
+                + "|8|  ○ 3,000 Kilis + Mabu 40 tỷ SM\n"
+                + "|8|  ○ Dùng Bình → Nhận 1 trong:\n"
+                + "|8|    B.Goku / Cell / Berus\n"
+                + "\n"
+                + "|1|❹ TUYỆT THẾ ĐỆ TỬ\n"
+                + "|1|  ○ 6,000 Kilis + Đệ 3K 100 tỷ\n"
+                + "|1|  ○ Dùng Bình → Nhận Tuyệt Thế!\n"
+                + "\n"
+                + "|7|┌── ĐẶC QUYỀN TUYỆT THẾ ──┐\n"
+                + "|2|│ HP/KI gốc: 900,000\n"
+                + "|2|│ SĐ gốc: 40,000\n"
+                + "|2|│ 10 ô trang bị (max game)\n"
+                + "|2|│ 5 skill sẵn, không cần mở\n"
+                + "|2|│ Mặc đồ cả 3 hệ\n"
+                + "|1|│ ★ Fusion cộng THẲNG chỉ số!\n"
+                + "|7|└────────────────────┘";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_PET_GUIDE, guide,
+                "Quay Lại");
     }
 }
