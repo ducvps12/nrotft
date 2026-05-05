@@ -148,6 +148,11 @@ public class DuongTang extends Npc {
     private void handleMap0BaseMenu(Player player, int select) {
         switch (select) {
             case 0 -> {
+                if (player.itemTime.isUsevevang) {
+                    handleNhsEntry(player);
+                    return;
+                }
+
                 // Đi Ngũ Hành Sơn — hiện xác nhận trước + phí 50 Thỏi Vàng
                 Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
                 int slTV = thoiVang != null ? thoiVang.quantity : 0;
@@ -177,13 +182,13 @@ public class DuongTang extends Npc {
     }
 
     /**
-     * Xử lý vào NHS sau khi xác nhận — trừ 50 Thỏi Vàng
+     * Xử lý vào NHS sau khi xác nhận — không cần trừ vì ChangeMapService tự lo
      */
     private void handleNhsEntry(Player player) {
         Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
         int slTV = thoiVang != null ? thoiVang.quantity : 0;
 
-        if (slTV < 50) {
+        if (slTV < 50 && !player.itemTime.isUsevevang) {
             Service.gI().sendThongBao(player,
                     "Không đủ Thỏi Vàng!\n"
                     + "Cần: 50 Thỏi Vàng\n"
@@ -192,17 +197,15 @@ public class DuongTang extends Npc {
             return;
         }
 
-        // Trừ 50 Thỏi Vàng
-        InventoryService.gI().subQuantityItemsBag(player, thoiVang, 50);
-        InventoryService.gI().sendItemBag(player);
+        // Chuyển map vào NHS 
+        ChangeMapService.gI().changeMapNonSpaceship(player, 122, 50, 384);
 
-        // Chuyển map vào NHS
-        ChangeMapService.gI().changeMapNonSpaceship(player, 123, 50, 384);
-
-        Service.gI().sendThongBao(player,
-                "Đã trừ 50 Thỏi Vàng!\n"
-                + "Chúc thí chủ tu luyện thành công\n"
-                + "tại Ngũ Hành Sơn!");
+        if (!player.itemTime.isUsevevang) {
+            Service.gI().sendThongBao(player,
+                    "Đã trừ 50 Thỏi Vàng!\n"
+                    + "Chúc thí chủ tu luyện thành công\n"
+                    + "tại Ngũ Hành Sơn!");
+        }
     }
 
     // ====================================================================

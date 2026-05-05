@@ -45,7 +45,7 @@ public class Champa extends Npc {
     // Đá bảo vệ
     private static final int DA_BAO_VE = 987;
     // Đá Ngũ Sắc
-    private static final int DA_NGU_SAC = 988;
+    private static final int DA_NGU_SAC = 674;
     // Thỏi vàng
     private static final int THOI_VANG = 457;
     // Mảnh Rồng thần Namếc
@@ -72,7 +72,8 @@ public class Champa extends Npc {
                 "Bán nguyên liệu",
                 "Đổi Đá BV\n100→2 Ngũ Sắc",
                 "Gom mảnh\nRồng Namếc",
-                "Xem bảng giá");
+                "Xem bảng giá",
+                "Hiến tế\nTrang bị");
         }
     }
 
@@ -93,13 +94,37 @@ public class Champa extends Npc {
     private void handleMainMenu(Player player, int select) {
         switch (select) {
             case 0 -> {
-                // Mở panel UI combine bán đồ rác (giống Bà Hạt Mít)
+                // Tự động tìm và điền đồ rác (đồ lỗi) vào panel
+                player.combine.itemsCombine.clear();
+                for (Item item : player.inventory.itemsBag) {
+                    if (item != null && item.isNotNullItem() && models.Combine.manifest.ChampaBanDoRac.isJunkItem(item)) {
+                        player.combine.itemsCombine.add(item);
+                        // Giới hạn UI combine là 8 món
+                        if (player.combine.itemsCombine.size() >= 8) {
+                            break;
+                        }
+                    }
+                }
+                
+                // Mở panel UI combine bán đồ rác
                 CombineService.gI().openTabCombine(player, CombineService.CHAMPA_BAN_DO_RAC);
+                
+                // Nếu có đồ rác thì gửi lệnh cập nhật giao diện luôn để hiện lên slot
+                if (!player.combine.itemsCombine.isEmpty()) {
+                    CombineService.gI().reOpenItemCombine(player);
+                    models.Combine.manifest.ChampaBanDoRac.showInfoCombine(player);
+                } else {
+                    Service.gI().sendThongBao(player, "Hành trang của bạn không có vật phẩm lỗi (rác) nào!");
+                }
             }
             case 1 -> showPreviewBanNL(player);
             case 2 -> showDoiDBVMenu(player);
             case 3 -> showGomManhMenu(player);
             case 4 -> showBangGia(player);
+            case 5 -> {
+                // Mở panel UI combine hiến tế
+                CombineService.gI().openTabCombine(player, CombineService.CHAMPA_HIEN_TE);
+            }
         }
     }
 

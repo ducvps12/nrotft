@@ -100,9 +100,7 @@ public class Whis extends Npc {
                 case 3 ->
                     TrainingService.gI().callBoss(player, BossID.WHIS, false);
                 case 4 -> {
-                    if (biKiep != null) {
-                        vaoMapHD(player);
-                    }
+                    vaoMapHD(player);
                 }
             }
         } // Menu chế tạo Thiên Sứ

@@ -481,11 +481,9 @@ public class UseItem {
                             case 1728:
                             case 1729:
                             case 1730:
+                            case 1809:
                             case 1635:
                                 useItemTime(pl, item);
-                                break;
-                            case 1809:
-                                ChangeMapService.gI().changeMapNonSpaceship(pl, 122, 50, 384);
                                 break;
                             case 1540:
                                 ChangeMapService.gI().changeMap(pl, 194, -1, 100, 84);
@@ -2962,8 +2960,8 @@ public class UseItem {
                 pl.itemTime.timevevang = 86400000; // 24 hours
                 nro.services.InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                 nro.services.InventoryService.gI().sendItemBag(pl);
-                services.func.ChangeMapService.gI().changeMapInYard(pl, 123, -1, -1);
-                nro.services.Service.gI().sendThongBao(pl, "Bạn đã dùng Vé Vàng và được đưa đến Ngũ Hành Sơn 1 (24h)");
+                services.func.ChangeMapService.gI().changeMapInYard(pl, 122, -1, -1);
+                nro.services.Service.gI().sendThongBao(pl, "Bạn đã dùng Vé Vàng và được đưa đến Ngũ Hành Sơn (24h)");
             }
 
             // ==== LỌ NƯỚC THÁNH (X2 - X15) — CHO DÙNG CHUNG CỘNG DỒN ====

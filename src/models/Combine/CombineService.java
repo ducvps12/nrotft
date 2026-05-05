@@ -123,6 +123,7 @@ public class CombineService {
       public static final int KICH_HOAT_TRANG_BI_THANH_QUANG = 999;
       public static final int PHAN_RA_DO_THAN_LINH = 536;
       public static final int CHAMPA_BAN_DO_RAC = 600;  // Champa — Panel bán đồ rác
+      public static final int CHAMPA_HIEN_TE = 601;     // Champa — Hiến tế trang bị
 
     private static CombineService instance;
 
@@ -255,7 +256,9 @@ public class CombineService {
             case PHAN_RA_DO_THAN_LINH ->
                 PhanRaDoThanLinh.showInfoCombine(player);
             case CHAMPA_BAN_DO_RAC ->
-                ChampaBanDoRac.showInfoCombine(player);
+                models.Combine.manifest.ChampaBanDoRac.showInfoCombine(player);
+            case CHAMPA_HIEN_TE ->
+                models.Combine.manifest.ChampaHienTe.showInfoCombine(player);
 
         }
     }
@@ -366,7 +369,9 @@ public class CombineService {
             case PHAN_RA_DO_THAN_LINH ->
                 PhanRaDoThanLinh.startCombine(player);
             case CHAMPA_BAN_DO_RAC ->
-                ChampaBanDoRac.startCombine(player);
+                models.Combine.manifest.ChampaBanDoRac.startCombine(player);
+            case CHAMPA_HIEN_TE ->
+                models.Combine.manifest.ChampaHienTe.startCombine(player);
         }
 
         player.iDMark.setIndexMenu(ConstNpc.IGNORE_MENU);
@@ -742,6 +747,8 @@ public class CombineService {
                 "Ta sẽ phù phép\nphân rã trang bị Thần Linh\nthành Đá Ngũ Sắc";
             case CHAMPA_BAN_DO_RAC ->
                 "Ta là Champa!\nĐặt đồ rác vào đây\nta sẽ định giá cho ngươi";
+            case CHAMPA_HIEN_TE ->
+                "Ta là Champa!\nĐặt 1 trang bị vào đây\nta sẽ thực hiện hiến tế rủi ro!";
             default -> {
                 yield "";
             }
@@ -930,6 +937,9 @@ public class CombineService {
             }
             case CHAMPA_BAN_DO_RAC -> {
                 yield "Vào hành trang\nChọn đồ rác muốn bán\n(TB cấp 1-12, thức ăn, đá thường)\nSau đó chọn 'Bán'";
+            }
+            case CHAMPA_HIEN_TE -> {
+                yield "Vào hành trang\nChọn 1 Trang bị\nCó thể thêm 1 Hộp SKH Thần Linh\nSau đó chọn 'Hiến tế'";
             }
             default -> {
                 yield "";

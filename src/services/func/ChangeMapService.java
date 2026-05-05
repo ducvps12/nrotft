@@ -1088,16 +1088,16 @@ public class ChangeMapService {
             }
         }
         if (zoneJoin != null) {
-            // Ngũ Hành Sơn 1
-            if (zoneJoin.map.mapId == 123 && (player.zone == null || player.zone.map.mapId != 123)) {
+            // Ngũ Hành Sơn
+            if ((zoneJoin.map.mapId == 122 || zoneJoin.map.mapId == 123 || zoneJoin.map.mapId == 124) && 
+                (player.zone == null || (player.zone.map.mapId != 122 && player.zone.map.mapId != 123 && player.zone.map.mapId != 124))) {
                 if (!player.itemTime.isUsevevang) {
                     Item thoiVang = nro.services.InventoryService.gI().findItemBag(player, 457);
                     if (thoiVang != null && thoiVang.quantity >= 50) {
                         nro.services.InventoryService.gI().subQuantityItemsBag(player, thoiVang, 50);
                         nro.services.InventoryService.gI().sendItemBag(player);
-                        nro.services.Service.gI().sendThongBao(player, "Bạn đã dùng 50 Thỏi Vàng để vào Ngũ Hành Sơn 1!");
                     } else {
-                        nro.services.Service.gI().sendThongBao(player, "Cần 50 Thỏi Vàng hoặc Vé Vàng (tác dụng 24h) để vào Ngũ Hành Sơn 1!");
+                        nro.services.Service.gI().sendThongBao(player, "Cần 50 Thỏi Vàng hoặc Vé Vàng (tác dụng 24h) để vào Ngũ Hành Sơn!");
                         return null;
                     }
                 }

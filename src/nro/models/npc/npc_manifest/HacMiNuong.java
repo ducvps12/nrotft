@@ -72,7 +72,7 @@ public class HacMiNuong extends Npc {
 
             // Build nội dung menu
             StringBuilder sb = new StringBuilder();
-            sb.append("— HẮC MỊ NƯƠNG —\n");
+            sb.append("— CADIC —\n");
             sb.append("Hiến tế Cải trang\n");
             sb.append("━━━━━━━━━━━━━━━━\n");
             sb.append("Ta sẽ giúp ngươi ĐỔI GIAO DIỆN\n");

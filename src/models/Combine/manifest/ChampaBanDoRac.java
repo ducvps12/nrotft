@@ -118,43 +118,25 @@ public class ChampaBanDoRac {
     }
 
     // ===================== HELPER METHODS =====================
-    private static boolean isJunkItem(Item item) {
+    public static boolean isJunkItem(Item item) {
         if (item == null || item.template == null) return false;
-        int id = item.template.id;
         int type = item.template.type;
-        int level = item.template.level;
 
-        // Trang bị cấp thấp (level 1-12, type 0-4 = áo/quần/găng/giày/nhẫn)
-        if (type >= 0 && type <= 4 && level >= 1 && level <= 12) return true;
-
-        // Thức ăn thường
-        if (id >= 220 && id <= 230) return true;
-        if (id >= 73 && id <= 78) return true;
-
-        // Mảnh vỡ cũ
-        if (id == 1057 || id == 1058 || id == 1059) return true;
-
-        // Đá thường (đá bảo vệ, đá titan, đá ruby, đá sapphire, v.v.)
-        if (type == 14 || type == 15) return true;
-
+        // Trang bị (áo, quần, găng, giày, nhẫn) hoặc Cải trang (type 5)
+        // Nếu không có bất kỳ option chỉ số nào thì đây là vật phẩm bị lỗi -> Rác
+        if (type >= 0 && type <= 5) {
+            if (item.itemOptions == null || item.itemOptions.isEmpty()) {
+                return true;
+            }
+        }
+        
         return false;
     }
 
     private static int getJunkPrice(Item item) {
         if (item == null || item.template == null) return 0;
-        int level = item.template.level;
-        int type = item.template.type;
-
-        if (type >= 0 && type <= 4) {
-            if (level <= 4) return 1;
-            if (level <= 8) return 3;
-            if (level <= 11) return 5;
-            if (level <= 12) return 10;
-        }
-
-        // Đá nâng cấp
-        if (type == 14 || type == 15) return 1;
-
+        
+        // Trả về 1 Thỏi Vàng cho mỗi vật phẩm lỗi (có thể điều chỉnh nếu cần)
         return 1;
     }
 }

@@ -1149,7 +1149,8 @@ public class BaHatMit extends Npc {
                                         CombineService.MO_KHOA_ITEM, CombineService.GIA_HAN_VAT_PHAM,
                                         CombineService.NANG_CAP_CHAN_MENH, CombineService.TAI_TAO_TRANG_BI_KICH_HOAT,
                                         CombineService.PHAN_RA_TRANG_BI_KH, CombineService.TAI_TAO_CAPSULE_KH,
-                                        CombineService.PHAN_RA_DO_THAN_LINH -> {
+                                        CombineService.PHAN_RA_DO_THAN_LINH,
+                                        CombineService.CHAMPA_BAN_DO_RAC, CombineService.CHAMPA_HIEN_TE -> {
                                     switch (select) {
                                         case 0:
                                             CombineService.gI().startCombine(player);
@@ -1433,7 +1434,9 @@ public class BaHatMit extends Npc {
                                     CombineService.NANG_OPTION_2_BONG_TAI_CAP_3,
                                     CombineService.NANG_CAP_SACH_TUYET_KY,
                                     CombineService.HOI_PHUC_SACH,
-                                    CombineService.PHAN_RA_SACH -> {
+                                    CombineService.PHAN_RA_SACH,
+                                    CombineService.CHAMPA_BAN_DO_RAC,
+                                    CombineService.CHAMPA_HIEN_TE -> {
                                 if (select == 0) {
                                     CombineService.gI().startCombine(player);
                                 }
