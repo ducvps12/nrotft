@@ -37,7 +37,7 @@ public class RockPaperScissorsService {
                         + ConstFont.BOLD_DARK + "Bạn thắng rồi huhu\n"
                         + ConstFont.BOLD_GREEN + "Bạn nhận được " + money + " vàng",
                 "Kéo", "Búa", "Bao", "Đổi\nmức cược", "Nghỉ chơi");
-        player.inventory.gold += player.iDMark.getMoneyKeoBuaBao();
+        player.inventory.addGoldSafe(player.iDMark.getMoneyKeoBuaBao());
         Service.gI().sendMoney(player);
     }
 

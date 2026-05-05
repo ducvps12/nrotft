@@ -262,7 +262,7 @@ public abstract class TrainingBoss extends Boss {
         Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
         InventoryService.gI().addItemBag(player, xuNro);
         InventoryService.gI().sendItemBag(player);
-        player.inventory.gold += goldReward;
+        player.inventory.addGoldSafe(goldReward);
         PlayerService.gI().sendInfoHpMpMoney(player);
         Service.gI().sendThongBao(player, milestone + " Nhận " + xuReward + " Xu NRO và "
                 + Util.numberToMoney(goldReward) + " vàng.");

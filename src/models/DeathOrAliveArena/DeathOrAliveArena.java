@@ -227,7 +227,7 @@ public class DeathOrAliveArena {
                             int cuoc = pl.binhChonPlayer;
                             if (cuoc > 0 && pl.zoneBinhChon.equals(zone)) {
                                 long vangNhan = cuoc * tongCuoc;
-                                pl.inventory.gold += vangNhan;
+                                pl.inventory.addGoldSafe(vangNhan);
                                 pl.binhChonPlayer = 0;
                                 pl.binhChonHatMit = 0;
                                 Service.gI().sendMoney(pl);
@@ -238,7 +238,7 @@ public class DeathOrAliveArena {
                             int cuoc = pl.binhChonHatMit;
                             if (cuoc > 0 && pl.zoneBinhChon.equals(zone)) {
                                 long vangNhan = cuoc * tongCuoc;
-                                pl.inventory.gold += vangNhan;
+                                pl.inventory.addGoldSafe(vangNhan);
                                 pl.binhChonPlayer = 0;
                                 pl.binhChonHatMit = 0;
                                 Service.gI().sendMoney(pl);

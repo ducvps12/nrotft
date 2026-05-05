@@ -2129,15 +2129,8 @@ public class NPoint {
                 tiemNang += ((long) tiemNang * this.intrinsic.param1 / 100);
             }
             if (this.power >= 60000000000L) {
-                // Pet ở map NHS giảm nhẹ hơn (50% thay vì 80%)
-                boolean isPetAtNHS = this.player.isPet
-                        && this.player.zone != null && this.player.zone.map != null
-                        && nro.services.MapService.gI().isMapNguHanhSon(this.player.zone.map.mapId);
-                if (isPetAtNHS) {
-                    tiemNang -= ((long) tiemNang * 40 / 100); // giảm 40% thay vì 80%
-                } else {
-                    tiemNang -= ((long) tiemNang * 80 / 100);
-                }
+                // Áp dụng penalty giống nhau cho NHS và map thường
+                tiemNang -= ((long) tiemNang * 80 / 100);
             }
             if (this.player.isPet) {
                 if (((Pet) this.player).master.charms.tdDeTu > System.currentTimeMillis()) {
@@ -2159,8 +2152,9 @@ public class NPoint {
             // toàn
             if (this.player.zone != null && this.player.zone.map != null) {
                 int mapId = this.player.zone.map.mapId;
-                if (MapService.gI().isMapNguHanhSon(mapId)) {
-                    tiemNang *= 4;
+                // BUGFIX: Bonus NHS chỉ áp dụng cho PET, x2 thay vì x4
+                if (MapService.gI().isMapNguHanhSon(mapId) && this.player.isPet) {
+                    tiemNang *= 2;
                 }
                 if (MapService.gI().isMapBanDoKhoBau(mapId)) {
                     tiemNang *= 3;
@@ -2179,29 +2173,29 @@ public class NPoint {
     }
 
     public long calSubTNSM(long tiemNang) {
-        // ===== PET ở map NGŨ HÀNH SƠN: giảm penalty để up đệ có ý nghĩa =====
+        // ===== PET ở map NGŨ HÀNH SƠN: penalty nhẹ hơn map thường nhưng KHÔNG quá dễ =====
         boolean isPetAtNHS = player != null && player.isPet
                 && player.zone != null && player.zone.map != null
                 && nro.services.MapService.gI().isMapNguHanhSon(player.zone.map.mapId);
 
         if (isPetAtNHS) {
-            // NHS mode: giảm nhẹ hơn nhiều — 50% thay vì 70%
-            tiemNang = (long) (tiemNang * 0.5);
+            // NHS mode: giảm 40% (nhẹ hơn map thường 70%, nhưng không quá dễ)
+            tiemNang = (long) (tiemNang * 0.6);
             if (player.nPoint.power >= 80_000_000_000L) {
-                tiemNang = tiemNang / 8;
+                tiemNang = tiemNang / 40;
             } else if (player.nPoint.power >= 60_000_000_000L) {
-                tiemNang = tiemNang / 5;
+                tiemNang = tiemNang / 30;
             } else if (player.nPoint.power >= 40_000_000_000L) {
-                tiemNang = tiemNang / 3;
+                tiemNang = tiemNang / 20;
             }
             if (player.nPoint.power >= 100_000_000_000L) {
-                tiemNang = tiemNang / 10;
+                tiemNang = tiemNang / 50;
             }
             if (player.nPoint.power >= 130_000_000_000L) {
-                tiemNang = tiemNang / 12;
+                tiemNang = tiemNang / 60;
             }
             if (player.nPoint.power >= 150_000_000_000L) {
-                tiemNang = tiemNang / 15;
+                tiemNang = tiemNang / 70;
             }
         } else {
             // Công thức gốc cho map thường

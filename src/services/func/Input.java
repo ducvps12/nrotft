@@ -778,7 +778,7 @@ public class Input {
                     } else {
                         InventoryService.gI().subQuantityItemsBag(player, ThoiVang, sltv);
                         InventoryService.gI().sendItemBag(player);
-                        player.inventory.gold += cost;
+                        player.inventory.addGoldSafe(cost);
                         Service.gI().sendMoney(player);
                         Service.gI().sendThongBao(player,
                                 "Đã bán " + sltv + " Thỏi vàng thu được " + Util.numberToMoney(cost) + " vàng"

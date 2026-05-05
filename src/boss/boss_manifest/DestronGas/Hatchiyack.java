@@ -101,7 +101,7 @@ public class Hatchiyack extends Boss {
             try {
                 // Vàng thưởng x2 so với DrLychee
                 long goldBonus = (long) level * 3_000_000L;
-                pl.inventory.gold += goldBonus;
+                pl.inventory.addGoldSafe(goldBonus);
                 
                 // Ngọc thưởng 
                 int gemBonus = Math.max(2, level / 5);

@@ -259,7 +259,7 @@ public class MagicTree {
 
     public void unupgradeMagicTree() {
         int goldReturn = getGoldUpgradeRequire() / 2;
-        this.player.inventory.gold += goldReturn;
+        this.player.inventory.addGoldSafe(goldReturn);
         PlayerService.gI().sendInfoHpMpMoney(this.player);
         this.isUpgrade = false;
         this.loadMagicTree();

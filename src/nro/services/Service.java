@@ -887,19 +887,21 @@ public class Service {
             if (master == null || master.nPoint == null) {
                 return;
             }
-            // Pet ở NHS: giảm penalty cho master để TNSM đệ có giá trị
+            // Kiểm tra master có vượt giới hạn SM chưa
+            if (master.nPoint.power >= master.nPoint.getPowerLimit()) {
+                return;
+            }
+            // BUGFIX: Tính TNSM cho master dựa trên map
             boolean isPetAtNHS = player.zone != null && player.zone.map != null
                     && MapService.gI().isMapNguHanhSon(player.zone.map.mapId);
             if (isPetAtNHS) {
-                // NHS: master nhận 60% TNSM của pet (thay vì bị calSubTNSM nghiền nát)
-                param = (long) (param * 0.6);
+                // NHS: master chỉ nhận 10% TNSM của pet (giảm từ 60% để tránh lạm phát)
+                param = (long) (param * 0.1);
             } else {
                 param = master.nPoint.calSubTNSM(param);
             }
-            if (master.nPoint.power < master.nPoint.getPowerLimit()) {
-                master.nPoint.powerUp(param);
-            }
-            master.nPoint.tiemNangUp(param);
+            // BUGFIX: Chỉ gọi addSMTN đệ quy, KHÔNG powerUp/tiemNangUp trực tiếp
+            // vì addSMTN sẽ tự xử lý powerUp/tiemNangUp cho master ở nhánh else
             addSMTN(master, type, param, true);
         } else if (player.isBot) {
             player.nPoint.power += param;

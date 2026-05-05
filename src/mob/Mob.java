@@ -285,12 +285,8 @@ public class Mob {
         } else {
             return 0;
         }
-        if (pl != null && pl.zone != null && pl.zone.map != null) {
-            int id = pl.zone.map.mapId;
-            if (id == 122 || id == 123 || id == 124) {
-                tiemNang *= 2;
-            }
-        }
+        // BUGFIX: Đã XÓA bonus NHS x2 ở đây — NPoint.calSucManhTiemNang đã xử lý x2 rồi
+        // Để tránh nhân chồng gây ra x100
         return tiemNang;
     }
 

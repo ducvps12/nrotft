@@ -15,7 +15,7 @@ import utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * NPC Hắc Mị Nương — Hiến tế Cải trang
@@ -29,17 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HacMiNuong extends Npc {
 
-    // Chi phí đổi cải trang
-    private static final int GIA_VANG = 500_000_000; // 500tr vàng
-    private static final int GIA_NGOC_XANH = 50;     // 50 ngọc xanh (gem)
-    private static final int GIA_THOI_VANG = 10;     // 10 thỏi vàng (item 457)
-    private static final int GIA_HONG_NGOC = 30;     // 30 hồng ngọc (ruby)
+    // Chi phí đổi cải trang — phải trả TẤT CẢ cùng lúc
+    private static final long GIA_VANG = 100_000_000L; // 100 triệu vàng
+    private static final int GIA_NGOC_XANH = 100_000;  // 100k ngọc xanh (gem)
+    private static final int GIA_THOI_VANG = 100;      // 100 thỏi vàng (item 457)
+    private static final int GIA_HONG_NGOC = 20_000;   // 20k hồng ngọc (ruby)
 
     // Danh sách cải trang phổ biến (type=5) — sẽ được build từ ITEM_TEMPLATES lúc runtime
     private static List<Short> COSTUME_IDS = null;
 
-    // Lưu tạm phương thức thanh toán theo player ID
-    private static final ConcurrentHashMap<Long, Integer> PAYMENT_TYPE = new ConcurrentHashMap<>();
+    // Không cần lưu payment type nữa — luôn trả tất cả
 
     public HacMiNuong(int mapId, int status, int cx, int cy, int tempId, int avatar) {
         super(mapId, status, cx, cy, tempId, avatar);
@@ -78,11 +77,11 @@ public class HacMiNuong extends Npc {
             sb.append("━━━━━━━━━━━━━━━━\n");
             sb.append("Ta sẽ giúp ngươi ĐỔI GIAO DIỆN\n");
             sb.append("cải trang mà GIỮ NGUYÊN chỉ số!\n\n");
-            sb.append("Chi phí mỗi lần đổi:\n");
+            sb.append("Chi phí đổi (trả TẤT CẢ):\n");
             sb.append("• " + Util.mumberToLouis(GIA_VANG) + " Vàng\n");
-            sb.append("• " + GIA_NGOC_XANH + " Ngọc Xanh\n");
+            sb.append("• " + Util.numberToMoney(GIA_NGOC_XANH) + " Ngọc Xanh\n");
             sb.append("• " + GIA_THOI_VANG + " Thỏi Vàng\n");
-            sb.append("• " + GIA_HONG_NGOC + " Hồng Ngọc\n\n");
+            sb.append("• " + Util.numberToMoney(GIA_HONG_NGOC) + " Hồng Ngọc\n\n");
             sb.append("Tìm thấy " + costumes.size() + " cải trang.\n");
             sb.append("Chọn cải trang muốn đổi:");
 
@@ -114,59 +113,20 @@ public class HacMiNuong extends Npc {
                 // Lưu index vào iDMark để dùng sau
                 player.iDMark.setOtt(InventoryService.gI().getIndexItemBag(player, chosen));
 
-                // Hiện menu chọn phương thức thanh toán
+                // Hiện menu xác nhận trực tiếp (trả TẤT CẢ cùng lúc)
                 StringBuilder sb = new StringBuilder();
                 sb.append("Đổi giao diện: " + chosen.template.name + "\n");
                 sb.append("━━━━━━━━━━━━━━━━\n");
                 sb.append("Chỉ số hiện tại:\n");
                 sb.append(chosen.getOptionInfo() + "\n\n");
-                sb.append("Chọn phương thức thanh toán:");
-
-                this.createOtherMenu(player, ConstNpc.MENU_HMN_CHON_PHI,
-                        sb.toString(), new String[]{
-                                Util.mumberToLouis(GIA_VANG) + " Vàng",
-                                GIA_NGOC_XANH + " Ngọc Xanh",
-                                GIA_THOI_VANG + " Thỏi Vàng",
-                                GIA_HONG_NGOC + " Hồng Ngọc",
-                                "Quay lại"
-                        }, this);
-            }
-            case ConstNpc.MENU_HMN_CHON_PHI -> {
-                if (select < 0 || select >= 4) {
-                    openBaseMenu(player);
-                    return;
-                }
-                int bagIndex = player.iDMark.getOtt();
-                if (bagIndex < 0 || bagIndex >= player.inventory.itemsBag.size()) {
-                    Service.gI().sendThongBao(player, "Lỗi! Vui lòng thử lại.");
-                    return;
-                }
-                Item chosenItem = player.inventory.itemsBag.get(bagIndex);
-                if (!chosenItem.isNotNullItem() || chosenItem.template.type != 5) {
-                    Service.gI().sendThongBao(player, "Cải trang không hợp lệ!");
-                    return;
-                }
-
-                PAYMENT_TYPE.put(player.id, select);
-
-                // Xác nhận
-                String paymentName = switch (select) {
-                    case 0 -> Util.mumberToLouis(GIA_VANG) + " Vàng";
-                    case 1 -> GIA_NGOC_XANH + " Ngọc Xanh";
-                    case 2 -> GIA_THOI_VANG + " Thỏi Vàng";
-                    case 3 -> GIA_HONG_NGOC + " Hồng Ngọc";
-                    default -> "";
-                };
+                sb.append("Chi phí (trả TẤT CẢ):\n");
+                sb.append("• " + Util.mumberToLouis(GIA_VANG) + " Vàng\n");
+                sb.append("• " + Util.numberToMoney(GIA_NGOC_XANH) + " Ngọc Xanh\n");
+                sb.append("• " + GIA_THOI_VANG + " Thỏi Vàng\n");
+                sb.append("• " + Util.numberToMoney(GIA_HONG_NGOC) + " Hồng Ngọc\n");
 
                 this.createOtherMenu(player, ConstNpc.MENU_HMN_CONFIRM,
-                        "⚠️ XÁC NHẬN HIẾN TẾ\n"
-                        + "━━━━━━━━━━━━━━━━\n"
-                        + "Cải trang: " + chosenItem.template.name + "\n"
-                        + "Chi phí: " + paymentName + "\n\n"
-                        + "Bạn sẽ nhận 1 cải trang NGẪU NHIÊN\n"
-                        + "khác với chỉ số giữ nguyên!\n\n"
-                        + "⚠️ Cải trang cũ sẽ bị MẤT!",
-                        new String[]{"Đồng ý", "Hủy"}, this);
+                        sb.toString(), new String[]{"Đồng ý", "Hủy"}, this);
             }
             case ConstNpc.MENU_HMN_CONFIRM -> {
                 if (select != 0) {
@@ -183,8 +143,6 @@ public class HacMiNuong extends Npc {
      */
     private void performSacrifice(Player player) {
         int bagIndex = player.iDMark.getOtt();
-        int paymentType = PAYMENT_TYPE.getOrDefault(player.id, -1);
-        PAYMENT_TYPE.remove(player.id);
 
         if (bagIndex < 0 || bagIndex >= player.inventory.itemsBag.size()) {
             Service.gI().sendThongBao(player, "Lỗi! Vui lòng thử lại.");
@@ -203,8 +161,8 @@ public class HacMiNuong extends Npc {
             return;
         }
 
-        // Kiểm tra & trừ phí
-        if (!chargePayment(player, paymentType)) {
+        // Kiểm tra & trừ phí (trả TẤT CẢ cùng lúc)
+        if (!chargePaymentAll(player)) {
             return; // Lỗi đã gửi thông báo
         }
 
@@ -258,54 +216,48 @@ public class HacMiNuong extends Npc {
     }
 
     /**
-     * Trừ phí thanh toán
+     * Trừ phí thanh toán — trả TẤT CẢ cùng lúc
      */
-    private boolean chargePayment(Player player, int type) {
-        switch (type) {
-            case 0 -> { // Vàng
-                if (player.inventory.gold < GIA_VANG) {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ Vàng! Cần " + Util.mumberToLouis(GIA_VANG)
-                            + "\nHiện có: " + Util.mumberToLouis(player.inventory.gold));
-                    return false;
-                }
-                player.inventory.gold -= GIA_VANG;
-                Service.gI().sendMoney(player);
-            }
-            case 1 -> { // Ngọc xanh (gem)
-                if (player.inventory.gem < GIA_NGOC_XANH) {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ Ngọc Xanh! Cần " + GIA_NGOC_XANH
-                            + "\nHiện có: " + player.inventory.gem);
-                    return false;
-                }
-                player.inventory.gem -= GIA_NGOC_XANH;
-                Service.gI().sendMoney(player);
-            }
-            case 2 -> { // Thỏi vàng (item 457)
-                Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
-                if (thoiVang == null || thoiVang.quantity < GIA_THOI_VANG) {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ Thỏi Vàng! Cần " + GIA_THOI_VANG
-                            + "\nHiện có: " + (thoiVang != null ? thoiVang.quantity : 0));
-                    return false;
-                }
-                InventoryService.gI().subQuantityItemsBag(player, thoiVang, GIA_THOI_VANG);
-            }
-            case 3 -> { // Hồng ngọc (ruby)
-                if (player.inventory.ruby < GIA_HONG_NGOC) {
-                    Service.gI().sendThongBao(player,
-                            "Không đủ Hồng Ngọc! Cần " + GIA_HONG_NGOC
-                            + "\nHiện có: " + player.inventory.ruby);
-                    return false;
-                }
-                player.inventory.ruby -= GIA_HONG_NGOC;
-                Service.gI().sendMoney(player);
-            }
-            default -> {
-                return false;
-            }
+    private boolean chargePaymentAll(Player player) {
+        // Kiểm tra đủ tất cả trước khi trừ
+        StringBuilder thieu = new StringBuilder();
+        boolean du = true;
+
+        if (player.inventory.gold < GIA_VANG) {
+            thieu.append("• Vàng: cần " + Util.mumberToLouis(GIA_VANG)
+                    + ", có " + Util.mumberToLouis(player.inventory.gold) + "\n");
+            du = false;
         }
+        if (player.inventory.gem < GIA_NGOC_XANH) {
+            thieu.append("• Ngọc Xanh: cần " + Util.numberToMoney(GIA_NGOC_XANH)
+                    + ", có " + Util.numberToMoney(player.inventory.gem) + "\n");
+            du = false;
+        }
+        Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
+        int slTV = thoiVang != null ? thoiVang.quantity : 0;
+        if (slTV < GIA_THOI_VANG) {
+            thieu.append("• Thỏi Vàng: cần " + GIA_THOI_VANG
+                    + ", có " + slTV + "\n");
+            du = false;
+        }
+        if (player.inventory.ruby < GIA_HONG_NGOC) {
+            thieu.append("• Hồng Ngọc: cần " + Util.numberToMoney(GIA_HONG_NGOC)
+                    + ", có " + Util.numberToMoney(player.inventory.ruby) + "\n");
+            du = false;
+        }
+
+        if (!du) {
+            Service.gI().sendThongBao(player,
+                    "Không đủ tài nguyên!\n━━━━━━━━━━━━━━━━\n" + thieu);
+            return false;
+        }
+
+        // Trừ tất cả
+        player.inventory.gold -= GIA_VANG;
+        player.inventory.gem -= GIA_NGOC_XANH;
+        player.inventory.ruby -= GIA_HONG_NGOC;
+        InventoryService.gI().subQuantityItemsBag(player, thoiVang, GIA_THOI_VANG);
+        Service.gI().sendMoney(player);
         return true;
     }
 

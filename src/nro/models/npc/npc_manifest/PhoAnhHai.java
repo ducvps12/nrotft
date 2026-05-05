@@ -182,7 +182,7 @@ public class PhoAnhHai extends Npc {
         } else if (rand <= 30) {
             // 15%: An ủi - tặng vàng lại 1 phần
             long refund = Util.nextInt(5_000_000, 10_000_000);
-            player.inventory.gold += refund;
+            player.inventory.addGoldSafe(refund);
             Service.gI().sendMoney(player);
             Service.gI().sendThongBao(player,
                     "Cậu Vàng ngủ gật...\n"

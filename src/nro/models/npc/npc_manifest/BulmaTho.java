@@ -94,7 +94,7 @@ public class BulmaTho extends Npc {
                             InventoryService.gI().addItemBag(player, vatPham);
                             Service.gI().sendThongBao(player, "Yêu anh, tặng anh " + vatPham.template.name);
                         } else if (utils.Util.isTrue(80, 100)) {
-                            player.inventory.gold += money[0];
+                            player.inventory.addGoldSafe(money[0]);
                           Service.gI().sendThongBao(player, "Yêu anh, tặng anh " + money[0] + " vàng");
                         } else if (utils.Util.isTrue(10, 100)) {
                             player.inventory.ruby += money[1];

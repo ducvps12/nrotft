@@ -1361,7 +1361,7 @@ private void sendConfirmMessage(Player pl, int where, int index, String itemName
         return;
     }
 
-    pl.inventory.gold += cost;
+    pl.inventory.addGoldSafe(cost);
     Service.gI().sendMoney(pl);
 
     Service.gI().sendThongBao(pl,

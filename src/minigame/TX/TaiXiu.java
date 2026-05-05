@@ -192,7 +192,12 @@ public class TaiXiu implements Runnable {
                             pl.goldXiu = 0;
                             Service.gI().sendThongBaoFromAdmin(pl, "|8|[ Nhà Cái Tài Xỉu ]\n|3|Kết quả xóc ra là:\n|2|" + a + " : " + b + " : " + c + "\n|5|Tổng là: " + total + " (XỈU)\n\n|7|Bạn Đã Chiến Thắng\n|1|Số Tiền Nhận Được Là\n|3|" + Util.numberToMoney(gold) + " Vàng");
                             try {
-                                pl.inventory.gold += gold;
+                                if (pl.inventory.gold + gold > nro.player.Inventory.LIMIT_GOLD) {
+                                    gold = nro.player.Inventory.LIMIT_GOLD - pl.inventory.gold;
+                                }
+                                if (gold > 0) {
+                                    pl.inventory.addGoldSafe(gold);
+                                }
                             } catch (Exception e) {
                             }
                             Service.gI().sendMoney(pl);
@@ -207,7 +212,12 @@ public class TaiXiu implements Runnable {
                             pl.goldTai = 0;
                             Service.gI().sendThongBaoFromAdmin(pl, "|8|[ Nhà Cái Tài Xỉu ]\n|3|Kết quả xóc ra là:\n|2|" + a + " : " + b + " : " + c + "\n|5|Tổng là: " + total + " (TÀI)\n\n|7|Bạn Đã Chiến Thắng\n|1|Số Tiền Nhận Được Là\n|3|" + Util.numberToMoney(gold) + " Vàng");
                             try {
-                                pl.inventory.gold += gold;
+                                if (pl.inventory.gold + gold > nro.player.Inventory.LIMIT_GOLD) {
+                                    gold = nro.player.Inventory.LIMIT_GOLD - pl.inventory.gold;
+                                }
+                                if (gold > 0) {
+                                    pl.inventory.addGoldSafe(gold);
+                                }
                             } catch (Exception e) {
                             }
                             Service.gI().sendMoney(pl);

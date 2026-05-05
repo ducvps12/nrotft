@@ -248,7 +248,7 @@ public class DestronGas implements Runnable {
             }
 
             // Trao Vàng
-            pl.inventory.gold += goldReward;
+            pl.inventory.addGoldSafe(goldReward);
 
             // Trao Ngọc
             pl.inventory.gem += gemReward;

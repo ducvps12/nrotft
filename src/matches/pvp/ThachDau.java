@@ -54,7 +54,7 @@ public class ThachDau extends PVP {
 
     @Override
     public void reward(Player plWin) {
-        plWin.inventory.gold += this.goldReward;
+        plWin.inventory.addGoldSafe(this.goldReward);
         Service.gI().sendMoney(plWin);
     }
 

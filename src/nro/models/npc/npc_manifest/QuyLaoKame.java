@@ -334,7 +334,7 @@ public class QuyLaoKame extends Npc {
 
         Item xuNro = ItemService.gI().createNewItem((short) 1705, xu);
         InventoryService.gI().addItemBag(player, xuNro);
-        player.inventory.gold += gold;
+        player.inventory.addGoldSafe(gold);
         player.inventory.gem += gem;
 
         StringBuilder bonus = new StringBuilder();

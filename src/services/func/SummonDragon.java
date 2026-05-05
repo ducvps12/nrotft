@@ -523,7 +523,7 @@ public class SummonDragon {
                         if (this.playerSummonShenron.inventory.gold + addGold2 > Inventory.LIMIT_GOLD) {
                             this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
                         } else {
-                            this.playerSummonShenron.inventory.gold += addGold2;
+                            this.playerSummonShenron.inventory.addGoldSafe(addGold2);
                         }
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;
@@ -545,7 +545,7 @@ public class SummonDragon {
                         if (this.playerSummonShenron.inventory.gold + addGold3 > Inventory.LIMIT_GOLD) {
                             this.playerSummonShenron.inventory.gold = Inventory.LIMIT_GOLD;
                         } else {
-                            this.playerSummonShenron.inventory.gold += addGold3;
+                            this.playerSummonShenron.inventory.addGoldSafe(addGold3);
                         }
                         PlayerService.gI().sendInfoHpMpMoney(this.playerSummonShenron);
                         break;

@@ -155,7 +155,7 @@ public class LuckyNumber implements Runnable {
                     if (g.money == 450) {
                         player.inventory.gem += g.money;
                     } else {
-                        player.inventory.gold += g.money;
+                        player.inventory.addGoldSafe(g.money);
                     }
                     Service.gI().sendThongBao(player, g.text);
                     Service.gI().sendMoney(player);

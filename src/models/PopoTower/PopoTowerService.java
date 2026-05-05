@@ -108,7 +108,7 @@ public class PopoTowerService {
         InventoryService.gI().addItemBag(player, xuNro);
 
         // Thêm vàng
-        player.inventory.gold += gold;
+        player.inventory.addGoldSafe(gold);
 
         // Thêm ngọc (từ tầng 5+)
         if (gem > 0) {
@@ -358,7 +358,7 @@ public class PopoTowerService {
         }
         // Trao Vàng
         if (bonusGold > 0) {
-            player.inventory.gold += bonusGold;
+            player.inventory.addGoldSafe(bonusGold);
         }
 
         InventoryService.gI().sendItemBag(player);

@@ -298,7 +298,7 @@ public class ItemAuditPanel extends JPanel {
                     int gem = Integer.parseInt(tfGem.getText().trim());
                     nro.player.Player pl = nro.server.Client.gI().getPlayer(pName);
                     if (pl != null) {
-                        pl.inventory.gold += gold;
+                        pl.inventory.addGoldSafe(gold);
                         pl.inventory.gem += gem;
                         nro.services.PlayerService.gI().sendInfoHpMpMoney(pl);
                         nro.services.Service.gI().sendThongBao(pl, "Admin cộng: +" + gold + " vàng, +" + gem + " ngọc");

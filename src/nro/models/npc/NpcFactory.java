@@ -653,7 +653,7 @@ public class NpcFactory {
                             } else if (slp1 == 0 && slp2 == 2 || slp1 == 1 && slp2 == 0 || slp1 == 2 && slp2 == 1) {
                                 Service.gI().sendThongBao(pl, "Thắng!");
                                 Service.gI().sendThongBao(player, "Thua!");
-                                pl.inventory.gold += 4800000;
+                                pl.inventory.addGoldSafe(4800000);
                                 player.inventory.gold -= 5000000;
                                 Service.gI().sendMoney(pl);
                                 Service.gI().sendMoney(player);
@@ -661,7 +661,7 @@ public class NpcFactory {
                                 Service.gI().sendThongBao(pl, "Thua!");
                                 Service.gI().sendThongBao(player, "Thắng!");
                                 pl.inventory.gold -= 5000000;
-                                player.inventory.gold += 4800000;
+                                player.inventory.addGoldSafe(4800000);
                                 Service.gI().sendMoney(pl);
                                 Service.gI().sendMoney(player);
                             }

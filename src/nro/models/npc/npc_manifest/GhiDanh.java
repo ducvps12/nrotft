@@ -381,7 +381,7 @@ public class GhiDanh extends Npc {
             Item xu = ItemService.gI().createNewItem((short) 1705, xuTotal);
             InventoryService.gI().addItemBag(player, xu);
         }
-        player.inventory.gold += goldTotal;
+        player.inventory.addGoldSafe(goldTotal);
         player.inventory.gem += gemTotal;
 
         // Lưu bitmask đã claimed (KHÔNG reset điểm)

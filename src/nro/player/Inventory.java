@@ -132,6 +132,17 @@ public class Inventory {
         }
     }
 
+    /**
+     * Cộng vàng an toàn — tự động cap tại LIMIT_GOLD, chống overflow
+     */
+    public void addGoldSafe(long amount) {
+        if (amount <= 0) return;
+        this.gold += amount;
+        if (this.gold > LIMIT_GOLD) {
+            this.gold = LIMIT_GOLD;
+        }
+    }
+
     public void dispose() {
         if (this.trainArmor != null) {
             this.trainArmor.dispose();

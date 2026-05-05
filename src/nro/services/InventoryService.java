@@ -883,11 +883,13 @@ public class InventoryService {
         // gold, gem, ruby
         switch (item.template.type) {
             case 9:
-                if (player.inventory.gold + item.quantity <= Inventory.LIMIT_GOLD) {
-                    if (player.effectSkill.isChibi && player.typeChibi == 0) {
-                        player.inventory.gold += item.quantity;
-                    }
-                    player.inventory.gold += item.quantity;
+                // BUGFIX: Tính tổng vàng trước (bao gồm bonus Chibi nếu có)
+                long goldToAdd = item.quantity;
+                if (player.effectSkill.isChibi && player.typeChibi == 0) {
+                    goldToAdd *= 2; // Chibi bonus x2
+                }
+                if (player.inventory.gold + goldToAdd <= Inventory.LIMIT_GOLD) {
+                    player.inventory.addGoldSafe(goldToAdd);
                     Service.gI().sendMoney(player);
                     return true;
                 } else {

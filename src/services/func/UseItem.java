@@ -485,7 +485,7 @@ public class UseItem {
                                 useItemTime(pl, item);
                                 break;
                             case 1809:
-                                ChangeMapService.gI().changeMap(pl, 186, -1, 100, 84);
+                                ChangeMapService.gI().changeMapNonSpaceship(pl, 122, 50, 384);
                                 break;
                             case 1540:
                                 ChangeMapService.gI().changeMap(pl, 194, -1, 100, 84);
@@ -1011,12 +1011,12 @@ public class UseItem {
 
             // === BONUS REWARDS theo tier ===
             if (tier == 1537) { // 4 SAO bonus
-                player.inventory.gold += 500000;
+                player.inventory.addGoldSafe(500000);
                 int bonusGem = Util.nextInt(3, 8);
                 player.inventory.gem += bonusGem;
                 bonusInfo = "\nBonus: +500K Vang, +" + bonusGem + " Ngoc";
             } else if (tier == 1538) { // 5 SAO bonus
-                player.inventory.gold += 2000000;
+                player.inventory.addGoldSafe(2000000);
                 int bonusGem = Util.nextInt(10, 20);
                 player.inventory.gem += bonusGem;
                 bonusInfo = "\nBonus: +2M Vang, +" + bonusGem + " Ngoc";
@@ -1090,7 +1090,7 @@ public class UseItem {
             if (rd <= 35) {
                 // 35%: Vàng 100K-500K
                 long gold = Util.nextInt(100000, 500000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 reward.append("+").append(gold / 1000).append("K Vang");
             } else if (rd <= 55) {
                 // 20%: Bóng Poké (1873)
@@ -1169,7 +1169,7 @@ public class UseItem {
                 if (rd <= 35) {
                     // 35%: Vàng 100K-500K (giảm từ 200K-1M)
                     long gold = Util.nextInt(100000, 500000);
-                    pl.inventory.gold += gold;
+                    pl.inventory.addGoldSafe(gold);
                     reward.append("+").append(gold / 1000).append("K Vang\n");
                 } else if (rd <= 60) {
                     // 25%: Hồng Ngọc 30-100 (giảm từ 100-300)
@@ -1239,7 +1239,7 @@ public class UseItem {
                 if (rd <= 40) {
                     // 40%: Vàng 100K-500K
                     long gold = Util.nextInt(100000, 500000);
-                    pl.inventory.gold += gold;
+                    pl.inventory.addGoldSafe(gold);
                     reward.append("+").append(gold / 1000).append("K Vang");
                 } else if (rd <= 65) {
                     // 25%: Hồng Ngọc 50-200
@@ -1906,7 +1906,7 @@ public class UseItem {
                     Pet.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
                 }
                 int gold = Util.nextInt(500_000_000, 1_000_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -1927,7 +1927,7 @@ public class UseItem {
                     Pet.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
                 }
                 int gold = Util.nextInt(300_000_000, 500_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -1947,7 +1947,7 @@ public class UseItem {
                     Pet.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
                 }
                 int gold = Util.nextInt(100_000_000, 300_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -1967,7 +1967,7 @@ public class UseItem {
                     Pet.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
                 }
                 int gold = Util.nextInt(50_000_000, 100_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -1987,7 +1987,7 @@ public class UseItem {
                     Pet.itemOptions.add(new ItemOption(93, Util.nextInt(1, 3)));
                 }
                 int gold = Util.nextInt(10_000_000, 50_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -2001,7 +2001,7 @@ public class UseItem {
                 InventoryService.gI().subQuantityItemsBag(pl, item, 1);
                 Item vatphamzz = ItemService.gI().createNewItem((short) vatpham[randomvatpham]);
                 int gold = Util.nextInt(1_000_000, 10_000_000);
-                pl.inventory.gold += gold;
+                pl.inventory.addGoldSafe(gold);
                 Service.gI().sendThongBao(pl, "Bạn nhận được " + gold + " vàng");
                 pl.hopquatrungthuvip++;
                 Service.gI().sendThongBao(pl, "Chúc mừng bạn nhận được 1 điểm sự kiện trung thu");
@@ -2163,7 +2163,7 @@ public class UseItem {
 
                 // Bonus vàng
                 long goldBonus = Util.nextInt(500_000_000, 1_000_000_000);
-                pl.inventory.gold += goldBonus;
+                pl.inventory.addGoldSafe(goldBonus);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -2251,7 +2251,7 @@ public class UseItem {
                 }
                 // Bonus vàng
                 long goldRare = Util.nextInt(50_000_000, 200_000_000);
-                pl.inventory.gold += goldRare;
+                pl.inventory.addGoldSafe(goldRare);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -2287,7 +2287,7 @@ public class UseItem {
                 }
                 // Bonus vàng
                 long goldUncommon = Util.nextInt(10_000_000, 50_000_000);
-                pl.inventory.gold += goldUncommon;
+                pl.inventory.addGoldSafe(goldUncommon);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -2325,7 +2325,7 @@ public class UseItem {
                 }
                 // Bonus vàng nhỏ
                 long goldCommon = Util.nextInt(1_000_000, 10_000_000);
-                pl.inventory.gold += goldCommon;
+                pl.inventory.addGoldSafe(goldCommon);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -2522,7 +2522,7 @@ public class UseItem {
         int[][] gold = { { 5000, 20000 } };
         short[] icon = new short[2];
         icon[0] = item.template.iconID;
-        pl.inventory.gold += Util.nextInt(gold[0][0], gold[0][1]);
+        pl.inventory.addGoldSafe(Util.nextInt(gold[0][0], gold[0][1]));
         if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
             pl.inventory.gold = Inventory.LIMIT_GOLD;
         }
@@ -2551,7 +2551,7 @@ public class UseItem {
         int[][] gold = { { 500000, 2000000 } };
         short[] icon = new short[2];
         icon[0] = item.template.iconID;
-        pl.inventory.gold += Util.nextInt(gold[0][0], gold[0][1]);
+        pl.inventory.addGoldSafe(Util.nextInt(gold[0][0], gold[0][1]));
         if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
             pl.inventory.gold = Inventory.LIMIT_GOLD;
         }
@@ -2914,7 +2914,7 @@ public class UseItem {
             short[] icon = new short[2];
             icon[0] = item.template.iconID;
             if (index <= 3) {
-                pl.inventory.gold += Util.nextInt(gold[0][0], gold[0][1]);
+                pl.inventory.addGoldSafe(Util.nextInt(gold[0][0], gold[0][1]));
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -4561,7 +4561,7 @@ public class UseItem {
 
             if (isGoldReward) {
                 int goldAmount = Util.nextInt(100_000, 1_500_000);
-                pl.inventory.gold += goldAmount;
+                pl.inventory.addGoldSafe(goldAmount);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }
@@ -4657,7 +4657,7 @@ public class UseItem {
             // 🔹 Nếu là vàng
             if (isGoldReward) {
                 int goldAmount = Util.nextInt(100_000, 1_500_000);
-                pl.inventory.gold += goldAmount;
+                pl.inventory.addGoldSafe(goldAmount);
                 if (pl.inventory.gold > Inventory.LIMIT_GOLD) {
                     pl.inventory.gold = Inventory.LIMIT_GOLD;
                 }

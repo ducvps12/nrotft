@@ -23,6 +23,7 @@ public class DuongTang extends Npc {
     private static final int MENU_ESCORT_INFO = 501;
     private static final int MENU_ESCORT_CONFIRM = 502;
     private static final int MENU_REWARD = 503;
+    private static final int MENU_NHS_CONFIRM = 504; // Xác nhận vào NHS + trừ 50 Thỏi Vàng
 
     // ===== Escort destination maps =====
     private static final int[][] ESCORT_DESTINATIONS = {
@@ -128,6 +129,13 @@ public class DuongTang extends Npc {
                     }
                 }
 
+                // ===== NHS CONFIRM (50 Thỏi Vàng) =====
+                case MENU_NHS_CONFIRM -> {
+                    if (select == 0) {
+                        handleNhsEntry(player);
+                    }
+                }
+
                 // ===== REWARD MENU =====
                 case MENU_REWARD -> handleRewardSelect(player, select);
             }
@@ -140,8 +148,18 @@ public class DuongTang extends Npc {
     private void handleMap0BaseMenu(Player player, int select) {
         switch (select) {
             case 0 -> {
-                // Đi Ngũ Hành Sơn
-                ChangeMapService.gI().changeMapNonSpaceship(player, 123, 50, 384);
+                // Đi Ngũ Hành Sơn — hiện xác nhận trước + phí 50 Thỏi Vàng
+                Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
+                int slTV = thoiVang != null ? thoiVang.quantity : 0;
+
+                createOtherMenu(player, MENU_NHS_CONFIRM,
+                        "|7|━━━ XÁC NHẬN VÀO NGŨ HÀNH SƠN ━━━\n\n"
+                        + "|1|Vé vào cửa Ngũ Hành Sơn:\n"
+                        + "|2|⚠ 50 Thỏi Vàng\n\n"
+                        + "|1|Thỏi Vàng hiện có: |" + (slTV >= 50 ? "2|" : "6|") + slTV + "\n\n"
+                        + "|8|Bạn có chắc chắn muốn vào?\n"
+                        + "|7|━━━━━━━━━━━━━━━━━━",
+                        "Đồng ý\n(Trừ 50 TV)", "Hủy");
             }
             case 1 -> {
                 // Nhiệm Vụ Hộ Tống - hiển thị danh sách tuyến hộ tống
@@ -156,6 +174,35 @@ public class DuongTang extends Npc {
                 showGuide(player);
             }
         }
+    }
+
+    /**
+     * Xử lý vào NHS sau khi xác nhận — trừ 50 Thỏi Vàng
+     */
+    private void handleNhsEntry(Player player) {
+        Item thoiVang = InventoryService.gI().findItemBagByTemp(player, 457);
+        int slTV = thoiVang != null ? thoiVang.quantity : 0;
+
+        if (slTV < 50) {
+            Service.gI().sendThongBao(player,
+                    "Không đủ Thỏi Vàng!\n"
+                    + "Cần: 50 Thỏi Vàng\n"
+                    + "Hiện có: " + slTV + " Thỏi Vàng\n"
+                    + "Còn thiếu: " + (50 - slTV) + " Thỏi Vàng");
+            return;
+        }
+
+        // Trừ 50 Thỏi Vàng
+        InventoryService.gI().subQuantityItemsBag(player, thoiVang, 50);
+        InventoryService.gI().sendItemBag(player);
+
+        // Chuyển map vào NHS
+        ChangeMapService.gI().changeMapNonSpaceship(player, 123, 50, 384);
+
+        Service.gI().sendThongBao(player,
+                "Đã trừ 50 Thỏi Vàng!\n"
+                + "Chúc thí chủ tu luyện thành công\n"
+                + "tại Ngũ Hành Sơn!");
     }
 
     // ====================================================================
@@ -354,7 +401,7 @@ public class DuongTang extends Npc {
                 player.event.subEventPointNHS(diemCan);
                 Item dauThan = ItemService.gI().createNewItem((short) 12, 10);
                 InventoryService.gI().addItemBag(player, dauThan);
-                player.inventory.gold += 5_000_000;
+                player.inventory.addGoldSafe(5_000_000);
                 Service.gI().sendMoney(player);
                 InventoryService.gI().sendItemBag(player);
                 notifyRewardSuccess(player, "Hộp Đậu Thần", diemCan);

@@ -219,7 +219,7 @@ public class The23rdMartialArtCongress {
         Service.gI().sendThongBao(player, "★★★ VÔ ĐỊCH ĐHVT 23! ★★★");
         // Jackpot thưởng vô địch
         try {
-            player.inventory.gold += 1_000_000_000L;
+            player.inventory.addGoldSafe(1_000_000_000L);
             player.inventory.gem += 100;
             Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 50);
             nro.services.InventoryService.gI().addItemBag(player, xu);
@@ -256,7 +256,7 @@ public class The23rdMartialArtCongress {
         try {
             switch (round) {
                 case 4 -> {
-                    player.inventory.gold += 50_000_000L;
+                    player.inventory.addGoldSafe(50_000_000L);
                     player.inventory.gem += 10;
                     Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 5);
                     nro.services.InventoryService.gI().addItemBag(player, xu);
@@ -265,7 +265,7 @@ public class The23rdMartialArtCongress {
                     Service.gI().sendThongBao(player, "★ Mốc Round 4! +50M vàng, 10 ngọc, 5 Xu NRO");
                 }
                 case 8 -> {
-                    player.inventory.gold += 200_000_000L;
+                    player.inventory.addGoldSafe(200_000_000L);
                     player.inventory.gem += 30;
                     Item xu = nro.services.ItemService.gI().createNewItem((short) 1705, 15);
                     nro.services.InventoryService.gI().addItemBag(player, xu);

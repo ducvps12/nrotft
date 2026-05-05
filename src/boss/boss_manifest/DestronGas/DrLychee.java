@@ -102,7 +102,7 @@ public class DrLychee extends Boss {
             try {
                 // Vàng thưởng theo level
                 long goldBonus = (long) level * 1_500_000L;
-                pl.inventory.gold += goldBonus;
+                pl.inventory.addGoldSafe(goldBonus);
                 
                 // Ngọc thưởng (level 30+)
                 if (level >= 30) {
