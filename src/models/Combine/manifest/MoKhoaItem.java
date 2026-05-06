@@ -3,8 +3,13 @@
  * Nguyên liệu: 1 Đá Hoàng Kim (ID 1723) + 1 item bị khóa giao dịch
  * Chi phí: 2,000 Hồng Ngọc
  * Tỉ lệ thành công: 30%
- *   - Thành công: Xóa option 30 (khóa GD), thêm option 73 (đã mở khóa)
+ *   - Thành công: Xóa option 30 (khóa GD)
  *   - Thất bại: Mất Đá Hoàng Kim, item vẫn giữ nguyên (vẫn bị khóa)
+ *
+ * QUAN TRỌNG:
+ *   - Chỉ xử lý TỪNG ITEM MỘT (quantity = 1)
+ *   - Không cho phép mở khóa Thỏi Vàng (ID 457) — tránh loạn kinh tế
+ *   - Item PHẢI có option 30 thực sự mới được mở khóa
  */
 package models.Combine.manifest;
 
@@ -25,6 +30,30 @@ public class MoKhoaItem {
     private static final int COST_RUBY = 2000;
     private static final int RATE_SUCCESS = 30; // 30%
 
+    // Danh sách item KHÔNG ĐƯỢC MỞ KHÓA (tránh loạn kinh tế)
+    private static final List<Integer> BLACKLIST_ITEM_IDS = Arrays.asList(
+            457  // Thỏi Vàng — nếu mở khóa hàng loạt sẽ phá kinh tế
+    );
+
+    /**
+     * Kiểm tra item có nằm trong blacklist không
+     */
+    private static boolean isBlacklisted(Item item) {
+        return BLACKLIST_ITEM_IDS.contains((int) item.template.id);
+    }
+
+    /**
+     * Kiểm tra item có thực sự bị khóa GD không (có option 30)
+     */
+    private static boolean hasLockOption(Item item) {
+        for (ItemOption io : item.itemOptions) {
+            if (io.optionTemplate.id == 30) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void showInfoCombine(Player player) {
         if (InventoryService.gI().getCountEmptyBag(player) <= 0) {
             CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
@@ -34,7 +63,8 @@ public class MoKhoaItem {
 
         if (player.combine.itemsCombine.size() != 2) {
             CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "Cần đặt 1 Đá Hoàng Kim + 1 item bị khóa giao dịch", "Đóng");
+                    "Cần đặt 1 Đá Hoàng Kim + 1 item bị khóa giao dịch\n"
+                    + "(CHỈ MỞ KHÓA TỪNG CÁI MỘT)", "Đóng");
             return;
         }
 
@@ -43,7 +73,7 @@ public class MoKhoaItem {
         for (Item item_ : player.combine.itemsCombine) {
             if (item_.template.id == DA_HOANG_KIM_ID) {
                 daHoangKim = item_;
-            } else if (item_.isTrangBiKhoaGd()) {
+            } else {
                 itemKhoaGD = item_;
             }
         }
@@ -55,23 +85,50 @@ public class MoKhoaItem {
         }
         if (itemKhoaGD == null) {
             CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "Cần có Item bị khóa giao dịch\n(bông tai, item sự kiện, thỏi vàng...)", "Đóng");
+                    "Cần có Item bị khóa giao dịch", "Đóng");
+            return;
+        }
+
+        // Kiểm tra blacklist
+        if (isBlacklisted(itemKhoaGD)) {
+            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+                    "|7|Vật phẩm này KHÔNG THỂ mở khóa giao dịch!\n"
+                    + "|8|" + itemKhoaGD.template.name + " nằm trong danh sách cấm.", "Đóng");
+            return;
+        }
+
+        // Kiểm tra item thực sự có option 30 (khóa GD)
+        if (!hasLockOption(itemKhoaGD)) {
+            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+                    "|7|Item này KHÔNG BỊ KHÓA giao dịch!\n"
+                    + "|8|" + itemKhoaGD.template.name + " đã có thể giao dịch.", "Đóng");
+            return;
+        }
+
+        // Chỉ cho phép quantity = 1
+        if (itemKhoaGD.quantity > 1) {
+            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+                    "|7|Chỉ mở khóa TỪNG CÁI MỘT!\n"
+                    + "|8|Hãy tách ra 1 " + itemKhoaGD.template.name + " rồi thử lại.", "Đóng");
             return;
         }
 
         // Hiển thị thông tin item
-        String npcSay = "|1|=== MỞ KHÓA GIAO DỊCH ===\n"
+        String npcSay = "|7|══════════════════\n"
+                + "|1|    🔓 MỞ KHÓA GIAO DỊCH\n"
+                + "|7|══════════════════\n"
                 + "|2|Item: " + itemKhoaGD.template.name + "\n|0|";
         for (Item.ItemOption io : itemKhoaGD.itemOptions) {
             if (io.optionTemplate.id != 72) {
                 npcSay += io.getOptionString() + "\n";
             }
         }
-        npcSay += "\n|1|Sau khi mở khóa:\n"
-                + "|2|Item sẽ trở thành item giao dịch được\n"
-                + "\n|7|Tỉ lệ thành công: |6|" + RATE_SUCCESS + "%\n"
-                + "|7|Thất bại: mất Đá Hoàng Kim, item vẫn còn\n"
-                + "|1|Chi phí: |2|" + Util.numberToMoney(COST_RUBY) + " Hồng Ngọc";
+        npcSay += "\n|7|──────────────────\n"
+                + "|2|Sau mở khóa: Item giao dịch được\n"
+                + "|1|Tỉ lệ: " + RATE_SUCCESS + "% thành công\n"
+                + "|8|Thất bại: mất Đá HK, item còn\n"
+                + "|7|Chi phí: |1|" + Util.numberToMoney(COST_RUBY) + " Hồng Ngọc\n"
+                + "|7|══════════════════";
 
         CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE,
                 npcSay, "Mở Khóa\n" + Util.numberToMoney(COST_RUBY) + " HN", "Từ chối");
@@ -89,7 +146,7 @@ public class MoKhoaItem {
         for (Item item_ : player.combine.itemsCombine) {
             if (item_.isNotNullItem() && item_.template.id == DA_HOANG_KIM_ID) {
                 daHoangKim = item_;
-            } else if (item_.isNotNullItem() && item_.isTrangBiKhoaGd()) {
+            } else if (item_.isNotNullItem()) {
                 trangBiKhoaGD = item_;
             }
         }
@@ -100,6 +157,30 @@ public class MoKhoaItem {
         }
         if (trangBiKhoaGD == null) {
             Service.gI().sendThongBao(player, "Cần Item bị khóa giao dịch");
+            return;
+        }
+
+        // === BẢO VỆ: Blacklist ===
+        if (isBlacklisted(trangBiKhoaGD)) {
+            Service.gI().sendThongBao(player, "Vật phẩm " + trangBiKhoaGD.template.name + " KHÔNG THỂ mở khóa!");
+            player.combine.itemsCombine.clear();
+            CombineService.gI().reOpenItemCombine(player);
+            return;
+        }
+
+        // === BẢO VỆ: Item phải thực sự có option 30 ===
+        if (!hasLockOption(trangBiKhoaGD)) {
+            Service.gI().sendThongBao(player, "Item này không bị khóa giao dịch!");
+            player.combine.itemsCombine.clear();
+            CombineService.gI().reOpenItemCombine(player);
+            return;
+        }
+
+        // === BẢO VỆ: Chỉ cho phép quantity = 1 ===
+        if (trangBiKhoaGD.quantity > 1) {
+            Service.gI().sendThongBao(player, "Chỉ mở khóa TỪNG CÁI MỘT! Hãy tách ra 1 item.");
+            player.combine.itemsCombine.clear();
+            CombineService.gI().reOpenItemCombine(player);
             return;
         }
 
@@ -121,9 +202,10 @@ public class MoKhoaItem {
         InventoryService.gI().subQuantityItemsBag(player, daHoangKim, 1);
 
         if (Util.isTrue(RATE_SUCCESS, 100)) {
-            // Thành công: Xóa option 30 (khóa GD), thêm option 73 (đã mở khóa)
+            // ═══ THÀNH CÔNG ═══
             CombineService.gI().sendEffectSuccessCombine(player);
 
+            // Xóa option 30 (khóa GD)
             ItemOption optionKhoa = null;
             for (ItemOption itopt : trangBiKhoaGD.itemOptions) {
                 if (itopt.optionTemplate.id == 30) {
@@ -133,14 +215,18 @@ public class MoKhoaItem {
             }
             if (optionKhoa != null) {
                 trangBiKhoaGD.itemOptions.remove(optionKhoa);
-                trangBiKhoaGD.itemOptions.add(new Item.ItemOption(73, 0));
             }
 
-            Service.gI().sendThongBao(player, "|2|MỞ KHÓA THÀNH CÔNG!\n" + trangBiKhoaGD.template.name + " đã có thể giao dịch được!");
+            Service.gI().sendThongBao(player,
+                    "|2|🔓 MỞ KHÓA THÀNH CÔNG!\n"
+                    + trangBiKhoaGD.template.name + "\nđã có thể giao dịch!");
         } else {
-            // Thất bại: Mất Đá Hoàng Kim, item vẫn giữ nguyên
+            // ═══ THẤT BẠI ═══
             CombineService.gI().sendEffectFailCombine(player);
-            Service.gI().sendThongBao(player, "|7|MỞ KHÓA THẤT BẠI!\nĐá Hoàng Kim đã bị tiêu hao.\nItem vẫn giữ nguyên trạng thái khóa.");
+            Service.gI().sendThongBao(player,
+                    "|7|❌ MỞ KHÓA THẤT BẠI!\n"
+                    + "Đá Hoàng Kim đã bị tiêu hao.\n"
+                    + "Item vẫn giữ nguyên trạng thái khóa.");
         }
 
         InventoryService.gI().sendItemBag(player);

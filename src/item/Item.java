@@ -571,10 +571,12 @@ public class Item {
     }
 
     public boolean isTrangBiKhoaGd() {
-        if (this.template.type == 11 || this.template.id != 457 || this.template.type == 30 || this.template.type == 12 || this.template.type == 21 || this.template.type == 27 || this.template.type == 72) {
-            return true;
+        // Phải thực sự có option 30 (khóa giao dịch) mới return true
+        for (ItemOption itemOption : itemOptions) {
+            if (itemOption.optionTemplate.id == 30) {
+                return true;
+            }
         }
-
         return false;
     }
 
