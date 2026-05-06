@@ -1709,13 +1709,20 @@ public class Mob {
             list.add(new ItemMap(zone, 861, 1, x, yEnd, player.id));
         }
 
-        // ======================== Drop Sự Kiện - Map Nguyên Thủy (161, 162, 163) ========================
-        if (mapid == 161 || mapid == 162 || mapid == 163) {
+        // ======================== Drop Sự Kiện Hè - Map Nguyên Thủy (161, 162, 163) ========================
+        if (event.EventManager.SUMMER_EVENT && (mapid == 161 || mapid == 162 || mapid == 163)) {
             int[] eventItems = {695, 696, 697, 698}; // Vỏ Ốc, Vỏ Sò, Con Cua, Sao Biển
             for (int eventItemId : eventItems) {
                 if (Util.isTrue(10, 100)) {
                     list.add(new ItemMap(zone, eventItemId, 1, x + Util.nextInt(-5, 5), yEnd, player.id));
                 }
+            }
+            // Thêm drop nguyên liệu nước mía
+            if (Util.isTrue(5, 100)) {
+                list.add(new ItemMap(zone, 1612, Util.nextInt(1, 3), x + Util.nextInt(-5, 5), yEnd, player.id)); // Khúc Mía
+            }
+            if (Util.isTrue(5, 100)) {
+                list.add(new ItemMap(zone, 1613, Util.nextInt(1, 3), x + Util.nextInt(-5, 5), yEnd, player.id)); // Nước Đá
             }
         }
 

@@ -219,7 +219,7 @@ public class Santa extends Npc {
                                 + "2. Đổi Hộp Quà SK → 20% drop\n"
                                 + "3. Ước nguyện Rồng Thần\n"
                                 + "4. Mở Rương ĐHVT 23\n"
-                                + "5. Mua bằng VNĐ (20k = 10 thỏi)\n"
+                                + "5. Mua bằng VNĐ (10k = 1 thỏi)\n"
                                 + "6. Mua bằng vàng game tại Thị Trường\n\n"
                                 + "→ Bán thỏi vàng: kéo vào shop bán");
             }

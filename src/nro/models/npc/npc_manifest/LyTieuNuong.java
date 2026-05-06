@@ -29,12 +29,12 @@ public class LyTieuNuong extends Npc {
     public void openBaseMenu(Player player) {
         if (!TaskService.gI().checkDoneTaskTalkNpc(player, this)) {
             String flashSale = VipPackageService.isFlashSaleActive()
-                    ? "\n|2|⚡ FLASH SALE -" + VipPackageService.getFlashSalePercent() + "% ĐANG DIỄN RA!"
+                    ? "\n|2|>> FLASH SALE -" + VipPackageService.getFlashSalePercent() + "% DANG DIEN RA!"
                     : "";
 
             String info = "|7|━━━ LÝ TIỂU NƯƠNG ━━━\n"
                     + "|1|Số dư: " + Util.mumberToLouis(player.getSession().cash) + " VNĐ\n"
-                    + "|8|Sale 20% gói VIP 2 & VIP 3!"
+                    + "|8|Sale 20% goi VIP 2 & VIP 3!"
                     + flashSale + "\n"
                     + "|7|━━━━━━━━━━━━━━━━━━\n"
                     + "|2|Gói VIP Tuần: Nhận items buff mỗi tuần\n"
@@ -272,7 +272,7 @@ public class LyTieuNuong extends Npc {
                 + (hasActive
                         ? "|2|✓ Đang có VIP Đệ tier " + currentTier + " (hết: " + expireInfo + ")\n"
                         : "|8|Chưa có gói VIP Đệ nào\n")
-                + (hasCoupon ? "|1|🎫 Có Phiếu Giảm Giá" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!\n" : "")
+                + (hasCoupon ? "|1|[PGG] Co Phieu Giam Gia" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!\n" : "")
                 + "|3|Tăng tốc đệ tử, ưu tiên HP + DAME!\n"
                 + "|8|Hiệu lực: 24 giờ, cho phép nâng tier\n"
                 + "|7|━━━━━━━━━━━━━━━━━━";
@@ -380,29 +380,29 @@ public class LyTieuNuong extends Npc {
     // ===================== HƯỚNG DẪN =====================
     private void showGuideMenu(Player player) {
         String guide = "|7|══════════════════\n"
-                + "|1|    📋 HƯỚNG DẪN DỊCH VỤ\n"
+                + "|1|    HUONG DAN DICH VU\n"
                 + "|7|══════════════════\n"
                 + "\n"
-                + "|2|❶ GÓI VIP TUẦN\n"
+                + "|2|1. GOI VIP TUAN\n"
                 + "|8|  ○ Mua 1 lần, buff 7 ngày\n"
                 + "|8|  ○ Items: Thỏi vàng, TNSM, Đá BV\n"
                 + "\n"
-                + "|2|❷ GÓI ĐỆ TỬ (VĨNH VIỄN)\n"
+                + "|2|2. GOI DE TU (VINH VIEN)\n"
                 + "|8|  ○ Mua 1 gói/ngày\n"
                 + "|8|  ○ Mabu 50K → B.Goku 500K\n"
                 + "|8|  ○ Đệ + items buff kèm theo\n"
                 + "\n"
-                + "|1|❸ TUYỆT THẾ ĐỆ TỬ\n"
+                + "|1|3. TUYET THE DE TU\n"
                 + "|1|  ○ CHỈ CÀY FREE, không bán!\n"
                 + "|8|  ○ Xem chi tiết: Menu Đệ Tử\n"
                 + "|8|    → Hướng Dẫn Đệ Tử\n"
                 + "\n"
-                + "|2|❹ VIP ĐỆ TỬ (24h)\n"
+                + "|2|4. VIP DE TU (24h)\n"
                 + "|8|  ○ x2 ~ x7 TNSM cho đệ\n"
                 + "|8|  ○ Ưu tiên HP + DAME\n"
-                + "|2|  ○ 🎫 PGG: -30% | PGG VIP: -70%\n"
+                + "|2|  o PGG: -30% | PGG VIP: -70%\n"
                 + "\n"
-                + "|2|❺ MINI GAMES\n"
+                + "|2|5. MINI GAMES\n"
                 + "|8|  ○ Kéo Búa Bao\n"
                 + "|8|  ○ Số May Mắn (Vàng/Ngọc)\n"
                 + "|8|  ○ Chọn Ai Đây\n"
@@ -424,15 +424,15 @@ public class LyTieuNuong extends Npc {
                 case 5 -> "Tuyệt Thế";
                 default -> "???";
             };
-            petInfo = "|2|🐉 Đệ: $" + player.pet.name
+            petInfo = "|2|De: " + player.pet.name
                     + " (" + typeName + ")\n"
-                    + "|2|⚔ SM: " + Util.mumberToLouis(player.pet.nPoint.power) + "\n";
+                    + "|2|SM: " + Util.mumberToLouis(player.pet.nPoint.power) + "\n";
         } else {
-            petInfo = "|8|❌ Chưa có đệ tử\n";
+            petInfo = "|8|Chua co de tu\n";
         }
 
         String guide = "|7|══════════════════\n"
-                + "|1|    📖 HỆ THỐNG ĐỆ TỬ\n"
+                + "|1|    HE THONG DE TU\n"
                 + "|7|══════════════════\n"
                 + petInfo
                 + "\n"
@@ -453,28 +453,28 @@ public class LyTieuNuong extends Npc {
                 + "|7|└────────────────────┘\n"
                 + "\n"
                 + "|7|══════════════════\n"
-                + "|1|    🏆 LỘ TRÌNH TUYỆT THẾ\n"
+                + "|1|    LO TRINH TUYET THE\n"
                 + "|7|══════════════════\n"
-                + "|1|⚠ KHÔNG MUA BẰNG TIỀN!\n"
-                + "|1|⚠ CHỈ CÀY FREE!\n"
+                + "|1|** KHONG MUA BANG TIEN!\n"
+                + "|1|** CHI CAY FREE!\n"
                 + "\n"
-                + "|2|❶ Kiếm Bình Hút Năng Lượng\n"
+                + "|2|1. Kiem Binh Hut Nang Luong\n"
                 + "|8|  ○ Boss Rồng Nhí: drop 1-3\n"
                 + "|8|  ○ Boss Hirudegarn: drop 1\n"
                 + "|8|  ○ NV Quỷ Lão Kame: 10-20\n"
                 + "\n"
-                + "|2|❷ Farm Kilis (Map Cadic)\n"
+                + "|2|2. Farm Kilis (Map Cadic)\n"
                 + "|8|  ○ Tỉ lệ: 1/333 mỗi quái\n"
                 + "|8|  ○ Buff Osin: 10/333 (x10)\n"
                 + "|8|  ○ Giá buff: 100 HN = 10 phút\n"
                 + "|8|  ○ Mỗi lần: +1 Kilis vào Bình\n"
                 + "\n"
-                + "|2|❸ Đệ 3K Kilis\n"
+                + "|2|3. De 3K Kilis\n"
                 + "|8|  ○ 3,000 Kilis + Mabu 40 tỷ SM\n"
                 + "|8|  ○ Dùng Bình → Nhận 1 trong:\n"
                 + "|8|    B.Goku / Cell / Berus\n"
                 + "\n"
-                + "|1|❹ TUYỆT THẾ ĐỆ TỬ\n"
+                + "|1|4. TUYET THE DE TU\n"
                 + "|1|  ○ 6,000 Kilis + Đệ 3K 100 tỷ\n"
                 + "|1|  ○ Dùng Bình → Nhận Tuyệt Thế!\n"
                 + "\n"
@@ -484,7 +484,7 @@ public class LyTieuNuong extends Npc {
                 + "|2|│ 10 ô trang bị (max game)\n"
                 + "|2|│ 5 skill sẵn, không cần mở\n"
                 + "|2|│ Mặc đồ cả 3 hệ\n"
-                + "|1|│ ★ Fusion cộng THẲNG chỉ số!\n"
+                + "|1|│ * Fusion cong THANG chi so!\n"
                 + "|7|└────────────────────┘";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_PET_GUIDE, guide,

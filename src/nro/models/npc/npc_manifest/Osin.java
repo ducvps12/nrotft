@@ -5,6 +5,7 @@ package nro.models.npc.npc_manifest;
  * mua bán source nro,...
  */
 import consts.ConstNpc;
+import item.Item;
 
 import java.util.ArrayList;
 
@@ -13,6 +14,7 @@ import models.MajinBuu.MajinBuuService;
 import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.InventoryService;
+import nro.services.ItemService;
 import nro.services.ItemTimeService;
 import nro.services.NpcService;
 import nro.services.Service;
@@ -23,6 +25,11 @@ import utils.TimeUtil;
 import utils.Util;
 
 public class Osin extends Npc {
+
+    private static final int DA_NGU_SAC = 674;
+    private static final int XU_NRO = 1705;
+    private static final int DNS_PER_XU = 1000; // 1000 Đá Ngũ Sắc = 1 Xu NRO
+    private static final int MENU_DOI_DNS = 1010;
 
     public Osin(int mapId, int status, int cx, int cy, int tempId, int avartar) {
         super(mapId, status, cx, cy, tempId, avartar);
@@ -41,9 +48,14 @@ public class Osin extends Npc {
                     this.createOtherMenu(player, ConstNpc.BASE_MENU,
                             "Mau hút năng lượng tà ác trong người cậu ấy (Dùng tự động luyện tập)",
                             "Về nhà", "Bùa hỗ\ntrợ", "Từ chối");
-                case 154 ->
-                    this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ta có thể giúp gì cho ngươi ?",
-                            "Cửa\nhàng", "Đến\nhành tinh\nngục tù", "Từ chối");
+                case 154 -> {
+                    Item dnsItem = InventoryService.gI().findItemBag(player, DA_NGU_SAC);
+                    int slDNS = (dnsItem != null) ? dnsItem.quantity : 0;
+                    this.createOtherMenu(player, ConstNpc.BASE_MENU,
+                            "Ta có thể giúp gì cho ngươi ?\n"
+                                    + "|2|Đá Ngũ Sắc: |8|" + slDNS,
+                            "Cửa\nhàng", "Đổi ĐNS\n→ Xu\n[" + slDNS + "]", "Đến\nhành tinh\nngục tù", "Từ chối");
+                }
                 case 155 ->
                     this.createOtherMenu(player, ConstNpc.BASE_MENU, "Ta có thể giúp gì cho ngươi ?",
                             "Quay về", "Từ chối");
@@ -142,7 +154,8 @@ public class Osin extends Npc {
                         switch (select) {
                             case 0 ->
                                 ShopService.gI().opendShop(player, "OSIN", false);
-                            case 1 -> {
+                            case 1 -> openMenuDoiDNS(player);
+                            case 2 -> {
                                 if (player.nPoint.power <= 80_000_000_000L) {
                                     Service.gI().sendThongBao(player, "Yêu cầu sức mạnh đạt 80 tỉ");
                                     return;
@@ -150,6 +163,9 @@ public class Osin extends Npc {
                                 ChangeMapService.gI().changeMap(player, 155, -1, 111, 792);
                             }
                         }
+                    }
+                    if (player.iDMark.getIndexMenu() == MENU_DOI_DNS) {
+                        handleDoiDNS(player, select);
                     }
                 }
                 case 155 -> {
@@ -304,5 +320,70 @@ public class Osin extends Npc {
                 }
             }
         }
+    }
+
+    // ====== ĐỔI ĐÁ NGŨ SẮC → XU NRO ======
+    private void openMenuDoiDNS(Player player) {
+        Item dnsItem = InventoryService.gI().findItemBag(player, DA_NGU_SAC);
+        int slDNS = (dnsItem != null) ? dnsItem.quantity : 0;
+        int maxXu = slDNS / DNS_PER_XU;
+
+        this.createOtherMenu(player, MENU_DOI_DNS,
+                "|7|━━ ĐỔI ĐÁ NGŨ SẮC ━━\n\n"
+                        + "|1|Tỷ lệ: |8|" + DNS_PER_XU + " Đá Ngũ Sắc = 1 Xu NRO\n"
+                        + "|2|Đá Ngũ Sắc hiện có: |8|" + slDNS + "\n"
+                        + "|2|Đổi được tối đa: |8|" + maxXu + " Xu\n\n"
+                        + "|8|Chọn số lượng xu muốn đổi:",
+                "Đổi 1 xu\n[1k ĐNS]",
+                "Đổi 5 xu\n[5k ĐNS]",
+                "Đổi 10 xu\n[10k ĐNS]",
+                "Đổi tất cả\n[" + maxXu + " xu]",
+                "Đóng");
+    }
+
+    private void handleDoiDNS(Player player, int select) {
+        Item dnsItem = InventoryService.gI().findItemBag(player, DA_NGU_SAC);
+        int slDNS = (dnsItem != null) ? dnsItem.quantity : 0;
+        int maxXu = slDNS / DNS_PER_XU;
+
+        int xuAmount;
+        switch (select) {
+            case 0 -> xuAmount = 1;
+            case 1 -> xuAmount = 5;
+            case 2 -> xuAmount = 10;
+            case 3 -> xuAmount = maxXu;
+            default -> { return; }
+        }
+
+        if (xuAmount <= 0) {
+            Service.gI().sendThongBao(player, "Bạn không có đủ Đá Ngũ Sắc!\nCần ít nhất " + DNS_PER_XU + " viên để đổi 1 Xu NRO.");
+            return;
+        }
+
+        int dnsNeeded = xuAmount * DNS_PER_XU;
+        if (slDNS < dnsNeeded) {
+            Service.gI().sendThongBao(player, "Không đủ Đá Ngũ Sắc!\nCần: " + dnsNeeded + "\nHiện có: " + slDNS);
+            return;
+        }
+
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+            Service.gI().sendThongBao(player, "Hành trang đầy, hãy dọn chỗ trống!");
+            return;
+        }
+
+        // Trừ đá ngũ sắc
+        InventoryService.gI().subQuantityItemsBag(player, dnsItem, dnsNeeded);
+
+        // Thêm xu NRO
+        Item xuNro = ItemService.gI().createNewItem((short) XU_NRO, xuAmount);
+        InventoryService.gI().addItemBag(player, xuNro);
+        InventoryService.gI().sendItemBag(player);
+
+        Service.gI().sendThongBao(player,
+                "Đổi thành công!\n"
+                        + "- " + dnsNeeded + " Đá Ngũ Sắc\n"
+                        + "+ " + xuAmount + " Xu NRO");
+
+        System.out.println("[DOI_DNS] " + player.name + " đổi " + dnsNeeded + " ĐNS → " + xuAmount + " Xu NRO");
     }
 }

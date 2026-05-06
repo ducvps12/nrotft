@@ -334,6 +334,9 @@ public class Player implements Runnable {
     /** Bộ đếm đổi Xu → VND trong ngày (tối đa 3 lần/ngày) */
     public int doiVndTodayCount;
     public long doiVndLastDay;
+    /** Bộ đếm xu nhận từ Training Boss trong ngày (giới hạn 100 xu/ngày) */
+    public int trainingXuToday;
+    public long trainingXuLastDay;
     // --- Top Rewards Weekly Claim ---
     public long lastClaimTopSM;  // Timestamp lần cuối nhận thưởng top SM
     public long lastClaimTopNV;  // Timestamp lần cuối nhận thưởng top NV

@@ -23,8 +23,13 @@ import task.Badges.BadgesTaskService;
 import utils.Util;
 
 /**
- *
- * @author By Mr Blue
+ * Boss Mặt Trời Mùa Hè
+ * ═══════════════════════════
+ * - HP: 500, mỗi hit chỉ trừ 1 HP → cần 500 hit để hạ
+ * - Spawn tại map ngẫu nhiên (các làng), respawn mỗi 10 phút
+ * - Hiệu ứng Bỏng Nhiệt: gây sát thương diện rộng cho player gần
+ * - Drop: Cờ Mặt Trời Mùa Hè (1562), Đá Ngũ Sắc (674), Thỏi Vàng (457)
+ * - Tồn tại 15 phút trên map trước khi biến mất
  */
 public class MatTroi extends Boss {
 
@@ -32,16 +37,22 @@ public class MatTroi extends Boss {
     private long st;
 
     public MatTroi() throws Exception {
-        super(MATTROI,BossID.Virut, new BossData(
-                "Mặt Trời " + Util.nextInt(1, 49),
+        super(MATTROI, BossID.Virut, new BossData(
+                "Mat Troi Mua He " + Util.nextInt(1, 49),
                 ConstPlayer.TRAI_DAT,
                 new short[]{1501, 1502, 1503, -1, -1, -1},
                 10,
-                new long[]{100},
+                new long[]{500},
                 new int[]{5, 7, 0, 14},
                 new int[][]{{Skill.DRAGON, 7, 1000}},
-                new String[]{}, // Text chat 1
-                new String[]{}, // Text chat 2
+                new String[]{
+                    "Nong qua roi!",
+                    "Tan chay nao!"
+                },
+                new String[]{
+                    "Oi, ta bi ha roi...",
+                    "Mat troi se quay lai!"
+                },
                 new String[]{},
                 600));
     }
@@ -50,13 +61,15 @@ public class MatTroi extends Boss {
     public void die(Player plKill) {
         this.reward(plKill);
         this.changeStatus(BossStatus.DIE);
+        Service.gI().sendThongBaoAllPlayer(
+                plKill.name + " da ha guc Mat Troi Mua He! Nhan thuong dac biet!");
     }
 
     private void applyEffect(Player player) {
         long effectEndTime = System.currentTimeMillis() + 30000;
         globalEffectTimers.put(player.id, effectEndTime);
         ItemTimeService.gI().sendItemTime(player, 12953, 60);
-        this.chat("Nóng vãi lồn, " + player.name + " Đã bị bỏng nhiệt ");
+        this.chat(player.name + " bi bong nhiet!");
     }
 
     private void checkGlobalEffects() {
@@ -67,8 +80,7 @@ public class MatTroi extends Boss {
                 Player player = Client.gI().getPlayer(playerId);
                 if (player != null) {
                     if (!player.isDie()) {
-                        // Kiểm tra xác suất 30% để player bị chết
-                        if (Util.isTrue(80, 100)) {
+                        if (Util.isTrue(60, 100)) {
                             player.injured(null, player.nPoint.hp, true, false);
                         }
                     }
@@ -127,26 +139,54 @@ public class MatTroi extends Boss {
         BadgesTaskService.updateCountBagesTask(plKill, ConstTaskBadges.KOL, 1);
         int x = this.location.x;
         int y = this.zone.map.yPhysicInTop(x, this.location.y - 24);
+
+        // +5 điểm sự kiện cho người hạ boss
+        plKill.event.addDiemSuKien(5);
+
+        // 50% — Drop Cờ Mặt Trời Mùa Hè (1562) — chỉ số tốt
         if (Util.isTrue(50, 100)) {
-            int[] costumes = {1562};
-            int costumeId = costumes[Util.nextInt(costumes.length)];
-
-            ItemMap itemMap = new ItemMap(this.zone, costumeId, 1, x, y, plKill.id);
-
-            itemMap.options.add(new ItemOption(50, Util.nextInt(7, 10)));
-            itemMap.options.add(new ItemOption(77, Util.nextInt(7, 10)));
-            itemMap.options.add(new ItemOption(103, Util.nextInt(7, 10)));
+            ItemMap itemMap = new ItemMap(this.zone, 1562, 1, x, y, plKill.id);
+            itemMap.options.add(new ItemOption(50, Util.nextInt(7, 12)));
+            itemMap.options.add(new ItemOption(77, Util.nextInt(7, 12)));
+            itemMap.options.add(new ItemOption(103, Util.nextInt(7, 12)));
             itemMap.options.add(new ItemOption(30, 0));
-            itemMap.options.add(new ItemOption(93, Util.nextInt(2, 5)));
-
+            itemMap.options.add(new ItemOption(93, Util.nextInt(3, 7)));
             Service.gI().dropItemMap(this.zone, itemMap);
+        }
+
+        // 30% — Drop Thỏi Vàng (457) x1-5
+        if (Util.isTrue(30, 100)) {
+            int qty = Util.nextInt(1, 5);
+            ItemMap goldBar = new ItemMap(this.zone, 457, qty, x + Util.nextInt(-10, 10), y, plKill.id);
+            Service.gI().dropItemMap(this.zone, goldBar);
+        }
+
+        // 20% — Drop Đá Ngũ Sắc (674) x3-10
+        if (Util.isTrue(20, 100)) {
+            int qty = Util.nextInt(3, 10);
+            ItemMap daNguSac = new ItemMap(this.zone, 674, qty, x + Util.nextInt(-10, 10), y, plKill.id);
+            Service.gI().dropItemMap(this.zone, daNguSac);
+        }
+
+        // 10% — Drop Nước Đá (1613) x10-30
+        if (Util.isTrue(10, 100)) {
+            int qty = Util.nextInt(10, 30);
+            ItemMap nuocDa = new ItemMap(this.zone, 1613, qty, x + Util.nextInt(-10, 10), y, plKill.id);
+            Service.gI().dropItemMap(this.zone, nuocDa);
+        }
+
+        // 10% — Drop Khúc Mía (1612) x10-30
+        if (Util.isTrue(10, 100)) {
+            int qty = Util.nextInt(10, 30);
+            ItemMap khucMia = new ItemMap(this.zone, 1612, qty, x + Util.nextInt(-10, 10), y, plKill.id);
+            Service.gI().dropItemMap(this.zone, khucMia);
         }
     }
 
     @Override
     public void joinMap() {
-        this.name = "Mặt Trời " + Util.nextInt(1, 49);
-        this.nPoint.hpMax = 100;
+        this.name = "Mat Troi Mua He " + Util.nextInt(1, 49);
+        this.nPoint.hpMax = 500;
         this.nPoint.hp = this.nPoint.hpMax;
         this.nPoint.dameg = 1;
         this.joinMap2();
@@ -192,6 +232,7 @@ public class MatTroi extends Boss {
             this.changeToTypePK();
         }
         this.attack();
+        // 15 phút tồn tại trên map
         if (Util.canDoWithTime(st, 900000)) {
             this.changeStatus(BossStatus.LEAVE_MAP);
             this.checkGlobalEffects();

@@ -1030,17 +1030,17 @@ public class Input {
     }
 
     public void createFormDoiThoiVang(Player pl) {
-        createForm(pl, DOI_THOI_VANG, "Đổi VND --> Thỏi vàng < Mỗi 20K được 10 thỏi >",
+        createForm(pl, DOI_THOI_VANG, "Đổi VND --> Thỏi vàng < Mỗi 10K VNĐ = 1 thỏi >",
                 new SubInput("Nhập số lượng VND muốn đổi ra thỏi vàng", NUMERIC));
     }
 
     public void createFormDoiNgocXanh(Player pl) {
-        createForm(pl, DOI_NGOC_XANH, "Đổi VND --> Ngọc xanh < Mỗi 20K được 20.000 ngọc xanh >",
+        createForm(pl, DOI_NGOC_XANH, "Đổi VND --> Ngọc xanh < Mỗi 100 VNĐ = 1 ngọc >",
                 new SubInput("Nhập số lượng VND muốn đổi ra ngọc xanh", NUMERIC));
     }
 
     public void createFormDoiNgocHong(Player pl) {
-        createForm(pl, DOI_NGOC_HONG, "Đổi VND --> Ngọc hồng < Mỗi 20K được 20.000 ngọc hồng >",
+        createForm(pl, DOI_NGOC_HONG, "Đổi VND --> Ngọc hồng < Mỗi 10 VNĐ = 1 xu >",
                 new SubInput("Nhập số lượng VND muốn đổi ra ngọc hồng", NUMERIC));
     }
 

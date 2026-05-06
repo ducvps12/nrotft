@@ -818,7 +818,8 @@ public class ServerManagerUI1 extends JFrame {
                 "8/3 Quốc Tế Phụ Nữ",
                 "Giỗ Tổ Hùng Vương",
                 "Giáng Sinh",
-                "Halloween"
+                "Halloween",
+                "Sự Kiện Hè"
         };
 
         JComboBox<String> cbEvents = new JComboBox<>(eventNames);
@@ -884,6 +885,10 @@ public class ServerManagerUI1 extends JFrame {
             case 7:
                 EventManager.HALLOWEEN = true;
                 tenEvent = "Halloween";
+                break;
+            case 8:
+                EventManager.SUMMER_EVENT = true;
+                tenEvent = "Sự Kiện Hè";
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "ID sự kiện không hợp lệ");

@@ -221,7 +221,7 @@ public class VipPackageService {
         recordPurchase(player, "VIP_TUAN", tier, price, VIP_DURATION_MS);
 
         Service.gI().sendThongBao(player,
-                "🎉 Mua GÓI VIP " + tier + " thành công!\nHiệu lực 7 ngày.\nKiểm tra hành trang nhé!");
+                "Mua GOI VIP " + tier + " thanh cong!\nHieu luc 7 ngay.\nKiem tra hanh trang nhe!");
         return true;
     }
 
@@ -261,7 +261,7 @@ public class VipPackageService {
         recordPurchase(player, "DE_TU_NGAY", tier, price, DETU_DURATION_MS);
 
         Service.gI().sendThongBao(player,
-                "🎉 Mua GÓI ĐỆ TỬ " + tier + " thành công!\nKiểm tra hành trang và đệ tử nhé!");
+                "Mua GOI DE TU " + tier + " thanh cong!\nKiem tra hanh trang va de tu nhe!");
         return true;
     }
 
@@ -662,13 +662,13 @@ public class VipPackageService {
         };
 
         Service.gI().sendThongBao(player,
-                "🎉 Mua GÓI VIP ĐỆ " + tierName + " thành công!"
-                + "\nHiệu lực 24 giờ."
-                + "\n✅ TNSM đệ x" + getVipPetTnsmMultiplier(tier)
-                + "\n✅ Phân bổ ưu tiên HP + DAME"
-                + (tier >= 2 ? "\n✅ Buff dame đệ x2" : "")
-                + (tier >= 3 ? "\n✅ Buff crit đệ +5" : "")
-                + (tier >= 4 ? "\n✅ Admin custom chỉ số đệ\n✅ Đệ không tự cộng Giáp/Chí Mạng" : ""));
+                "Mua GOI VIP DE " + tierName + " thanh cong!"
+                + "\nHieu luc 24 gio."
+                + "\n+ TNSM de x" + getVipPetTnsmMultiplier(tier)
+                + "\n+ Phan bo uu tien HP + DAME"
+                + (tier >= 2 ? "\n+ Buff dame de x2" : "")
+                + (tier >= 3 ? "\n+ Buff crit de +5" : "")
+                + (tier >= 4 ? "\n+ Admin custom chi so de\n+ De khong tu cong Giap/Chi Mang" : ""));
         return true;
     }
 
@@ -805,8 +805,8 @@ public class VipPackageService {
                     + "|8|• Bùa Đệ Tử 24h (dame đệ x2, TNSM đệ x2)\n"
                     + "|2|• +500 dame gốc cho đệ\n"
                     + "|2|• +5 crit gốc cho đệ\n"
-                    + "|1|• ⭐ Admin custom chỉ số đệ tử\n"
-                    + "|1|• ⭐ Đệ KHÔNG tự cộng Giáp + Chí Mạng\n"
+                    + "|1|• [VIP] Admin custom chi so de tu\n"
+                    + "|1|• [VIP] De KHONG tu cong Giap + Chi Mang\n"
                     + "|8|  (chờ Admin cho phép mới được cộng)\n"
                     + "|7|━━━━━━━━━━━━━━━━━━";
             default -> "";
@@ -918,12 +918,12 @@ public class VipPackageService {
         };
 
         Service.gI().sendThongBao(player,
-                "🎉 Mua GÓI VIP ĐỆ " + tierName + " thành công!"
-                + (hasCoupon ? "\n|1|🎫 Đã sử dụng Phiếu Giảm Giá" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!" : "")
-                + "\nGiá: " + Util.mumberToLouis(price) + " VNĐ"
-                + "\nHiệu lực 24 giờ."
-                + "\n✅ TNSM đệ x" + getVipPetTnsmMultiplier(tier)
-                + (tier >= 4 ? "\n✅ Admin custom chỉ số đệ" : ""));
+                "Mua GOI VIP DE " + tierName + " thanh cong!"
+                + (hasCoupon ? "\n|1|Da su dung Phieu Giam Gia" + (hasCouponVIP ? " VIP 70%" : " 30%") + "!" : "")
+                + "\nGia: " + Util.mumberToLouis(price) + " VND"
+                + "\nHieu luc 24 gio."
+                + "\n+ TNSM de x" + getVipPetTnsmMultiplier(tier)
+                + (tier >= 4 ? "\n+ Admin custom chi so de" : ""));
         return true;
     }
 
@@ -948,7 +948,7 @@ public class VipPackageService {
         }
 
         Service.gI().sendThongBao(player,
-                "⭐ Admin đã cập nhật chỉ số đệ tử!\n"
+                "[VIP] Admin da cap nhat chi so de tu!\n"
                 + "HP+" + hp + ", MP+" + mp + ", DAME+" + dame
                 + "\nDEF+" + def + ", CRIT+" + crit);
     }
@@ -959,7 +959,7 @@ public class VipPackageService {
     public static void adminTogglePetDef(Player player, boolean allow) {
         player.petCaoThuAllowDef = allow;
         Service.gI().sendThongBao(player,
-                allow ? "✅ Đệ tử đã được phép tự cộng Giáp" : "❌ Đệ tử KHÔNG được tự cộng Giáp");
+                allow ? "[V] De tu da duoc phep tu cong Giap" : "[X] De tu KHONG duoc tu cong Giap");
     }
 
     /**
@@ -968,6 +968,6 @@ public class VipPackageService {
     public static void adminTogglePetCrit(Player player, boolean allow) {
         player.petCaoThuAllowCrit = allow;
         Service.gI().sendThongBao(player,
-                allow ? "✅ Đệ tử đã được phép tự cộng Chí Mạng" : "❌ Đệ tử KHÔNG được tự cộng Chí Mạng");
+                allow ? "[V] De tu da duoc phep tu cong Chi Mang" : "[X] De tu KHONG duoc tu cong Chi Mang");
     }
 }

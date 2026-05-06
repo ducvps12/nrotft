@@ -25,9 +25,9 @@ public class EventPanel extends JPanel {
     private static final String[] EVENT_NAMES = {
             "Halloween", "8/3 Quốc Tế PN", "Giáng Sinh", "Tết Nguyên Đán",
             "Trung Thu", "Giỗ Tổ", "Top Up (Mặc định)", "Pokemon",
-            "20/11", "Phở Anh Hai", "Sự Kiện Hè",
-            "Địa Ngục Đảo Lộn", "Godzilla vs Kong", "Juventus Tournament",
-            "Thần Thú Cổ Đại", "Kỷ Băng Hà"
+            "20/11", "Phở Anh Hai", "Địa Ngục Đảo Lộn",
+            "Godzilla vs Kong", "Juventus Tournament",
+            "Thần Thú Cổ Đại", "Kỷ Băng Hà", "Sự Kiện Hè"
     };
 
     // Mô tả chi tiết cho từng sự kiện
@@ -42,18 +42,18 @@ public class EventPanel extends JPanel {
             "Bắt Pokemon, tiến hóa, đấu trường Pokemon",
             "Ngày Nhà giáo VN, nhiệm vụ tri ân thầy cô",
             "Nấu phở đặc biệt, thu thập nguyên liệu hiếm",
-            "Thu thập vỏ sò, kem tươi, đổi quà mùa hè đặc biệt",
             "Farm Hồn Quỷ tại 3 tầng Địa Ngục, Boss Janemba mỗi 2h",
             "World Boss Godzilla (12h) & Kong (20h), hạ cả 2 spawn MechaGodzilla",
             "PVP Tournament hàng tuần, 16 người, Top 1 = 50 Thỏi Vàng",
             "Thu thập 3 Linh Phù từ Thần Thú → triệu hồi Boss ẩn Thần Long",
-            "Map tuyết cấp 2 mở, farm BTC3 rate 10%, Boss Ice Shenron mỗi 4h"
+            "Map tuyết cấp 2 mở, farm BTC3 rate 10%, Boss Ice Shenron mỗi 4h",
+            "Boss Mặt Trời, Nước Mía, Đổi Quà Biển, KM x2 Nạp ATM"
     };
 
     // Emoji cho mỗi sự kiện
     private static final String[] EVENT_ICONS = {
-            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜", "🏖️",
-            "🔥", "🦎", "🏟️", "🐘", "❄️"
+            "🎃", "💐", "🎄", "🧧", "🥮", "🏛", "💰", "⚡", "📚", "🍜", "🔥",
+            "🦎", "🏟️", "🐘", "❄️", "🏖️"
     };
 
     // Màu cho mỗi sự kiện
@@ -68,12 +68,12 @@ public class EventPanel extends JPanel {
             new Color(255, 230, 0),    // Pokemon - vàng
             new Color(142, 68, 173),   // 20/11 - tím
             new Color(210, 105, 30),   // Phở - nâu cam
-            new Color(0, 191, 255),    // Mùa Hè - xanh dương nhạt
             new Color(139, 0, 0),      // Địa Ngục - đỏ đậm
             new Color(34, 139, 34),    // Godzilla - xanh lá
             new Color(70, 130, 180),   // Juventus - steel blue
             new Color(218, 165, 32),   // Thần Thú - vàng đậm
-            new Color(100, 149, 237)   // Kỷ Băng Hà - cornflower blue
+            new Color(100, 149, 237),  // Kỷ Băng Hà - cornflower blue
+            new Color(0, 191, 255)     // Sự Kiện Hè - xanh dương nhạt
     };
 
     public EventPanel() {
@@ -365,11 +365,12 @@ public class EventPanel extends JPanel {
             case 3 -> body = buildGenericDetail("Tết Nguyên Đán", new String[][]{
                     {"Lân con", "5M HP", "Tái Tạo NL Lv7", "Map ngẫu nhiên", "1 phút"},
                 }, "Lì xì may mắn, pháo hoa.\nĐánh boss Lân con nhận vật phẩm Tết.\nNhiệm vụ đặc biệt ngày Tết.");
-            case 11 -> body = buildDiaNgucDetail();
-            case 12 -> body = buildGodzillaVsKongDetail();
-            case 13 -> body = buildJuventusDetail();
-            case 14 -> body = buildThanThuDetail();
-            case 15 -> body = buildKyBangHaDetail();
+            case 10 -> body = buildDiaNgucDetail();
+            case 11 -> body = buildGodzillaVsKongDetail();
+            case 12 -> body = buildJuventusDetail();
+            case 13 -> body = buildThanThuDetail();
+            case 14 -> body = buildKyBangHaDetail();
+            case 15 -> body = buildSuKienHeDetail();
             default -> body = buildSimpleDetail(index);
         }
 
@@ -776,4 +777,37 @@ public class EventPanel extends JPanel {
         }
         return p;
     }
-}
+
+    /** Chi tiết Sự Kiện Hè */
+    private JPanel buildSuKienHeDetail() {
+        return buildFullDetail("\ud83c\udfd6\ufe0f S\u1ef1 Ki\u1ec7n H\u00e8 - M\u00f9a H\u00e8 R\u1ef1c R\u1ee1", new Color(0, 191, 255),
+            "\u2501\u2501\u2501 C\u00c1CH CH\u01a0I \u2501\u2501\u2501\n"
+            + "1. \u0110\u00e1nh quai t\u1ea1i map 161-163 (Nguy\u00ean Th\u1ee7y) \u2192 drop V\u1ecf \u1ed0c, V\u1ecf S\u00f2, Con Cua, Sao Bi\u1ec3n\n"
+            + "2. Thu th\u1eadp N\u01b0\u1edbc \u0110\u00e1 + Kh\u00fac M\u00eda \u2192 \u0111\u1ebfn NPC Qu\u1ea7y N\u01b0\u1edbc M\u00eda \u2192 nh\u1eadn N\u01b0\u1edbc M\u00eda\n"
+            + "3. Tr\u1ea3 N\u01b0\u1edbc M\u00eda cho NPC \u2192 t\u00edch \u0111i\u1ec3m + g\u00f3p ly buff server\n"
+            + "4. Gom \u0111\u1ee7 v\u1eadt ph\u1ea9m bi\u1ec3n \u2192 \u0111\u1ed5i H\u1ed9p Qu\u00e0 SK t\u1ea1i Quy L\u00e3o Kame\n"
+            + "5. Boss M\u1eb7t Tr\u1eddi spawn ng\u1eabu nhi\u00ean t\u1ea1i c\u00e1c l\u00e0ng\n"
+            + "\u2501\u2501\u2501 KHUY\u1ebeN M\u00c3I \u2501\u2501\u2501\n"
+            + "\u2605 N\u1ea0P ATM/BANK \u0110\u01af\u1ee2C x2 NGỌC su\u1ed1t th\u1eddi gian s\u1ef1 ki\u1ec7n!\n"
+            + "\u2605 \u0110\u1ee7 999 ly n\u01b0\u1edbc m\u00eda \u2192 Buff +20% s\u1ee9c \u0111\u00e1nh to\u00e0n server 60 ph\u00fat!",
+            new String[]{"Ho\u1ea1t \u0110\u1ed9ng", "Y\u00eau C\u1ea7u", "Ph\u1ea7n Th\u01b0\u1edfng", "T\u1ec9 L\u1ec7", "Ghi Ch\u00fa"},
+            new Object[][]{
+                {"\u2600 Boss M\u1eb7t Tr\u1eddi", "500 HP (\u0111\u00e1nh 1 dame/hit)", "C\u1edd M\u1eb7t Tr\u1eddi + Th\u1ecfi V\u00e0ng", "50%/30%", "Spawn m\u1ed7i 10p"},
+                {"\ud83e\uddca Gi\u1ea3i Nhi\u1ec7t", "30 N\u01b0\u1edbc \u0110\u00e1 + 30 M\u00eda + 100tr", "N\u01b0\u1edbc M\u00eda ng\u1eabu nhi\u00ean", "15%/30%/55%", "+2 \u0111i\u1ec3m SK"},
+                {"\ud83c\udf79 Tr\u1ea3 H\u00e0ng", "Ly N\u01b0\u1edbc M\u00eda", "\u0110i\u1ec3m SK + Buff server", "100%", "999 ly = buff"},
+                {"\ud83c\udf81 \u0110\u1ed5i H\u1ed9p Qu\u00e0", "10 m\u1ed7i lo\u1ea1i v\u1ecf + 5 \u0111\u00e1 + 50tr", "C\u1ea3i Trang/Th\u1ecfi V\u00e0ng/\u0110\u00e1", "50% TC", "+1 \u0111i\u1ec3m SK"},
+                {"\ud83d\udcb0 KM x2 N\u1ea1p", "N\u1ea1p ATM/Bank", "x2 Ng\u1ecdc nh\u1eadn \u0111\u01b0\u1ee3c", "100%", "Su\u1ed1t event"},
+            },
+            new String[]{"V\u1eadt Ph\u1ea9m", "Item ID", "Ngu\u1ed3n", "C\u00f4ng D\u1ee5ng"},
+            new Object[][]{
+                {"V\u1ecf \u1ed0c", "695", "Mob map 161-163 (10%)", "\u0110\u1ed5i H\u1ed9p Qu\u00e0 SK"},
+                {"V\u1ecf S\u00f2", "696", "Mob map 161-163 (10%)", "\u0110\u1ed5i H\u1ed9p Qu\u00e0 SK"},
+                {"Con Cua", "697", "Mob map 161-163 (10%)", "\u0110\u1ed5i H\u1ed9p Qu\u00e0 SK"},
+                {"Sao Bi\u1ec3n", "698", "Mob map 161-163 (10%)", "\u0110\u1ed5i H\u1ed9p Qu\u00e0 SK"},
+                {"\u0110\u00e1 Ng\u0169 S\u1eafc", "674", "Boss M\u1eb7t Tr\u1eddi 20%", "\u0110\u1ed5i H\u1ed9p Qu\u00e0 SK"},
+                {"N\u01b0\u1edbc \u0110\u00e1", "1613", "Boss MT 10% / Mua", "Gi\u1ea3i Nhi\u1ec7t"},
+                {"Kh\u00fac M\u00eda", "1612", "Boss MT 10% / Mua", "Gi\u1ea3i Nhi\u1ec7t"},
+                {"C\u1edd M\u1eb7t Tr\u1eddi", "1562", "Boss M\u1eb7t Tr\u1eddi 50%", "Trang b\u1ecb \u0111\u1eb7c bi\u1ec7t"},
+            });
+    }
+}

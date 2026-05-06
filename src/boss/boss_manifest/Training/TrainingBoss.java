@@ -223,6 +223,8 @@ public abstract class TrainingBoss extends Boss {
         }
     }
 
+    private static final int MAX_TRAINING_XU_PER_DAY = 100;
+
     private void rewardTrainingChallenge(Player player) {
         int xuReward;
         long goldReward;
@@ -259,13 +261,38 @@ public abstract class TrainingBoss extends Boss {
                 milestone = "Bạn đã vượt qua thử thách luyện tập!";
             }
         }
-        Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
-        InventoryService.gI().addItemBag(player, xuNro);
-        InventoryService.gI().sendItemBag(player);
+
+        // Reset bộ đếm xu hàng ngày nếu qua ngày mới
+        if (Util.isAfterMidnight(player.trainingXuLastDay)) {
+            player.trainingXuToday = 0;
+            player.trainingXuLastDay = System.currentTimeMillis();
+        }
+
+        // Tính xu thực nhận (giới hạn 100 xu/ngày)
+        int remainingXu = MAX_TRAINING_XU_PER_DAY - player.trainingXuToday;
+        int actualXu = Math.min(xuReward, remainingXu);
+
+        // Luôn cho vàng
         player.inventory.addGoldSafe(goldReward);
         PlayerService.gI().sendInfoHpMpMoney(player);
-        Service.gI().sendThongBao(player, milestone + " Nhận " + xuReward + " Xu NRO và "
-                + Util.numberToMoney(goldReward) + " vàng.");
+
+        if (actualXu > 0) {
+            Item xuNro = ItemService.gI().createNewItem((short) 1705, actualXu);
+            InventoryService.gI().addItemBag(player, xuNro);
+            InventoryService.gI().sendItemBag(player);
+            player.trainingXuToday += actualXu;
+
+            String xuInfo = (actualXu < xuReward)
+                    ? actualXu + "/" + xuReward + " Xu NRO (đã đạt giới hạn " + MAX_TRAINING_XU_PER_DAY + " xu/ngày)"
+                    : xuReward + " Xu NRO";
+            Service.gI().sendThongBao(player, milestone + " Nhận " + xuInfo + " và "
+                    + Util.numberToMoney(goldReward) + " vàng."
+                    + "\n[Xu hôm nay: " + player.trainingXuToday + "/" + MAX_TRAINING_XU_PER_DAY + "]");
+        } else {
+            Service.gI().sendThongBao(player, milestone + " Nhận "
+                    + Util.numberToMoney(goldReward) + " vàng."
+                    + "\n|3|Đã đạt giới hạn " + MAX_TRAINING_XU_PER_DAY + " Xu NRO/ngày từ luyện tập!");
+        }
     }
 
     @Override

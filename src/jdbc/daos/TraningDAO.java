@@ -35,6 +35,8 @@ public class TraningDAO {
                 dataArray.add(player.popoTowerLastDay);
                 dataArray.add(player.popoTowerBestFloor);
                 dataArray.add(player.popoTowerBestTime);
+                dataArray.add(player.trainingXuToday);
+                dataArray.add(player.trainingXuLastDay);
 
                 String dataLuyenTap = dataArray.toJSONString();
                 dataArray.clear();

@@ -20,6 +20,7 @@ public class EventManager {
     public static boolean TEACHERS_DAY = false;
     public static boolean PHO_ANH_HAI = false;
     public static boolean EVENT_RANKING_REWARD = false;
+    public static boolean SUMMER_EVENT = false;            // 16 - Sự Kiện Hè
 
     // ======================== 5 EVENT MỚI ========================
     public static boolean DIA_NGUC = false;              // 11 - Địa Ngục Đảo Lộn
@@ -60,6 +61,7 @@ public class EventManager {
                 case 13 -> JUVENTUS_TOURNAMENT = true;
                 case 14 -> THAN_THU_CO_DAI = true;
                 case 15 -> KY_BANG_HA = true;
+                case 16 -> SUMMER_EVENT = true;
             }
         }
 
@@ -125,6 +127,10 @@ public class EventManager {
             System.out.println("[EventManager] KY_BANG_HA");
             new KyBangHa().init();
         }
+        if (SUMMER_EVENT) {
+            System.out.println("[EventManager] SUMMER_EVENT");
+            new SuKienHe().init();
+        }
     }
 
     private void resetAllEventFlags() {
@@ -143,6 +149,7 @@ public class EventManager {
         JUVENTUS_TOURNAMENT = false;
         THAN_THU_CO_DAI = false;
         KY_BANG_HA = false;
+        SUMMER_EVENT = false;
     }
 
     private List<Integer> loadActiveEventsFromFile() {

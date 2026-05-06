@@ -566,7 +566,10 @@ public class TransactionPanel extends JPanel {
             // 4. Process matches
             double heSo = 1.0;
             try {
-                if (tfHeSoSuKien != null) {
+                // Ưu tiên: Sự Kiện Hè → tự động x2
+                if (event.EventManager.SUMMER_EVENT) {
+                    heSo = 2.0;
+                } else if (tfHeSoSuKien != null) {
                     heSo = Double.parseDouble(tfHeSoSuKien.getText().trim());
                 }
             } catch (Exception ignored) {}
