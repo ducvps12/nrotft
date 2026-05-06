@@ -31,6 +31,7 @@ import services.func.SummonDragon;
 
 import static services.func.SummonDragon.SHENRON_1_STAR_WISHES_1;
 import static services.func.SummonDragon.SHENRON_1_STAR_WISHES_2;
+import static services.func.SummonDragon.SHENRON_1_STAR_WISHES_3;
 import static services.func.SummonDragon.SHENRON_SAY;
 
 import nro.player.Player;
@@ -311,6 +312,13 @@ public class NpcFactory {
                     case ConstNpc.SHENRON_1_2:
                         if (player.iDMark.getIndexMenu() == ConstNpc.SHENRON_1_2
                                 && select == SHENRON_1_STAR_WISHES_2.length - 1) {
+                            NpcService.gI().createMenuRongThieng(player, ConstNpc.SHENRON_1_3, SHENRON_SAY,
+                                    SHENRON_1_STAR_WISHES_3);
+                            break;
+                        }
+                    case ConstNpc.SHENRON_1_3:
+                        if (player.iDMark.getIndexMenu() == ConstNpc.SHENRON_1_3
+                                && select == SHENRON_1_STAR_WISHES_3.length - 1) {
                             NpcService.gI().createMenuRongThieng(player, ConstNpc.SHENRON_1_1, SHENRON_SAY,
                                     SHENRON_1_STAR_WISHES_1);
                             break;
@@ -867,8 +875,16 @@ public class NpcFactory {
                         switch (select) {
                             case 0 ->
                                 BossManager.gI().showListBoss(player);
-                            case 1 ->
-                                BossManager.gI().createBoss(BossID.SUPER_BROLY);
+                            case 1 -> {
+                                try {
+                                    new boss.boss_manifest.Broly.SuperBroly(
+                                            player.zone, player.location.x, player.location.y);
+                                    Service.gI().sendThongBao(player, "Đã gọi Super Broly tại vị trí của bạn!");
+                                } catch (Exception e) {
+                                    Service.gI().sendThongBao(player, "Lỗi gọi boss: " + e.getMessage());
+                                    e.printStackTrace();
+                                }
+                            }
                             case 2 ->
                                 ServerNotify.gI().notify("BOSS Nro vừa xuất hiện tại nhà anh ấy");
                             case 3 ->

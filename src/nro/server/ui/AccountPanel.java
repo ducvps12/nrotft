@@ -51,8 +51,16 @@ public class AccountPanel extends JPanel {
     private JTable table;
     private DefaultTableModel model;
     private JTextField txtSearch;
+    private JComboBox<String> filterCombo;
+    private JLabel lblStats;
     private JPanel bulkActionBar;
     private JLabel lblSelected;
+
+    // Pagination
+    private int currentPage = 1;
+    private int pageSize = 30;
+    private int totalRows = 0;
+    private JLabel lblPageInfo;
 
     public AccountPanel() {
         setLayout(new BorderLayout(15, 15));
@@ -90,23 +98,59 @@ public class AccountPanel extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    searchData(txtSearch.getText());
+                    currentPage = 1; applyFilter();
                 }
             }
         });
+
+        // --- Status Filter ComboBox ---
+        String[] filterOptions = {
+            "📋 Tất cả", "✅ Active", "⏳ Chưa KH (tất cả)",
+            "⏳ Chưa KH > 7 ngày", "⏳ Chưa KH > 15 ngày", "⏳ Chưa KH > 1 tháng",
+            "🚫 Đã BAN"
+        };
+        filterCombo = new JComboBox<>(filterOptions);
+        filterCombo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        filterCombo.setPreferredSize(new Dimension(200, 40));
+        filterCombo.setBackground(Color.WHITE);
+        filterCombo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        filterCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                lbl.setBorder(new EmptyBorder(5, 8, 5, 8));
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                String s = value != null ? value.toString() : "";
+                if (!isSelected) {
+                    if (s.contains("Active")) lbl.setForeground(new Color(0, 150, 0));
+                    else if (s.contains("Chưa")) lbl.setForeground(new Color(200, 130, 0));
+                    else if (s.contains("BAN")) lbl.setForeground(new Color(220, 53, 69));
+                    else lbl.setForeground(new Color(60, 60, 60));
+                }
+                return lbl;
+            }
+        });
+        filterCombo.addActionListener(e -> { currentPage = 1; applyFilter(); });
 
         JButton btnSearch = createButton("Tìm kiếm", COL_PRIMARY);
         JButton btnReload = createButton("Làm mới", new Color(40, 167, 69));
         JButton btnPurge = createButton("🗑 Xóa TK chưa tạo NV", new Color(220, 53, 69));
 
-        btnSearch.addActionListener(e -> searchData(txtSearch.getText()));
-        btnReload.addActionListener(e -> { txtSearch.setText(""); loadData(); });
+        btnSearch.addActionListener(e -> { currentPage = 1; applyFilter(); });
+        btnReload.addActionListener(e -> { txtSearch.setText(""); filterCombo.setSelectedIndex(0); currentPage = 1; loadData(); });
         btnPurge.addActionListener(e -> purgeEmptyAccounts());
 
         searchPanel.add(txtSearch);
+        searchPanel.add(filterCombo);
         searchPanel.add(btnSearch);
         searchPanel.add(btnReload);
         searchPanel.add(btnPurge);
+
+        // --- Stats Label ---
+        lblStats = new JLabel("");
+        lblStats.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblStats.setForeground(COL_TEXT_GRAY);
+        lblStats.setBorder(new EmptyBorder(5, 0, 0, 0));
 
         topPanel.add(lblTitle, BorderLayout.NORTH);
         topPanel.add(searchPanel, BorderLayout.CENTER);
@@ -139,10 +183,55 @@ public class AccountPanel extends JPanel {
         bulkActionBar.add(Box.createHorizontalStrut(20));
         bulkActionBar.add(btnDeselectAll);
 
-        JPanel northContainer = new JPanel(new BorderLayout());
+        // Stats bar
+        JPanel statsBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        statsBar.setBackground(COL_BG);
+        statsBar.add(lblStats);
+
+        // --- Pagination Row ---
+        JPanel paginationRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        paginationRow.setBackground(COL_BG);
+
+        JCheckBox cbSelectAll = new JCheckBox("Chọn tất cả");
+        cbSelectAll.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbSelectAll.setOpaque(false);
+        cbSelectAll.addActionListener(e -> { for (int i = 0; i < model.getRowCount(); i++) model.setValueAt(cbSelectAll.isSelected(), i, 0); updateBulkBar(); });
+
+        JButton btnFirst = new JButton("|<");
+        JButton btnPrev = new JButton("<");
+        lblPageInfo = new JLabel("Trang 1");
+        lblPageInfo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnNext = new JButton(">");
+        JButton btnLast = new JButton(">|");
+
+        btnFirst.addActionListener(e -> { currentPage = 1; applyFilter(); });
+        btnPrev.addActionListener(e -> { if (currentPage > 1) { currentPage--; applyFilter(); } });
+        btnNext.addActionListener(e -> { int maxP = Math.max(1, (totalRows + pageSize - 1) / pageSize); if (currentPage < maxP) { currentPage++; applyFilter(); } });
+        btnLast.addActionListener(e -> { currentPage = Math.max(1, (totalRows + pageSize - 1) / pageSize); applyFilter(); });
+
+        JComboBox<String> cbPageSize = new JComboBox<>(new String[]{"30", "50", "100", "200"});
+        cbPageSize.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbPageSize.addActionListener(e -> { pageSize = Integer.parseInt((String) cbPageSize.getSelectedItem()); currentPage = 1; applyFilter(); });
+
+        paginationRow.add(cbSelectAll);
+        paginationRow.add(Box.createHorizontalStrut(10));
+        paginationRow.add(btnFirst); paginationRow.add(btnPrev);
+        paginationRow.add(lblPageInfo);
+        paginationRow.add(btnNext); paginationRow.add(btnLast);
+        paginationRow.add(Box.createHorizontalStrut(10));
+        paginationRow.add(new JLabel("Hiển thị:")); paginationRow.add(cbPageSize);
+
+        JPanel northContainer = new JPanel();
+        northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
         northContainer.setBackground(COL_BG);
-        northContainer.add(topPanel, BorderLayout.NORTH);
-        northContainer.add(bulkActionBar, BorderLayout.SOUTH);
+        topPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statsBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        paginationRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        bulkActionBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+        northContainer.add(topPanel);
+        northContainer.add(statsBar);
+        northContainer.add(paginationRow);
+        northContainer.add(bulkActionBar);
         add(northContainer, BorderLayout.NORTH);
 
         // --- Table ---
@@ -864,28 +953,78 @@ public class AccountPanel extends JPanel {
     }
 
     private void loadData() {
-        // Cập nhật lấy vnd, danap (Mapping: vnd=số dư VNĐ thực, danap=tổng nạp)
-        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
-                    "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
-                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name, " +
-                    "(SELECT power FROM player WHERE account_id = a.id LIMIT 1) AS p_power " +
-                    "FROM account a ORDER BY a.id ASC");
+        filterCombo.setSelectedIndex(0);
+        currentPage = 1;
+        applyFilter();
     }
 
-    private void searchData(String txt) {
-        if(txt.isEmpty()) { loadData(); return; }
-        updateTable("SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
-                    "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
-                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name, " +
-                    "(SELECT power FROM player WHERE account_id = a.id LIMIT 1) AS p_power " +
-                    "FROM account a " +
-                    "WHERE a.username LIKE '%"+txt+"%' OR a.id='"+txt+"' OR (SELECT name FROM player WHERE account_id=a.id LIMIT 1) LIKE '%"+txt+"%'");
+    /** Xây dựng điều kiện WHERE từ filter hiện tại */
+    private String buildWhereClause() {
+        String searchText = txtSearch.getText().trim();
+        int filterIdx = filterCombo.getSelectedIndex();
+        List<String> conditions = new ArrayList<>();
+
+        // Text search
+        if (!searchText.isEmpty()) {
+            conditions.add("(a.username LIKE '%" + searchText + "%' OR a.id='" + searchText + "' OR (SELECT name FROM player WHERE account_id=a.id LIMIT 1) LIKE '%" + searchText + "%')");
+        }
+
+        // Status filter
+        switch (filterIdx) {
+            case 1: // Active
+                conditions.add("a.active = 1 AND a.ban = 0");
+                break;
+            case 2: // Chưa KH (tất cả)
+                conditions.add("a.active = 0 AND a.ban = 0");
+                break;
+            case 3: // Chưa KH > 7 ngày
+                conditions.add("a.active = 0 AND a.ban = 0 AND a.create_time <= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+                break;
+            case 4: // Chưa KH > 15 ngày
+                conditions.add("a.active = 0 AND a.ban = 0 AND a.create_time <= DATE_SUB(NOW(), INTERVAL 15 DAY)");
+                break;
+            case 5: // Chưa KH > 1 tháng
+                conditions.add("a.active = 0 AND a.ban = 0 AND a.create_time <= DATE_SUB(NOW(), INTERVAL 1 MONTH)");
+                break;
+            case 6: // Đã BAN
+                conditions.add("a.ban = 1");
+                break;
+            default: break;
+        }
+
+        return conditions.isEmpty() ? "" : " WHERE " + String.join(" AND ", conditions);
     }
 
-    private void updateTable(String sql) {
-        model.setRowCount(0);
+    /** Áp dụng bộ lọc kết hợp tìm kiếm + trạng thái + phân trang */
+    private void applyFilter() {
+        String where = buildWhereClause();
+
         new Thread(() -> {
-            try (Connection conn = DBConnecter.getConnectionServer(); Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(sql)) {
+            // 1. Count total
+            try (Connection conn = DBConnecter.getConnectionServer(); Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM account a" + where)) {
+                if (rs.next()) totalRows = rs.getInt(1);
+            } catch (Exception e) { e.printStackTrace(); }
+
+            int maxPage = Math.max(1, (totalRows + pageSize - 1) / pageSize);
+            if (currentPage > maxPage) currentPage = maxPage;
+
+            // 2. Build paginated data query
+            String dataSql = "SELECT a.id, a.username, a.password, a.active, a.ban, a.vip, a.vnd, a.danap, a.create_time, " +
+                    "(SELECT head FROM player WHERE account_id = a.id LIMIT 1) AS head, " +
+                    "(SELECT name FROM player WHERE account_id = a.id LIMIT 1) AS p_name, " +
+                    "(SELECT power FROM player WHERE account_id = a.id LIMIT 1) AS p_power " +
+                    "FROM account a" + where +
+                    " ORDER BY a.id ASC LIMIT " + pageSize + " OFFSET " + ((currentPage - 1) * pageSize);
+
+            final int fMaxPage = maxPage;
+            SwingUtilities.invokeLater(() -> {
+                model.setRowCount(0);
+                lblPageInfo.setText("Trang " + currentPage + " / " + fMaxPage + " (" + totalRows + " tài khoản)");
+            });
+
+            // 3. Load rows
+            try (Connection conn = DBConnecter.getConnectionServer(); Statement s = conn.createStatement(); ResultSet rs = s.executeQuery(dataSql)) {
                 while (rs.next()) {
                     Vector<Object> row = new Vector<>();
                     row.add(Boolean.FALSE); // checkbox
@@ -896,22 +1035,57 @@ public class AccountPanel extends JPanel {
                     String pn = rs.getString("p_name");
                     row.add(pn == null ? "-(Chưa tạo)-" : pn);
                     row.add("******");
-                    
+
                     int active = rs.getInt("active");
                     int ban = rs.getInt("ban");
                     row.add(ban == 1 ? "ĐÃ BAN" : (active == 1 ? "Active" : "Chưa KH"));
-                    
+
                     long power = rs.getLong("p_power");
                     row.add(power > 0 ? formatNum(power) : "0");
                     row.add(rs.getInt("vip"));
-                    row.add(formatNum(rs.getLong("vnd"))); // VND (số dư VNĐ thực tế)
-                    row.add(formatNum(rs.getLong("danap"))); // Đã nạp
+                    row.add(formatNum(rs.getLong("vnd")));
+                    row.add(formatNum(rs.getLong("danap")));
                     Timestamp ts = rs.getTimestamp("create_time");
                     row.add(ts != null ? DATE_FMT.format(ts) : "N/A");
-                    
+
                     SwingUtilities.invokeLater(() -> model.addRow(row));
                 }
             } catch (Exception e) { e.printStackTrace(); }
+        }).start();
+
+        refreshStats();
+    }
+
+    private void searchData(String txt) {
+        currentPage = 1;
+        applyFilter();
+    }
+
+    /** Cập nhật thống kê số lượng tài khoản theo trạng thái */
+    private void refreshStats() {
+        new Thread(() -> {
+            try (Connection conn = DBConnecter.getConnectionServer(); Statement stmt = conn.createStatement()) {
+                int total = 0, active = 0, inactive = 0, banned = 0;
+                try (ResultSet rs = stmt.executeQuery(
+                        "SELECT COUNT(*) as total, " +
+                        "SUM(CASE WHEN active=1 AND ban=0 THEN 1 ELSE 0 END) as cnt_active, " +
+                        "SUM(CASE WHEN active=0 AND ban=0 THEN 1 ELSE 0 END) as cnt_inactive, " +
+                        "SUM(CASE WHEN ban=1 THEN 1 ELSE 0 END) as cnt_banned " +
+                        "FROM account")) {
+                    if (rs.next()) {
+                        total = rs.getInt("total");
+                        active = rs.getInt("cnt_active");
+                        inactive = rs.getInt("cnt_inactive");
+                        banned = rs.getInt("cnt_banned");
+                    }
+                }
+                final String statsText = String.format(
+                    "<html>📊 Tổng: <b>%s</b>  │  <font color='#009600'>✅ Active: <b>%s</b></font>  │  <font color='#C88200'>⏳ Chưa KH: <b>%s</b></font>  │  <font color='#DC3545'>🚫 Đã BAN: <b>%s</b></font></html>",
+                    formatNum(total), formatNum(active), formatNum(inactive), formatNum(banned));
+                SwingUtilities.invokeLater(() -> lblStats.setText(statsText));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 

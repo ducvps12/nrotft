@@ -10,6 +10,9 @@ import nro.server.Client;
 import nro.services.InventoryService;
 import nro.services.ItemService;
 import nro.services.Service;
+import nro.services.NpcService;
+import shop.*;
+import nro.server.Manager;
 import utils.Util;
 
 /**
@@ -45,16 +48,16 @@ public class QuayNuocMia extends Npc {
         }
 
         String buffStatus = isServerBuffActive && System.currentTimeMillis() < buffEndTime
-                ? "\n[DANG BUFF] +20% suc danh toan server!"
-                : "\nGop du 999 ly -> buff 20% suc danh 60 phut!";
+                ? "\n[ĐANG BUFF] +20% sức đánh toàn server!"
+                : "\nGóp đủ 999 ly -> buff 20% sức đánh 60 phút!";
 
         createOtherMenu(pl, ConstNpc.BASE_MENU,
-                "QUAY NUOC MIA - SU KIEN HE\n"
-                + "Su kien he dang dien ra soi dong.\n\n"
-                + "Chien binh " + pl.name + ", hay tham gia!\n"
-                + "Tien trinh: " + (eventCount % 999) + "/999 ly" + buffStatus
-                + "\nDiem su kien cua ban: " + pl.event.getEventPoint(),
-                "Giai nhiet", "Tra hang", "Thong tin SK");
+                "QUẦY NƯỚC MÍA - SỰ KIỆN HÈ\n"
+                + "Sự kiện hè đang diễn ra sôi động.\n\n"
+                + "Chiến binh " + pl.name + ", hãy tham gia!\n"
+                + "Tiến trình: " + (eventCount % 999) + "/999 ly" + buffStatus
+                + "\nĐiểm sự kiện của bạn: " + pl.event.getEventPoint(),
+                "Giải nhiệt", "Trả hàng", "Thông tin SK", "Cửa hàng");
     }
 
     @Override
@@ -71,6 +74,8 @@ public class QuayNuocMia extends Npc {
                     openMenuTraHang(player);
                 case 2 ->
                     showEventInfo(player);
+                case 3 ->
+                    ShopService.gI().opendShop(player, getShopQuayNuocMia().tagName, true);
             }
         } else if (player.iDMark.getIndexMenu() == ConstNpc.MENU_OPEN_SUKIEN_BINH) {
             traHangNuocMia(player, select);
@@ -89,12 +94,12 @@ public class QuayNuocMia extends Npc {
                 || khucMia.quantity < 30
                 || player.inventory.gold < 100_000_000) {
             Service.gI().sendThongBao(player,
-                    "Can 30 Nuoc da + 30 Khuc mia + 100tr vang de giai nhiet.");
+                    "Cần 30 Nước đá + 30 Khúc mía + 100tr vàng để giải nhiệt.");
             return;
         }
 
         if (InventoryService.gI().getCountEmptyBag(player) < 1) {
-            Service.gI().sendThongBao(player, "Hanh trang day, hay don cho trong!");
+            Service.gI().sendThongBao(player, "Hành trang đầy, hãy dọn chỗ trống!");
             return;
         }
 
@@ -102,13 +107,13 @@ public class QuayNuocMia extends Npc {
         String rewardName;
         if (Util.isTrue(15, 100)) {
             reward = ItemService.gI().createNewItem((short) 1616); // phần thưởng hiếm
-            rewardName = "Nuoc Mia Dac Biet";
+            rewardName = "Nước Mía Đặc Biệt";
         } else if (Util.isTrue(30, 100)) {
             reward = ItemService.gI().createNewItem((short) 1615); // phần thưởng khá
-            rewardName = "Nuoc Mia Thom";
+            rewardName = "Nước Mía Thơm";
         } else {
             reward = ItemService.gI().createNewItem((short) 1614); // phần thưởng cơ bản
-            rewardName = "Nuoc Mia Thuong";
+            rewardName = "Nước Mía Thường";
         }
         reward.itemOptions.add(new ItemOption(30, 0));
 
@@ -124,8 +129,8 @@ public class QuayNuocMia extends Npc {
         // +2 điểm sự kiện mỗi lần giải nhiệt
         player.event.setEventPoint(player.event.getEventPoint() + 2);
 
-        Service.gI().sendThongBao(player, "Ban da nhan: " + rewardName
-                + "\n+2 diem su kien (tong: " + player.event.getEventPoint() + ")");
+        Service.gI().sendThongBao(player, "Bạn đã nhận: " + rewardName
+                + "\n+2 điểm sự kiện (tổng: " + player.event.getEventPoint() + ")");
     }
 
     /**
@@ -135,19 +140,19 @@ public class QuayNuocMia extends Npc {
         String buffInfo;
         if (isServerBuffActive && System.currentTimeMillis() < buffEndTime) {
             long remaining = (buffEndTime - System.currentTimeMillis()) / 60000;
-            buffInfo = "[DANG BUFF] +20% suc danh con " + remaining + " phut!";
+            buffInfo = "[ĐANG BUFF] +20% sức đánh còn " + remaining + " phút!";
         } else {
-            buffInfo = "Khi du 999 ly, buff +20% suc danh 60 phut cho toan server.";
+            buffInfo = "Khi đủ 999 ly, buff +20% sức đánh 60 phút cho toàn server.";
         }
 
-        String text = "TRA HANG - GOP LY NUOC MIA\n\n"
-                + "- Diem su kien cua ban: " + player.event.getEventPoint() + "\n"
-                + "- Tong so ly toan server: " + (eventCount % 999) + "/999\n"
-                + "- Tong ly da gop: " + eventCount + "\n\n"
+        String text = "TRẢ HÀNG - GÓP LY NƯỚC MÍA\n\n"
+                + "- Điểm sự kiện của bạn: " + player.event.getEventPoint() + "\n"
+                + "- Tổng số ly toàn server: " + (eventCount % 999) + "/999\n"
+                + "- Tổng ly đã góp: " + eventCount + "\n\n"
                 + buffInfo;
 
         createOtherMenu(player, ConstNpc.MENU_OPEN_SUKIEN_BINH, text,
-                "Tra 1 ly", "Tra 10 ly", "Tra 99 ly");
+                "Trả 1 ly", "Trả 10 ly", "Trả 99 ly");
     }
 
     /**
@@ -166,13 +171,13 @@ public class QuayNuocMia extends Npc {
         };
 
         if (soLuong <= 0) {
-            Service.gI().sendThongBao(player, "So luong khong hop le.");
+            Service.gI().sendThongBao(player, "Số lượng không hợp lệ.");
             return;
         }
 
         Item lyNuocMia = InventoryService.gI().finditemLyNuocMia(player, soLuong);
         if (lyNuocMia == null || lyNuocMia.quantity < soLuong) {
-            Service.gI().sendThongBao(player, "Ban can co " + soLuong + " ly nuoc mia.");
+            Service.gI().sendThongBao(player, "Bạn cần có " + soLuong + " ly nước mía.");
             return;
         }
 
@@ -189,7 +194,7 @@ public class QuayNuocMia extends Npc {
         saveEventCount();
 
         Service.gI().sendThongBao(player,
-                "Ban da tra " + soLuong + " ly nuoc mia.\nDiem su kien hien tai: "
+                "Bạn đã trả " + soLuong + " ly nước mía.\nĐiểm sự kiện hiện tại: "
                 + player.event.getEventPoint());
 
         // Kiểm tra buff toàn server — mỗi 999 ly
@@ -208,7 +213,7 @@ public class QuayNuocMia extends Npc {
         buffEndTime = System.currentTimeMillis() + 60 * 60 * 1000; // 60 phút
 
         Service.gI().sendThongBaoAllPlayer(
-                "[SU KIEN HE] Du 999 ly nuoc mia! Toan server duoc buff +20% suc danh trong 60 phut!");
+                "[SỰ KIỆN HÈ] Đủ 999 ly nước mía! Toàn server được buff +20% sức đánh trong 60 phút!");
 
         // Áp dụng buff cho tất cả player online
         try {
@@ -219,7 +224,7 @@ public class QuayNuocMia extends Npc {
                     pl.nPoint.dameg += bonusDame;
                     Service.gI().point(pl);
                     Service.gI().sendThongBao(pl,
-                            "Ban duoc buff +20% suc danh (" + bonusDame + " dame) trong 60 phut!");
+                            "Bạn được buff +20% sức đánh (" + bonusDame + " dame) trong 60 phút!");
                 }
             }
         } catch (Exception e) {
@@ -245,7 +250,7 @@ public class QuayNuocMia extends Npc {
         buffEndTime = 0;
 
         Service.gI().sendThongBaoAllPlayer(
-                "[SU KIEN HE] Buff +20% suc danh da het han! Tiep tuc gop ly nuoc mia de buff lai!");
+                "[SỰ KIỆN HÈ] Buff +20% sức đánh đã hết hạn! Tiếp tục góp ly nước mía để buff lại!");
 
         try {
             for (Player pl : Client.gI().getPlayers()) {
@@ -265,24 +270,56 @@ public class QuayNuocMia extends Npc {
      */
     private void showEventInfo(Player player) {
         String napInfo = EventManager.SUMMER_EVENT
-                ? "KHUYEN MAI NAP x2 dang hoat dong!\nMoi lan nap ATM/Bank deu duoc x2 ngoc!"
-                : "Khuyen mai nap hien chua bat.";
+                ? "KHUYẾN MÃI NẠP x2 đang hoạt động!\nMỗi lần nạp ATM/Bank đều được x2 ngọc!"
+                : "Khuyến mãi nạp hiện chưa bật.";
 
-        String info = "=== SU KIEN HE ===\n\n"
-                + "1. GIAI NHIET: 30 Nuoc Da + 30 Khuc Mia + 100tr vang\n"
-                + "   -> Nhan Nuoc Mia ngau nhien + 2 diem SK\n\n"
-                + "2. TRA HANG: Gop Nuoc Mia cho server\n"
-                + "   -> +1 diem SK/ly, du 999 ly -> buff 20% SD 60p\n\n"
-                + "3. DOI HOP QUA: Tai NPC Quy Lao\n"
-                + "   -> 10 Vo Oc + 10 Vo So + 10 Con Cua + 10 Sao Bien\n"
-                + "   + 5 Da Ngu Sac + 50tr vang (50% thanh cong)\n\n"
-                + "4. BOSS MAT TROI: Xuat hien ngau nhien tai cac lang\n"
-                + "   -> Drop Co Mat Troi, Thoi Vang, Da Ngu Sac\n\n"
+        String info = "=== SỰ KIỆN HÈ ===\n\n"
+                + "1. GIẢI NHIỆT: 30 Nước Đá + 30 Khúc Mía + 100tr vàng\n"
+                + "   -> Nhận Nước Mía ngẫu nhiên + 2 điểm SK\n\n"
+                + "2. TRẢ HÀNG: Góp Nước Mía cho server\n"
+                + "   -> +1 điểm SK/ly, đủ 999 ly -> buff 20% SĐ 60p\n\n"
+                + "3. ĐỔI HỘP QUÀ: Tại NPC Quy Lão\n"
+                + "   -> 10 Vỏ Ốc + 10 Vỏ Sò + 10 Con Cua + 10 Sao Biển\n"
+                + "   + 5 Đá Ngũ Sắc + 50tr vàng (50% thành công)\n\n"
+                + "4. BOSS MẶT TRỜI: Xuất hiện ngẫu nhiên tại các làng\n"
+                + "   -> Drop Cờ Mặt Trời, Thỏi Vàng, Đá Ngũ Sắc\n\n"
                 + "5. " + napInfo + "\n\n"
-                + "Diem su kien: " + player.event.getEventPoint() + "\n"
-                + "Diem su kien (tong hop): " + player.event.getDiemSuKien();
+                + "Điểm sự kiện: " + player.event.getEventPoint() + "\n"
+                + "Điểm sự kiện (tổng hợp): " + player.event.getDiemSuKien();
 
-        Service.gI().sendThongBao(player, info);
+        NpcService.gI().createTutorial(player, tempId, this.avartar, info);
+    }
+
+    private static Shop shopQuayNuocMia;
+
+    public static Shop getShopQuayNuocMia() {
+        if (shopQuayNuocMia == null) {
+            shopQuayNuocMia = new Shop();
+            shopQuayNuocMia.id = 999;
+            shopQuayNuocMia.npcId = ConstNpc.QUAY_NUOC_MIA;
+            shopQuayNuocMia.tagName = "SHOP_NUOC_MIA";
+            shopQuayNuocMia.typeShop = 0; // NORMAL_SHOP
+            
+            TabShop tab = new TabShop();
+            tab.id = 999;
+            tab.name = "Cửa\nhàng";
+            tab.shop = shopQuayNuocMia;
+            
+            int[] itemIds = {1614, 61, 665, 1609, 456, 1238, 1612, 1613};
+            int[] costs = {100000, 50000, 500000, 2000000, 1500000, 1000000, 1000000, 1000000};
+            
+            for (int i = 0; i < itemIds.length; i++) {
+                ItemShop is = new ItemShop();
+                is.temp = ItemService.gI().getTemplate(itemIds[i]);
+                is.cost = costs[i];
+                is.typeSell = 0; // GOLD
+                tab.itemShops.add(is);
+            }
+
+            shopQuayNuocMia.tabShops.add(tab);
+            Manager.SHOPS.add(shopQuayNuocMia);
+        }
+        return shopQuayNuocMia;
     }
 
     // ========== PERSIST EVENT COUNT ==========

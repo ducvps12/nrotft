@@ -3,6 +3,7 @@ package models.Combine.manifest;
 import consts.ConstNpc;
 import item.Item;
 import models.Combine.CombineService;
+import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.InventoryService;
 import nro.services.ItemService;
@@ -119,8 +120,15 @@ public class ChampaBanDoRac {
 
         // Build nút bấm
         String btnBan = "Bán " + tongMon + " món";
-        CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
-                btnBan, "Không bán");
+        // Dùng NPC đang chọn (Champa) thay vì baHatMit để menu popup đúng NPC
+        Npc npcChose = player.iDMark.getNpcChose();
+        if (npcChose != null) {
+            npcChose.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
+                    btnBan, "Không bán");
+        } else {
+            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.MENU_START_COMBINE, npcSay,
+                    btnBan, "Không bán");
+        }
     }
 
     /**

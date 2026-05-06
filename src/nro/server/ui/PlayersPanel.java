@@ -414,10 +414,35 @@ public class PlayersPanel extends JPanel {
         addUndoRedo(txtSearch);
 
         // Filter dropdown
-        cbFilter = new JComboBox<>(new String[]{"Tất cả", "Đã kích hoạt", "Chưa kích hoạt", "Bị Ban"});
+        cbFilter = new JComboBox<>(new String[]{
+            "Tất cả", "Đã kích hoạt", "Chưa kích hoạt", "Bị Ban",
+            "───────────",
+            "🏆 Top Sức Mạnh", "💰 Top Nạp", "💎 Top VNĐ"
+        });
         cbFilter.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        cbFilter.setPreferredSize(new Dimension(140, 32));
-        cbFilter.addActionListener(e -> { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
+        cbFilter.setPreferredSize(new Dimension(160, 32));
+        cbFilter.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                String s = value != null ? value.toString() : "";
+                if (s.startsWith("─")) {
+                    lbl.setEnabled(false);
+                    lbl.setFont(new Font("Segoe UI", Font.PLAIN, 8));
+                } else if (s.contains("Top") || s.contains("🏆") || s.contains("💰") || s.contains("💎")) {
+                    lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                    if (!isSelected) lbl.setForeground(new Color(180, 100, 0));
+                } else {
+                    lbl.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                }
+                return lbl;
+            }
+        });
+        cbFilter.addActionListener(e -> {
+            String sel = (String) cbFilter.getSelectedItem();
+            if (sel != null && sel.startsWith("─")) { cbFilter.setSelectedIndex(0); return; }
+            currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim());
+        });
 
         JButton btnSearch = createStyledButton("Tìm kiếm", COLOR_PRIMARY, Color.WHITE);
         btnSearch.addActionListener(e -> { currentPage = 1; loadPlayersFromDB(txtSearch.getText().trim()); });
@@ -1103,7 +1128,19 @@ public class PlayersPanel extends JPanel {
             else if ("Chưa kích hoạt".equals(filterIdx)) where += " AND (a.active = 0 OR a.active IS NULL)";
             else if ("Bị Ban".equals(filterIdx)) where += " AND a.ban = 1";
             countSql += where;
-            dataSql += where + " ORDER BY p.id DESC LIMIT " + pageSize + " OFFSET " + ((currentPage - 1) * pageSize);
+
+            // Determine ORDER BY based on ranking filter
+            String orderBy;
+            if (filterIdx != null && filterIdx.contains("Top Sức Mạnh")) {
+                orderBy = " ORDER BY p.power DESC";
+            } else if (filterIdx != null && filterIdx.contains("Top Nạp")) {
+                orderBy = " ORDER BY a.danap DESC";
+            } else if (filterIdx != null && filterIdx.contains("Top VNĐ")) {
+                orderBy = " ORDER BY a.cash DESC";
+            } else {
+                orderBy = " ORDER BY p.id DESC";
+            }
+            dataSql += where + orderBy + " LIMIT " + pageSize + " OFFSET " + ((currentPage - 1) * pageSize);
 
             try (Connection conn = getConnection()) {
                 try (Statement st = conn.createStatement(); ResultSet crs = st.executeQuery(countSql)) {

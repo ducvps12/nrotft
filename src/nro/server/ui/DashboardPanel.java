@@ -152,7 +152,7 @@ public class DashboardPanel extends JPanel {
         chkAutoOptimize.setSelected(false); // Mặc định tắt, user tự bật
         
         addLog("Dashboard initialized. Monitoring Server specific resources.");
-        scheduleDailyDatabaseBackup();
+        loadBackupConfig();
     }
     
     // --- ICON & BOSS DATA LOADING ---
@@ -791,7 +791,12 @@ public class DashboardPanel extends JPanel {
         pAuto.add(lblOptStatus);
         
         p.add(pBtns, BorderLayout.NORTH);
-        p.add(pAuto, BorderLayout.CENTER);
+        
+        JPanel pCenter = new JPanel(new GridLayout(2, 1, 0, 3));
+        pCenter.setOpaque(false);
+        pCenter.add(pAuto);
+        pCenter.add(createBackupConfigPanel());
+        p.add(pCenter, BorderLayout.CENTER);
         
         return p;
     }
@@ -2330,18 +2335,111 @@ public class DashboardPanel extends JPanel {
         lblCountdown.setText("Sẵn sàng");
     }
 
-    private void scheduleDailyDatabaseBackup() {
+    // ========== CONFIGURABLE BACKUP SYSTEM ==========
+    
+    private JComboBox<String> cbBackupInterval;
+    private JSpinner spnBackupHour, spnBackupMinute;
+    private JLabel lblBackupStatus;
+    
+    private void scheduleDatabaseBackup() {
         if (activeDailyBackupFuture != null) {
             activeDailyBackupFuture.cancel(false);
         }
-        long initialDelay = secondsUntilNextBackup(3, 30);
+        
+        String interval = (String) cbBackupInterval.getSelectedItem();
+        if (interval == null) interval = "12 Giờ";
+        
+        long intervalSeconds;
+        switch (interval) {
+            case "1 Giờ" -> intervalSeconds = 3600;
+            case "2 Giờ" -> intervalSeconds = 7200;
+            case "4 Giờ" -> intervalSeconds = 14400;
+            case "6 Giờ" -> intervalSeconds = 21600;
+            case "12 Giờ" -> intervalSeconds = 43200;
+            case "1 Ngày" -> intervalSeconds = 86400;
+            default -> intervalSeconds = 43200;
+        }
+        
+        int bkHour = (Integer) spnBackupHour.getValue();
+        int bkMinute = (Integer) spnBackupMinute.getValue();
+        long initialDelay = secondsUntilNextBackup(bkHour, bkMinute);
+        
         activeDailyBackupFuture = scheduler.scheduleAtFixedRate(
-                () -> backupDatabase(false),
+                () -> backupDatabase(true),
                 initialDelay,
-                TimeUnit.DAYS.toSeconds(1),
+                intervalSeconds,
                 TimeUnit.SECONDS
         );
-        addLog("DB Backup: Tự động sao lưu mỗi ngày lúc 03:30 vào thư mục " + DB_BACKUP_DIR);
+        
+        String statusText = "Backup mỗi " + interval + ", bắt đầu lúc " + String.format("%02d:%02d", bkHour, bkMinute);
+        SwingUtilities.invokeLater(() -> {
+            lblBackupStatus.setText("● " + statusText);
+            lblBackupStatus.setForeground(new Color(0, 153, 51));
+        });
+        addLog("DB Backup: " + statusText + " → thư mục " + DB_BACKUP_DIR);
+        
+        // Save config
+        saveBackupConfig(interval, bkHour, bkMinute);
+    }
+    
+    private void saveBackupConfig(String interval, int hour, int minute) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("backupConfig.txt"))) {
+            pw.println(interval);
+            pw.println(hour);
+            pw.println(minute);
+        } catch (IOException e) {
+            addLog("Backup Config: Lỗi lưu config - " + e.getMessage());
+        }
+    }
+    
+    private void loadBackupConfig() {
+        File f = new File("backupConfig.txt");
+        if (f.exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                String interval = br.readLine();
+                int hour = Integer.parseInt(br.readLine().trim());
+                int minute = Integer.parseInt(br.readLine().trim());
+                cbBackupInterval.setSelectedItem(interval);
+                spnBackupHour.setValue(hour);
+                spnBackupMinute.setValue(minute);
+                addLog("Backup Config: Loaded — " + interval + " lúc " + String.format("%02d:%02d", hour, minute));
+            } catch (Exception e) {
+                addLog("Backup Config: Dùng mặc định (12 giờ, 03:30).");
+            }
+        }
+        scheduleDatabaseBackup();
+    }
+    
+    private JPanel createBackupConfigPanel() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+        p.setOpaque(false);
+        
+        String[] intervals = {"1 Giờ", "2 Giờ", "4 Giờ", "6 Giờ", "12 Giờ", "1 Ngày"};
+        cbBackupInterval = new JComboBox<>(intervals);
+        cbBackupInterval.setSelectedItem("12 Giờ");
+        
+        spnBackupHour = new JSpinner(new SpinnerNumberModel(3, 0, 23, 1));
+        spnBackupMinute = new JSpinner(new SpinnerNumberModel(30, 0, 59, 1));
+        
+        JButton btnApplyBackup = new JButton("Áp dụng");
+        btnApplyBackup.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnApplyBackup.addActionListener(e -> scheduleDatabaseBackup());
+        
+        lblBackupStatus = new JLabel("● Chưa kích hoạt");
+        lblBackupStatus.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblBackupStatus.setForeground(Color.GRAY);
+        
+        p.add(new JLabel("Auto Backup mỗi:"));
+        p.add(cbBackupInterval);
+        p.add(new JLabel("  Bắt đầu lúc:"));
+        p.add(spnBackupHour);
+        p.add(new JLabel(":"));
+        p.add(spnBackupMinute);
+        p.add(btnApplyBackup);
+        p.add(Box.createHorizontalStrut(10));
+        p.add(lblBackupStatus);
+        
+        return p;
     }
 
     private long secondsUntilNextBackup(int hour, int minute) {

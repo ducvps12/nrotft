@@ -1,0 +1,1164 @@
+{
+  "vipTiers": [
+    {
+      "name": "🌟 GOD - Goku Blue",
+      "ratioNumerator": 1,
+      "ratioDenominator": 10000,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "JACKPOT",
+      "items": [
+        {
+          "itemId": 1858,
+          "itemName": "Goku Blue",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 100,
+          "options": [
+            {
+              "optionId": 5,
+              "valueMin": 50,
+              "valueMax": 60
+            },
+            {
+              "optionId": 50,
+              "valueMin": 50,
+              "valueMax": 60
+            },
+            {
+              "optionId": 77,
+              "valueMin": 50,
+              "valueMax": 60
+            },
+            {
+              "optionId": 103,
+              "valueMin": 50,
+              "valueMax": 60
+            },
+            {
+              "optionId": 99,
+              "valueMin": 50,
+              "valueMax": 60
+            },
+            {
+              "optionId": 14,
+              "valueMin": 15,
+              "valueMax": 20
+            },
+            {
+              "optionId": 125,
+              "valueMin": 15,
+              "valueMax": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "✨ SSR - Hào quang God",
+      "ratioNumerator": 1,
+      "ratioDenominator": 5000,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "SSR",
+      "items": [
+        {
+          "itemId": 2005,
+          "itemName": "Hào quang God",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 100,
+          "options": [
+            {
+              "optionId": 50,
+              "valueMin": 25,
+              "valueMax": 35
+            },
+            {
+              "optionId": 77,
+              "valueMin": 25,
+              "valueMax": 35
+            },
+            {
+              "optionId": 103,
+              "valueMin": 25,
+              "valueMax": 35
+            },
+            {
+              "optionId": 14,
+              "valueMin": 10,
+              "valueMax": 18
+            },
+            {
+              "optionId": 94,
+              "valueMin": 20,
+              "valueMax": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔥 LEGENDARY - Thú cưỡi/Pet",
+      "ratioNumerator": 1,
+      "ratioDenominator": 2000,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "LEGENDARY",
+      "items": [
+        {
+          "itemId": 1904,
+          "itemName": "Thú cưỡi rồng SC",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 50,
+          "options": [
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 103,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 14,
+              "valueMin": 5,
+              "valueMax": 12
+            }
+          ]
+        },
+        {
+          "itemId": 1564,
+          "itemName": "Pet Po",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 50,
+          "options": [
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 103,
+              "valueMin": 20,
+              "valueMax": 30
+            },
+            {
+              "optionId": 14,
+              "valueMin": 5,
+              "valueMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎉 EPIC - Set Thần Linh",
+      "ratioNumerator": 1,
+      "ratioDenominator": 3000,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "EPIC",
+      "items": [
+        {
+          "itemId": 555,
+          "itemName": "Áo TĐ",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 556,
+          "itemName": "Quần TĐ",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 562,
+          "itemName": "Găng TĐ",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 563,
+          "itemName": "Giày TĐ",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 557,
+          "itemName": "Áo Namếc",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 558,
+          "itemName": "Quần Namếc",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 564,
+          "itemName": "Găng Namếc",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 565,
+          "itemName": "Giày Namếc",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 559,
+          "itemName": "Áo Xayda",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 560,
+          "itemName": "Quần Xayda",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 566,
+          "itemName": "Găng Xayda",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 567,
+          "itemName": "Giày Xayda",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 561,
+          "itemName": "Nhẫn Thần Linh",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        },
+        {
+          "itemId": 921,
+          "itemName": "Bông tai Porata +2",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "💎 RARE - Chân Mệnh/Sách TK2",
+      "ratioNumerator": 1,
+      "ratioDenominator": 100,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "RARE",
+      "items": [
+        {
+          "itemId": 1893,
+          "itemName": "Chân Mệnh c9",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 33,
+          "options": [
+            {
+              "optionId": 50,
+              "valueMin": 8,
+              "valueMax": 15
+            },
+            {
+              "optionId": 77,
+              "valueMin": 8,
+              "valueMax": 15
+            },
+            {
+              "optionId": 103,
+              "valueMin": 8,
+              "valueMax": 15
+            }
+          ]
+        },
+        {
+          "itemId": 1278,
+          "itemName": "Sách tuyệt kỹ 2",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 33,
+          "options": []
+        },
+        {
+          "itemId": 1751,
+          "itemName": "Giáp tập luyện c4",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 34,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "👑 VIP CT - Cải trang 20-40%",
+      "ratioNumerator": 1,
+      "ratioDenominator": 50,
+      "enabled": true,
+      "announce": true,
+      "announcePrefix": "VIP",
+      "items": [
+        {
+          "itemId": 467,
+          "itemName": "CT #467",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 468,
+          "itemName": "CT #468",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 469,
+          "itemName": "CT #469",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 470,
+          "itemName": "CT #470",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 471,
+          "itemName": "CT #471",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 741,
+          "itemName": "CT #741",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 745,
+          "itemName": "CT #745",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 800,
+          "itemName": "CT #800",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 801,
+          "itemName": "CT #801",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 803,
+          "itemName": "CT #803",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 804,
+          "itemName": "CT #804",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 999,
+          "itemName": "CT #999",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 1000,
+          "itemName": "CT #1000",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        },
+        {
+          "itemId": 1001,
+          "itemName": "CT #1001",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 20,
+              "valueMax": 40
+            },
+            {
+              "optionId": 50,
+              "valueMin": 20,
+              "valueMax": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🎁 UNCOMMON - Hộp SKH/Mảnh BT",
+      "ratioNumerator": 1,
+      "ratioDenominator": 300,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 1703,
+          "itemName": "Hộp SKH Thần Linh",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 50,
+          "options": []
+        },
+        {
+          "itemId": 1855,
+          "itemName": "Mảnh vỡ BT c3",
+          "quantityMin": 1,
+          "quantityMax": 3,
+          "weight": 50,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "📦 COMMON - Capsule/Sách/Đá",
+      "ratioNumerator": 1,
+      "ratioDenominator": 5,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 956,
+          "itemName": "Capsule",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 25,
+          "options": []
+        },
+        {
+          "itemId": 220,
+          "itemName": "Sách kỹ năng",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 25,
+          "options": []
+        },
+        {
+          "itemId": 585,
+          "itemName": "Đá xanh lam",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 25,
+          "options": []
+        },
+        {
+          "itemId": 18,
+          "itemName": "Capsule TT",
+          "quantityMin": 1,
+          "quantityMax": 3,
+          "weight": 25,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "normalTiers": [
+    {
+      "name": "👕 Cải Trang Thường",
+      "ratioNumerator": 1,
+      "ratioDenominator": 2,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 467,
+          "itemName": "CT #467",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 468,
+          "itemName": "CT #468",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 469,
+          "itemName": "CT #469",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 470,
+          "itemName": "CT #470",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 471,
+          "itemName": "CT #471",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 741,
+          "itemName": "CT #741",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 745,
+          "itemName": "CT #745",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 800,
+          "itemName": "CT #800",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 801,
+          "itemName": "CT #801",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 803,
+          "itemName": "CT #803",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 804,
+          "itemName": "CT #804",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        },
+        {
+          "itemId": 1000,
+          "itemName": "CT #1000",
+          "quantityMin": 1,
+          "quantityMax": 1,
+          "weight": 10,
+          "options": [
+            {
+              "optionId": 77,
+              "valueMin": 10,
+              "valueMax": 25
+            },
+            {
+              "optionId": 50,
+              "valueMin": 10,
+              "valueMax": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "💎 Đá xanh lam",
+      "ratioNumerator": 1,
+      "ratioDenominator": 20,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 585,
+          "itemName": "Đá xanh lam",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 100,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "📦 Capsule thời trang",
+      "ratioNumerator": 1,
+      "ratioDenominator": 100,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 18,
+          "itemName": "Capsule TT 1",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 33,
+          "options": []
+        },
+        {
+          "itemId": 19,
+          "itemName": "Capsule TT 2",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 33,
+          "options": []
+        },
+        {
+          "itemId": 20,
+          "itemName": "Capsule TT 3",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 34,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "📚 Sách kỹ năng",
+      "ratioNumerator": 1,
+      "ratioDenominator": 30,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 220,
+          "itemName": "Sách #220",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 20,
+          "options": []
+        },
+        {
+          "itemId": 221,
+          "itemName": "Sách #221",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 20,
+          "options": []
+        },
+        {
+          "itemId": 222,
+          "itemName": "Sách #222",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 20,
+          "options": []
+        },
+        {
+          "itemId": 223,
+          "itemName": "Sách #223",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 20,
+          "options": []
+        },
+        {
+          "itemId": 224,
+          "itemName": "Sách #224",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 20,
+          "options": []
+        }
+      ]
+    },
+    {
+      "name": "🧪 Nguyên liệu",
+      "ratioNumerator": 1,
+      "ratioDenominator": 100,
+      "enabled": true,
+      "announce": false,
+      "announcePrefix": "",
+      "items": [
+        {
+          "itemId": 828,
+          "itemName": "NL #828",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 829,
+          "itemName": "NL #829",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 830,
+          "itemName": "NL #830",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 831,
+          "itemName": "NL #831",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 832,
+          "itemName": "NL #832",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 833,
+          "itemName": "NL #833",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 834,
+          "itemName": "NL #834",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 835,
+          "itemName": "NL #835",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 836,
+          "itemName": "NL #836",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 837,
+          "itemName": "NL #837",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 838,
+          "itemName": "NL #838",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 839,
+          "itemName": "NL #839",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 840,
+          "itemName": "NL #840",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 841,
+          "itemName": "NL #841",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        },
+        {
+          "itemId": 842,
+          "itemName": "NL #842",
+          "quantityMin": 1,
+          "quantityMax": 5,
+          "weight": 7,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "priceGold": 25000000,
+  "priceGem": 4,
+  "priceTicket": 1,
+  "ticketItemId": 457,
+  "defaultGoldMin": 5000,
+  "defaultGoldMax": 50000
+}

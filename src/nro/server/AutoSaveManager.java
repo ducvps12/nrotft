@@ -53,6 +53,29 @@ public class AutoSaveManager {
         });
     }
 
+    /**
+     * Lưu tất cả player ngay lập tức (đồng bộ) — dùng khi bảo trì/shutdown
+     */
+    public void saveAllNow() {
+        try {
+            var players = Client.gI().getPlayers();
+            int count = 0;
+            for (var player : players) {
+                if (player != null) {
+                    try {
+                        PlayerDAO.updatePlayer(player);
+                        count++;
+                    } catch (Exception e) {
+                        System.err.println("[AutoSave] Lỗi save player " + player.name + ": " + e.getMessage());
+                    }
+                }
+            }
+            System.out.println("[AutoSave] Đã lưu " + count + "/" + players.size() + " người chơi.");
+        } catch (Exception e) {
+            System.err.println("[AutoSave] Lỗi saveAllNow: " + e.getMessage());
+        }
+    }
+
     public void dispose() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdownNow();

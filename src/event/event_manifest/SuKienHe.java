@@ -17,15 +17,22 @@ package event.event_manifest;
 import boss.BossID;
 import consts.ConstNpc;
 import event.Event;
+import nro.services.MapService;
+import nro.models.npc.NpcFactory;
 
 public class SuKienHe extends Event {
 
     @Override
     public void npc() {
         // NPC Quầy Nước Mía tại các làng chính
-        createNpc(0, ConstNpc.QUAY_NUOC_MIA, 350, 336);    // Làng Kaio (Trái Đất)
-        createNpc(7, ConstNpc.QUAY_NUOC_MIA, 350, 336);    // Làng Cargo (Namek)
-        createNpc(14, ConstNpc.QUAY_NUOC_MIA, 350, 336);   // Làng Vegeta (Xayda)
+        createNpc(0, ConstNpc.QUAY_NUOC_MIA, 350, 432);    // Làng Aru (Trái Đất)
+        createNpc(7, ConstNpc.QUAY_NUOC_MIA, 350, 432);    // Làng Mori (Namek)
+        createNpc(14, ConstNpc.QUAY_NUOC_MIA, 350, 408);   // Làng Kakarot (Xayda)
+    }
+
+    @Override
+    public void createNpc(int mapId, int npcId, int x, int y) {
+        MapService.gI().getMapById(mapId).npcs.add(NpcFactory.createNPC(mapId, 0, x, y, npcId));
     }
 
     @Override

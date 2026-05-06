@@ -73,7 +73,28 @@ public class LyTieuNuong extends Npc {
                 case ConstNpc.MENU_LTN_PET_CONFIRM_2 -> handlePetConfirm(player, select, 2);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_3 -> handlePetConfirm(player, select, 3);
                 case ConstNpc.MENU_LTN_PET_CONFIRM_4 -> handlePetConfirm(player, select, 4);
-                case ConstNpc.MENU_LTN_PET_GUIDE -> { if (select == 0) showPetMenu(player); }
+                case ConstNpc.MENU_LTN_PET_GUIDE -> {
+                    switch (select) {
+                        case 0 -> showPetGuide2(player); // Trang 2
+                        case 1 -> showPetMenu(player);   // Quay Lại
+                    }
+                }
+                case ConstNpc.MENU_LTN_PET_GUIDE_2 -> {
+                    switch (select) {
+                        case 0 -> showPetGuide3(player);  // Trang 3
+                        case 1 -> showPetGuide(player);   // Trang 1
+                        case 2 -> showPetMenu(player);    // Quay Lại
+                    }
+                }
+                case ConstNpc.MENU_LTN_PET_GUIDE_3 -> {
+                    switch (select) {
+                        case 0 -> showPetGuide2(player);  // Trang 2
+                        case 1 -> showPetMenu(player);    // Quay Lại
+                    }
+                }
+                case ConstNpc.MENU_LTN_GUIDE -> {
+                    if (select == 0) openBaseMenu(player); // Quay Lại
+                }
 
                 // ================== GÓI VIP ĐỆ TỬ ==================
                 case ConstNpc.MENU_LTN_VIP_PET -> handleVipPetMenu(player, select);
@@ -379,39 +400,32 @@ public class LyTieuNuong extends Npc {
     }
     // ===================== HƯỚNG DẪN =====================
     private void showGuideMenu(Player player) {
-        String guide = "|7|══════════════════\n"
-                + "|1|    HUONG DAN DICH VU\n"
-                + "|7|══════════════════\n"
+        String guide = "|7|━━━ HƯỚNG DẪN DỊCH VỤ ━━━\n"
                 + "\n"
-                + "|2|1. GOI VIP TUAN\n"
-                + "|8|  ○ Mua 1 lần, buff 7 ngày\n"
-                + "|8|  ○ Items: Thỏi vàng, TNSM, Đá BV\n"
+                + "|1|1. GÓI VIP TUẦN\n"
+                + "|8|  Mua 1 lần, buff 7 ngày\n"
+                + "|8|  Items: Thỏi vàng, TNSM, Đá BV\n"
                 + "\n"
-                + "|2|2. GOI DE TU (VINH VIEN)\n"
-                + "|8|  ○ Mua 1 gói/ngày\n"
-                + "|8|  ○ Mabu 50K → B.Goku 500K\n"
-                + "|8|  ○ Đệ + items buff kèm theo\n"
+                + "|1|2. GÓI ĐỆ TỬ (VĨNH VIỄN)\n"
+                + "|8|  Mua 1 gói/ngày\n"
+                + "|8|  Mabu 50K → B.Goku 500K\n"
                 + "\n"
-                + "|1|3. TUYET THE DE TU\n"
-                + "|1|  ○ CHỈ CÀY FREE, không bán!\n"
-                + "|8|  ○ Xem chi tiết: Menu Đệ Tử\n"
-                + "|8|    → Hướng Dẫn Đệ Tử\n"
+                + "|1|3. VIP ĐỆ TỬ (24h)\n"
+                + "|8|  x2~x7 TNSM, ưu tiên HP/DAME\n"
+                + "|8|  PGG: -30% | PGG VIP: -70%\n"
                 + "\n"
-                + "|2|4. VIP DE TU (24h)\n"
-                + "|8|  ○ x2 ~ x7 TNSM cho đệ\n"
-                + "|8|  ○ Ưu tiên HP + DAME\n"
-                + "|2|  o PGG: -30% | PGG VIP: -70%\n"
+                + "|1|4. MINI GAMES\n"
+                + "|8|  Kéo Búa Bao, Số May Mắn,...\n"
                 + "\n"
-                + "|2|5. MINI GAMES\n"
-                + "|8|  ○ Kéo Búa Bao\n"
-                + "|8|  ○ Số May Mắn (Vàng/Ngọc)\n"
-                + "|8|  ○ Chọn Ai Đây\n"
-                + "|7|══════════════════";
+                + "|1|★ TUYỆT THẾ ĐỆ TỬ: CHỈ CÀY!\n"
+                + "|8|  Xem chi tiết tại Hướng Dẫn Đệ Tử\n"
+                + "|7|━━━━━━━━━━━━━━━━━━";
 
-        npcChat(player, guide);
+        createOtherMenu(player, ConstNpc.MENU_LTN_GUIDE, guide,
+                "Quay Lại");
     }
 
-    // ===================== HƯỚNG DẪN ĐỆ TỬ =====================
+    // ===================== HƯỚNG DẪN ĐỆ TỬ (Trang 1/3) =====================
     private void showPetGuide(Player player) {
         // --- Thông tin đệ hiện tại ---
         String petInfo;
@@ -421,73 +435,89 @@ public class LyTieuNuong extends Npc {
                 case 2 -> "B.Goku";
                 case 3 -> "Cell";
                 case 4 -> "Berus";
-                case 5 -> "Tuyệt Thế";
+                case 5 -> "T.Thế";
                 default -> "???";
             };
-            petInfo = "|2|De: " + player.pet.name
+            petInfo = "|2|Đệ: " + player.pet.name
                     + " (" + typeName + ")\n"
                     + "|2|SM: " + Util.mumberToLouis(player.pet.nPoint.power) + "\n";
         } else {
-            petInfo = "|8|Chua co de tu\n";
+            petInfo = "|8|Chưa có đệ tử\n";
         }
 
-        String guide = "|7|══════════════════\n"
-                + "|1|    HE THONG DE TU\n"
-                + "|7|══════════════════\n"
+        String guide = "|7|━━ HỆ THỐNG ĐỆ TỬ (1/3) ━━\n"
                 + petInfo
                 + "\n"
-                + "|7|┌─── BẢNG SO SÁNH ĐỆ TỬ ───┐\n"
-                + "|8|│ Mabu    │ 7 ô │ Bonus thấp\n"
-                + "|8|│ Cell    │ 9 ô │ Đồ 3 hệ\n"
-                + "|8|│ Berus   │ 9 ô │ Đồ 3 hệ\n"
-                + "|1|│ B.Goku  │ 9 ô │ Fusion #1\n"
-                + "|1|│ T.Thế   │10 ô │ 5 skill sẵn\n"
-                + "|7|└────────────────────┘\n"
+                + "|1|┌── SO SÁNH ĐỆ TỬ ──┐\n"
+                + "|8|│ Mabu   │ 7ô │ Bonus thấp\n"
+                + "|8|│ Cell   │ 9ô │ Đồ 3 hệ\n"
+                + "|8|│ Berus  │ 9ô │ Đồ 3 hệ\n"
+                + "|1|│ B.Goku │ 9ô │ Fusion #1\n"
+                + "|1|│ T.Thế  │10ô │ 5 skill sẵn\n"
+                + "|7|└──────────────┘\n"
                 + "\n"
-                + "|7|┌── FUSION (Porata cấp 4) ──┐\n"
-                + "|8|│ Mabu  │ HP 20  KI 35  SD 25\n"
-                + "|8|│ Cell  │ HP 25  KI 30  SD 30\n"
-                + "|8|│ Berus │ HP 30  KI 35  SD 35\n"
-                + "|1|│ B.Goku│ HP 35  KI 40  SD 40\n"
-                + "|1|│ T.Thế │ +20% + cộng thẳng!\n"
-                + "|7|└────────────────────┘\n"
-                + "\n"
-                + "|7|══════════════════\n"
-                + "|1|    LO TRINH TUYET THE\n"
-                + "|7|══════════════════\n"
-                + "|1|** KHONG MUA BANG TIEN!\n"
-                + "|1|** CHI CAY FREE!\n"
-                + "\n"
-                + "|2|1. Kiem Binh Hut Nang Luong\n"
-                + "|8|  ○ Boss Rồng Nhí: drop 1-3\n"
-                + "|8|  ○ Boss Hirudegarn: drop 1\n"
-                + "|8|  ○ NV Quỷ Lão Kame: 10-20\n"
-                + "\n"
-                + "|2|2. Farm Kilis (Map Cadic)\n"
-                + "|8|  ○ Tỉ lệ: 1/333 mỗi quái\n"
-                + "|8|  ○ Buff Osin: 10/333 (x10)\n"
-                + "|8|  ○ Giá buff: 100 HN = 10 phút\n"
-                + "|8|  ○ Mỗi lần: +1 Kilis vào Bình\n"
-                + "\n"
-                + "|2|3. De 3K Kilis\n"
-                + "|8|  ○ 3,000 Kilis + Mabu 40 tỷ SM\n"
-                + "|8|  ○ Dùng Bình → Nhận 1 trong:\n"
-                + "|8|    B.Goku / Cell / Berus\n"
-                + "\n"
-                + "|1|4. TUYET THE DE TU\n"
-                + "|1|  ○ 6,000 Kilis + Đệ 3K 100 tỷ\n"
-                + "|1|  ○ Dùng Bình → Nhận Tuyệt Thế!\n"
-                + "\n"
-                + "|7|┌── ĐẶC QUYỀN TUYỆT THẾ ──┐\n"
-                + "|2|│ HP/KI gốc: 900,000\n"
-                + "|2|│ SĐ gốc: 40,000\n"
-                + "|2|│ 10 ô trang bị (max game)\n"
-                + "|2|│ 5 skill sẵn, không cần mở\n"
-                + "|2|│ Mặc đồ cả 3 hệ\n"
-                + "|1|│ * Fusion cong THANG chi so!\n"
-                + "|7|└────────────────────┘";
+                + "|8|Mua đệ: Lý Tiểu Nương\n"
+                + "|8|Mabu 50K → B.Goku 500K\n"
+                + "|1|★ T.Thế: CHỈ CÀY FREE!";
 
         createOtherMenu(player, ConstNpc.MENU_LTN_PET_GUIDE, guide,
+                "Trang 2\n→ Fusion",
+                "Quay Lại");
+    }
+
+    // ===================== HƯỚNG DẪN ĐỆ TỬ (Trang 2/3) =====================
+    private void showPetGuide2(Player player) {
+        String guide = "|7|━━ FUSION & VIP ĐỆ (2/3) ━━\n"
+                + "\n"
+                + "|1|┌── FUSION (Porata 4) ──┐\n"
+                + "|8|│ Mabu  │HP20 KI35 SD25\n"
+                + "|8|│ Cell  │HP25 KI30 SD30\n"
+                + "|8|│ Berus │HP30 KI35 SD35\n"
+                + "|1|│ B.Goku│HP35 KI40 SD40\n"
+                + "|1|│ T.Thế │+20% + cộng thẳng\n"
+                + "|7|└──────────────┘\n"
+                + "\n"
+                + "|1|VIP ĐỆ TỬ (Lý Tiểu Nương)\n"
+                + "|8|  VIP Bạc: x2 TNSM\n"
+                + "|8|  VIP Vàng: x3 TNSM\n"
+                + "|8|  VIP K.Cương: x5 TNSM\n"
+                + "|1|  VIP CAO THỦ: x7 TNSM\n"
+                + "|8|  Ưu tiên cộng HP + DAME";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_PET_GUIDE_2, guide,
+                "Trang 3\n→ Tuyệt Thế",
+                "← Trang 1",
+                "Quay Lại");
+    }
+
+    // ===================== HƯỚNG DẪN ĐỆ TỬ (Trang 3/3) =====================
+    private void showPetGuide3(Player player) {
+        String guide = "|7|━━ LỘ TRÌNH TUYỆT THẾ (3/3) ━━\n"
+                + "\n"
+                + "|1|★ KHÔNG MUA = CHỈ CÀY FREE!\n"
+                + "\n"
+                + "|2|B1: Kiếm Bình Hút NL\n"
+                + "|8|  Rồng Nhí: drop 1-3\n"
+                + "|8|  Hirudegarn: drop 1\n"
+                + "|8|  NV Quỷ Lão: 10-20\n"
+                + "\n"
+                + "|2|B2: Farm Kilis (Cadic)\n"
+                + "|8|  Tỉ lệ 1/333 | Buff x10\n"
+                + "\n"
+                + "|2|B3: Đệ 3K Kilis\n"
+                + "|8|  3K Kilis + Mabu 40 tỷ\n"
+                + "|8|  → B.Goku/Cell/Berus\n"
+                + "\n"
+                + "|1|B4: TUYỆT THẾ ĐỆ TỬ\n"
+                + "|1|  6K Kilis + Đệ 3K 100 tỷ\n"
+                + "\n"
+                + "|7|━━ ĐẶC QUYỀN T.THẾ ━━\n"
+                + "|2|  HP/KI: 900K | SĐ: 40K\n"
+                + "|2|  10 ô | 5 skill | Đồ 3 hệ\n"
+                + "|1|  Fusion cộng THẲNG!";
+
+        createOtherMenu(player, ConstNpc.MENU_LTN_PET_GUIDE_3, guide,
+                "← Trang 2",
                 "Quay Lại");
     }
 }

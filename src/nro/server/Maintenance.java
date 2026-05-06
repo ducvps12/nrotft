@@ -49,8 +49,8 @@ public class Maintenance extends Thread {
     public void startImmediately() {
         if (!isRunning) {
             isRunning = true;
-            Logger.log(Logger.YELLOW, "BEGIN MAINTENANCE\n");
-            ServerManager.gI().close();
+            Logger.log(Logger.YELLOW, "BEGIN MAINTENANCE (IMMEDIATE)\n");
+            saveAllDataAndShutdown();
         }
     }
 
@@ -97,8 +97,44 @@ public class Maintenance extends Thread {
                 }
             }
         }
-        Logger.log(Logger.YELLOW, "BEGIN MAINTENANCE\n");
-        ServerManager.gI().close();
+
+        // === THỜI GIAN ĐÃ HẾT — BẮT ĐẦU TẮT SERVER ===
+        saveAllDataAndShutdown();
     }
 
+    /**
+     * Lưu toàn bộ dữ liệu và tắt server (KHÔNG restart)
+     */
+    private void saveAllDataAndShutdown() {
+        Logger.log(Logger.YELLOW, "═══════════════════════════════════\n");
+        Logger.log(Logger.YELLOW, "  BẢO TRÌ: Đang lưu dữ liệu...\n");
+        Logger.log(Logger.YELLOW, "═══════════════════════════════════\n");
+
+        // Thông báo cuối cùng cho player
+        try {
+            Service.gI().sendThongBaoAllPlayer(
+                    "Server đang bảo trì. Dữ liệu đang được lưu. Vui lòng đợi thông báo mở lại!");
+        } catch (Exception e) {
+            // Player đã disconnect, bỏ qua
+        }
+
+        // Lưu tất cả player data qua AutoSaveManager
+        try {
+            Logger.log(Logger.YELLOW, "MAINTENANCE: Đang AutoSave tất cả người chơi...\n");
+            AutoSaveManager.getInstance().saveAllNow();
+            Logger.log(Logger.GREEN, "MAINTENANCE: Đã AutoSave xong tất cả người chơi.\n");
+        } catch (Exception e) {
+            Logger.error("MAINTENANCE: Lỗi AutoSave - " + e.getMessage() + "\n");
+        }
+
+        // Chờ 2 giây để đảm bảo data flush xong
+        try {
+            Functions.sleep(2000);
+        } catch (Exception e) {
+        }
+
+        // Gọi ServerManager.close() để shutdown hoàn toàn
+        Logger.log(Logger.YELLOW, "MAINTENANCE: Bắt đầu shutdown server...\n");
+        ServerManager.gI().close();
+    }
 }

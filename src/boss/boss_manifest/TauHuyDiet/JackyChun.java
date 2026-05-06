@@ -79,6 +79,14 @@ public class JackyChun extends Boss {
                     this.location.y - 24), plKill.id);
             Service.gI().dropItemMap(this.zone, vang4);
         }
+        // Drop Ngọc Rồng Băng (1 viên random 1-7 sao) - tỉ lệ 50%
+        if (Util.isTrue(50, 100)) {
+            int nrBangId = 925 + new Random().nextInt(7); // 925-931 (1-7 sao)
+            ItemMap nrBang = new ItemMap(this.zone, nrBangId, 1, this.location.x - 60,
+                    this.zone.map.yPhysicInTop(this.location.x, this.location.y - 24), plKill.id);
+            Service.gI().dropItemMap(this.zone, nrBang);
+            Service.gI().sendThongBao(plKill, "Bạn nhận được Ngọc Rồng Băng " + (nrBangId - 924) + " sao!");
+        }
     }
 
     @Override

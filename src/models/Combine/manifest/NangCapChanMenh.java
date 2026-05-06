@@ -4,6 +4,7 @@ import consts.ConstFont;
 import consts.ConstNpc;
 import item.Item;
 import models.Combine.CombineService;
+import nro.models.npc.Npc;
 import nro.player.Player;
 import nro.services.InventoryService;
 import nro.services.ItemService;
@@ -15,6 +16,12 @@ public class NangCapChanMenh {
     private static final int DA_THIEN_TU_ID = 1905;
     private static final int REQUIRED_DA = 99;
     private static final double SUCCESS_RATE = 50;
+
+    /** Lấy NPC đang chọn, fallback baHatMit */
+    private static Npc getNpcForMenu(Player player) {
+        Npc npc = player.iDMark.getNpcChose();
+        return npc != null ? npc : CombineService.gI().baHatMit;
+    }
 
     // ID các Chân Mệnh từ cấp 1 đến cấp 9
     private static final int[] CHAN_MENH_IDS = { 1885, 1886, 1887, 1888, 1889, 1890, 1891, 1892, 1893 };
@@ -48,7 +55,7 @@ public class NangCapChanMenh {
 
     public static void showInfoCombine(Player player) {
         if (player.combine.itemsCombine.size() != 2) {
-            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+            getNpcForMenu(player).createOtherMenu(player, ConstNpc.IGNORE_MENU,
                     "Cần 1 Chân Mệnh và 99 Sao Thiên Tử", "Đóng");
             return;
         }
@@ -63,14 +70,14 @@ public class NangCapChanMenh {
         }
 
         if (chanMenh == null) {
-            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+            getNpcForMenu(player).createOtherMenu(player, ConstNpc.IGNORE_MENU,
                     "Thiếu Chân Mệnh", "Đóng");
             return;
         }
 
         int currentLevel = getChanMenhLevel(chanMenh);
         if (currentLevel >= MAX_LEVEL) {
-            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
+            getNpcForMenu(player).createOtherMenu(player, ConstNpc.IGNORE_MENU,
                     "Chân Mệnh đã đạt cấp tối đa", "Đóng");
             return;
         }
@@ -85,7 +92,7 @@ public class NangCapChanMenh {
         text.append(ConstFont.BOLD_BLUE)
                 .append("Tỉ lệ thành công: ").append((int) SUCCESS_RATE).append("%");
 
-        CombineService.gI().baHatMit.createOtherMenu(
+        getNpcForMenu(player).createOtherMenu(
                 player,
                 ConstNpc.MENU_START_COMBINE,
                 text.toString(),

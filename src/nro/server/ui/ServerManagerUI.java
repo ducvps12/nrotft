@@ -98,6 +98,7 @@ public class ServerManagerUI extends JFrame {
                 new NavItem("Danh Hiệu (Badges)", "/icon/star.png", "Badges"),
                 new NavItem("Dữ Liệu Bản Đồ", "/icon/map.png", "MapData"),
                 new NavItem("Quản Lý Drop", "/icon/drop.png", "DropManager"),
+                new NavItem("🎰 Vòng Quay Thượng Đế", "/icon/star.png", "LuckyRound"),
                 new NavItem("Dữ Liệu Vật Phẩm", "/icon/item.png", "ItemData"),
                 new NavItem("📋 Audit Vật Phẩm", "/icon/item.png", "ItemAudit"),
                 new NavItem("🌍 Vũ Trụ MTDGame", "/icon/map.png", "Universe"),
@@ -208,6 +209,7 @@ public class ServerManagerUI extends JFrame {
         contentPanel.add(new BadgesPanel(), "Badges");
         contentPanel.add(new MapPanel(), "MapData");
         contentPanel.add(new DropItemPanel(), "DropManager");
+        contentPanel.add(new LuckyRoundPanel(), "LuckyRound");
         contentPanel.add(new ItemPanel(), "ItemData");
         contentPanel.add(new ItemAuditPanel(), "ItemAudit");
         contentPanel.add(new UniverseMonitorPanel(), "Universe");

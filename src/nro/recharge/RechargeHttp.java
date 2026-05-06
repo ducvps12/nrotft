@@ -27,10 +27,28 @@ public class RechargeHttp {
     private static final double HE_SO_SU_KIEN = 1.0;  
 
     public static void start() throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        int port = PORT;
+        HttpServer server = null;
+
+        // Thử bind port, nếu bận thì thử port tiếp theo
+        for (int attempt = 0; attempt < 10; attempt++) {
+            try {
+                server = HttpServer.create(new InetSocketAddress(port), 0);
+                break; // thành công
+            } catch (java.net.BindException e) {
+                System.out.println("⚠️ Sepay port " + port + " đang bận, thử port " + (port + 1) + "...");
+                port++;
+            }
+        }
+
+        if (server == null) {
+            System.out.println("❌ Không khởi động được Sepay Webhook (tất cả port đều bận)!");
+            return;
+        }
+
         server.createContext("/sepay", new SepayHandler());
         server.start();
-        System.out.println("Sepay Webhook started and listening on http://0.0.0.0:" + PORT + "/sepay");
+        System.out.println("Sepay Webhook started and listening on http://0.0.0.0:" + port + "/sepay");
     }
 
     static class SepayHandler implements HttpHandler {

@@ -13,29 +13,40 @@ public class SimpleHttpServerThread extends Thread {
 
     @Override
     public void run() {
+        int port = Manager.apiPort;
+        boolean started = false;
+
+        // Thử bind port, nếu bận thì tăng port
+        while (!started) {
+            try {
+                server = HttpServer.create(new InetSocketAddress(port), 0);
+                started = true;
+            } catch (BindException e) {
+                System.out.println("⚠️ Port " + port + " đang bận, thử port " + (port + 1) + "...");
+                port++;
+                if (port > Manager.apiPort + 10) {
+                    System.out.println("❌ Không tìm được port trống cho HTTP Server!");
+                    return;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
         try {
-            server = HttpServer.create(new InetSocketAddress(Manager.apiPort), 0);
             server.createContext("/", new SimpleHttpHandler());
             server.setExecutor(Executors.newFixedThreadPool(Math.max(2, Manager.workerGroup)));
             server.start();
-            System.out.println("Dashboard: http://localhost:" + Manager.apiPort + "/admin");
+            System.out.println("Dashboard: http://localhost:" + port + "/admin");
 
+            // Giữ thread sống cho đến khi bị interrupt
             while (!Thread.currentThread().isInterrupted()) {
                 Thread.sleep(1000);
             }
-            int port = Manager.apiPort;
-            boolean started = false;
-            while (!started) {
-                try {
-                    server = HttpServer.create(new InetSocketAddress(port), 0);
-                    started = true;
-                } catch (BindException e) {
-                    System.out.println("⚠️ Port " + port + " đang bận, thử port khác...");
-                    port++;
-                }
-            }
-
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            // Thread bị interrupt — thoát bình thường
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             shutdown();

@@ -181,7 +181,7 @@ public abstract class Npc implements IAtionNpc {
         int maxDist = (this.tempId == ConstNpc.MR_POPO) ? 200 : 60;
         if (player.zone.map.mapId == this.mapId
                 && (Util.getDistance(this.cx, this.cy, player.location.x, player.location.y) <= maxDist
-                        || !MapService.gI().isMapBlackBallWar(mapId))) {
+                        || MapService.gI().isMapBlackBallWar(mapId))) {
             player.iDMark.setNpcChose(this);
             return true;
         } else if (this.tempId == ConstNpc.LY_TIEU_NUONG) {

@@ -85,6 +85,7 @@ import power.CaptionManager;
 import power.PowerLimitManager;
 import task.ClanTaskTemplate;
 import task.KolTaskTemplate;
+import nro.models.npc.npc_manifest.KingFurryGuide;
 
 public final class Manager {
 
@@ -326,6 +327,12 @@ public final class Manager {
                 short xHMN = 600;
                 short yHMN = 336;
                 map.npcs.add(NpcFactory.createNPC(map.mapId, 1, xHMN, yHMN, ConstNpc.HAC_MI_NUONG));
+                // Spawn NPC King Furry Guide (Tut & Trick) bên trái Champa
+                // Dùng template QUOC_VUONG (42) = King Furry visual
+                short xKFG = 380;
+                short yKFG = 336;
+                int kfgAvatar = Manager.NPC_TEMPLATES.get(ConstNpc.QUOC_VUONG).avatar;
+                map.npcs.add(new KingFurryGuide(map.mapId, 1, xKFG, yKFG, ConstNpc.QUOC_VUONG, kfgAvatar));
             }
 
             // Dùng Virtual Thread để update map

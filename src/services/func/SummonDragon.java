@@ -37,6 +37,7 @@ public class SummonDragon {
 
     public static final byte DRAGON_SHENRON = 0;
     public static final byte DRAGON_PORUNGA = 1;
+    public static final byte DRAGON_DET_TU = 2;
 
     public static final short NGOC_RONG_1_SAO = 14;
     public static final short NGOC_RONG_2_SAO = 15;
@@ -74,7 +75,7 @@ public class SummonDragon {
     public static final String[] SHENRON_1_STAR_WISHES_2 = new String[] { "Đẹp Trai\nCải trang VIP\nVĩnh viễn",
             "+2 Tỷ\nSức mạnh\nvà Tiềm\nnăng", "Găng tay đệ\nđang mang\nlên 1 cấp",
             "Điều ước\nkhác" };
-    public static final String[] SHENRON_1_STAR_WISHES_3 = new String[] { "3 Trứng\nrồng nhí", "Điều ước\nkhác" };
+    public static final String[] SHENRON_1_STAR_WISHES_3 = new String[] { "3 Trứng\nrồng nhí", "Set Bí Ngô\nVĩnh viễn", "Điều ước\nkhác" };
     public static final String[] SHENRON_2_STARS_WHISHES = new String[] { "Giàu có\n+2K\nNgọc xanh",
             "+20 Tr\nSức mạnh\nvà tiềm năng", "Giàu có\n+200 Tr\nVàng" };
     public static final String[] SHENRON_3_STARS_WHISHES = new String[] { "Giàu có\n+200\nNgọc xanh",
@@ -86,6 +87,8 @@ public class SummonDragon {
             "+10 Tỷ\nSức mạnh\nvà Tiềm năng",
             "Chí mạng\nGốc +3%",
             "Găng tay\nđang mang\nlên 2 cấp" };
+
+            
     // --------------------------------------------------------------------------
     private static SummonDragon instance;
     private final Map pl_dragonStar;
@@ -505,6 +508,34 @@ public class SummonDragon {
                         InventoryService.gI().addItemBag(playerSummonShenron, trungRong);
                         InventoryService.gI().sendItemBag(playerSummonShenron);
                         break;
+                    case 1: // Set Bí Ngô Vĩnh viễn
+                        if (InventoryService.gI().getCountEmptyBag(playerSummonShenron) < 4) {
+                            Service.gI().sendThongBao(playerSummonShenron, "Cần 4 ô trống trong hành trang!");
+                            reOpenShenronWishes(playerSummonShenron);
+                            return;
+                        }
+                        // Cải trang Bill Bí Ngô (739) - Vĩnh viễn
+                        Item caiTrangBiNgo = ItemService.gI().createNewItem((short) 739);
+                        caiTrangBiNgo.itemOptions.add(new ItemOption(50, 20)); // Sức đánh +20%
+                        caiTrangBiNgo.itemOptions.add(new ItemOption(77, 15)); // HP +15%
+                        caiTrangBiNgo.itemOptions.add(new ItemOption(103, 15)); // KI +15%
+                        InventoryService.gI().addItemBag(playerSummonShenron, caiTrangBiNgo);
+                        // Thú cưỡi Xe bí ngô (1346)
+                        Item xeBiNgo = ItemService.gI().createNewItem((short) 1346);
+                        InventoryService.gI().addItemBag(playerSummonShenron, xeBiNgo);
+                        // Bí ngô nhí nhánh (910)
+                        Item biNgoNhiNhanh = ItemService.gI().createNewItem((short) 910);
+                        InventoryService.gI().addItemBag(playerSummonShenron, biNgoNhiNhanh);
+                        // Kẹo bí ngô x99 (1357)
+                        Item keoBiNgo = ItemService.gI().createNewItem((short) 1357, 99);
+                        InventoryService.gI().addItemBag(playerSummonShenron, keoBiNgo);
+                        InventoryService.gI().sendItemBag(playerSummonShenron);
+                        Service.gI().sendThongBao(playerSummonShenron,
+                                "Bạn nhận được Set Bí Ngô!\n"
+                                + "Cải trang Bill Bí Ngô (SĐ+20%, HP+15%, KI+15%)\n"
+                                + "Xe Bí Ngô + Bí Ngô Nhí Nhánh + Kẹo Bí Ngô x99");
+                        BadgesTaskService.updateCountBagesTask(playerSummonShenron, ConstTaskBadges.TRUM_UOC_RONG, 1);
+                        break;
                 }
                 break;
             case ConstNpc.SHENRON_2:
@@ -587,6 +618,10 @@ public class SummonDragon {
             case ConstNpc.SHENRON_3:
                 wish = SHENRON_3_STARS_WHISHES[select];
                 break;
+        }
+        if (wish == null) {
+            System.out.println("[RỒNG THẦN] LỖI: wish null! menu=" + menu + " select=" + select);
+            wish = "Điều ước";
         }
         NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_CONFIRM, "Ngươi có chắc muốn ước?", wish, "Từ chối");
     }
@@ -925,22 +960,40 @@ public class SummonDragon {
                         InventoryService.gI().findItemBag(pl, i), 1);
             } catch (Exception ignored) {}
         }
-        // Tạo Túi NR Băng (2017)
-        Item tuiNRBang = ItemService.gI().createNewItem(TUI_NGOC_RONG_BANG);
-        InventoryService.gI().addItemBag(pl, tuiNRBang);
-        InventoryService.gI().sendItemBag(pl);
-        Service.gI().sendThongBao(pl,
-                "Ghép thành công! Nhận được Túi Ngọc Rồng Băng!\n"
-                + "Kết hợp với NR Siêu Cấp để triệu hồi Rồng Thần Đệ Tử!");
-        // Thông báo server
-        Message msg = null;
-        try {
-            msg = new Message(-25);
-            msg.writer().writeUTF(pl.name + " vừa ghép thành công Túi Ngọc Rồng Băng!");
-            Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
-        } catch (Exception ignored) {
-        } finally {
-            if (msg != null) msg.cleanup();
+        // Tỉ lệ ghép: 60% thành công, 40% thất bại
+        if (Util.isTrue(60, 100)) {
+            // THÀNH CÔNG
+            Item tuiNRBang = ItemService.gI().createNewItem(TUI_NGOC_RONG_BANG);
+            InventoryService.gI().addItemBag(pl, tuiNRBang);
+            InventoryService.gI().sendItemBag(pl);
+            Service.gI().sendThongBao(pl,
+                    "Ghép thành công! Nhận được Túi Ngọc Rồng Băng!\n"
+                    + "Kết hợp với NR Siêu Cấp để triệu hồi Rồng Thần Đệ Tử!");
+            Service.gI().sendEffAllPlayer(pl, (short) 13, 1, -1, 1);
+            Message msg = null;
+            try {
+                msg = new Message(-25);
+                msg.writer().writeUTF(pl.name + " vừa ghép thành công Túi Ngọc Rồng Băng!");
+                Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
+            } catch (Exception ignored) {
+            } finally {
+                if (msg != null) msg.cleanup();
+            }
+        } else {
+            // THẤT BẠI - mất 7 viên NR Băng
+            InventoryService.gI().sendItemBag(pl);
+            Service.gI().sendThongBao(pl,
+                    "Ghép thất bại! 7 viên Ngọc Rồng Băng đã bị tiêu hao!\n"
+                    + "Hãy thu thập lại và thử lần nữa!");
+            Message msg = null;
+            try {
+                msg = new Message(-25);
+                msg.writer().writeUTF(pl.name + " ghép Túi Ngọc Rồng Băng thất bại!");
+                Service.gI().sendMessAllPlayerIgnoreMe(pl, msg);
+            } catch (Exception ignored) {
+            } finally {
+                if (msg != null) msg.cleanup();
+            }
         }
     }
 
@@ -995,12 +1048,17 @@ public class SummonDragon {
         } finally {
             if (msg != null) msg.cleanup();
         }
-        activeShenron(pl, true, SummonDragon.DRAGON_PORUNGA);
-        // Hiện menu ước Đệ Tử
+        activeShenron(pl, true, SummonDragon.DRAGON_DET_TU);
+        // Hiện menu ước Đệ Tử (có hướng dẫn chi tiết)
         NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_DET_TU,
                 "Ta là Rồng Thần Đệ Tử!\n"
                 + "Mọi điều ước của ta chỉ dành cho đệ tử của ngươi.\n"
-                + "Hãy lựa chọn thật kỹ, ngươi chỉ có 5 phút!",
+                + "Hãy lựa chọn thật kỹ, ngươi chỉ có 5 phút!\n\n"
+                + "1) Reset & Nâng cấp: Reset SM đệ về 1.5M + random skill 2-3\n"
+                + "2) +20 Tỷ SM & TN cho đệ tử\n"
+                + "3) Thay chiêu 2-3 đệ tử + Chí mạng gốc +3%\n"
+                + "4) Set đồ Huyền Thoại (Áo, Quần, Găng, Giày) cho đệ\n"
+                + "5) +5 Tỷ SM & TN + Chí mạng gốc +2% cho đệ",
                 SHENRON_DET_TU_WISHES);
     }
 
@@ -1008,15 +1066,33 @@ public class SummonDragon {
         this.menuShenron = ConstNpc.SHENRON_DET_TU;
         this.select = select;
         String wish = SHENRON_DET_TU_WISHES[select];
+        // Mô tả chi tiết cho từng điều ước
+        String detail = switch (select) {
+            case 0 -> "Reset SM đệ tử về 1.5M\n+ Random lại skill 2-3 đệ tử";
+            case 1 -> "Đệ tử nhận +20 Tỷ Sức mạnh & Tiềm năng";
+            case 2 -> "Thay ngẫu nhiên chiêu 2-3 đệ tử\n+ Chí mạng gốc đệ tử +3%";
+            case 3 -> "Nhận Set Thần Linh cho đệ tử\n(Áo HP+25% KI+25%, Quần SD+55%,\nGăng SĐ+5000 SĐ+35%, Giày SD+55%)\nCần 4 ô hành trang trống!";
+            case 4 -> "Đệ tử nhận +5 Tỷ SM & TN\n+ Chí mạng gốc đệ tử +2%";
+            default -> "";
+        };
         NpcService.gI().createMenuRongThieng(pl, ConstNpc.SHENRON_DET_TU_CONFIRM,
-                "Ngươi có chắc muốn ước điều này cho đệ tử?", wish, "Từ chối");
+                "Ngươi có chắc muốn ước điều này cho đệ tử?\n\n" + detail, wish, "Từ chối");
     }
 
     public void confirmWishDetTu() {
         try {
-            if (this.playerSummonShenron == null || this.playerSummonShenron.pet == null) {
+            if (this.playerSummonShenron == null) {
+                System.out.println("[RỒNG ĐỆ TỬ] LỖI: playerSummonShenron is null!");
                 return;
             }
+            if (this.playerSummonShenron.pet == null) {
+                System.out.println("[RỒNG ĐỆ TỬ] LỖI: pet is null cho player " + this.playerSummonShenron.name);
+                Service.gI().sendThongBao(playerSummonShenron, "Ngươi chưa có đệ tử! Không thể thực hiện điều ước!");
+                shenronLeave(this.playerSummonShenron, WISHED);
+                return;
+            }
+            System.out.println("[RỒNG ĐỆ TỬ] " + this.playerSummonShenron.name
+                    + " chọn điều ước #" + this.select);
             switch (this.select) {
                 case 0: // Reset & Nâng cấp Toàn diện Đệ Tử
                     // Reset SM về 1.5M, giữ skill, random skill 2-3

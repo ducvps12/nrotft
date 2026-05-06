@@ -573,34 +573,49 @@ public class ServerManager {
     }
 
     /**
-     * Đóng server
+     * Đóng server — Lưu toàn bộ dữ liệu và tắt
      */
     public void close() {
-    isRunning = false;
-    try {
-        ClanService.gI().close();
-    } catch (Exception e) {
-        Logger.error("Lỗi save clan!\n");
-    }
-    try {
-        ConsignShopManager.gI().save();
-    } catch (Exception e) {
-        Logger.error("Lỗi save shop ký gửi!\n");
-    }
+        isRunning = false;
+        Logger.log(Logger.YELLOW, "=== BẮT ĐẦU QUY TRÌNH TẮT SERVER ===\n");
 
-    Client.gI().close();
-    EventDAO.save();
-    Logger.log("SUCCESSFULLY MAINTENANCE!\n");
+        // Phase 1: Save toàn bộ player online
+        try {
+            Logger.log(Logger.YELLOW, "SHUTDOWN Phase 1: Đang lưu data toàn bộ người chơi...\n");
+            Client.gI().close();
+            Logger.log(Logger.GREEN, "SHUTDOWN Phase 1: Đã lưu xong data người chơi.\n");
+        } catch (Exception e) {
+            Logger.error("Lỗi save player data: " + e.getMessage() + "\n");
+        }
 
-    try {
-        ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "start", "run.bat");
-        pb.directory(new java.io.File("."));
-        pb.start();
-        Thread.sleep(2000);
-    } catch (Exception e) {
-        e.printStackTrace();
+        // Phase 2: Save clan
+        try {
+            Logger.log(Logger.YELLOW, "SHUTDOWN Phase 2: Đang lưu data clan...\n");
+            ClanService.gI().close();
+            Logger.log(Logger.GREEN, "SHUTDOWN Phase 2: Đã lưu xong data clan.\n");
+        } catch (Exception e) {
+            Logger.error("Lỗi save clan: " + e.getMessage() + "\n");
+        }
+
+        // Phase 3: Save shop ký gửi
+        try {
+            Logger.log(Logger.YELLOW, "SHUTDOWN Phase 3: Đang lưu shop ký gửi...\n");
+            ConsignShopManager.gI().save();
+            Logger.log(Logger.GREEN, "SHUTDOWN Phase 3: Đã lưu xong shop ký gửi.\n");
+        } catch (Exception e) {
+            Logger.error("Lỗi save shop ký gửi: " + e.getMessage() + "\n");
+        }
+
+        // Phase 4: Save event data
+        try {
+            EventDAO.save();
+            Logger.log(Logger.GREEN, "SHUTDOWN Phase 4: Đã lưu event data.\n");
+        } catch (Exception e) {
+            Logger.error("Lỗi save event: " + e.getMessage() + "\n");
+        }
+
+        Logger.log(Logger.GREEN, "=== ĐÃ LƯU TOÀN BỘ DỮ LIỆU — TẮT SERVER ===\n");
+        System.exit(0);
     }
-
-    System.exit(0);
 }
-}
+

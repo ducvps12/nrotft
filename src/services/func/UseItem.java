@@ -3371,8 +3371,9 @@ public class UseItem {
                         "Bạn đã có đủ 7 viên Ngọc Rồng Băng 1-7 sao!\n\n"
                         + "Ghép thành: Túi Ngọc Rồng Băng\n"
                         + "→ Kết hợp với NR Siêu Cấp để gọi Rồng Thần Đệ Tử!\n\n"
-                        + "⚠ 7 viên NR Băng sẽ bị tiêu hao.",
-                        "Ghép ngay!", "Huỷ");
+                        + "⚠ Tỉ lệ: 60% thành công | 40% thất bại\n"
+                        + "⚠ Thất bại = MẤT HẾT 7 viên NR Băng!",
+                        "Ghép ngay!\n(60%)", "Huỷ");
             }
         } else if (tempId == SummonDragon.TUI_NGOC_RONG_BANG) {
             // Túi NR Băng (2017): nếu có NR Siêu Cấp → gọi Rồng Thần Đệ Tử

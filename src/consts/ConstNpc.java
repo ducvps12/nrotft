@@ -534,6 +534,9 @@ public class ConstNpc {
         public static final int MENU_LTN_VIP_PET_CONFIRM_4 = 2114; // Xác nhận VIP Đệ CAO THỦ (tier 4)
         public static final int MENU_LTN_VIP_PET_CONFIG = 2115; // Cấu hình VIP Đệ CAO THỦ
         public static final int MENU_LTN_PET_GUIDE = 2116;     // Hướng dẫn hệ thống Đệ Tử
+        public static final int MENU_LTN_PET_GUIDE_2 = 2117;   // Hướng dẫn Đệ Tử trang 2
+        public static final int MENU_LTN_PET_GUIDE_3 = 2118;   // Hướng dẫn Đệ Tử trang 3
+        public static final int MENU_LTN_GUIDE = 2119;         // Hướng dẫn dịch vụ (tổng)
 
         // ===================== MENU CHAMPA (Thu Gom Rác) =====================
         public static final int MENU_CHAMPA_MAIN = 2300;
@@ -551,4 +554,18 @@ public class ConstNpc {
         public static final int MENU_HMN_CHON_CT = 2401;   // Chọn cải trang từ túi
         public static final int MENU_HMN_CHON_PHI = 2402;  // Chọn phương thức thanh toán
         public static final int MENU_HMN_CONFIRM = 2403;   // Xác nhận hiến tế
+
+        // ===================== MENU KING FURRY GUIDE (Tut & Trick) =====================
+        public static final byte KING_FURRY_GUIDE = 120;        // NPC King Furry Guide tại STHB
+        public static final int MENU_KFG_MAIN = 2500;          // Menu chính (trang 1)
+        public static final int MENU_KFG_THOI_VANG = 2501;     // Mẹo kiếm Thỏi Vàng
+        public static final int MENU_KFG_XU_NRO = 2502;        // Mẹo kiếm Xu NRO (trang 1)
+        public static final int MENU_KFG_DE_TU = 2503;         // Mẹo nuôi Đệ Tử (trang 1)
+        public static final int MENU_KFG_TRANG_BI = 2504;      // Mẹo cường hóa Trang bị
+        public static final int MENU_KFG_BF_SECRET = 2505;     // Bí kíp Boss Farm
+        public static final int MENU_KFG_MAIN_2 = 2506;        // Menu chính (trang 2)
+        public static final int MENU_KFG_XU_NRO_2 = 2507;      // Mẹo kiếm Xu NRO (trang 2)
+        public static final int MENU_KFG_DE_TU_2 = 2508;       // Mẹo nuôi Đệ Tử (trang 2)
+        public static final int MENU_KFG_CHO_TT = 2509;        // Chợ Thông Tin (hiển thị kết quả)
+        public static final int MENU_KFG_CHO_TT_CONFIRM = 2510;// Chợ Thông Tin (xác nhận mua)
 }

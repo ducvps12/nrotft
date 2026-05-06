@@ -855,205 +855,69 @@ public class RewardService {
 
     }
 
-    // ========================LUCKY ROUND========================
+    // ========================LUCKY ROUND (CONFIG-DRIVEN)========================
     public List<Item> getListItemLuckyRound(Player player, int num, boolean vip) {
         List<Item> list = new ArrayList<>();
+        services.func.LuckyRoundConfig cfg = services.func.LuckyRoundConfig.gI();
+        List<services.func.LuckyRoundConfig.RewardTier> tiers = vip ? cfg.getVipTiers() : cfg.getNormalTiers();
+
         for (int i = 0; i < num; i++) {
-            Item it = ItemService.gI().createNewItem((short) 189); // vang
-            it.quantity = Util.nextInt(5, 50) * 1000;
-            if (vip) {
-                // ========== QUAY BẰNG THỎI VÀNG (VIP) - PHẦN THƯỞNG SIÊU HẤP DẪN ==========
-                // --- SSR GOD TIER: Goku Blue (1/10000) - Cải trang thần thoại ---
-                if (Util.isTrue(1, 10000)) {
-                    it = ItemService.gI().createNewItem((short) 1858); // Goku Blue
-                    it.quantity = 1;
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new Item.ItemOption(5, Util.nextInt(50, 60)));   // SĐ chí mạng
-                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(50, 60)));  // Sức đánh %
-                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(50, 60)));  // HP %
-                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(50, 60))); // KI %
-                    it.itemOptions.add(new Item.ItemOption(99, Util.nextInt(50, 60)));  // Xuyên giáp
-                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(15, 20)));  // Chí mạng
-                    it.itemOptions.add(new Item.ItemOption(125, Util.nextInt(15, 20))); // Hồi phục HP
-                    it.itemOptions.add(new Item.ItemOption(116, 0));                    // Kháng TDHS
-                    ServerNotify.gI().notify("🌟🌟🌟 JACKPOT! " + player.name + " trúng CT GOKU BLUE GOD từ Vòng Quay Thỏi Vàng! 🌟🌟🌟");
-                    Service.gI().sendThongBaoAllPlayer("[JACKPOT] " + player.name + " trúng CT GOKU BLUE GOD từ Vòng Quay Thỏi Vàng!");
-                }
-                // --- SSR TIER: Hào quang God (1/5000) ---
-                else if (Util.isTrue(1, 5000)) {
-                    it = ItemService.gI().createNewItem((short) 2005); // Hào quang God
-                    it.quantity = 1;
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(25, 35)));  // Sức đánh %
-                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(25, 35)));  // HP %
-                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(25, 35))); // KI %
-                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(10, 18)));  // Chí mạng
-                    it.itemOptions.add(new Item.ItemOption(94, Util.nextInt(20, 30)));  // Giáp %
-                    it.itemOptions.add(new Item.ItemOption(30, 0));                     // Không GD
-                    ServerNotify.gI().notify("✨ " + player.name + " vừa trúng HÀO QUANG GOD từ Vòng Quay Thỏi Vàng! ✨");
-                    Service.gI().sendThongBaoAllPlayer("[SSR] " + player.name + " trúng HÀO QUANG GOD từ Vòng Quay Thỏi Vàng!");
-                }
-                // --- LEGENDARY TIER: Thú cưỡi / Pet (1/2000) ---
-                else if (Util.isTrue(1, 2000)) {
-                    int[] legendaryItems = { 1904, 1564 }; // Thú cưỡi rồng Siêu Cấp, Pet Po
-                    int chosenId = legendaryItems[Util.nextInt(legendaryItems.length)];
-                    it = ItemService.gI().createNewItem((short) chosenId);
-                    it.quantity = 1;
-                    it.itemOptions.clear();
-                    it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 30)));
-                    it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 30)));
-                    it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(20, 30)));
-                    it.itemOptions.add(new Item.ItemOption(14, Util.nextInt(5, 12)));
-                    it.itemOptions.add(new Item.ItemOption(30, 0));
-                    ServerNotify.gI().notify("🔥 " + player.name + " vừa trúng " + it.template.name + " từ Vòng Quay Thỏi Vàng!");
-                    Service.gI().sendThongBaoAllPlayer("[LEGENDARY] " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
-                }
-                // --- EPIC TIER: Set Thần Linh + Bông tai Porata (1/500) ---
-                else if (Util.isTrue(1, 500)) {
-                    // Thần Linh: Trái Đất (555,556,562,563), Namếc (557,558,564,565), Xayda (559,560,566,567), Nhẫn (561)
-                    int[] epicItems = {
-                        555, 556, 562, 563,  // Áo/Quần/Găng/Giày TĐ
-                        557, 558, 564, 565,  // Áo/Quần/Găng/Giày Namếc
-                        559, 560, 566, 567,  // Áo/Quần/Găng/Giày Xayda
-                        561,                 // Nhẫn Thần Linh
-                        921                  // Bông tai Porata +2
-                    };
-                    int chosenId = epicItems[Util.nextInt(epicItems.length)];
-                    it = ItemService.gI().createNewItem((short) chosenId);
-                    it.quantity = 1;
-                    // Thêm chỉ số base cho đồ Thần Linh (áo/quần/găng/giày)
-                    if (chosenId != 921) { // Không phải bông tai
+            // Mặc định: vàng
+            Item it = ItemService.gI().createNewItem((short) 189);
+            it.quantity = Util.nextInt(cfg.getDefaultGoldMin() / 1000, cfg.getDefaultGoldMax() / 1000) * 1000;
+            if (it.quantity < 1000) it.quantity = 1000;
+
+            // Check từng tier theo thứ tự (cascade)
+            for (services.func.LuckyRoundConfig.RewardTier tier : tiers) {
+                if (!tier.enabled || tier.items.isEmpty()) continue;
+                if (tier.ratioDenominator <= 0) continue;
+
+                if (Util.isTrue(tier.ratioNumerator, tier.ratioDenominator)) {
+                    // Chọn item theo weight
+                    services.func.LuckyRoundConfig.RewardItem chosen = pickWeightedItem(tier.items);
+                    if (chosen == null) break;
+
+                    it = ItemService.gI().createNewItem((short) chosen.itemId);
+                    it.quantity = (chosen.quantityMin == chosen.quantityMax)
+                        ? chosen.quantityMin
+                        : Util.nextInt(chosen.quantityMin, chosen.quantityMax);
+
+                    // Áp dụng options
+                    if (!chosen.options.isEmpty()) {
                         it.itemOptions.clear();
-                        int type = it.template.type; // 0=áo, 1=quần, 2=găng, 3=giày, 4=nhẫn
-                        initBaseOptionClothes(chosenId, type, it.itemOptions);
+                        for (services.func.LuckyRoundConfig.ItemOptionDef opt : chosen.options) {
+                            int val = (opt.valueMin == opt.valueMax) ? opt.valueMin : Util.nextInt(opt.valueMin, opt.valueMax);
+                            it.itemOptions.add(new Item.ItemOption(opt.optionId, val));
+                        }
                     }
-                    ServerNotify.gI().notify("🎉 " + player.name + " vừa trúng " + it.template.name + " từ Vòng Quay Thỏi Vàng!");
-                    Service.gI().sendThongBaoAllPlayer("[EPIC] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
-                }
-                // --- RARE TIER: Chân Mệnh / Sách tuyệt kỹ / Giáp tập luyện (1/100) ---
-                else if (Util.isTrue(1, 100)) {
-                    int[] rareItems = { 1893, 1278, 1751 }; // Chân Mệnh c9, Sách tuyệt kỹ 2, Giáp tập luyện c4
-                    int chosenId = rareItems[Util.nextInt(rareItems.length)];
-                    it = ItemService.gI().createNewItem((short) chosenId);
-                    it.quantity = 1;
-                    if (chosenId == 1893) { // Chân Mệnh Cấp 9
-                        it.itemOptions.clear();
-                        it.itemOptions.add(new Item.ItemOption(50, Util.nextInt(8, 15)));
-                        it.itemOptions.add(new Item.ItemOption(77, Util.nextInt(8, 15)));
-                        it.itemOptions.add(new Item.ItemOption(103, Util.nextInt(8, 15)));
-                    } else if (chosenId == 1751) { // Giáp tập luyện cấp 4 - cần option 9 để tích điểm
-                        it.itemOptions.add(new Item.ItemOption(9, 0)); // Điểm tập luyện ban đầu = 0
+
+                    // Thông báo server
+                    if (tier.announce && tier.announcePrefix != null && !tier.announcePrefix.isEmpty()) {
+                        String msg = "[" + tier.announcePrefix + "] " + player.name + " trúng " + it.template.name + " từ Vòng Quay!";
+                        ServerNotify.gI().notify(msg);
+                        Service.gI().sendThongBaoAllPlayer(msg);
                     }
-                    Service.gI().sendThongBaoAllPlayer("[RARE] Chúc mừng " + player.name + " trúng " + it.template.name + " từ Vòng Quay!");
-                }
-                // --- VIP CT TIER: Cải trang VIP 20-40% (1/50) ---
-                else if (Util.isTrue(1, 50)) {
-                    // CHỈ cải trang, KHÔNG bao gồm đồ NRO thường
-                    int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 999, 1000, 1001 };
-                    int itemid = itemId[Util.nextInt(itemId.length)];
-                    byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
-                    byte[] option_v2 = { 14, 16, 17, 19, 27, 28, 5, 47, 87 };
-                    Item vpdl = ItemService.gI().createNewItem((short) itemid);
-                    vpdl.itemOptions.clear();
-                    if (Util.isTrue(1, 50)) {
-                        // SSR tier — 35-50%
-                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(35, 50)));
-                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(35, 50)));
-                        vpdl.itemOptions.add(new Item.ItemOption(103, Util.nextInt(35, 50)));
-                    } else {
-                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 40)));
-                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 40)));
-                    }
-                    byte optionid = option[Util.nextInt(0, option.length - 1)];
-                    vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(8, 18)));
-                    if (Util.isTrue(15, 100)) {
-                        byte optionid_v2 = option_v2[Util.nextInt(0, option_v2.length - 1)];
-                        vpdl.itemOptions.add(new Item.ItemOption(optionid_v2, Util.nextInt(5, 12)));
-                    }
-                    vpdl.itemOptions.add(new Item.ItemOption(30, 0));
-                    if (Util.isTrue(90, 100)) {
-                        vpdl.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 30)));
-                    }
-                    it = vpdl;
-                    it.quantity = 1;
-                    Service.gI().sendThongBaoAllPlayer("[VIP] Chúc mừng " + player.name + " trúng CT " + it.template.name + " chỉ số khủng từ Vòng Quay!");
-                }
-                // --- UNCOMMON: Hộp SKH Thần Linh / Phụ kiện (1/300) ---
-                else if (Util.isTrue(1, 300)) {
-                    if (Util.isTrue(50, 100)) {
-                        it = ItemService.gI().createNewItem((short) 1703); // Hộp SKH Thần Linh
-                        it.quantity = 1;
-                        Service.gI().sendThongBao(player, "🎁 Chúc mừng! Bạn trúng Hộp SKH Thần Linh!");
-                        Service.gI().sendThongBaoAllPlayer("[RARE] " + player.name + " trúng Hộp SKH Thần Linh từ Vòng Quay!");
-                    } else {
-                        it = ItemService.gI().createNewItem((short) 1855); // Mảnh vỡ bông tai cấp 3
-                        it.quantity = Util.nextInt(1, 3);
-                    }
-                }
-                // --- COMMON: Capsule / Sách / Đồ phụ (1/5) ---
-                else if (Util.isTrue(1, 5)) {
-                    int rng = Util.nextInt(100);
-                    if (rng < 25) {
-                        it = ItemService.gI().createNewItem((short) 956);  // Capsule
-                        it.quantity = Util.nextInt(1, 5);
-                    } else if (rng < 50) {
-                        it = ItemService.gI().createNewItem((short) Util.nextInt(220, 224)); // Sách
-                        it.quantity = Util.nextInt(1, 5);
-                    } else if (rng < 75) {
-                        it = ItemService.gI().createNewItem((short) 585);  // Đá xanh lam
-                        it.quantity = Util.nextInt(1, 5);
-                    } else {
-                        it = ItemService.gI().createNewItem((short) Util.nextInt(18, 20)); // Capsule thời trang
-                        it.quantity = Util.nextInt(1, 3);
-                    }
-                }
-                // --- Còn lại: Vàng thưởng ---
-                // (giữ nguyên it = vàng ở trên)
-            } else {
-                // === QUAY THƯỜNG (Vàng/Ngọc): Tier trung bình 10-25% ===
-                if (Util.isTrue(1, 2)) {
-                    int[] itemId = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 1000 };
-                    int itemid = itemId[Util.nextInt(itemId.length)];
-                    if (Util.isTrue(20, 100)) {
-                        int[] itemId2 = { 467, 468, 469, 470, 471, 741, 745, 800, 801, 803, 804, 999, 1000, 1001 };
-                        itemid = itemId2[Util.nextInt(itemId2.length)];
-                    }
-                    byte[] option = { 77, 80, 81, 103, 50, 94, 5 };
-                    byte optionid;
-                    Item vpdl = ItemService.gI().createNewItem((short) itemid);
-                    vpdl.itemOptions.clear();
-                    if (Util.isTrue(1, 20)) {
-                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(20, 30)));
-                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(20, 30)));
-                        optionid = option[Util.nextInt(0, 6)];
-                        vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(8, 15)));
-                    } else {
-                        vpdl.itemOptions.add(new Item.ItemOption(77, Util.nextInt(10, 25)));
-                        vpdl.itemOptions.add(new Item.ItemOption(50, Util.nextInt(10, 25)));
-                        optionid = option[Util.nextInt(0, 6)];
-                        vpdl.itemOptions.add(new Item.ItemOption(optionid, Util.nextInt(5, 12)));
-                    }
-                    vpdl.itemOptions.add(new Item.ItemOption(30, 0));
-                    vpdl.itemOptions.add(new Item.ItemOption(93, Util.nextInt(1, 30)));
-                    it = vpdl;
-                    it.quantity = 1;
-                } else if (Util.isTrue(1, 20)) {
-                    it = ItemService.gI().createNewItem((short) 585);
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 100)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(18, 20));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 30)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(220, 224));
-                    it.quantity = Util.nextInt(1, 5);
-                } else if (Util.isTrue(1, 100)) {
-                    it = ItemService.gI().createNewItem((short) Util.nextInt(828, 842));
-                    it.quantity = Util.nextInt(1, 5);
+                    break; // Đã trúng tier, không check tiếp
                 }
             }
             list.add(it);
         }
         return list;
+    }
+
+    /** Chọn item theo trọng số weight */
+    private services.func.LuckyRoundConfig.RewardItem pickWeightedItem(List<services.func.LuckyRoundConfig.RewardItem> items) {
+        if (items.isEmpty()) return null;
+        if (items.size() == 1) return items.get(0);
+        int totalWeight = 0;
+        for (services.func.LuckyRoundConfig.RewardItem item : items) totalWeight += Math.max(1, item.weight);
+        int roll = Util.nextInt(totalWeight);
+        int cumulative = 0;
+        for (services.func.LuckyRoundConfig.RewardItem item : items) {
+            cumulative += Math.max(1, item.weight);
+            if (roll < cumulative) return item;
+        }
+        return items.get(items.size() - 1);
     }
 
     public Item itemRand(Item item, boolean success) {

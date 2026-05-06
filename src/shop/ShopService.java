@@ -87,6 +87,14 @@ public class ShopService {
                 }
             }
             shop = this.resolveShop(player, shop, allGender);
+            
+            // Loại Xu NRO (1705) khỏi shop OSIN — phải đổi qua menu riêng (1000 ĐNS : 1 Xu)
+            if (tagName.equals("OSIN")) {
+                for (TabShop tabShop : shop.tabShops) {
+                    tabShop.itemShops.removeIf(item -> item.temp.id == 1705);
+                }
+            }
+            
             switch (shop.typeShop) {
                 case KINANG_SHOP:
                     openShopType1(player, shop);
