@@ -40,7 +40,7 @@ public class Bill extends Npc {
                 createOtherMenu(player, ConstNpc.BASE_MENU,
                         "Chưa tới giờ thi đấu, xem hướng dẫn để biết thêm chi tiết",
                         "Nói\nchuyện", "Hướng\ndẫn\nthêm", "Đổi thức ăn\nlấy phiếu ăn", "Đổi phiếu ăn\nlấy quà",
-                        "Shop\nPhiếu\nGiảm Giá", "Từ chối");
+                        "Từ chối");
             }
         }
     }
@@ -77,17 +77,7 @@ public class Bill extends Npc {
                                 case 3 -> {
                                     ShopService.gI().opendShop(player, "SHOP_SU_KIEN_VL", true);
                                 }
-                                case 4 -> {
-                                    // Shop Phiếu Giảm Giá — dùng phiếu giảm giá (item 459) để đổi đồ
-                                    Item phieu = InventoryService.gI().findItem(player.inventory.itemsBag, 459);
-                                    int soPhieu = (phieu != null) ? phieu.quantity : 0;
-                                    if (soPhieu > 0) {
-                                        Service.gI().sendThongBao(player, "Ban co " + soPhieu + " Phieu Giam Gia. Dung de doi do tai Shop Su Kien!");
-                                    } else {
-                                        Service.gI().sendThongBao(player, "Ban chua co Phieu Giam Gia! Nhan tu goi VIP, Boss, hoac su kien.");
-                                    }
-                                    ShopService.gI().opendShop(player, "SHOP_SU_KIEN_VL", true);
-                                }
+                                // case 4 = Từ chối (đóng menu)
                             }
                         }
                         case 2 -> {
