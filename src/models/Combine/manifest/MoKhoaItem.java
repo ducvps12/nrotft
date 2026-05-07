@@ -8,6 +8,7 @@
  *
  * QUAN TRỌNG:
  *   - Chỉ xử lý TỪNG ITEM MỘT (quantity = 1)
+ *   - Nếu item có quantity > 1, tự động tách lẻ 1 cái (tốn 10tr vàng)
  *   - Không cho phép mở khóa Thỏi Vàng (ID 457) — tránh loạn kinh tế
  *   - Item PHẢI có option 30 thực sự mới được mở khóa
  */
@@ -21,6 +22,7 @@ import java.util.List;
 import models.Combine.CombineService;
 import nro.player.Player;
 import nro.services.InventoryService;
+import nro.services.ItemService;
 import nro.services.Service;
 import utils.Util;
 
@@ -29,6 +31,7 @@ public class MoKhoaItem {
     private static final int DA_HOANG_KIM_ID = 1723;
     private static final int COST_RUBY = 2000;
     private static final int RATE_SUCCESS = 30; // 30%
+    private static final long COST_TACH_LE = 10_000_000L; // 10 triệu vàng để tách lẻ
 
     // Danh sách item KHÔNG ĐƯỢC MỞ KHÓA (tránh loạn kinh tế)
     private static final List<Integer> BLACKLIST_ITEM_IDS = Arrays.asList(
@@ -64,7 +67,9 @@ public class MoKhoaItem {
         if (player.combine.itemsCombine.size() != 2) {
             CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
                     "Cần đặt 1 Đá Hoàng Kim + 1 item bị khóa giao dịch\n"
-                    + "(CHỈ MỞ KHÓA TỪNG CÁI MỘT)", "Đóng");
+                    + "(CHỈ MỞ KHÓA TỪNG CÁI MỘT)\n"
+                    + "Nếu item có số lượng > 1 sẽ tự động tách lẻ\n"
+                    + "Phí tách: " + Util.numberToMoney(COST_TACH_LE) + " vàng", "Đóng");
             return;
         }
 
@@ -105,24 +110,24 @@ public class MoKhoaItem {
             return;
         }
 
-        // Chỉ cho phép quantity = 1
-        if (itemKhoaGD.quantity > 1) {
-            CombineService.gI().baHatMit.createOtherMenu(player, ConstNpc.IGNORE_MENU,
-                    "|7|Chỉ mở khóa TỪNG CÁI MỘT!\n"
-                    + "|8|Hãy tách ra 1 " + itemKhoaGD.template.name + " rồi thử lại.", "Đóng");
-            return;
-        }
-
         // Hiển thị thông tin item
         String npcSay = "|7|══════════════════\n"
                 + "|1|    🔓 MỞ KHÓA GIAO DỊCH\n"
                 + "|7|══════════════════\n"
-                + "|2|Item: " + itemKhoaGD.template.name + "\n|0|";
+                + "|2|Item: " + itemKhoaGD.template.name + " (x" + itemKhoaGD.quantity + ")\n|0|";
         for (Item.ItemOption io : itemKhoaGD.itemOptions) {
             if (io.optionTemplate.id != 72) {
                 npcSay += io.getOptionString() + "\n";
             }
         }
+
+        // Thông báo tách lẻ nếu quantity > 1
+        if (itemKhoaGD.quantity > 1) {
+            npcSay += "\n|6|⚠ Số lượng: " + itemKhoaGD.quantity + " cái\n"
+                    + "|1|Sẽ tự động tách lẻ 1 cái để mở khóa\n"
+                    + "|7|Phí tách: |6|" + Util.numberToMoney(COST_TACH_LE) + " vàng\n";
+        }
+
         npcSay += "\n|7|──────────────────\n"
                 + "|2|Sau mở khóa: Item giao dịch được\n"
                 + "|1|Tỉ lệ: " + RATE_SUCCESS + "% thành công\n"
@@ -176,12 +181,51 @@ public class MoKhoaItem {
             return;
         }
 
-        // === BẢO VỆ: Chỉ cho phép quantity = 1 ===
+        // === TÁCH LẺ: Nếu quantity > 1, tách 1 cái ra (tốn 10tr vàng) ===
         if (trangBiKhoaGD.quantity > 1) {
-            Service.gI().sendThongBao(player, "Chỉ mở khóa TỪNG CÁI MỘT! Hãy tách ra 1 item.");
-            player.combine.itemsCombine.clear();
-            CombineService.gI().reOpenItemCombine(player);
-            return;
+            // Kiểm tra đủ vàng để tách
+            if (player.inventory.gold < COST_TACH_LE) {
+                Service.gI().sendThongBao(player,
+                        "Cần " + Util.numberToMoney(COST_TACH_LE) + " vàng để tách lẻ 1 item!\n"
+                        + "Hiện có: " + Util.numberToMoney(player.inventory.gold) + " vàng");
+                return;
+            }
+            // Cần 1 ô trống để chứa item tách ra
+            if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+                Service.gI().sendThongBao(player, "Cần ít nhất 1 ô trống để tách lẻ item!");
+                return;
+            }
+
+            // Trừ vàng tách lẻ
+            player.inventory.gold -= COST_TACH_LE;
+
+            // Tách: giảm quantity gốc đi 1, tạo item mới quantity = 1 với cùng options
+            trangBiKhoaGD.quantity -= 1;
+
+            // Tạo bản sao item mới với quantity = 1
+            Item itemTachLe = ItemService.gI().createNewItem(trangBiKhoaGD.template.id);
+            itemTachLe.quantity = 1;
+            itemTachLe.itemOptions.clear();
+            for (ItemOption opt : trangBiKhoaGD.itemOptions) {
+                itemTachLe.itemOptions.add(new ItemOption(opt.optionTemplate.id, opt.param));
+            }
+
+            // Thay thế item trong combine bằng item tách lẻ
+            // Thêm item tách lẻ vào hành trang
+            InventoryService.gI().addItemBag(player, itemTachLe);
+
+            // Cập nhật combine: thay trangBiKhoaGD bằng itemTachLe
+            int idx = player.combine.itemsCombine.indexOf(trangBiKhoaGD);
+            if (idx >= 0) {
+                player.combine.itemsCombine.set(idx, itemTachLe);
+            }
+            trangBiKhoaGD = itemTachLe;
+
+            Service.gI().sendThongBao(player,
+                    "|1|✂ TÁCH LẺ THÀNH CÔNG!\n"
+                    + "Đã tách 1 " + trangBiKhoaGD.template.name + "\n"
+                    + "Phí: " + Util.numberToMoney(COST_TACH_LE) + " vàng\n"
+                    + "Đang tiến hành mở khóa...");
         }
 
         if (InventoryService.gI().getCountEmptyBag(player) <= 0) {

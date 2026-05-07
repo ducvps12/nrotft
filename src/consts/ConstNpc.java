@@ -548,6 +548,8 @@ public class ConstNpc {
         public static final int MENU_CHAMPA_DOI_DBV_CONFIRM = 2306;
         public static final int MENU_CHAMPA_GOM_MANH = 2307;       // Gom mảnh Rồng thần Namếc
         public static final int MENU_CHAMPA_GOM_CONFIRM = 2308;    // Xác nhận gom mảnh
+        public static final int MENU_CHAMPA_SHOP_HIEN_TE = 2309;   // Shop Hiến Tế
+        public static final int MENU_CHAMPA_SHOP_HT_CONFIRM = 2310;// Xác nhận Shop Hiến Tế
 
         // ===================== MENU HẮC MỊ NƯƠNG (Hiến tế Cải trang) =====================
         public static final int MENU_HMN_MAIN = 2400;
@@ -568,4 +570,28 @@ public class ConstNpc {
         public static final int MENU_KFG_DE_TU_2 = 2508;       // Mẹo nuôi Đệ Tử (trang 2)
         public static final int MENU_KFG_CHO_TT = 2509;        // Chợ Thông Tin (hiển thị kết quả)
         public static final int MENU_KFG_CHO_TT_CONFIRM = 2510;// Chợ Thông Tin (xác nhận mua)
+
+        // ===================== NPC THU THUẾ (Kochiro) & HOÀN THUẾ (Musashi) =====================
+        public static final byte THU_THUE = 121;                  // NPC Thu Thuế (Kochiro template)
+        public static final byte HOAN_THUE = 122;                 // NPC Hoàn Thuế (Musashi template)
+
+        // --- Menu Thu Thuế ---
+        public static final int MENU_THU_THUE_MAIN = 2600;        // Menu chính Thu Thuế
+        public static final int MENU_THU_THUE_SO_THUE = 2601;     // Sổ Thuế cá nhân
+        public static final int MENU_THU_THUE_DONG = 2602;        // Đóng thuế (chọn loại)
+        public static final int MENU_THU_THUE_CONFIRM = 2603;     // Xác nhận đóng thuế
+        public static final int MENU_THU_THUE_BIEU = 2604;        // Biểu thuế lũy tiến
+        public static final int MENU_THU_THUE_HUONG_DAN = 2605;   // Hướng dẫn thuế (trang 1)
+        public static final int MENU_THU_THUE_HUONG_DAN_2 = 2606; // Hướng dẫn thuế (trang 2)
+        public static final int MENU_THU_THUE_PHAT = 2607;        // Bảng phạt trốn thuế
+
+        // --- Menu Hoàn Thuế ---
+        public static final int MENU_HOAN_THUE_MAIN = 2700;       // Menu chính Hoàn Thuế
+        public static final int MENU_HOAN_THUE_MAIN_2 = 2701;     // Menu trang 2
+        public static final int MENU_HOAN_THUE_HOAN = 2702;       // Màn hình hoàn thuế
+        public static final int MENU_HOAN_THUE_CONFIRM = 2703;    // Xác nhận hoàn thuế
+        public static final int MENU_HOAN_THUE_TU_VAN = 2704;     // Tư vấn giảm thuế
+        public static final int MENU_HOAN_THUE_DEBUFF = 2705;     // Kiểm tra debuff
+        public static final int MENU_HOAN_THUE_LICH_SU = 2706;    // Lịch sử đóng thuế
+        public static final int MENU_HOAN_THUE_CHUNG_NHAN = 2707; // Chứng nhận công dân gương mẫu
 }

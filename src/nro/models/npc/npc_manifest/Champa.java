@@ -33,6 +33,21 @@ public class Champa extends Npc {
     private static final int MENU_DOI_DBV_CONFIRM = ConstNpc.MENU_CHAMPA_DOI_DBV_CONFIRM;
     private static final int MENU_GOM_MANH = ConstNpc.MENU_CHAMPA_GOM_MANH;
     private static final int MENU_GOM_CONFIRM = ConstNpc.MENU_CHAMPA_GOM_CONFIRM;
+    private static final int MENU_SHOP_HIEN_TE = ConstNpc.MENU_CHAMPA_SHOP_HIEN_TE;
+    private static final int MENU_SHOP_HT_CONFIRM = ConstNpc.MENU_CHAMPA_SHOP_HT_CONFIRM;
+
+    // ===================== SHOP HIẾN TẾ CONFIG =====================
+    private static final int COST_DA_BAO_VE_HT = 10;
+    private static final int COST_DA_NGU_SAC_HT = 10;
+    private static final int COST_THOI_VANG_HT = 100;
+    private static final int COST_GEM_HT = 100_000;      // 100k ngọc xanh
+    private static final int COST_RUBY_HT = 30_000;      // 30k hồng ngọc
+    private static final int COST_VND_HT = 100_000;       // 100k VNĐ
+    private static final int COST_COUPON_HT = 1000;       // 1000 xu ngọc rồng
+    private static final int BASE_RATE_HT = 50;           // 50% base
+    private static final int RATE_PER_HOP_SKH = 5;        // +5% mỗi hộp
+    private static final int MAX_RATE_HT = 95;            // Max 95%
+    private static final int ITEM_HOP_SKH = 1703;
 
     // ===================== ITEM IDS =====================
     // Nguyên liệu event thừa
@@ -75,8 +90,8 @@ public class Champa extends Npc {
                 "Bán nguyên liệu",
                 "Đổi Đá BV\n100→2 Ngũ Sắc",
                 "Gom mảnh\nRồng Namếc",
-                "Xem bảng giá",
-                "Hiến tế\nTrang bị");
+                "Hiến tế\nTrang bị",
+                "Shop Hiến Tế\n(Cải Trang VIP)");
         }
     }
 
@@ -89,6 +104,8 @@ public class Champa extends Npc {
                 case 2306 -> handleConfirmDoiDBV(player, select);
                 case 2307 -> handleGomManh(player, select);
                 case 2308 -> handleGomConfirm(player, select);
+                case 2309 -> handleShopHienTePreview(player, select);  // MENU_SHOP_HIEN_TE
+                case 2310 -> handleShopHienTeConfirm(player, select);  // MENU_SHOP_HT_CONFIRM
                 // Xử lý khi user nhấn nút trong popup "Hiến tế" hoặc "Bán đồ rác"
                 case ConstNpc.MENU_START_COMBINE -> {
                     if (select == 0) {
@@ -129,11 +146,11 @@ public class Champa extends Npc {
             case 1 -> showPreviewBanNL(player);
             case 2 -> showDoiDBVMenu(player);
             case 3 -> showGomManhMenu(player);
-            case 4 -> showBangGia(player);
-            case 5 -> {
+            case 4 -> {
                 // Mở panel UI combine hiến tế
                 CombineService.gI().openTabCombine(player, CombineService.CHAMPA_HIEN_TE);
             }
+            case 5 -> showShopHienTe(player);
         }
     }
 
@@ -393,37 +410,154 @@ public class Champa extends Npc {
         }
     }
 
-    // ===================== BẢNG GIÁ =====================
-    private void showBangGia(Player player) {
-        String bangGia = "=== BẢNG GIÁ THU MUA ===\n\n"
-            + "|7|[Đồ Rác → Vàng + Ngọc]\n"
-            + "|2|Ngọc Rồng 7 sao: 5tr vàng + 500 ngọc\n"
-            + "Ngọc Rồng 6 sao: 3tr vàng + 300 ngọc\n"
-            + "Ngọc Rồng 5 sao: 2tr vàng + 200 ngọc\n"
-            + "Ngọc Rồng 4 sao: 1tr vàng + 100 ngọc\n"
-            + "Ngọc Rồng 3 sao: 500k vàng + 50 ngọc\n"
-            + "Ngọc Rồng 2 sao: 200k vàng + 20 ngọc\n"
-            + "Ngọc Rồng 1 sao: 100k vàng + 10 ngọc\n"
-            + "Đá nâng cấp: 1tr vàng + 100 ngọc/viên\n"
-            + "Thức ăn: 100k vàng/cái\n\n"
-            + "|7|[TB Lỗi (không option) → Vàng]\n"
-            + "|2|TB cấp 12+: 10tr vàng + 50 ngọc\n"
-            + "TB cấp 9-11: 5tr vàng + 50 ngọc\n"
-            + "TB cấp 5-8: 2tr vàng + 50 ngọc\n"
-            + "TB cấp 1-4: 500k vàng + 50 ngọc\n\n"
-            + "|3|[Cải Trang Lỗi → Thỏi Vàng]\n"
-            + "CT không chỉ số: 1 TV/món\n"
-            + "CT chỉ số thấp (<10): 1 TV/món\n\n"
-            + "|7|[NL Event → Ngọc/Ruby]\n"
-            + "|2|5 NL = 1 Ngọc Xanh\n"
-            + "10 NL = 1 Hồng Ngọc\n\n"
-            + "|7|[Đổi Đá BV]\n"
-            + "|2|100 ĐBV → 2 Đá Ngũ Sắc (80%)\n\n"
-            + "|7|[Gom Mảnh Rồng Namếc]\n"
-            + "|2|7 Mảnh → 1 Ngọc Rồng Namếc\n"
-            + "(random 1-7 sao)\n"
-            + "Đủ 7 NR → Về Mori gọi Rồng!";
-        Service.gI().sendThongBaoFromAdmin(player, bangGia);
+    // ===================== SHOP HIẾN TẾ =====================
+    private void showShopHienTe(Player player) {
+        int soDBV = countItemById(player, DA_BAO_VE);
+        int soDNS = countItemById(player, DA_NGU_SAC);
+        int soTV = countItemById(player, THOI_VANG);
+        int soHopSKH = countItemById(player, ITEM_HOP_SKH);
+        int rate = Math.min(BASE_RATE_HT + soHopSKH * RATE_PER_HOP_SKH, MAX_RATE_HT);
+
+        // Hàm check đủ/thiếu → màu xanh(2)/đỏ(6)
+        String c1 = soDBV >= COST_DA_BAO_VE_HT ? "2" : "6";
+        String c2 = soDNS >= COST_DA_NGU_SAC_HT ? "2" : "6";
+        String c3 = soTV >= COST_THOI_VANG_HT ? "2" : "6";
+        String c4 = player.inventory.coupon >= COST_COUPON_HT ? "2" : "6";
+        String c5 = player.inventory.gem >= COST_GEM_HT ? "2" : "6";
+        String c6 = player.inventory.ruby >= COST_RUBY_HT ? "2" : "6";
+        String c7 = player.getSession().vnd >= COST_VND_HT ? "2" : "6";
+
+        String info = "|1|★ HIẾN TẾ SIÊU CẤP ★\n"
+            + "|2|Thưởng: CT VIP HP+120% KI+120%\n\n"
+            + "|7|Chi phí:\n"
+            + "|" + c1 + "|" + COST_DA_BAO_VE_HT + " ĐBV(" + soDBV + ") "
+            + "|" + c2 + "|" + COST_DA_NGU_SAC_HT + " ĐNS(" + soDNS + ")\n"
+            + "|" + c3 + "|" + COST_THOI_VANG_HT + " TV(" + soTV + ") "
+            + "|" + c4 + "|1k Xu(" + player.inventory.coupon + ")\n"
+            + "|" + c5 + "|100k Ngọc(" + Util.numberToMoney(player.inventory.gem) + ")\n"
+            + "|" + c6 + "|30k Ruby(" + player.inventory.ruby + ") "
+            + "|" + c7 + "|100k VNĐ(" + Util.numberToMoney(player.getSession().vnd) + ")\n\n"
+            + "|1|Tỉ lệ: |2|" + rate + "% "
+            + "|8|Hụt: mất NL!\n";
+        if (soHopSKH > 0) {
+            info += "|2|SKH Thần: " + soHopSKH + "(+" + (soHopSKH * RATE_PER_HOP_SKH) + "%)\n";
+        } else {
+            info += "|6|+Hộp SKH Thần = +5%/hộp\n";
+        }
+
+        this.createOtherMenu(player, MENU_SHOP_HIEN_TE, info,
+            "Hiến tế!\n(" + rate + "%)", "Không");
+    }
+
+    private void handleShopHienTePreview(Player player, int select) {
+        if (select != 0) return;
+
+        // Kiểm tra tất cả nguyên liệu
+        int soDBV = countItemById(player, DA_BAO_VE);
+        int soDNS = countItemById(player, DA_NGU_SAC);
+        int soTV = countItemById(player, THOI_VANG);
+        int soHopSKH = countItemById(player, ITEM_HOP_SKH);
+
+        if (soDBV < COST_DA_BAO_VE_HT) { Service.gI().sendThongBao(player, "Thiếu Đá Bảo Vệ! Cần " + COST_DA_BAO_VE_HT + ", có " + soDBV); return; }
+        if (soDNS < COST_DA_NGU_SAC_HT) { Service.gI().sendThongBao(player, "Thiếu Đá Ngũ Sắc! Cần " + COST_DA_NGU_SAC_HT + ", có " + soDNS); return; }
+        if (soTV < COST_THOI_VANG_HT) { Service.gI().sendThongBao(player, "Thiếu Thỏi Vàng! Cần " + COST_THOI_VANG_HT + ", có " + soTV); return; }
+        if (player.inventory.coupon < COST_COUPON_HT) { Service.gI().sendThongBao(player, "Thiếu Xu NRO! Cần " + COST_COUPON_HT); return; }
+        if (player.inventory.gem < COST_GEM_HT) { Service.gI().sendThongBao(player, "Thiếu Ngọc Xanh! Cần " + Util.numberToMoney(COST_GEM_HT)); return; }
+        if (player.inventory.ruby < COST_RUBY_HT) { Service.gI().sendThongBao(player, "Thiếu Hồng Ngọc! Cần " + Util.numberToMoney(COST_RUBY_HT)); return; }
+        if (player.getSession().vnd < COST_VND_HT) { Service.gI().sendThongBao(player, "Thiếu VNĐ! Cần " + Util.numberToMoney(COST_VND_HT)); return; }
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) { Service.gI().sendThongBao(player, "Hành trang đầy!"); return; }
+
+        int rate = Math.min(BASE_RATE_HT + soHopSKH * RATE_PER_HOP_SKH, MAX_RATE_HT);
+
+        this.createOtherMenu(player, MENU_SHOP_HT_CONFIRM,
+            "|6|⚠ XÁC NHẬN HIẾN TẾ SIÊU CẤP\n"
+            + "|7|══════════════════\n"
+            + "|1|Sẽ trừ TẤT CẢ nguyên liệu:\n"
+            + "|2|" + COST_DA_BAO_VE_HT + " ĐBV + " + COST_DA_NGU_SAC_HT + " ĐNS + " + COST_THOI_VANG_HT + " TV\n"
+            + "|2|" + Util.numberToMoney(COST_COUPON_HT) + " Xu + " + Util.numberToMoney(COST_GEM_HT) + " Ngọc\n"
+            + "|2|" + Util.numberToMoney(COST_RUBY_HT) + " Ruby + " + Util.numberToMoney(COST_VND_HT) + " VNĐ\n\n"
+            + "|1|Tỉ lệ: |2|" + rate + "% thành công\n"
+            + "|6|Thất bại: MẤT TOÀN BỘ nguyên liệu!\n"
+            + "|7|══════════════════",
+            "HIẾN TẾ!", "Hủy");
+    }
+
+    private void handleShopHienTeConfirm(Player player, int select) {
+        if (select != 0) return;
+
+        // Re-check tất cả
+        int soDBV = countItemById(player, DA_BAO_VE);
+        int soDNS = countItemById(player, DA_NGU_SAC);
+        int soTV = countItemById(player, THOI_VANG);
+        int soHopSKH = countItemById(player, ITEM_HOP_SKH);
+
+        if (soDBV < COST_DA_BAO_VE_HT || soDNS < COST_DA_NGU_SAC_HT || soTV < COST_THOI_VANG_HT
+            || player.inventory.coupon < COST_COUPON_HT || player.inventory.gem < COST_GEM_HT
+            || player.inventory.ruby < COST_RUBY_HT || player.getSession().vnd < COST_VND_HT) {
+            Service.gI().sendThongBao(player, "Không đủ nguyên liệu!");
+            return;
+        }
+        if (InventoryService.gI().getCountEmptyBag(player) < 1) {
+            Service.gI().sendThongBao(player, "Hành trang đầy!");
+            return;
+        }
+
+        // === TRỪ NGUYÊN LIỆU ===
+        Item dbvItem = InventoryService.gI().findItemBag(player, DA_BAO_VE);
+        if (dbvItem != null) InventoryService.gI().subQuantityItemsBag(player, dbvItem, COST_DA_BAO_VE_HT);
+        Item dnsItem = InventoryService.gI().findItemBag(player, DA_NGU_SAC);
+        if (dnsItem != null) InventoryService.gI().subQuantityItemsBag(player, dnsItem, COST_DA_NGU_SAC_HT);
+        Item tvItem = InventoryService.gI().findItemBag(player, THOI_VANG);
+        if (tvItem != null) InventoryService.gI().subQuantityItemsBag(player, tvItem, COST_THOI_VANG_HT);
+        player.inventory.coupon -= COST_COUPON_HT;
+        player.inventory.gem -= COST_GEM_HT;
+        player.inventory.ruby -= COST_RUBY_HT;
+        player.getSession().vnd -= COST_VND_HT;
+
+        // === TÍNH TỈ LỆ ===
+        int rate = Math.min(BASE_RATE_HT + soHopSKH * RATE_PER_HOP_SKH, MAX_RATE_HT);
+        boolean success = Util.isTrue(rate, 100);
+
+        if (success) {
+            // === THÀNH CÔNG — Random cải trang VIP ===
+            short[] vipCT = { 860, 1735, 884 }; // Mị Nương, Hắc Mị Nương, Hit
+            String[] ctNames = { "Mị Nương", "Hắc Mị Nương", "Hit" };
+            int idx = Util.nextInt(0, vipCT.length - 1);
+
+            Item reward = ItemService.gI().createNewItem(vipCT[idx]);
+            reward.itemOptions.clear();
+            reward.itemOptions.add(new Item.ItemOption(77, 120));   // HP +120%
+            reward.itemOptions.add(new Item.ItemOption(103, 120));  // KI +120%
+            reward.itemOptions.add(new Item.ItemOption(50, 30));    // Sức đánh +30%
+            reward.itemOptions.add(new Item.ItemOption(30, 0));     // Khóa GD
+
+            InventoryService.gI().addItemBag(player, reward);
+            InventoryService.gI().sendItemBag(player);
+            Service.gI().sendMoney(player);
+
+            Service.gI().sendThongBao(player,
+                "|2|★★★ HIẾN TẾ THÀNH CÔNG! ★★★\n\n"
+                + "|1|Nhận được: |2|CT " + ctNames[idx] + "\n"
+                + "|2|HP +120% | KI +120%\n"
+                + "|2|Sức đánh +30% | Vĩnh viễn\n\n"
+                + "|1|Tỉ lệ đã dùng: " + rate + "%");
+
+            // Thông báo toàn server
+            nro.server.ServerNotify.gI().notify(
+                "🔥 " + player.name + " vừa hiến tế thành công nhận CT " + ctNames[idx]
+                + " (HP+120%, KI+120%)! Bùng nổ cả server!");
+        } else {
+            // === THẤT BẠI — Mất hết nguyên liệu ===
+            InventoryService.gI().sendItemBag(player);
+            Service.gI().sendMoney(player);
+
+            Service.gI().sendThongBao(player,
+                "|6|✘ HIẾN TẾ THẤT BẠI!\n\n"
+                + "|7|Nguyên liệu đã bị thiêu rụi...\n"
+                + "|8|Toàn bộ nguyên liệu hiến tế đã mất!\n\n"
+                + "|1|Tỉ lệ đã dùng: " + rate + "%\n"
+                + "|7|Thêm Hộp SKH Thần để tăng tỉ lệ!");
+        }
     }
 
     // ===================== HELPER METHODS =====================

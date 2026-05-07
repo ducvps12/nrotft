@@ -37,6 +37,9 @@ import javax.swing.undo.UndoManager;
 import jdbc.DBConnecter;
 import nro.server.Client;
 import nro.server.io.MySession;
+import services.func.ChangeMapService;
+import nro.services.Service;
+import utils.Util;
 
 public class PlayersPanel extends JPanel {
 
@@ -479,8 +482,11 @@ public class PlayersPanel extends JPanel {
         });
         JButton btnBatchBan = createStyledButton("Ban chọn", new Color(180, 40, 55), Color.WHITE);
         btnBatchBan.addActionListener(e -> batchToggleBan());
+        JButton btnUnstuck = createStyledButton("🏠 Giải Kẹt", new Color(0, 150, 136), Color.WHITE);
+        btnUnstuck.setToolTipText("Chuyển người chơi bị kẹt về nhà (map làng)");
+        btnUnstuck.addActionListener(e -> unstuckSelectedPlayer());
 
-        actionP.add(btnKick); actionP.add(btnBan); actionP.add(btnBuff); actionP.add(btnBatchBan);
+        actionP.add(btnKick); actionP.add(btnBan); actionP.add(btnBuff); actionP.add(btnUnstuck); actionP.add(btnBatchBan);
         row1.add(searchP, BorderLayout.WEST);
         row1.add(actionP, BorderLayout.EAST);
 
@@ -664,6 +670,13 @@ public class PlayersPanel extends JPanel {
         });
         menu.add(mBuffItem);
 
+        menu.addSeparator();
+
+        JMenuItem mUnstuck = new JMenuItem("🏠 Giải Kẹt Map");
+        mUnstuck.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        mUnstuck.addActionListener(e -> unstuckSelectedPlayer());
+        menu.add(mUnstuck);
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger())
@@ -736,6 +749,70 @@ public class PlayersPanel extends JPanel {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi kick: " + ex.getMessage(),
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void unstuckSelectedPlayer() {
+        int r = table.getSelectedRow();
+        if (r == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn 1 người chơi trước!", "Chưa chọn", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(r);
+        String playerName = model.getValueAt(modelRow, 3).toString();
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Giải kẹt \"" + playerName + "\"?\n\n"
+                + "Thao tác này sẽ:\n"
+                + "• Hồi sinh nếu đang chết\n"
+                + "• Chuyển về map Làng (21/22/23)\n"
+                + "• Hồi đầy HP/MP",
+                "🏠 Giải Kẹt Map",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        try {
+            nro.player.Player pl = Client.gI().getPlayer(playerName);
+            if (pl != null && pl.getSession() != null) {
+                // Xác định map nhà dựa theo giới tính
+                int homeMapId;
+                switch (pl.gender) {
+                    case 0 -> homeMapId = 21;  // Làng Aru (Trái Đất)
+                    case 1 -> homeMapId = 22;  // Làng Moori (Namếc)
+                    case 2 -> homeMapId = 23;  // Làng Kakarot (Xayda)
+                    default -> homeMapId = 21;
+                }
+
+                // Hồi sinh nếu đang chết
+                if (pl.isDie()) {
+                    pl.nPoint.setHp(Util.maxIntValue(pl.nPoint.hpMax));
+                    pl.nPoint.setMp(Util.maxIntValue(pl.nPoint.mpMax));
+                    Service.gI().hsChar(pl, Util.maxIntValue(pl.nPoint.hpMax),
+                            Util.maxIntValue(pl.nPoint.mpMax));
+                }
+
+                // Lấy map hiện tại trước khi chuyển
+                String fromMap = (pl.zone != null && pl.zone.map != null)
+                        ? pl.zone.map.mapName + " (ID: " + pl.zone.map.mapId + ")"
+                        : "Unknown";
+
+                // Chuyển map về nhà
+                ChangeMapService.gI().changeMap(pl, homeMapId, -1, Util.nextInt(200, 400), 336);
+
+                JOptionPane.showMessageDialog(this,
+                        "✅ Giải kẹt \"" + playerName + "\" thành công!\n\n"
+                        + "Từ: " + fromMap + "\n"
+                        + "Về: Làng (Map " + homeMapId + ")\n"
+                        + "HP/MP: Đã hồi đầy",
+                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Người chơi \"" + playerName + "\" không online!\n"
+                        + "Chỉ có thể giải kẹt player đang online.",
+                        "Không tìm thấy", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi giải kẹt: " + ex.getMessage(),
                     "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }

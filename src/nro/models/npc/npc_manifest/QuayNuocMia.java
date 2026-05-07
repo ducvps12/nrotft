@@ -305,16 +305,77 @@ public class QuayNuocMia extends Npc {
             tab.name = "Cửa\nhàng";
             tab.shop = shopQuayNuocMia;
             
-            int[] itemIds = {1614, 61, 665, 1609, 456, 1238, 1612, 1613};
-            int[] costs = {100000, 50000, 500000, 2000000, 1500000, 1000000, 1000000, 1000000};
-            
-            for (int i = 0; i < itemIds.length; i++) {
-                ItemShop is = new ItemShop();
-                is.temp = ItemService.gI().getTemplate(itemIds[i]);
-                is.cost = costs[i];
-                is.typeSell = 0; // GOLD
-                tab.itemShops.add(is);
-            }
+            // Giá dựa theo tỉ giá VND: 10,000 VND = 1 Thỏi Vàng = 50tr gold
+            // Giá x10 để cân bằng kinh tế server
+
+            // 1. Ly Mía Khổng Lồ — Hồi 50% HP+KI, Buff +10% SĐ 30 phút
+            ItemShop lyMia = new ItemShop();
+            lyMia.temp = ItemService.gI().getTemplate(1614);
+            lyMia.cost = 10_000_000;
+            lyMia.typeSell = 0;
+            lyMia.tabShop = tab;
+            lyMia.options.add(new Item.ItemOption(77, 50));   // HP +50%
+            lyMia.options.add(new Item.ItemOption(103, 50));  // KI +50%
+            lyMia.options.add(new Item.ItemOption(50, 10));   // Sức đánh +10%
+            tab.itemShops.add(lyMia);
+
+            // 2. Đậu thần cấp 3 — Hồi HP cơ bản
+            ItemShop dauThan = new ItemShop();
+            dauThan.temp = ItemService.gI().getTemplate(61);
+            dauThan.cost = 500_000;
+            dauThan.typeSell = 0;
+            dauThan.tabShop = tab;
+            tab.itemShops.add(dauThan);
+
+            // 3. Kem dâu — Buff thời gian
+            ItemShop kemDau = new ItemShop();
+            kemDau.temp = ItemService.gI().getTemplate(665);
+            kemDau.cost = 5_000_000;
+            kemDau.typeSell = 0;
+            kemDau.tabShop = tab;
+            tab.itemShops.add(kemDau);
+
+            // 4. Kem Trái Cây — Hồi 30% HP
+            ItemShop kemTC = new ItemShop();
+            kemTC.temp = ItemService.gI().getTemplate(1609);
+            kemTC.cost = 5_000_000;
+            kemTC.typeSell = 0;
+            kemTC.tabShop = tab;
+            kemTC.options.add(new Item.ItemOption(77, 30));   // HP +30%
+            tab.itemShops.add(kemTC);
+
+            // 5. Bình nước — Dùng cho Boss Xinbato
+            ItemShop binhNuoc = new ItemShop();
+            binhNuoc.temp = ItemService.gI().getTemplate(456);
+            binhNuoc.cost = 15_000_000;
+            binhNuoc.typeSell = 0;
+            binhNuoc.tabShop = tab;
+            tab.itemShops.add(binhNuoc);
+
+            // 6. Nước Suối Tinh Khiết — Hồi 100% KI
+            ItemShop nuocSuoi = new ItemShop();
+            nuocSuoi.temp = ItemService.gI().getTemplate(1238);
+            nuocSuoi.cost = 20_000_000;
+            nuocSuoi.typeSell = 0;
+            nuocSuoi.tabShop = tab;
+            nuocSuoi.options.add(new Item.ItemOption(103, 100)); // KI +100%
+            tab.itemShops.add(nuocSuoi);
+
+            // 7. Cây mía — Nguyên liệu giải nhiệt (cần 30 cây)
+            ItemShop cayMia = new ItemShop();
+            cayMia.temp = ItemService.gI().getTemplate(1612);
+            cayMia.cost = 2_000_000;
+            cayMia.typeSell = 0;
+            cayMia.tabShop = tab;
+            tab.itemShops.add(cayMia);
+
+            // 8. Nước đá — Nguyên liệu giải nhiệt (cần 30 viên)
+            ItemShop nuocDa = new ItemShop();
+            nuocDa.temp = ItemService.gI().getTemplate(1613);
+            nuocDa.cost = 2_000_000;
+            nuocDa.typeSell = 0;
+            nuocDa.tabShop = tab;
+            tab.itemShops.add(nuocDa);
 
             shopQuayNuocMia.tabShops.add(tab);
             Manager.SHOPS.add(shopQuayNuocMia);

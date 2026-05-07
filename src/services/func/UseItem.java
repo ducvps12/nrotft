@@ -577,6 +577,14 @@ public class UseItem {
                             case 1635:
                                 useItemTime(pl, item);
                                 break;
+                            // ===== NƯỚC MÍA MÙA HÈ =====
+                            case 1614: // Ly Mía Khổng Lồ — Hồi 50% HP+KI, buff +10% SĐ 30 phút
+                            case 1615: // Nước Mía Thơm — Hồi 30% HP+KI, buff +15% HP 30 phút
+                            case 1616: // Nước Mía Đặc Biệt — Hồi 100% HP+KI, buff +20% SĐ 30 phút, chúc phúc server
+                            case 1609: // Kem Trái Cây — Hồi 30% HP
+                            case 1238: // Nước Suối Tinh Khiết — Hồi 100% KI
+                                useDoUongMuaHe(pl, item);
+                                break;
                             case 1540:
                                 ChangeMapService.gI().changeMap(pl, 194, -1, 100, 84);
                                 break;
@@ -2739,13 +2747,33 @@ public class UseItem {
         }
     }
 
+    // ===== ANTI-EXPLOIT: Giới hạn Tháp PoPo =====
+    private static final int TOWER_XU_DAILY_CAP = 500;       // Max 500 Xu NRO/ngày từ tháp
+    private static final long TOWER_COOLDOWN_MS = 60_000;     // Cooldown 60 giây giữa các lần mở
+
     public void openRuongGo(Player player) {
+        // ===== COOLDOWN CHECK (60 giây giữa các lần) =====
+        long now = System.currentTimeMillis();
+        if (player.lastTimeOpenRuongGo > 0 && (now - player.lastTimeOpenRuongGo) < TOWER_COOLDOWN_MS) {
+            long remaining = (TOWER_COOLDOWN_MS - (now - player.lastTimeOpenRuongGo)) / 1000;
+            Service.gI().sendThongBao(player, "Vui lòng đợi " + remaining + " giây trước khi mở rương tiếp!");
+            return;
+        }
+
+        // ===== RESET DAILY CAP nếu sang ngày mới =====
+        if (Util.isAfterMidnight(player.towerXuLastDay)) {
+            player.towerXuToday = 0;
+            player.towerXuLastDay = now;
+        }
+
         // Tìm kiếm rương gỗ trong hành trang của người chơi
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.GO_DAU_TRE, 1);
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.GO_DAU_TRE1, 1);
         BadgesTaskService.updateCountBagesTask(player, ConstTaskBadges.GO_DAU_TRE2, 1);
         Item ruongGo = InventoryService.gI().findItemBag(player, 570);
         if (ruongGo != null) {
+            // Ghi nhận timestamp mở rương (cho cooldown)
+            player.lastTimeOpenRuongGo = now;
             int level = InventoryService.gI().getParam(player, 72, 570);
 
             // Tính toán số ô trống cần thiết cho phần thưởng
@@ -2795,15 +2823,26 @@ public class UseItem {
                 else gemReward = 100; // Level 12
                 player.inventory.gem += gemReward;
 
-                // ============ XU NRO (MỚI) ============
+                // ============ XU NRO (NERF + DAILY CAP) ============
                 int xuReward;
-                if (level <= 3) xuReward = level + 2;
-                else if (level <= 6) xuReward = level * 2;
-                else if (level <= 9) xuReward = level * 3;
-                else if (level <= 11) xuReward = level * 4;
-                else xuReward = 50; // Level 12
-                Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
-                player.itemsWoodChest.add(xuNro);
+                if (level <= 3) xuReward = level + 1;         // Lv1=2, Lv2=3, Lv3=4
+                else if (level <= 6) xuReward = level;        // Lv4=4, Lv5=5, Lv6=6
+                else if (level <= 9) xuReward = level * 2;    // Lv7=14, Lv8=16, Lv9=18
+                else if (level <= 11) xuReward = level * 3;   // Lv10=30, Lv11=33 (giảm từ x4)
+                else xuReward = 20;                           // Level 12 = 20 (giảm từ 50)
+
+                // Áp dụng daily cap
+                if (player.towerXuToday >= TOWER_XU_DAILY_CAP) {
+                    xuReward = 0; // Đã đạt giới hạn, không nhận thêm Xu
+                } else if (player.towerXuToday + xuReward > TOWER_XU_DAILY_CAP) {
+                    xuReward = TOWER_XU_DAILY_CAP - player.towerXuToday; // Nhận phần còn lại
+                }
+
+                if (xuReward > 0) {
+                    player.towerXuToday += xuReward;
+                    Item xuNro = ItemService.gI().createNewItem((short) 1705, xuReward);
+                    player.itemsWoodChest.add(xuNro);
+                }
 
                 // ============ ĐẬU (level 9+) ============
                 if (level >= 9) {
@@ -2931,8 +2970,13 @@ public class UseItem {
                 }
                 info = (info2.length() > "\n|2|".length() ? (info + info2).trim() : info.trim()) + "\n|0|"
                         + itemWoodChest.template.description;
+                // Thêm thông báo Xu daily cap
+                String xuCapInfo = "\n|7|Xu hôm nay: " + player.towerXuToday + "/" + TOWER_XU_DAILY_CAP;
+                if (player.towerXuToday >= TOWER_XU_DAILY_CAP) {
+                    xuCapInfo += " |6|(ĐẠT GIỚI HẠN)";
+                }
                 NpcService.gI().createMenuConMeo(player, ConstNpc.RUONG_GO, -1, "Bạn nhận được\n"
-                        + info.trim(), "OK" + (i > 0 ? " [" + i + "]" : ""));
+                        + info.trim() + xuCapInfo, "OK" + (i > 0 ? " [" + i + "]" : ""));
             }
         }
     }
@@ -3688,6 +3732,74 @@ public class UseItem {
                 pl.pet.unFusion();
             }
         }
+    }
+
+    /**
+     * Xử lý sử dụng đồ uống mùa hè từ Quầy Nước Mía
+     * - 1614 Ly Mía Khổng Lồ: Hồi 50% HP+KI, buff +10% sức đánh 30 phút
+     * - 1615 Nước Mía Thơm: Hồi 30% HP+KI, buff +15% HP 30 phút
+     * - 1616 Nước Mía Đặc Biệt: Hồi 100% HP+KI, buff +20% sức đánh 30 phút + chúc phúc toàn server
+     * - 1609 Kem Trái Cây: Hồi 30% HP
+     * - 1238 Nước Suối Tinh Khiết: Hồi 100% KI
+     */
+    private void useDoUongMuaHe(Player pl, Item item) {
+        int id = item.template.id;
+        String tenItem = item.template.name;
+
+        // Trừ 1 item
+        InventoryService.gI().subQuantityItemsBag(pl, item, 1);
+        InventoryService.gI().sendItemBag(pl);
+
+        switch (id) {
+            case 1614 -> { // Ly Mía Khổng Lồ
+                long hoiHP = (long) (pl.nPoint.hpMax * 0.5);
+                long hoiMP = (long) (pl.nPoint.mpMax * 0.5);
+                pl.nPoint.hp = Math.min(pl.nPoint.hp + hoiHP, pl.nPoint.hpMax);
+                pl.nPoint.mp = Math.min(pl.nPoint.mp + hoiMP, pl.nPoint.mpMax);
+                // Buff sức đánh +10% qua addBuff (30 phút)
+                pl.itemTime.addBuff(item, 30 * 60 * 1000); // 30 phút
+                Service.gI().point(pl);
+                Service.gI().sendThongBao(pl,
+                    "🧊 " + tenItem + "\nHồi 50% HP + 50% KI\nBuff +10% sức đánh (30 phút)\nMát lạnh giải nhiệt mùa hè!");
+            }
+            case 1615 -> { // Nước Mía Thơm
+                long hoiHP = (long) (pl.nPoint.hpMax * 0.3);
+                long hoiMP = (long) (pl.nPoint.mpMax * 0.3);
+                pl.nPoint.hp = Math.min(pl.nPoint.hp + hoiHP, pl.nPoint.hpMax);
+                pl.nPoint.mp = Math.min(pl.nPoint.mp + hoiMP, pl.nPoint.mpMax);
+                pl.itemTime.addBuff(item, 30 * 60 * 1000); // 30 phút
+                Service.gI().point(pl);
+                Service.gI().sendThongBao(pl,
+                    "🍹 " + tenItem + "\nHồi 30% HP + 30% KI\nBuff +15% HP (30 phút)\nThơm ngon bổ dưỡng!");
+            }
+            case 1616 -> { // Nước Mía Đặc Biệt
+                pl.nPoint.hp = pl.nPoint.hpMax;
+                pl.nPoint.mp = pl.nPoint.mpMax;
+                pl.itemTime.addBuff(item, 30 * 60 * 1000); // 30 phút
+                Service.gI().point(pl);
+                Service.gI().sendThongBao(pl,
+                    "⭐ " + tenItem + "\nHồi 100% HP + 100% KI\nBuff +20% sức đánh (30 phút)\nChúc phúc toàn server!");
+                // Chúc phúc toàn server
+                Service.gI().sendThongBaoAllPlayer(
+                    "🎉 " + pl.name + " vừa uống Nước Mía Đặc Biệt!"
+                    + "\nChúc tất cả chiến binh mùa hè tràn đầy năng lượng! 🌞");
+            }
+            case 1609 -> { // Kem Trái Cây
+                long hoiHP = (long) (pl.nPoint.hpMax * 0.3);
+                pl.nPoint.hp = Math.min(pl.nPoint.hp + hoiHP, pl.nPoint.hpMax);
+                Service.gI().point(pl);
+                Service.gI().sendThongBao(pl,
+                    "🍨 " + tenItem + "\nHồi 30% HP\nMát lạnh giải khát!");
+            }
+            case 1238 -> { // Nước Suối Tinh Khiết
+                pl.nPoint.mp = pl.nPoint.mpMax;
+                Service.gI().point(pl);
+                Service.gI().sendThongBao(pl,
+                    "💧 " + tenItem + "\nHồi 100% KI\nTinh khiết từ suối nguồn!");
+            }
+        }
+
+        Service.gI().point(pl);
     }
 
     private void BinhNuoc(Player pl, Item item) {

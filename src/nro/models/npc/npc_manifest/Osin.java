@@ -211,6 +211,13 @@ public class Osin extends Npc {
 
                         case ConstNpc.BINH_HUT_NANG_LUONG -> {
                             if (select == 0) {
+                                // Fix đứng hình: hồi sinh player nếu đã chết trước khi teleport
+                                if (player.isDie()) {
+                                    player.nPoint.setHp(Util.maxIntValue(player.nPoint.hpMax));
+                                    player.nPoint.setMp(Util.maxIntValue(player.nPoint.mpMax));
+                                    Service.gI().hsChar(player, Util.maxIntValue(player.nPoint.hpMax),
+                                            Util.maxIntValue(player.nPoint.mpMax));
+                                }
                                 ChangeMapService.gI().changeMap(player, 187, -1, Util.nextInt(100, 500), 312);
                             }
                         }
@@ -279,8 +286,16 @@ public class Osin extends Npc {
                     switch (indexMenu) {
                         case ConstNpc.BASE_MENU -> {
                             switch (select) {
-                                case 0 ->
+                                case 0 -> {
+                                    // Fix đứng hình: hồi sinh player nếu đã chết trước khi thoát map 187
+                                    if (player.isDie()) {
+                                        player.nPoint.setHp(Util.maxIntValue(player.nPoint.hpMax));
+                                        player.nPoint.setMp(Util.maxIntValue(player.nPoint.mpMax));
+                                        Service.gI().hsChar(player, Util.maxIntValue(player.nPoint.hpMax),
+                                                Util.maxIntValue(player.nPoint.mpMax));
+                                    }
                                     ChangeMapService.gI().changeMap(player, 52, -1, Util.nextInt(100, 300), 336);
+                                }
                                 case 1 ->
                                     createOtherMenu(player, ConstNpc.BUA_HO_TRO,
                                             "Ta có thể làm phép giúp ngươi\nhút nhanh hơn gấp đôi năng lượng tà ác\ntrong 10 phút, tối đa 60 phút",

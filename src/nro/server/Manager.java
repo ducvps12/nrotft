@@ -86,6 +86,8 @@ import power.PowerLimitManager;
 import task.ClanTaskTemplate;
 import task.KolTaskTemplate;
 import nro.models.npc.npc_manifest.KingFurryGuide;
+import nro.models.npc.npc_manifest.ThuThue;
+import nro.models.npc.npc_manifest.HoanThue;
 
 public final class Manager {
 
@@ -317,6 +319,27 @@ public final class Manager {
             }
 
             // NPC Hùng Vương được spawn trong HungVuong.java (event) — không spawn ở đây vì EventManager chưa init
+
+            // ===== NPC THU THUẾ & HOÀN THUẾ tại Sân sau siêu thị (map 104) =====
+            if (map.mapId == 104) {
+                // NPC Thu Thuế (Kochiro) — bên trái, tọa độ ~350, 336
+                short xThuThue = 350;
+                short yThuThue = 336;
+                Npc npcThuThue = NpcFactory.createNPC(map.mapId, 1, xThuThue, yThuThue, ConstNpc.THU_THUE);
+                map.npcs.add(npcThuThue);
+                Logger.log(">>> Spawned NPC Thu Thue at map 104, x=" + xThuThue + " y=" + yThuThue 
+                    + " class=" + npcThuThue.getClass().getSimpleName() 
+                    + " tempId=" + npcThuThue.tempId + "\n");
+
+                // NPC Hoàn Thuế (Musashi) — bên phải, tọa độ ~550, 336
+                short xHoanThue = 550;
+                short yHoanThue = 336;
+                Npc npcHoanThue = NpcFactory.createNPC(map.mapId, 1, xHoanThue, yHoanThue, ConstNpc.HOAN_THUE);
+                map.npcs.add(npcHoanThue);
+                Logger.log(">>> Spawned NPC Hoan Thue at map 104, x=" + xHoanThue + " y=" + yHoanThue 
+                    + " class=" + npcHoanThue.getClass().getSimpleName() 
+                    + " tempId=" + npcHoanThue.tempId + "\n");
+            }
 
             // Spawn NPC Champa (Thu gom rác) tại Siêu thị Huyền Bí (map 173)
             if (map.mapId == 173) {
@@ -897,6 +920,33 @@ public final class Manager {
                 NPC_TEMPLATES.add(npcTemp);
             }
             Logger.log("Downloaded Loading npc template (" + NPC_TEMPLATES.size() + ")\n");
+
+            // ===== PAD NPC_TEMPLATES để hỗ trợ NPC Thu Thuế (121) & Hoàn Thuế (122) =====
+            // DB chỉ có ~111 entries, cần pad lên ít nhất 123 entries
+            int requiredSize = 123; // cần index 0..122
+            while (NPC_TEMPLATES.size() < requiredSize) {
+                NpcTemplate emptyTemp = new NpcTemplate();
+                emptyTemp.id = NPC_TEMPLATES.size();
+                emptyTemp.name = "";
+                NPC_TEMPLATES.add(emptyTemp);
+            }
+            // Fill data Kochiro cho NPC Thu Thuế (index 121)
+            NpcTemplate kochiroTemp = NPC_TEMPLATES.get(ConstNpc.THU_THUE); // index 121
+            kochiroTemp.name = "Thu Thuế";
+            kochiroTemp.head = 1860;
+            kochiroTemp.body = 1861;
+            kochiroTemp.leg = 1862;
+            kochiroTemp.avatar = 0;
+
+            // Fill data Musashi cho NPC Hoàn Thuế (index 122)
+            NpcTemplate musashiTemp = NPC_TEMPLATES.get(ConstNpc.HOAN_THUE); // index 122
+            musashiTemp.name = "Hoàn Thuế";
+            musashiTemp.head = 1863;
+            musashiTemp.body = 1864;
+            musashiTemp.leg = 1865;
+            musashiTemp.avatar = 0;
+
+            Logger.log("Padded NPC templates to " + NPC_TEMPLATES.size() + " (Thu Thue=121, Hoan Thue=122)\n");
 
             // load map template
             ps = con.prepareStatement("select count(id) from map_template");

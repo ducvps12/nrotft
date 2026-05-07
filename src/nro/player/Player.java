@@ -337,6 +337,11 @@ public class Player implements Runnable {
     /** Bộ đếm xu nhận từ Training Boss trong ngày (giới hạn 100 xu/ngày) */
     public int trainingXuToday;
     public long trainingXuLastDay;
+    /** Bộ đếm xu nhận từ Rương Gỗ (Tháp PoPo) trong ngày — max 500 Xu/ngày */
+    public int towerXuToday;
+    public long towerXuLastDay;
+    /** Cooldown giữa các lần mở rương gỗ — chống farm spam (60 giây) */
+    public long lastTimeOpenRuongGo;
     // --- Top Rewards Weekly Claim ---
     public long lastClaimTopSM;  // Timestamp lần cuối nhận thưởng top SM
     public long lastClaimTopNV;  // Timestamp lần cuối nhận thưởng top NV

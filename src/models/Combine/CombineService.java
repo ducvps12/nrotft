@@ -13,6 +13,7 @@ import models.Combine.manifest.CuongHoaChanMenh;
 import models.Combine.manifest.CuongHoaChienHon;
 import models.Combine.manifest.CuongHoaLoSaoPhaLe;
 import models.Combine.manifest.CuongHoaSachTuyetKy;
+import models.Combine.manifest.ChuyenHoaTrangBi;
 import models.Combine.manifest.CuongHoaTrangBi;
 import models.Combine.manifest.DanhBongSaoPhaLe;
 import models.Combine.manifest.DapDoAoHoa;
@@ -259,6 +260,8 @@ public class CombineService {
                 models.Combine.manifest.ChampaBanDoRac.showInfoCombine(player);
             case CHAMPA_HIEN_TE ->
                 models.Combine.manifest.ChampaHienTe.showInfoCombine(player);
+            case CHUYEN_HOA_TRANG_BI_DUNG_VANG, CHUYEN_HOA_TRANG_BI_DUNG_NGOC ->
+                ChuyenHoaTrangBi.showInfoCombine(player);
 
         }
     }
@@ -372,6 +375,8 @@ public class CombineService {
                 models.Combine.manifest.ChampaBanDoRac.startCombine(player);
             case CHAMPA_HIEN_TE ->
                 models.Combine.manifest.ChampaHienTe.startCombine(player);
+            case CHUYEN_HOA_TRANG_BI_DUNG_VANG, CHUYEN_HOA_TRANG_BI_DUNG_NGOC ->
+                ChuyenHoaTrangBi.startCombine(player);
         }
 
         player.iDMark.setIndexMenu(ConstNpc.IGNORE_MENU);
@@ -748,7 +753,7 @@ public class CombineService {
             case CHAMPA_BAN_DO_RAC ->
                 "Ta là Champa!\nĐặt đồ rác vào đây\nta sẽ định giá cho ngươi";
             case CHAMPA_HIEN_TE ->
-                "Ta là Champa!\nĐặt 1 trang bị vào đây\nta sẽ thực hiện hiến tế rủi ro!";
+                "Ta là Champa!\nĐặt 1 trang bị vào đây\nCó thể thêm Hộp SKH Thần Linh\n1 hộp: 50/50 | 10 hộp: 80/20";
             default -> {
                 yield "";
             }
@@ -939,7 +944,7 @@ public class CombineService {
                 yield "Vào hành trang\nChọn đồ rác muốn bán\n(TB cấp 1-12, thức ăn, đá thường)\nSau đó chọn 'Bán'";
             }
             case CHAMPA_HIEN_TE -> {
-                yield "Vào hành trang\nChọn 1 Trang bị\nCó thể thêm 1 Hộp SKH Thần Linh\nSau đó chọn 'Hiến tế'";
+                yield "Vào hành trang\nChọn 1 Trang bị\nCó thể thêm Hộp SKH Thần Linh\n(1 hộp: 50/50 | 10 hộp: 80/20)\nSau đó chọn 'Hiến tế'";
             }
             default -> {
                 yield "";

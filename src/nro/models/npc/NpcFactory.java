@@ -225,6 +225,12 @@ public class NpcFactory {
                     new HacMiNuong(mapId, status, cx, cy, tempId, avatar);
                 case ConstNpc.NPC_DIA_NGUC ->
                     new NpcDiaNguc(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.KING_FURRY_GUIDE ->
+                    new KingFurryGuide(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.THU_THUE ->
+                    new ThuThue(mapId, status, cx, cy, tempId, avatar);
+                case ConstNpc.HOAN_THUE ->
+                    new HoanThue(mapId, status, cx, cy, tempId, avatar);
                 default ->
                     new Npc(mapId, status, cx, cy, tempId, avatar) {
                         @Override

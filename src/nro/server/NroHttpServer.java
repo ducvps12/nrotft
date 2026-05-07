@@ -34,8 +34,56 @@ public class NroHttpServer {
     
     private static NroHttpServer instance;
     private HttpServer server;
-    private static final int DEFAULT_PORT = 8889;  
-    
+    private static final int DEFAULT_PORT = 8889;
+
+    // ===== BẢO MẬT: API Key + IP Whitelist =====
+    private static final String API_SECRET_KEY = "NRO_ADMIN_2026_S3CR3T_K3Y";
+    private static final java.util.Set<String> ALLOWED_IPS = java.util.Set.of(
+        "127.0.0.1", "0:0:0:0:0:0:0:1", "::1",  // localhost IPv4 + IPv6
+        "103.157.204.182"                          // server IP
+    );
+    private static final int MAX_ITEM_QUANTITY = 9999;  // Cap số lượng item/request
+
+    /**
+     * Kiểm tra bảo mật: IP whitelist + API Key
+     * @return null nếu hợp lệ, chuỗi lỗi nếu bị chặn
+     */
+    private static String checkSecurity(HttpExchange exchange) {
+        // 1. Kiểm tra IP
+        String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        if (!ALLOWED_IPS.contains(clientIp)) {
+            utils.Logger.log(utils.Logger.RED,
+                "[NRO HTTP] ⚠ BLOCKED: IP=" + clientIp
+                + " path=" + exchange.getRequestURI().getPath() + "\n");
+            return "Forbidden: IP not allowed";
+        }
+
+        // 2. Kiểm tra API Key (header hoặc query param)
+        String apiKey = exchange.getRequestHeaders().getFirst("X-API-Key");
+        if (apiKey == null || apiKey.isEmpty()) {
+            // Fallback: check query param ?key=...
+            String query = exchange.getRequestURI().getQuery();
+            if (query != null) {
+                for (String param : query.split("&")) {
+                    String[] kv = param.split("=", 2);
+                    if (kv.length == 2 && "key".equals(kv[0])) {
+                        apiKey = kv[1];
+                        break;
+                    }
+                }
+            }
+        }
+        if (apiKey == null || !API_SECRET_KEY.equals(apiKey)) {
+            utils.Logger.log(utils.Logger.RED,
+                "[NRO HTTP] ⚠ UNAUTHORIZED: IP=" + clientIp
+                + " path=" + exchange.getRequestURI().getPath()
+                + " key=" + (apiKey != null ? apiKey.substring(0, Math.min(6, apiKey.length())) + "..." : "null") + "\n");
+            return "Unauthorized: Invalid API key";
+        }
+
+        return null; // OK
+    }
+
     private NroHttpServer() {
     }
     
@@ -51,7 +99,8 @@ public class NroHttpServer {
             return;
         }
         try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
+            // Bind chỉ localhost thay vì 0.0.0.0
+            server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
             server.createContext("/nro/baotri", new MaintenanceHandler());
             server.createContext("/nro/item", new ItemHandler());
             server.createContext("/nro/bxh", new BxhHandler());
@@ -61,7 +110,7 @@ public class NroHttpServer {
             server.createContext("/nro/checkquantity", new CheckItemQuantityHandler());
             server.setExecutor(null);
             server.start();
-            utils.Logger.log(utils.Logger.BLACK, "[NRO HTTP] Server started on port " + port + "\n");
+            utils.Logger.log(utils.Logger.BLACK, "[NRO HTTP] Server started on 127.0.0.1:" + port + " (localhost only)\n");
         } catch (IOException e) {
             utils.Logger.log(utils.Logger.RED, "[NRO HTTP] Failed to start server: " + e.getMessage() + "\n");
         }
@@ -82,6 +131,12 @@ public class NroHttpServer {
     private static class MaintenanceHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // ===== BẢO MẬT =====
+            String secError = checkSecurity(exchange);
+            if (secError != null) {
+                sendResponse(exchange, 403, secError);
+                return;
+            }
             String method = exchange.getRequestMethod();
             
             if ("GET".equals(method)) {
@@ -181,24 +236,22 @@ public class NroHttpServer {
     private static class ItemHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // ===== BẢO MẬT: Kiểm tra IP + API Key =====
+            String secError = checkSecurity(exchange);
+            if (secError != null) {
+                sendResponse(exchange, 403, secError);
+                return;
+            }
+
             String method = exchange.getRequestMethod();
             
             if ("GET".equals(method)) {
-                String response = "NRO Item Service is running!\n\n" +
-                                "Endpoint: POST /nro/item\n" +
-                                "Content-Type: application/json\n\n" +
-                                "Example request body:\n" +
-                                "{\n" +
-                                "  \"username\": \"player123\",\n" +
-                                "  \"itemId\": 457,\n" +
-                                "  \"quantity\": 10\n" +
-                                "}\n";
-                sendResponse(exchange, 200, response);
+                sendResponse(exchange, 200, "NRO Item Service (secured)");
                 return;
             }
             
             if (!"POST".equals(method)) {
-                sendResponse(exchange, 405, "Method not allowed. Use POST or GET");
+                sendResponse(exchange, 405, "Method not allowed. Use POST");
                 return;
             }
             
@@ -233,6 +286,15 @@ public class NroHttpServer {
                 
                 if (quantity <= 0) {
                     sendResponse(exchange, 400, "Invalid quantity value. Must be positive integer.");
+                    return;
+                }
+
+                // ===== BẢO MẬT: Giới hạn số lượng item/request =====
+                if (quantity > MAX_ITEM_QUANTITY) {
+                    utils.Logger.log(utils.Logger.RED,
+                        "[NRO HTTP] ⚠ BLOCKED: quantity=" + quantity + " exceeds max " + MAX_ITEM_QUANTITY
+                        + " user=" + username + " itemId=" + itemId + "\n");
+                    sendResponse(exchange, 400, "Quantity exceeds maximum allowed (" + MAX_ITEM_QUANTITY + ")");
                     return;
                 }
                 
@@ -302,6 +364,14 @@ public class NroHttpServer {
                     sendResponse(exchange, 400, "Không thể thêm item vào hành trang");
                     return;
                 }
+
+                // ===== LOG: Ghi lại mọi thao tác add item =====
+                String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+                utils.Logger.log(utils.Logger.YELLOW,
+                    "[NRO HTTP ITEM] ✓ IP=" + clientIp
+                    + " user=" + username
+                    + " itemId=" + itemId
+                    + " qty=" + quantity + "\n");
                 
                 sendResponse(exchange, 200, "OK");
             } catch (Exception e) {

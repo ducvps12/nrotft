@@ -41,6 +41,12 @@ public class Santa extends Npc {
     private static final long SHOPEE_COOLDOWN = 48 * 60 * 60 * 1000L; // 48h
     private static final ConcurrentHashMap<Integer, Long> lastShopeeClick = new ConcurrentHashMap<>();
 
+    // ====== GIỚI HẠN ĐỔI VNĐ ======
+    private static final int MAX_DOI_VND = 10;
+    private static final long COOLDOWN_24H = 24 * 60 * 60 * 1000L; // 24h
+    private static final ConcurrentHashMap<Integer, Integer> doiVndCount = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, Long> cycleStartTime = new ConcurrentHashMap<>();
+
     // ====== HỆ THỐNG GIÁ VÀNG THỊ TRƯỜNG ======
     private static final long GIA_BAN_GOC = 50_000_000L;   // Bán 1 thỏi = 50tr
     private static final long GIA_MUA_GOC = 65_000_000L;   // Mua 1 thỏi = 65tr
@@ -203,7 +209,8 @@ public class Santa extends Npc {
                         + "|1|2. Thị trường Vàng:|8| Theo dõi giá\n"
                         + "thỏi vàng biến động, mua/bán tối ưu\n\n"
                         + "|1|3. Shop Xu:|8| Đổi Xu NRO lấy vật phẩm\n\n"
-                        + "|1|4. Đổi VNĐ:|8| Quy đổi Xu NRO → VNĐ\n\n"
+                        + "|1|4. Đổi VNĐ:|8| Quy đổi Xu NRO → VNĐ\n"
+                        + "Giới hạn: 10 lần / 24h\n\n"
                         + "|1|5. Ủng hộ Admin:|8| +10k VNĐ/48h",
                 "Cách kiếm\nThỏi vàng",
                 "Thị trường\nlà gì?",
@@ -391,10 +398,30 @@ public class Santa extends Npc {
 
     // ====== ĐỔI VNĐ ======
     private void openMenuDoiVnd(Player player) {
+        int pId = (int) player.id;
+        Long startTime = cycleStartTime.get(pId);
+        
+        if (startTime != null && System.currentTimeMillis() - startTime >= COOLDOWN_24H) {
+            doiVndCount.put(pId, 0);
+            cycleStartTime.remove(pId);
+            startTime = null;
+        }
+        
+        int count = doiVndCount.getOrDefault(pId, 0);
+        String limitText;
+        if (count >= MAX_DOI_VND) {
+            long remaining = startTime + COOLDOWN_24H - System.currentTimeMillis();
+            long hours = remaining / (60 * 60 * 1000);
+            long mins = (remaining % (60 * 60 * 1000)) / (60 * 1000);
+            limitText = "|8|Đã hết lượt đổi hôm nay!\nChờ " + hours + "h" + mins + "p để đổi tiếp.";
+        } else {
+            limitText = "|2|Lượt đổi hôm nay: " + count + "/" + MAX_DOI_VND;
+        }
+
         createOtherMenu(player, MENU_DOI_VND,
                 "Đổi Xu NRO → VNĐ\n"
                         + "Hiện có: " + Util.numberToMoney(player.getSession() != null ? player.getSession().cash : 0) + " VNĐ\n"
-                        + "Không giới hạn lượt đổi!",
+                        + limitText,
                 "100 xu\n1k VNĐ",
                 "500 xu\n5k VNĐ",
                 "1000 xu\n10k VNĐ");
@@ -452,6 +479,24 @@ public class Santa extends Npc {
     }
 
     private void doiVnd(Player player, int xuCan, int vndNhan) {
+        int pId = (int) player.id;
+        Long startTime = cycleStartTime.get(pId);
+        
+        if (startTime != null && System.currentTimeMillis() - startTime >= COOLDOWN_24H) {
+            doiVndCount.put(pId, 0);
+            cycleStartTime.remove(pId);
+            startTime = null;
+        }
+        
+        int count = doiVndCount.getOrDefault(pId, 0);
+        if (count >= MAX_DOI_VND) {
+            long remaining = startTime + COOLDOWN_24H - System.currentTimeMillis();
+            long hours = remaining / (60 * 60 * 1000);
+            long mins = (remaining % (60 * 60 * 1000)) / (60 * 1000);
+            Service.gI().sendThongBao(player, "Đã hết lượt đổi! Vui lòng chờ " + hours + "h" + mins + "p nữa.");
+            return;
+        }
+
         var itemXu = InventoryService.gI().findItemBag(player, 1705);
         if (itemXu == null || itemXu.quantity < xuCan) {
             Service.gI().sendThongBao(player, "Không đủ xu (cần " + xuCan + " Xu NRO)");
@@ -466,11 +511,18 @@ public class Santa extends Npc {
             Service.gI().sendThongBao(player, "Lỗi cộng VNĐ");
             return;
         }
+        
+        count++;
+        doiVndCount.put(pId, count);
+        if (count == 1) {
+            cycleStartTime.put(pId, System.currentTimeMillis());
+        }
+
         player.getSession().cash += vndNhan;
         player.getSession().vnd += vndNhan;
         InventoryService.gI().sendItemBag(player);
         Service.gI().sendMoney(player);
-        Service.gI().sendThongBao(player, "Đổi thành công " + xuCan + " xu → " + Util.numberToMoney(vndNhan) + " VNĐ");
+        Service.gI().sendThongBao(player, "Đổi thành công " + xuCan + " xu → " + Util.numberToMoney(vndNhan) + " VNĐ\nLượt đổi hôm nay: " + count + "/" + MAX_DOI_VND);
     }
 
     // ====== SHOPEE AFFILIATE ======

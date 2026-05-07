@@ -19,10 +19,20 @@ import utils.Util;
  * - 30% Hỏng: Giảm 10-20% chỉ số gốc (chỉ số không xuống dưới 1)
  * - 30% Gãy: MẤT TRẮNG trang bị (item bị xóa khỏi hành trang)
  *
- * === TỈ LỆ CÓ HỘP SKH THẦN LINH (ID 1703) ===
- * - 90% Thành công: Tăng 5-10% chỉ số gốc (thấp hơn nhưng an toàn)
- * - 10% Hỏng: Giảm 5-10% chỉ số gốc
- * -  0% Gãy: KHÔNG BAO GIỜ mất trang bị khi có Hộp SKH
+ * === TỈ LỆ CÓ 1 HỘP SKH THẦN LINH (ID 1703) ===
+ * - 50% Thành công: Tăng 3-5% chỉ số gốc
+ * - 50% Hỏng: Giảm 3-5% chỉ số gốc
+ * -  0% Gãy: KHÔNG BAO GIỜ mất trang bị
+ *
+ * === TỈ LỆ CÓ 10 HỘP SKH THẦN LINH ===
+ * - 80% Thành công: Tăng 3-5% chỉ số gốc
+ * - 20% Hỏng: Giảm 3-5% chỉ số gốc
+ * -  0% Gãy: KHÔNG BAO GIỜ mất trang bị
+ *
+ * GIỚI HẠN CHỈ SỐ TỐI ĐA:
+ * - Sức đánh %: tối đa 15%
+ * - HP %: tối đa 30%
+ * - KI %: tối đa 30%
  *
  * Lưu ý: Hộp SKH Thần Linh sẽ bị tiêu hao sau khi hiến tế (dù thành công hay thất bại)
  */
@@ -31,6 +41,14 @@ public class ChampaHienTe {
     private static final int COST_THOI_VANG = 10;
     private static final int ITEM_THOI_VANG = 457;
     private static final int ITEM_HOP_SKH = 1703;
+
+    // Số lượng hộp SKH để đạt tỉ lệ cao (80/20)
+    private static final int HOP_SKH_CAO = 10;
+
+    // Giới hạn chỉ số tối đa từ hiến tế
+    private static final int MAX_SUC_DANH_PERCENT = 15;  // Giới hạn sức đánh % (option 50)
+    private static final int MAX_HP_PERCENT = 30;         // Giới hạn HP % (option 22, 77)
+    private static final int MAX_KI_PERCENT = 30;         // Giới hạn KI % (option 23, 103)
 
     public static void showInfoCombine(Player player) {
         if (player.combine.itemsCombine.isEmpty()) {
@@ -67,20 +85,34 @@ public class ChampaHienTe {
                 + "|7|Ngươi muốn hiến tế " + equip.template.name + "?\n\n";
 
         if (hopSkh != null) {
-            // Có Hộp SKH: tỉ lệ an toàn hơn, không mất đồ, nhưng chỉ số tăng ít hơn
-            npcSay += "|1|Hỗ trợ từ Hộp SKH Thần Linh:\n"
-                    + "|2|• 90% Thành công (Tăng 5-10% chỉ số)\n"
-                    + "|7|• 10% Hỏng (Giảm 5-10% chỉ số)\n"
-                    + "|2|• Tỉ lệ Gãy: 0% (Không mất trang bị)\n";
+            int soHop = hopSkh.quantity;
+            if (soHop >= HOP_SKH_CAO) {
+                // 10+ Hộp SKH: tỉ lệ 80/20, không mất đồ
+                npcSay += "|1|Hỗ trợ từ " + soHop + " Hộp SKH Thần Linh:\n"
+                        + "|2|• 80% Thành công (Tăng 3-5% chỉ số)\n"
+                        + "|7|• 20% Hỏng (Giảm 3-5% chỉ số)\n"
+                        + "|2|• Tỉ lệ Gãy: 0% (Không mất trang bị)\n"
+                        + "|6|• Tiêu hao: " + HOP_SKH_CAO + " Hộp SKH\n";
+            } else {
+                // 1-9 Hộp SKH: tỉ lệ 50/50, không mất đồ
+                npcSay += "|1|Hỗ trợ từ " + soHop + " Hộp SKH Thần Linh:\n"
+                        + "|7|• 50% Thành công (Tăng 3-5% chỉ số)\n"
+                        + "|7|• 50% Hỏng (Giảm 3-5% chỉ số)\n"
+                        + "|2|• Tỉ lệ Gãy: 0% (Không mất trang bị)\n"
+                        + "|6|• Tiêu hao: 1 Hộp SKH\n";
+            }
         } else {
             // Không có Hộp SKH: rủi ro cao nhưng thưởng lớn hơn
             npcSay += "|1|Tỉ lệ rủi ro (Không hỗ trợ):\n"
                     + "|2|• 40% Thành công (Tăng 10-20% chỉ số)\n"
                     + "|7|• 30% Hỏng (Giảm 10-20% chỉ số)\n"
                     + "|6|• 30% Gãy (MẤT TRẮNG TRANG BỊ)\n"
-                    + "\n|1|Mẹo: Thêm Hộp SKH Thần Linh để tăng tỉ lệ\n"
-                    + "|1|thành công từ 40%→90% và loại bỏ tỉ lệ gãy!\n";
+                    + "\n|1|Mẹo: Thêm Hộp SKH Thần Linh để loại bỏ tỉ lệ gãy!\n";
         }
+
+        npcSay += "\n|7|Giới hạn chỉ số tối đa:\n"
+                + "|1|• Sức đánh: " + MAX_SUC_DANH_PERCENT + "%\n"
+                + "|1|• HP/KI: " + MAX_HP_PERCENT + "%\n";
 
         npcSay += "\n|1|Phí hiến tế: |2|" + COST_THOI_VANG + " Thỏi Vàng\n"
                 + "|1|Hiện có: |" + (slTV >= COST_THOI_VANG ? "2|" : "6|") + slTV + " TV";
@@ -127,24 +159,40 @@ public class ChampaHienTe {
 
         // Trừ phí
         InventoryService.gI().subQuantityItemsBag(player, thoiVang, COST_THOI_VANG);
-        if (hopSkh != null) {
-            InventoryService.gI().subQuantityItemsBag(player, hopSkh, 1);
-        }
 
         int rand = Util.nextInt(1, 100);
 
         if (hopSkh != null) {
-            // CÓ HỘP SKH THẦN LINH (90% Thành công, 10% Hỏng, 0% Gãy)
-            if (rand <= 90) {
-                int percent = Util.nextInt(5, 10);
-                modifyItemOptions(equip, percent, true);
-                CombineService.gI().sendEffectSuccessCombine(player);
-                Service.gI().sendThongBao(player, "|2|HIẾN TẾ THÀNH CÔNG!\nTrang bị được cường hóa thêm " + percent + "% sức mạnh!");
+            int soHop = hopSkh.quantity;
+
+            if (soHop >= HOP_SKH_CAO) {
+                // CÓ 10+ HỘP SKH THẦN LINH (80% Thành công, 20% Hỏng, 0% Gãy)
+                InventoryService.gI().subQuantityItemsBag(player, hopSkh, HOP_SKH_CAO);
+
+                int percent = Util.nextInt(3, 5);
+                if (rand <= 80) {
+                    modifyItemOptions(equip, percent, true);
+                    CombineService.gI().sendEffectSuccessCombine(player);
+                    Service.gI().sendThongBao(player, "|2|HIẾN TẾ THÀNH CÔNG!\nTrang bị được cường hóa thêm " + percent + "% sức mạnh!\n(Dùng 10 Hộp SKH)");
+                } else {
+                    modifyItemOptions(equip, percent, false);
+                    CombineService.gI().sendEffectFailCombine(player);
+                    Service.gI().sendThongBao(player, "|7|HIẾN TẾ THẤT BẠI!\nTrang bị bị suy yếu đi " + percent + "% sức mạnh!\n(Dùng 10 Hộp SKH)");
+                }
             } else {
-                int percent = Util.nextInt(5, 10);
-                modifyItemOptions(equip, percent, false);
-                CombineService.gI().sendEffectFailCombine(player);
-                Service.gI().sendThongBao(player, "|7|HIẾN TẾ THẤT BẠI!\nTrang bị bị suy yếu đi " + percent + "% sức mạnh!");
+                // CÓ 1-9 HỘP SKH THẦN LINH (50% Thành công, 50% Hỏng, 0% Gãy)
+                InventoryService.gI().subQuantityItemsBag(player, hopSkh, 1);
+
+                int percent = Util.nextInt(3, 5);
+                if (rand <= 50) {
+                    modifyItemOptions(equip, percent, true);
+                    CombineService.gI().sendEffectSuccessCombine(player);
+                    Service.gI().sendThongBao(player, "|2|HIẾN TẾ THÀNH CÔNG!\nTrang bị được cường hóa thêm " + percent + "% sức mạnh!");
+                } else {
+                    modifyItemOptions(equip, percent, false);
+                    CombineService.gI().sendEffectFailCombine(player);
+                    Service.gI().sendThongBao(player, "|7|HIẾN TẾ THẤT BẠI!\nTrang bị bị suy yếu đi " + percent + "% sức mạnh!");
+                }
             }
         } else {
             // KHÔNG CÓ HỘP (40% Thành công, 30% Hỏng, 30% Gãy)
@@ -184,7 +232,7 @@ public class ChampaHienTe {
         return false;
     }
 
-    // Chỉnh sửa chỉ số của trang bị
+    // Chỉnh sửa chỉ số của trang bị (có giới hạn tối đa)
     private static void modifyItemOptions(Item item, int percent, boolean isIncrease) {
         if (item.itemOptions == null) return;
         
@@ -197,10 +245,22 @@ public class ChampaHienTe {
                 
                 if (isIncrease) {
                     opt.param += delta;
-                    // Max giới hạn
-                    if (opId == 50 && opt.param > 60) opt.param = 60; // Max Sức đánh 60%
-                    if (opId == 22 && opt.param > 80) opt.param = 80; // Max HP 80%
-                    if (opId == 23 && opt.param > 80) opt.param = 80; // Max KI 80%
+                    // === GIỚI HẠN TỐI ĐA ===
+                    if (opId == 50 && opt.param > MAX_SUC_DANH_PERCENT) {
+                        opt.param = MAX_SUC_DANH_PERCENT; // Max Sức đánh %
+                    }
+                    if (opId == 22 && opt.param > MAX_HP_PERCENT) {
+                        opt.param = MAX_HP_PERCENT; // Max HP %
+                    }
+                    if (opId == 77 && opt.param > MAX_HP_PERCENT) {
+                        opt.param = MAX_HP_PERCENT; // Max HP %
+                    }
+                    if (opId == 23 && opt.param > MAX_KI_PERCENT) {
+                        opt.param = MAX_KI_PERCENT; // Max KI %
+                    }
+                    if (opId == 103 && opt.param > MAX_KI_PERCENT) {
+                        opt.param = MAX_KI_PERCENT; // Max KI %
+                    }
                 } else {
                     opt.param -= delta;
                     if (opt.param < 1) opt.param = 1; // Không cho âm
